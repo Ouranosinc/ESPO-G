@@ -1,0 +1,306 @@
+project:
+    name: ESPO-G6
+    version: 1.0.0
+    description: Ensemble de scénarios polyvalents d'Ouranos - Gloabl - CMIP6
+    id: eg6
+
+tasks:
+  #- initialize_pcat
+  - makerefSplit
+#  - regrid
+#  - rechunk
+#  #- simproperties
+#  - train
+#  - adjust
+#  - clean_up
+#  - final_zarr
+  #- scenproperties
+  #- check_up
+  #- concat
+
+ids:
+    - CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_EXPERIMENT_r1i1p1f1_gn
+    #- CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_gn
+    # TODO: iter through ssp
+    #['CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_EXPERIMENT_r1i1p1f1_gn', 'CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_EXPERIMENT_r1i1p1f1_gn', 'CMIP6_ScenarioMIP_CAS_FGOALS-g3_EXPERIMENT_r1i1p1f1_gn', 'CMIP6_ScenarioMIP_CCCma_CanESM5_EXPERIMENT_r1i1p1f1_gn', 'CMIP6_ScenarioMIP_CMCC_CMCC-ESM2_EXPERIMENT_r1i1p1f1_gn', 'CMIP6_ScenarioMIP_CNRM-CERFACS_CNRM-CM6-1_EXPERIMENT_r1i1p1f2_gr', 'CMIP6_ScenarioMIP_CNRM-CERFACS_CNRM-ESM2-1_EXPERIMENT_r1i1p1f2_gr', 'CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_EXPERIMENT_r1i1p1f1_gn', 'CMIP6_ScenarioMIP_CSIRO_ACCESS-ESM1-5_EXPERIMENT_r1i1p1f1_gn', 'CMIP6_ScenarioMIP_DKRZ_MPI-ESM1-2-HR_EXPERIMENT_r1i1p1f1_gn', 'CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_EXPERIMENT_r1i1p1f1_gr', 'CMIP6_ScenarioMIP_INM_INM-CM5-0_EXPERIMENT_r1i1p1f1_gr1', 'CMIP6_ScenarioMIP_IPSL_IPSL-CM6A-LR_EXPERIMENT_r1i1p1f1_gr', 'CMIP6_ScenarioMIP_MIROC_MIROC6_EXPERIMENT_r1i1p1f1_gn', 'CMIP6_ScenarioMIP_MOHC_UKESM1-0-LL_EXPERIMENT_r1i1p1f2_gn', 'CMIP6_ScenarioMIP_MPI-M_MPI-ESM1-2-LR_EXPERIMENT_r1i1p1f1_gn', 'CMIP6_ScenarioMIP_MRI_MRI-ESM2-0_EXPERIMENT_r1i1p1f1_gn', 'CMIP6_ScenarioMIP_NCC_NorESM2-LM_EXPERIMENT_r1i1p1f1_gn', 'CMIP6_ScenarioMIP_NCC_NorESM2-MM_EXPERIMENT_r1i1p1f1_gn', 'CMIP6_ScenarioMIP_NIMS-KMA_KACE-1-0-G_EXPERIMENT_r1i1p1f1_gr', 'CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_EXPERIMENT_r1i1p1f1_gr1']
+
+experiments: &experiments
+    - ssp245
+    #- ssp370
+
+dask:
+    client:
+        dashboard_address: 6787
+    array.slicing.split_large_chunks: False
+
+logging:
+    formatters:
+        default:
+            format: '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
+            datefmt: '%Y-%m-%d %H:%M:%S'
+    handlers:
+        console:
+            class : logging.StreamHandler
+            formatter: default
+            level : DEBUG
+    loggers:
+        workflow:
+            level: INFO
+            handlers: [console]
+
+
+
+custom:
+    encoding:
+        tasmax:
+            dtype: float32
+        tasmin:
+            dtype: float32
+        dtr:
+            dtype: float32
+        pr:
+            dtype: float32
+    regions:
+#        test3:
+#            name: test3
+#            method: bbox
+#            bbox:
+#                lon_bnds: [ -80, -79 ]
+#                lat_bnds: [ 44.7, 45 ]
+#        test2:
+#            name: test2
+#            method: bbox
+#            bbox:
+#                lon_bnds: [ -80, -79 ]
+#                lat_bnds: [ 44.2, 44.6 ]
+#        test1:
+#            name: test1
+#            method: bbox
+#            bbox:
+#                lon_bnds: [ -80, -79 ]
+#                lat_bnds: [ 44, 44.2 ]
+#        south:
+#            name: south60
+#            method: bbox
+#            bbox:
+#                lon_bnds: [ -179.95, -10 ]
+#                lat_bnds: [ 10, 40 ]
+        middle:
+            name: middle
+            method: bbox
+            bbox:
+                lon_bnds: [ -179.95, -10 ]
+                lat_bnds: [ 40, 65 ]
+#        north:
+#            name: north
+#            method: bbox
+#            bbox:
+#                lon_bnds: [-179.95, -10]
+#                lat_bnds: [65, 89.5]
+    stack_drop_nans: &stack
+        True
+    chunks:
+        lat: 20
+        lon: 20
+        loc: 40
+#        lat: 2 # test
+#        lon: 2 # test
+#        loc: 5 # test
+        time: -1
+    out_chunks:
+#        lat: 2 # test
+#        lon: 2 # test
+        lat: 50
+        lon: 50
+        time: 4year
+    future_period:
+        - '2071'
+        - '2100'
+    ref_period : &ref_period
+        - '1991'
+        - '2020'
+    sim_period: &sim_period
+        - '1950'
+        - '2100'
+    check_period:
+        - '1981'
+        - '1982'
+    maximal_calendar: &mcal
+        noleap
+
+extraction:
+    reference:
+        search_data_catalogs:
+            variables_and_timedeltas:
+                tasmax: 1D
+                dtr: 1D
+                tasmin: 1D # we keep it in order to do the checkups and be able to compare beginning and end
+                pr: 1D
+            allow_resampling: False
+            allow_conversion: True
+            periods : *ref_period
+            other_search_criteria:
+                project: &ref_project
+                    "era5-land"
+                processing_level: ["raw"]
+        extract_dataset: {}
+    simulations:
+        search_data_catalogs:
+            variables_and_timedeltas:
+                tasmax: 1D
+                tasmin: 1D # we keep it in order to do the checkups and be able to compare beginning and end
+                dtr: 1D
+                pr: 1D
+            match_hist_and_fut: True
+            allow_resampling: False
+            allow_conversion: True
+            other_search_criteria:
+                processing_level: "raw"
+                mip_era: 'CMIP6'
+                experiment: *experiments
+        extract_dataset:
+            periods : *sim_period
+            xr_combine_kwargs:
+                combine_attrs: override
+            xr_open_kwargs:
+                drop_variables:
+                    - height
+    ref_project: *ref_project
+
+regrid:
+    regridder_kwargs:
+        extrap_method: inverse_dist
+        locstream_out: *stack
+        reuse_weights: False
+
+rechunk:
+    worker_mem: 2GB
+
+
+biasadjust:
+    variables:
+        dtr:
+            training_args:
+                reference_period: *ref_period
+                maximal_calendar: *mcal
+                method: DetrendedQuantileMapping
+                group:
+                    group: time.dayofyear
+                    window: 31
+                xclim_train_args:
+                    kind: "*"
+                    nquantiles: 50
+            adjusting_args:
+                simulation_period: *sim_period
+                xclim_adjust_args:
+                    detrend:
+                        LoessDetrend:
+                            f: 0.2
+                            niter: 1
+                            d: 0
+                            weights: tricube
+                    interp: nearest
+                    extrapolation: constant
+        tasmax:
+            training_args:
+                reference_period: *ref_period
+                maximal_calendar: *mcal
+                method: DetrendedQuantileMapping
+                group:
+                    group: time.dayofyear
+                    window: 31
+                xclim_train_args:
+                    kind: "+"
+                    nquantiles: 50
+            adjusting_args:
+                simulation_period: *sim_period
+                xclim_adjust_args:
+                    detrend:
+                        LoessDetrend:
+                            f: 0.2
+                            niter: 1
+                            d: 0
+                            weights: tricube
+                    interp: nearest
+                    extrapolation: constant
+        pr:
+            training_args:
+                reference_period: *ref_period
+                maximal_calendar: *mcal
+                method: DetrendedQuantileMapping
+                group:
+                    group: time.dayofyear
+                    window: 31
+                adapt_freq:
+                    thresh: 1 mm d-1
+                jitter_under:
+                    thresh: 0.01 mm d-1
+                xclim_train_args:
+                    kind: "*"
+                    nquantiles: 50
+            adjusting_args:
+                simulation_period: *sim_period
+                xclim_adjust_args:
+                    detrend:
+                        LoessDetrend:
+                            f: 0.2
+                            niter: 1
+                            d: 0
+                            weights: tricube
+                    interp: nearest
+                    extrapolation: constant
+
+clean_up:
+    search_data_catalogs:
+        variables_and_timedeltas:
+            tasmax: 1D
+            tasmin: 1D
+            pr: 1D
+        allow_resampling: False
+        allow_conversion: True
+    final_attrs_names:
+        - bias_adjustment
+        - cell_methods
+        - coordinates
+        - history
+        - long_name
+        - standard_name
+        - units
+    attrs:
+        global:
+            Conventions: CF-1.9
+            title: ESPO-G6 v1.0.0 - {sim_id} - Region {region_name}
+            institution: Ouranos
+            source: |
+                Regridded on the grid of ERA5-Land, then bias-adjusted with detrended
+                quantile mapping on a day-of-year basis with a window of 31 days, LOESS
+                detrending and 50 quantiles. The reference was ERA5-Land over the
+                1991-2020 period. Tasmax, dtr and pr were adjusted, tasmin was computed
+                from tasmax and dtr after the adjustment.
+            redistribution: Redistribution prohibited. For internal use only.
+            version: "1.0.0"
+            cat/_data_format_: zarr
+        tasmax:
+            standard_name: air_temperature
+            long_name: Maximal daily temperature
+            cell_methods: "time: maximum within days"
+        tasmin:
+            standard_name: air_temperature
+            long_name: Minimal daily temperature
+            cell_methods: "time: minimum within days"
+        pr:
+            standard_name: precipitation_flux
+            long_name: Mean daily precipitation flux
+            cell_methods: "time: mean within days"
+
+
+scr_utils:
+    measure_time:
+        cpu: True
+    send_mail:
+        to: lavoie.juliette@ouranos.ca
+    subject: ESPO-G6
+    send_mail_on_exit:
+        msg_ok: Toutes les étapes demandées ont été complétées.
+        msg_err: Une erreur est survenue durant le traitement.
+        on_error_only: True
