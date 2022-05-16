@@ -6,7 +6,7 @@ project:
 
 tasks:
   #- initialize_pcat
-  - makerefSplit
+  - makeref
 #  - regrid
 #  - rechunk
 #  #- simproperties
@@ -79,24 +79,24 @@ custom:
 #            bbox:
 #                lon_bnds: [ -80, -79 ]
 #                lat_bnds: [ 44, 44.2 ]
-#        south:
-#            name: south60
-#            method: bbox
-#            bbox:
-#                lon_bnds: [ -179.95, -10 ]
-#                lat_bnds: [ 10, 40 ]
+        south:
+            name: south
+            method: bbox
+            bbox:
+                lon_bnds: [ -179.95, -10 ]
+                lat_bnds: [ 10, 40 ]
         middle:
             name: middle
             method: bbox
             bbox:
                 lon_bnds: [ -179.95, -10 ]
                 lat_bnds: [ 40, 65 ]
-#        north:
-#            name: north
-#            method: bbox
-#            bbox:
-#                lon_bnds: [-179.95, -10]
-#                lat_bnds: [65, 89.5]
+        north:
+            name: north
+            method: bbox
+            bbox:
+                lon_bnds: [-179.95, -10]
+                lat_bnds: [65, 89.5]
     stack_drop_nans: &stack
         True
     chunks:

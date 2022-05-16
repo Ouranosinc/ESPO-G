@@ -59,7 +59,7 @@ def compute_properties(sim, ref, period):
     return out
 
 def save_move_update(ds, name, region_name, init_dir, final_dir, encoding=CONFIG['custom']['encoding']):
-    save_to_zarr(ds, f"{init_dir}/ref_{region_name}_360day.zarr",
+    save_to_zarr(ds, f"{init_dir}/ref_{region_name}_{name}.zarr",
                  compute=True, encoding=encoding, mode=mode)
     shutil.move(f"{init_dir}/ref_{region_name}_{name}.zarr",
                 f"{final_dir}/ref_{region_name}_{name}.zarr")
@@ -92,94 +92,12 @@ if __name__ == '__main__':
 
     # ---MAKEREF---
     for region_name, region_dict in CONFIG['custom']['regions'].items():
+
         if (
                 "makeref" in CONFIG["tasks"]
-                and not pcat.exists_in_cat(domain=region_name, processing_level='extracted', project=ref_project)
+                and not pcat.exists_in_cat(domain=region_name, processing_level='properties', project=ref_project)
         ):
-            with (
-                    Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws),
-                    #Client(n_workers=3, threads_per_worker=5, memory_limit="15GB", **daskkws),
-                    measure_time(name='makeref', logger=logger)
-            ):
-
-                # search
-                cat_ref = search_data_catalogs(**CONFIG['extraction']['reference']['search_data_catalogs'])
-
-                # extract
-                dc = cat_ref.popitem()[1]
-                ds_ref = extract_dataset(catalog=dc,
-                                         region=region_dict,
-                                         **CONFIG['extraction']['reference']['extract_dataset']
-                                         )
-                #necessary because era5-land data is not exactly the same for all variables right now, so chunks are wrong
-                ds_ref = ds_ref.chunk({'lat':225, 'lon':252, 'time' :168})
-
-                dref_ref = ds_ref.drop_vars('dtr')  # time period already cut in extract
-                ds_ref_props_nan_count = dref_ref.to_array().isnull().chunk({'time': -1}).sum('time').mean('variable').chunk(
-                    {'lon': -1, 'lat': -1})
-                save_to_zarr(ds_ref_props_nan_count.to_dataset(name='nan_count'), f"{exec_wdir}/ref_{region_name}_nancount.zarr",
-                             compute=True, mode=mode)
-                print('saved nan')
-
-                if CONFIG['custom']['stack_drop_nans']:
-                    variables = list(CONFIG['extraction']['reference']['search_data_catalogs'][
-                                         'variables_and_timedeltas'].keys())
-                    ds_ref = stack_drop_nans(
-                        ds_ref,
-                        ds_ref[variables[0]].isel(time=130, drop=True).notnull(),
-                        to_file=f'{refdir}/coords_{region_name}.nc'
-                    )
-                ds_ref = ds_ref.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_ref.dims})
-
-                # convert calendars
-                ds_refnl = convert_calendar(ds_ref, "noleap")
-                ds_ref360 = convert_calendar(ds_ref, "360_day", align_on="year")
-                print('convert calendars')
-
-
-
-                save_to_zarr(ds_ref, f"{exec_wdir}/ref_{region_name}_default.zarr",
-                             compute=True, encoding=CONFIG['custom']['encoding'], mode=mode)
-                save_to_zarr(ds_refnl, f"{exec_wdir}/ref_{region_name}_noleap.zarr",
-                             compute=True, encoding=CONFIG['custom']['encoding'], mode=mode)
-                #save_to_zarr(ds_ref360, f"{exec_wdir}/ref_{region_name}_360day.zarr",
-                             #compute=True, encoding=CONFIG['custom']['encoding'], mode=mode)
-                
-                print('saved')
-                ds_ref_props_nan_count = xr.open_zarr(f"{exec_wdir}/ref_{region_name}_nancount.zarr", decode_timedelta=False).load()
-                print('load')
-                fig, ax = plt.subplots(figsize=(10, 10))
-                cmap = plt.cm.winter.copy()
-                cmap.set_under('white')
-                ds_ref_props_nan_count.nan_count.plot(ax=ax, vmin=1, vmax=1000, cmap=cmap)
-                ax.set_title(
-                   f'Reference {region_name} - NaN count \nmax {ds_ref_props_nan_count.nan_count.max().item()} out of {dref_ref.time.size}')
-                plt.close('all')
-                print('fig')
-
-                #move from exec to tank
-                shutil.move(f"{exec_wdir}/ref_{region_name}_nancount.zarr",f"{refdir}/ref_{region_name}_nancount.zarr")
-
-
-                # update cat
-                for ds, name in zip([ds_ref, ds_refnl, ds_ref360], ['default', 'noleap', '360day']):
-                    shutil.move(f"{exec_wdir}/ref_{region_name}_{name}.zarr",
-                                f"{refdir}/ref_{region_name}_{name}.zarr")
-                    pcat.update_from_ds(ds=ds, path=f"{refdir}/ref_{region_name}_{name}.zarr",
-                                        info_dict= {'calendar': name})
-                print('update')
-
-                send_mail(
-                    subject=f'Reference for region {region_name} - Success',
-                    msg=f"Action 'makeref' succeeded for region {region_name}.",
-                    attachments=[fig]
-                )
-
-        if (
-                "makerefSplit" in CONFIG["tasks"]
-                #and not pcat.exists_in_cat(domain=region_name, processing_level='extracted', project=ref_project)
-        ):
-            if not pcat.exists_in_cat(domain=region_name, calendar='default', project=ref_project):
+            if not pcat.exists_in_cat(domain=region_name, project=ref_project):
                 with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
                     # search
                     cat_ref = search_data_catalogs(**CONFIG['extraction']['reference']['search_data_catalogs'])
@@ -190,7 +108,6 @@ if __name__ == '__main__':
                                              region=region_dict,
                                              **CONFIG['extraction']['reference']['extract_dataset']
                                              )
-                    print('extract')
                     # necessary because era5-land data is not exactly the same for all variables right now, so chunks are wrong
                     ds_ref = ds_ref.chunk({'lat': 225, 'lon': 252, 'time': 168})
 
@@ -203,10 +120,8 @@ if __name__ == '__main__':
                             to_file=f'{refdir}/coords_{region_name}.nc'
                         )
                     ds_ref = ds_ref.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_ref.dims})
-                    print('init')
 
                     save_move_update(ds=ds_ref, name='default', region_name=region_name, init_dir=exec_wdir, final_dir=refdir)
-                    print('default')
 
             if not pcat.exists_in_cat(domain=region_name, calendar='noleap', project=ref_project):
                 with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
@@ -216,15 +131,13 @@ if __name__ == '__main__':
                     # convert calendars
                     ds_refnl = convert_calendar(ds_ref, "noleap")
                     save_move_update(ds=ds_refnl, name='noleap', region_name=region_name, init_dir=exec_wdir,final_dir=refdir)
-                    print('nl')
-            if not pcat.exists_in_cat(domain=region_name, calendar='noleap', project=ref_project):
+            if not pcat.exists_in_cat(domain=region_name, calendar='360day', project=ref_project):
                 with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)) :
 
                     ds_ref = pcat.search(project=ref_project,calendar='default',domain=region_name).to_dataset_dict().popitem()[1]
 
                     ds_ref360 = convert_calendar(ds_ref, "360_day", align_on="year")
                     save_move_update(ds=ds_ref360, name='360day', region_name=region_name, init_dir=exec_wdir,final_dir= refdir)
-                    print('360')
 
             if  not pcat.exists_in_cat(domain=region_name, processing_level='properties', project=ref_project):
                 with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)) :
@@ -238,7 +151,6 @@ if __name__ == '__main__':
                                              region=region_dict,
                                              **CONFIG['extraction']['reference']['extract_dataset']
                                              )
-                    print('extract')
                     # necessary because era5-land data is not exactly the same for all variables right now, so chunks are wrong
                     ds_ref = ds_ref.chunk({'lat': 225, 'lon': 252, 'time': 168})
 
@@ -251,7 +163,6 @@ if __name__ == '__main__':
                                  compute=True, mode=mode)
 
                     ds_ref_props_nan_count = xr.open_zarr(f"{exec_wdir}/ref_{region_name}_nancount.zarr",decode_timedelta=False).load()
-                    print('load')
                     fig, ax = plt.subplots(figsize=(10, 10))
                     cmap = plt.cm.winter.copy()
                     cmap.set_under('white')
@@ -259,7 +170,6 @@ if __name__ == '__main__':
                     ax.set_title(
                         f'Reference {region_name} - NaN count \nmax {ds_ref_props_nan_count.nan_count.max().item()} out of {dref_ref.time.size}')
                     plt.close('all')
-                    print('fig')
 
                     send_mail(
                         subject=f'Reference for region {region_name} - Success',
@@ -269,7 +179,7 @@ if __name__ == '__main__':
 
                     shutil.move(f"{exec_wdir}/ref_{region_name}_nancount.zarr",
                                 f"{refdir}/ref_{region_name}_nancount.zarr")
-                    pcat.update_from_ds(ds=ds_ref_props_nan_count, path=f"{refdir}/ref_{region_name}_{name}.zarr",
+                    pcat.update_from_ds(ds=ds_ref_props_nan_count, path=f"{refdir}/ref_{region_name}_nancount.zarr",
                                         info_dict={'processing_level': 'properties'})
 
 
