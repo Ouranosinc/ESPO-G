@@ -27,13 +27,13 @@ ids:
     - CMIP6_ScenarioMIP_CNRM-CERFACS_CNRM-ESM2-1_EXPERIMENT_r1i1p1f2_global # [1, 128, 256]
     - CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_EXPERIMENT_r1i1p1f1_global #  [1, 145, 192]
     - CMIP6_ScenarioMIP_CSIRO_ACCESS-ESM1-5_EXPERIMENT_r1i1p1f1_global # [1, 96, 144]
-    - CMIP6_ScenarioMIP_DKRZ_MPI-ESM1-2-HR_EXPERIMENT_r1i1p1f1_global # [1, 192, 384]
+    #- CMIP6_ScenarioMIP_DKRZ_MPI-ESM1-2-HR_EXPERIMENT_r1i1p1f1_global # [1, 192, 384]
     - CMIP6_ScenarioMIP_INM_INM-CM5-0_EXPERIMENT_r1i1p1f1_global # [1, 120, 180]
     - CMIP6_ScenarioMIP_MIROC_MIROC6_EXPERIMENT_r1i1p1f1_global # [1, 96, 192]
     - CMIP6_ScenarioMIP_MPI-M_MPI-ESM1-2-LR_EXPERIMENT_r1i1p1f1_global #[1, 96, 192]
     - CMIP6_ScenarioMIP_MRI_MRI-ESM2-0_EXPERIMENT_r1i1p1f1_global #[1, 160, 320]
     - CMIP6_ScenarioMIP_NCC_NorESM2-LM_EXPERIMENT_r1i1p1f1_global #[1, 96, 144]
-    - CMIP6_ScenarioMIP_NIMS-KMA_KACE-1-0-G_EXPERIMENT_r1i1p1f1_global #[1, 144, 192]
+    #- CMIP6_ScenarioMIP_NIMS-KMA_KACE-1-0-G_EXPERIMENT_r1i1p1f1_global #[1, 144, 192]
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_EXPERIMENT_r1i1p1f1_global #[1, 180, 288]
 experiments: &experiments
     - ssp245
@@ -53,11 +53,15 @@ logging:
         console:
             class : logging.StreamHandler
             formatter: default
+            level : INFO
+        file:
+            class: logging.FileHandler
+            formatter: default
             level : DEBUG
     loggers:
-        workflow:
+        xscen:
             level: INFO
-            handlers: [console]
+            handlers: [file]
 
 
 
@@ -138,6 +142,9 @@ custom:
         - '2002'
     maximal_calendar: &mcal
         noleap
+
+cut:
+    chunks: {'time': 365, 'lat':-1, 'lon':-1}
 
 extraction:
     reference:
