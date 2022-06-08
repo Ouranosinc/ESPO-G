@@ -10,21 +10,22 @@ tasks:
   - cut
   - regrid
   - rechunk
-  - simproperties
+  #- simproperties
   - train
   - adjust
   - clean_up
   - final_zarr
-  - scenproperties
-  - check_up
+  #- scenproperties
+  #- check_up
+  - diagnostics
   - concat
 
 ids:
     # in the TCR likely range #https://zenodo.org/record/6476375#.YnVQNNPMJhE (14) #chunking
     # 'CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_EXPERIMENT_r1i1p1f1_global', # remove because missing a file #None
     #- CMIP6_ScenarioMIP_CAS_FGOALS-g3_EXPERIMENT_r1i1p1f1_global # None, but 1 file per year
-    - CMIP6_ScenarioMIP_CMCC_CMCC-ESM2_EXPERIMENT_r1i1p1f1_global # [1, 192, 288]
-    - CMIP6_ScenarioMIP_CNRM-CERFACS_CNRM-ESM2-1_EXPERIMENT_r1i1p1f2_global # [1, 128, 256]
+    #- CMIP6_ScenarioMIP_CMCC_CMCC-ESM2_EXPERIMENT_r1i1p1f1_global # [1, 192, 288]
+    #- CMIP6_ScenarioMIP_CNRM-CERFACS_CNRM-ESM2-1_EXPERIMENT_r1i1p1f2_global # [1, 128, 256] # cut didnt work here for some reason..
     - CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_EXPERIMENT_r1i1p1f1_global #  [1, 145, 192]
     - CMIP6_ScenarioMIP_CSIRO_ACCESS-ESM1-5_EXPERIMENT_r1i1p1f1_global # [1, 96, 144]
     #- CMIP6_ScenarioMIP_DKRZ_MPI-ESM1-2-HR_EXPERIMENT_r1i1p1f1_global # [1, 192, 384]
@@ -111,13 +112,43 @@ custom:
             method: bbox
             bbox:
                 lon_bnds: [-179.95, -10]
-                lat_bnds: [65, 89.5]
+                lat_bnds: [65, 83.4]
+#        south:
+#            name: south
+#            method: bbox
+#            bbox:
+#                lon_bnds: [ -179.95, -10 ]
+#                lat_bnds: [ 10, 40 ]
+#        middle-s:
+#            name: middle-s
+#            method: bbox
+#            bbox:
+#                lon_bnds: [ -179.95, -10 ]
+#                lat_bnds: [ 40, 55 ]
+#        middle-n:
+#            name: middle-n
+#            method: bbox
+#            bbox:
+#                lon_bnds: [ -179.95, -10 ]
+#                lat_bnds: [ 55, 70 ]
+##        cut-north:
+##            name: cut-north
+##            method: bbox
+##            bbox:
+##                lon_bnds: [ -179.95, -10 ]
+##                #lat_bnds: [ 70, 89.5 ]
+#        small-north:
+#          name: small-north
+#          method: bbox
+#          bbox:
+#            lon_bnds: [ -179.95, -10 ]
+#            lat_bnds: [ 70, 83.4 ]
     stack_drop_nans: &stack
         True
     chunks:
-        lat: 20
-        lon: 20
-        loc: 40
+        lat: 25 #10
+        lon: 25 #10
+        loc: 100 #40
 #        lat: 2 # test
 #        lon: 2 # test
 #        loc: 5 # test
@@ -142,6 +173,13 @@ custom:
         - '2002'
     maximal_calendar: &mcal
         noleap
+
+makeref:
+  chunks:
+    lat: 10
+    lon: 10
+    loc: 40
+
 
 cut:
     chunks: {'time': 365, 'lat':-1, 'lon':-1}
@@ -310,6 +348,15 @@ clean_up:
             standard_name: precipitation_flux
             long_name: Mean daily precipitation flux
             cell_methods: "time: mean within days"
+
+diagnostics:
+  show_maps:
+    False
+  properties:
+    'mean-tasmax': {'func':sdba.properties.mean, 'var': 'tasmax', 'args': {}}
+    'mean-tasmin': {'func':sdba.properties.mean, 'var': 'tasmin', 'args': {}}
+    'mean-pr': {'func':sdba.properties.mean, 'var': 'pr', 'args': {}}
+
 
 
 scr_utils:
