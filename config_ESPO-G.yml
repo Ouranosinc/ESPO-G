@@ -7,7 +7,7 @@ project:
 tasks:
   #- initialize_pcat
   - makeref
-  - cut
+  #- cut
   - regrid
   - rechunk
   #- simproperties
@@ -43,6 +43,7 @@ experiments: &experiments
 dask:
     client:
         dashboard_address: 6787
+        silence_logs: False
     array.slicing.split_large_chunks: False
 
 logging:
@@ -174,11 +175,11 @@ custom:
     maximal_calendar: &mcal
         noleap
 
-makeref:
-  chunks:
-    lat: 10
-    lon: 10
-    loc: 40
+#makeref:
+#  chunks:
+#    lat: 10
+#    lon: 10
+#    loc: 40
 
 
 cut:

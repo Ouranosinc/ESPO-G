@@ -100,7 +100,7 @@ if __name__ == '__main__':
                             ds_ref[variables[0]].isel(time=130, drop=True).notnull(),
                             to_file=f'{refdir}/coords_{region_name}.nc'
                         )
-                    ds_ref = ds_ref.chunk({d: CONFIG['makeref']['chunks'][d] for d in ds_ref.dims})
+                    ds_ref = ds_ref.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_ref.dims})
 
                     save_move_update(ds=ds_ref,
                                      pcat = pcat,
@@ -373,7 +373,8 @@ if __name__ == '__main__':
                                 and not pcat.exists_in_cat(domain=region_name, id=f"{sim_id}_training_{var}")
                         ):
                             with (
-                                    Client(n_workers=9, threads_per_worker=3, memory_limit="7GB", **daskkws),
+                                    #Client(n_workers=9, threads_per_worker=3, memory_limit="7GB", **daskkws),
+                                    Client(n_workers=4, threads_per_worker=3, memory_limit="15GB", **daskkws),
                                     measure_time(name=f'train {var}', logger=logger),
                                     timeout(18000, task='train')
                             ):
