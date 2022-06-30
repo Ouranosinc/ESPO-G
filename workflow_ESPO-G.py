@@ -210,7 +210,7 @@ if __name__ == '__main__':
                             and not pcat.exists_in_cat(domain=region_name, processing_level='cut', id=sim_id)
                     ):
                         with (
-                                Client(n_workers=2, threads_per_worker=5, memory_limit="25GB",silence_logs= False, **daskkws),
+                                Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws),
                                 measure_time(name='cut', logger=logger),
                                 timeout(18000, task='cut')
                         ):
@@ -220,6 +220,7 @@ if __name__ == '__main__':
 
                             # extract
                             dc = cat_sim[sim_id]
+                            region_dict['buffer']=1.5
                             ds_sim = extract_dataset(catalog=dc,
                                                      region=region_dict,
                                                      **CONFIG['extraction']['simulations']['extract_dataset'],
@@ -373,8 +374,8 @@ if __name__ == '__main__':
                                 and not pcat.exists_in_cat(domain=region_name, id=f"{sim_id}_training_{var}")
                         ):
                             with (
-                                    #Client(n_workers=9, threads_per_worker=3, memory_limit="7GB", **daskkws),
-                                    Client(n_workers=4, threads_per_worker=3, memory_limit="15GB", **daskkws),
+                                    Client(n_workers=9, threads_per_worker=3, memory_limit="7GB", **daskkws),
+                                    #Client(n_workers=4, threads_per_worker=3, memory_limit="15GB", **daskkws),
                                     measure_time(name=f'train {var}', logger=logger),
                                     timeout(18000, task='train')
                             ):
@@ -388,6 +389,13 @@ if __name__ == '__main__':
                                 ds_ref = pcat.search(project = ref_project,
                                                      calendar=refcal,
                                                      domain=region_name).to_dataset_dict().popitem()[1]
+
+
+                                # move to exec and reopen to help dask
+                                save_to_zarr(ds_ref, f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr", mode='o')
+                                save_to_zarr(ds_hist, f"{CONFIG['paths']['exec_workdir']}ds_hist.zarr", mode='o')
+                                ds_ref=xr.open_zarr(f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr", decode_timedelta=False)
+                                ds_hist=xr.open_zarr(f"{CONFIG['paths']['exec_workdir']}ds_hist.zarr", decode_timedelta=False)
 
                                 # training
                                 ds_tr = train(dref=ds_ref,
@@ -411,6 +419,8 @@ if __name__ == '__main__':
                                                                'processing_level': "training",
                                                                'frequency': ds_hist.attrs['cat/frequency']
                                                                 })
+                                shutil.rmtree(f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr")
+                                shutil.rmtree(f"{CONFIG['paths']['exec_workdir']}ds_hist.zarr")
 
                         # ---ADJUST---
                         if (
@@ -522,6 +532,7 @@ if __name__ == '__main__':
 
                             shutil.copytree(f"{workdir}/{sim_id}_{region_name}_cleaned_up.zarr",
                                         f"{exec_wdir}/{sim_id}_{region_name}_cleaned_up.zarr")
+                            # this busts the exec quota
 
                             #rechunk in exec and move to final path
                             rechunk(

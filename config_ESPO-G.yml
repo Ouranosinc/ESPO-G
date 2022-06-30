@@ -7,7 +7,7 @@ project:
 tasks:
   #- initialize_pcat
   - makeref
-  #- cut
+  - cut
   - regrid
   - rechunk
   #- simproperties
@@ -36,6 +36,7 @@ ids:
     - CMIP6_ScenarioMIP_NCC_NorESM2-LM_EXPERIMENT_r1i1p1f1_global #[1, 96, 144]
     #- CMIP6_ScenarioMIP_NIMS-KMA_KACE-1-0-G_EXPERIMENT_r1i1p1f1_global #[1, 144, 192]
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_EXPERIMENT_r1i1p1f1_global #[1, 180, 288]
+    - CMIP6_DKRZ_MPI-ESM1-2-HR_EXPERIMENT_r1i1p1f1_global
 experiments: &experiments
     - ssp245
     #- ssp370

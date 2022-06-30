@@ -162,3 +162,8 @@ def save_diagnotics(ref, sim, scen, pcat):
                             info_dict={'processing_level': f'diag_{step}'},
                             path=str(path_diag))
 
+
+def move_to_exec_and_reopen(ds, name):
+    save_to_zarr(ds, f"{CONFIG['paths']['exec_workdir']}{name}")
+    out = xr.open_zarr(f"{CONFIG['paths']['exec_workdir']}{name}", decode_timedelta=False)
+    return out
