@@ -9,6 +9,8 @@ from matplotlib import pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import glob
 import hvplot.xarray
+from matplotlib import colors
+
 
 useCat=True
 
@@ -24,9 +26,9 @@ if useCat:
     pcat = ProjectCatalog(CONFIG['paths']['project_catalog'])
 
     # choose id
-    option_id = st.selectbox('id',pcat.search(type='simulations').df.id.unique())
+    option_id = st.selectbox('id',pcat.search(type=['simulations','simulation']).df.id.unique())
     # choose region
-    option_region = st.selectbox('region', pcat.search(type='simulations').df.domain.unique())
+    option_region = st.selectbox('region', pcat.search(type=['simulations','simulation']).df.domain.unique())
 
     #load all properties from ref, sim, scen
     ref = pcat.search( processing_level='diag_ref', domain=option_region).to_dataset_dict().popitem()[1]
@@ -91,7 +93,9 @@ labels_row = ['sim', 'scen']
 #fig_hmap, ax = plt.subplots(figsize=(1 * len(dict_prop), 1 * len(labels_row) ))
 fig_hmap, ax = plt.subplots(figsize=(5,2))
 
-im = ax.imshow(hmap, cmap='RdYlGn_r')
+cmap=plt.cm.RdYlGn_r
+norm = colors.BoundaryNorm(np.linspace(0,1,len(labels_row)+2), cmap.N)
+im = ax.imshow(hmap, cmap=cmap, norm=norm)
 ax.set_xticks(ticks=np.arange(len(dict_prop)), labels=dict_prop.keys(), rotation=45,
               ha='right', fontsize=5)
 ax.set_yticks(ticks=np.arange(len(labels_row)), labels=labels_row, fontsize=5)

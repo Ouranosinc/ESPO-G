@@ -28,7 +28,7 @@ from xscen.config import CONFIG, load_config
 from xscen.common import minimum_calendar, translate_time_chunk, stack_drop_nans, unstack_fill_nan, maybe_unstack
 from xscen.regridding import regrid
 from xscen.biasadjust import train, adjust
-from xscen.scr_utils import measure_time, send_mail, send_mail_on_exit, timeout
+from xscen.scr_utils import measure_time, send_mail, send_mail_on_exit, timeout, TimeoutException
 
 from utils import compute_properties, save_move_update, calculate_properties, save_diagnotics
 
@@ -58,8 +58,9 @@ if __name__ == '__main__':
     sim_period = slice(*map(str, CONFIG['custom']['sim_period']))
     check_period = slice(*map(str, CONFIG['custom']['check_period']))
 
+    # TODO: remove index por choose the right one
+    ref_project = CONFIG['extraction']['ref_project'][0]
 
-    ref_project = CONFIG['extraction']['ref_project']
 
     # initialize Project Catalog
     if "initialize_pcat" in CONFIG["tasks"]:
@@ -245,7 +246,8 @@ if __name__ == '__main__':
                             and not pcat.exists_in_cat(domain=region_name, processing_level='regridded', id=sim_id)
                     ):
                         with (
-                                Client(n_workers=5, threads_per_worker=3, memory_limit="10GB", **daskkws),
+                                #Client(n_workers=5, threads_per_worker=3, memory_limit="10GB", **daskkws),
+                                Client(n_workers=3, threads_per_worker=3, memory_limit="16GB", **daskkws),
                                 measure_time(name='regrid', logger=logger),
                                 timeout(18000, task='regrid')
                         ):
@@ -373,54 +375,61 @@ if __name__ == '__main__':
                                 "train" in CONFIG["tasks"]
                                 and not pcat.exists_in_cat(domain=region_name, id=f"{sim_id}_training_{var}")
                         ):
-                            with (
-                                    Client(n_workers=9, threads_per_worker=3, memory_limit="7GB", **daskkws),
-                                    #Client(n_workers=4, threads_per_worker=3, memory_limit="15GB", **daskkws),
-                                    measure_time(name=f'train {var}', logger=logger),
-                                    timeout(18000, task='train')
-                            ):
-                                # load hist ds (simulation)
-                                ds_hist = pcat.search(id=sim_id,domain=region_name, processing_level='regridded_and_rechunked').to_dataset_dict().popitem()[1]
+                            while True: # if code bugs forever, it will be stopped by the timeout and then tried again
+                                try:
+                                    with (
+                                            Client(n_workers=9, threads_per_worker=3, memory_limit="7GB", **daskkws),
+                                            #Client(n_workers=4, threads_per_worker=3, memory_limit="15GB", **daskkws),
+                                            measure_time(name=f'train {var}', logger=logger),
+                                            timeout(18000, task='train')
+                                    ):
+                                        # load hist ds (simulation)
+                                        ds_hist = pcat.search(id=sim_id,domain=region_name, processing_level='regridded_and_rechunked').to_dataset_dict().popitem()[1]
 
-                                # load ref ds
-                                # choose right calendar
-                                simcal = get_calendar(ds_hist)
-                                refcal = minimum_calendar(simcal, CONFIG['custom']['maximal_calendar'])
-                                ds_ref = pcat.search(project = ref_project,
-                                                     calendar=refcal,
-                                                     domain=region_name).to_dataset_dict().popitem()[1]
-
-
-                                # move to exec and reopen to help dask
-                                save_to_zarr(ds_ref, f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr", mode='o')
-                                save_to_zarr(ds_hist, f"{CONFIG['paths']['exec_workdir']}ds_hist.zarr", mode='o')
-                                ds_ref=xr.open_zarr(f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr", decode_timedelta=False)
-                                ds_hist=xr.open_zarr(f"{CONFIG['paths']['exec_workdir']}ds_hist.zarr", decode_timedelta=False)
-
-                                # training
-                                ds_tr = train(dref=ds_ref,
-                                              dhist=ds_hist,
-                                              var=[var],
-                                              **conf['training_args'])
+                                        # load ref ds
+                                        # choose right calendar
+                                        simcal = get_calendar(ds_hist)
+                                        refcal = minimum_calendar(simcal, CONFIG['custom']['maximal_calendar'])
+                                        ds_ref = pcat.search(project = ref_project,
+                                                             calendar=refcal,
+                                                             domain=region_name).to_dataset_dict().popitem()[1]
 
 
-                                ds_tr.lat.encoding.pop('chunks')
-                                ds_tr.lon.encoding.pop('chunks')
+                                        # move to exec and reopen to help dask
+                                        save_to_zarr(ds_ref, f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr", mode='o')
+                                        save_to_zarr(ds_hist, f"{CONFIG['paths']['exec_workdir']}ds_hist.zarr", mode='o')
+                                        ds_ref=xr.open_zarr(f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr", decode_timedelta=False)
+                                        ds_hist=xr.open_zarr(f"{CONFIG['paths']['exec_workdir']}ds_hist.zarr", decode_timedelta=False)
 
-                                ds_tr = ds_tr.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_tr.dims
-                                                     if d in CONFIG['custom']['chunks'].keys() })
-                                save_move_update(ds=ds_tr,
-                                                 pcat=pcat,
-                                                 init_path=f"{exec_wdir}/{sim_id}_{region_name}_{var}_training.zarr",
-                                                 final_path=f"{workdir}/{sim_id}_{region_name}_{var}_training.zarr",
-                                                 encoding=None,
-                                                 info_dict= {'id': f"{sim_id}_training_{var}",
-                                                               'domain': region_name,
-                                                               'processing_level': "training",
-                                                               'frequency': ds_hist.attrs['cat/frequency']
-                                                                })
-                                shutil.rmtree(f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr")
-                                shutil.rmtree(f"{CONFIG['paths']['exec_workdir']}ds_hist.zarr")
+                                        # training
+                                        ds_tr = train(dref=ds_ref,
+                                                      dhist=ds_hist,
+                                                      var=[var],
+                                                      **conf['training_args'])
+
+
+                                        ds_tr.lat.encoding.pop('chunks')
+                                        ds_tr.lon.encoding.pop('chunks')
+
+                                        ds_tr = ds_tr.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_tr.dims
+                                                             if d in CONFIG['custom']['chunks'].keys() })
+                                        save_move_update(ds=ds_tr,
+                                                         pcat=pcat,
+                                                         init_path=f"{exec_wdir}/{sim_id}_{region_name}_{var}_training.zarr",
+                                                         final_path=f"{workdir}/{sim_id}_{region_name}_{var}_training.zarr",
+                                                         encoding=None,
+                                                         info_dict= {'id': f"{sim_id}_training_{var}",
+                                                                       'domain': region_name,
+                                                                       'processing_level': "training",
+                                                                       'frequency': ds_hist.attrs['cat/frequency']
+                                                                        })
+                                        shutil.rmtree(f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr")
+                                        shutil.rmtree(f"{CONFIG['paths']['exec_workdir']}ds_hist.zarr")
+
+                                except TimeoutException:
+                                    pass
+                                else:
+                                    break
 
                         # ---ADJUST---
                         if (
@@ -499,10 +508,10 @@ if __name__ == '__main__':
                                     obj.attrs[attrname] = attrtmpl.format( **fmtkws)
 
                             # only keep specific var attrs
-                            for var in ds.data_vars.values():
-                                for attr in list(var.attrs.keys()):
-                                    if attr not in CONFIG['clean_up']['final_attrs_names']:
-                                        del var.attrs[attr]
+                            # for var in ds.data_vars.values():
+                            #     for attr in list(var.attrs.keys()):
+                            #         if attr not in CONFIG['clean_up']['final_attrs_names']:
+                            #             del var.attrs[attr]
 
 
                             save_move_update(ds=ds,
@@ -697,6 +706,8 @@ if __name__ == '__main__':
                             if exec_wdir.exists() and exec_wdir.is_dir() and CONFIG["tasks"][-2] == 'diagnostics':
                                 shutil.rmtree(exec_wdir)
                                 os.mkdir(exec_wdir)
+
+
             if (
                     "concat" in CONFIG["tasks"]
                     and not pcat.exists_in_cat(domain='concat_regions', id=sim_id, processing_level='final', format='zarr')

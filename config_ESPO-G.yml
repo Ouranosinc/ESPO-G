@@ -97,20 +97,20 @@ custom:
 #            bbox:
 #                lon_bnds: [ -80, -79 ]
 #                lat_bnds: [ 44, 44.2 ]
-        south:
-            name: south
+        south600:
+            name: south600
             method: bbox
             bbox:
                 lon_bnds: [ -179.95, -10 ]
                 lat_bnds: [ 10, 40 ]
-        middle:
-            name: middle
+        middle600:
+            name: middle600
             method: bbox
             bbox:
                 lon_bnds: [ -179.95, -10 ]
                 lat_bnds: [ 40, 65 ]
-        north:
-            name: north
+        north600:
+            name: north600
             method: bbox
             bbox:
                 lon_bnds: [-179.95, -10]
@@ -148,9 +148,12 @@ custom:
     stack_drop_nans: &stack
         True
     chunks:
-        lat: 25 #10
-        lon: 25 #10
-        loc: 100 #40
+#        lat: 25 #10
+#        lon: 25 #10
+#        loc: 100 #40
+        lat: 20 #espo-r
+        lon: 20 #espo-r
+        loc: 600 #espo-r
 #        lat: 2 # test
 #        lon: 2 # test
 #        loc: 5 # test
@@ -176,11 +179,6 @@ custom:
     maximal_calendar: &mcal
         noleap
 
-#makeref:
-#  chunks:
-#    lat: 10
-#    lon: 10
-#    loc: 40
 
 
 cut:
@@ -199,7 +197,8 @@ extraction:
             periods : *ref_period
             other_search_criteria:
                 project: &ref_project
-                    "era5-land"
+                   - "era5-land"
+                   - "ERA5-Land"
                 processing_level: ["raw"]
         extract_dataset: {}
     simulations:
