@@ -7,16 +7,13 @@ project:
 tasks:
   #- initialize_pcat
   - makeref
-  - cut
+  - extract
   - regrid
   - rechunk
-  #- simproperties
   - train
   - adjust
   - clean_up
   - final_zarr
-  #- scenproperties
-  #- check_up
   - diagnostics
   - concat
 
@@ -26,13 +23,13 @@ ids:
     #- CMIP6_ScenarioMIP_CAS_FGOALS-g3_EXPERIMENT_r1i1p1f1_global # None, but 1 file per year
     #- CMIP6_ScenarioMIP_CMCC_CMCC-ESM2_EXPERIMENT_r1i1p1f1_global # [1, 192, 288]
     #- CMIP6_ScenarioMIP_CNRM-CERFACS_CNRM-ESM2-1_EXPERIMENT_r1i1p1f2_global # [1, 128, 256] # cut didnt work here for some reason..
-    - CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_EXPERIMENT_r1i1p1f1_global #  [1, 145, 192]
-    - CMIP6_ScenarioMIP_CSIRO_ACCESS-ESM1-5_EXPERIMENT_r1i1p1f1_global # [1, 96, 144]
-    #- CMIP6_ScenarioMIP_DKRZ_MPI-ESM1-2-HR_EXPERIMENT_r1i1p1f1_global # [1, 192, 384]
-    - CMIP6_ScenarioMIP_INM_INM-CM5-0_EXPERIMENT_r1i1p1f1_global # [1, 120, 180]
-    - CMIP6_ScenarioMIP_MIROC_MIROC6_EXPERIMENT_r1i1p1f1_global # [1, 96, 192]
-    - CMIP6_ScenarioMIP_MPI-M_MPI-ESM1-2-LR_EXPERIMENT_r1i1p1f1_global #[1, 96, 192]
-    - CMIP6_ScenarioMIP_MRI_MRI-ESM2-0_EXPERIMENT_r1i1p1f1_global #[1, 160, 320]
+#    - CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_EXPERIMENT_r1i1p1f1_global #  [1, 145, 192]
+#    - CMIP6_ScenarioMIP_CSIRO_ACCESS-ESM1-5_EXPERIMENT_r1i1p1f1_global # [1, 96, 144]
+#    #- CMIP6_ScenarioMIP_DKRZ_MPI-ESM1-2-HR_EXPERIMENT_r1i1p1f1_global # [1, 192, 384]
+#    - CMIP6_ScenarioMIP_INM_INM-CM5-0_EXPERIMENT_r1i1p1f1_global # [1, 120, 180]
+#    - CMIP6_ScenarioMIP_MIROC_MIROC6_EXPERIMENT_r1i1p1f1_global # [1, 96, 192]
+#    - CMIP6_ScenarioMIP_MPI-M_MPI-ESM1-2-LR_EXPERIMENT_r1i1p1f1_global #[1, 96, 192]
+#    - CMIP6_ScenarioMIP_MRI_MRI-ESM2-0_EXPERIMENT_r1i1p1f1_global #[1, 160, 320]
     - CMIP6_ScenarioMIP_NCC_NorESM2-LM_EXPERIMENT_r1i1p1f1_global #[1, 96, 144]
     #- CMIP6_ScenarioMIP_NIMS-KMA_KACE-1-0-G_EXPERIMENT_r1i1p1f1_global #[1, 144, 192]
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_EXPERIMENT_r1i1p1f1_global #[1, 180, 288]
@@ -41,43 +38,10 @@ experiments: &experiments
     - ssp245
     #- ssp370
 
-dask:
-    client:
-        dashboard_address: 6787
-        silence_logs: False
-    array.slicing.split_large_chunks: False
-
-logging:
-    formatters:
-        default:
-            format: '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
-            datefmt: '%Y-%m-%d %H:%M:%S'
-    handlers:
-        console:
-            class : logging.StreamHandler
-            formatter: default
-            level : INFO
-        file:
-            class: logging.FileHandler
-            formatter: default
-            level : DEBUG
-    loggers:
-        xscen:
-            level: INFO
-            handlers: [file]
 
 
 
 custom:
-    encoding:
-        tasmax:
-            dtype: float32
-        tasmin:
-            dtype: float32
-        dtr:
-            dtype: float32
-        pr:
-            dtype: float32
     regions:
 #        test3:
 #            name: test3
@@ -97,20 +61,20 @@ custom:
 #            bbox:
 #                lon_bnds: [ -80, -79 ]
 #                lat_bnds: [ 44, 44.2 ]
-        south600:
-            name: south600
+        south:
+            name: south
             method: bbox
             bbox:
                 lon_bnds: [ -179.95, -10 ]
                 lat_bnds: [ 10, 40 ]
-        middle600:
-            name: middle600
+        middle:
+            name: middle
             method: bbox
             bbox:
                 lon_bnds: [ -179.95, -10 ]
                 lat_bnds: [ 40, 65 ]
-        north600:
-            name: north600
+        north:
+            name: north
             method: bbox
             bbox:
                 lon_bnds: [-179.95, -10]
@@ -164,68 +128,64 @@ custom:
         lat: 50
         lon: 50
         time: 4year
-    future_period:
-        - '2071'
-        - '2100'
     ref_period : &ref_period
         - '1991'
         - '2020'
     sim_period: &sim_period
         - '1950'
         - '2100'
-    check_period:
-        - '2001'
-        - '2002'
     maximal_calendar: &mcal
         noleap
+    encoding:
+      tasmax:
+        dtype: float32
+      tasmin:
+        dtype: float32
+      dtr:
+        dtype: float32
+      pr:
+        dtype: float32
 
 
 
-cut:
+extract:
     chunks: {'time': 365, 'lat':-1, 'lon':-1}
 
 extraction:
     reference:
         search_data_catalogs:
-            variables_and_timedeltas:
-                tasmax: 1D
-                dtr: 1D
-                tasmin: 1D # we keep it in order to do the checkups and be able to compare beginning and end
-                pr: 1D
+            variables_and_freqs: &var_and_time
+                tasmax: D
+                tasmin: D
+                pr: D
+                dtr: D
             allow_resampling: False
             allow_conversion: True
             periods : *ref_period
             other_search_criteria:
-                project: &ref_project
-                   - "era5-land"
-                   - "ERA5-Land"
+                source: &ref_source
+                    "era5-land"
                 processing_level: ["raw"]
         extract_dataset: {}
     simulations:
         search_data_catalogs:
-            variables_and_timedeltas:
-                tasmax: 1D
-                tasmin: 1D # we keep it in order to do the checkups and be able to compare beginning and end
-                dtr: 1D
-                pr: 1D
+            variables_and_freqs:
+                *var_and_time
             match_hist_and_fut: True
-            allow_resampling: False
             allow_conversion: True
-            other_search_criteria:
-                processing_level: "raw"
-                mip_era: 'CMIP6'
-                experiment: *experiments
+            allow_resampling: False
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
-                combine_attrs: override
+              combine_attrs: override
             xr_open_kwargs:
-                drop_variables:
-                    - height
-    ref_project: *ref_project
+              drop_variables:
+                - height
+    ref_source: *ref_source
 
 regrid:
     regridder_kwargs:
+        method: bilinear
         extrap_method: inverse_dist
         locstream_out: *stack
         reuse_weights: False
@@ -258,6 +218,10 @@ biasadjust:
                             weights: tricube
                     interp: nearest
                     extrapolation: constant
+                bias_adjust_institution: &b_a_inst
+                  Ouranos
+                bias_adjust_project: &b_a_pro
+                  ESPO-G6
         tasmax:
             training_args:
                 reference_period: *ref_period
@@ -280,6 +244,8 @@ biasadjust:
                             weights: tricube
                     interp: nearest
                     extrapolation: constant
+                bias_adjust_institution: *b_a_inst
+                bias_adjust_project: *b_a_pro
         pr:
             training_args:
                 reference_period: *ref_period
@@ -306,15 +272,17 @@ biasadjust:
                             weights: tricube
                     interp: nearest
                     extrapolation: constant
+                bias_adjust_institution: *b_a_inst
+                bias_adjust_project: *b_a_pro
 
 clean_up:
     search_data_catalogs:
-        variables_and_timedeltas:
-            tasmax: 1D
-            tasmin: 1D
-            pr: 1D
-        allow_resampling: False
-        allow_conversion: True
+      variables_and_freqs:
+        tasmax: D
+        tasmin: D
+        pr: D
+      allow_conversion: True
+      allow_resampling: False
     final_attrs_names:
         - bias_adjustment
         - cell_methods
@@ -351,8 +319,6 @@ clean_up:
             cell_methods: "time: mean within days"
 
 diagnostics:
-  show_maps:
-    False
   properties:
     'mean-tasmax': {'func':sdba.properties.mean, 'var': 'tasmax', 'args': {}}
     'mean-tasmin': {'func':sdba.properties.mean, 'var': 'tasmin', 'args': {}}
@@ -370,3 +336,28 @@ scr_utils:
         msg_ok: Toutes les étapes demandées ont été complétées.
         msg_err: Une erreur est survenue durant le traitement.
         on_error_only: True
+
+
+dask:
+    client:
+        dashboard_address: 6787
+    array.slicing.split_large_chunks: False
+
+logging:
+    formatters:
+        default:
+            format: '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
+            datefmt: '%Y-%m-%d %H:%M:%S'
+    handlers:
+        console:
+            class : logging.StreamHandler
+            formatter: default
+            level : INFO
+        file:
+            class: logging.FileHandler
+            formatter: default
+            level : DEBUG
+    loggers:
+        xscen:
+            level: INFO
+            handlers: [file]

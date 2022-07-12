@@ -1,45 +1,26 @@
 import xarray as xr
-import shutil
-from pathlib import Path
 import logging
+from pathlib import Path
+import shutil
+from matplotlib import pyplot as plt
 import numpy as np
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 
 from xclim.sdba.measures import rmse
 from xclim import atmos, sdba
+from xclim.core.units import convert_units_to
 
-from xscen.config import CONFIG, load_config
 from xscen.io import save_to_zarr
-from xscen.common import  maybe_unstack
-logger = logging.getLogger('xscen')
-
-
+from xscen.common import  maybe_unstack,unstack_fill_nan
+from xscen.scr_utils import measure_time, send_mail
+from xscen.config import CONFIG, load_config
 
 load_config('paths_ESPO-G.yml', 'config_ESPO-G.yml', verbose=(__name__ == '__main__'), reset=True)
-workdir = Path(CONFIG['paths']['workdir'])
-exec_wdir = Path(CONFIG['paths']['exec_workdir'])
-regriddir = Path(CONFIG['paths']['regriddir'])
-workdir = Path(CONFIG['paths']['workdir'])
-refdir = Path(CONFIG['paths']['refdir'])
 
-def compute_properties(sim, ref, period):
-    # TODO add more diagnostics, xclim.sdba and from Yannick (R2?)
-    nan_count = sim.to_array().isnull().sum('time').mean('variable')
-    hist = sim.sel(time=period)
-    ref = ref.sel(time=period)
 
-    # Je load deux des variables pour essayer d'éviter les KilledWorker et Timeout
-    out = xr.Dataset(data_vars={
-        'nan_count': nan_count,
-        'tx_mean_rmse': rmse(atmos.tx_mean(hist.tasmax, freq='MS').chunk({'time': -1}),
-                             atmos.tx_mean(ref.tasmax, freq='MS').chunk({'time': -1})),
-        'tn_mean_rmse': rmse(atmos.tn_mean(tasmin=hist.tasmin, freq='MS').chunk({'time': -1}),
-                             atmos.tn_mean(tasmin=ref.tasmin, freq='MS').chunk({'time': -1})),
-         'prcptot_rmse': rmse(atmos.precip_accumulation(hist.pr, freq='MS').chunk({'time': -1}),
-                              atmos.precip_accumulation(ref.pr, freq='MS').chunk({'time': -1})),
+logger = logging.getLogger('xscen')
 
-    })
-
-    return out
 
 
 def save_move_update(ds,pcat, init_path, final_path,info_dict=None,
@@ -49,121 +30,124 @@ def save_move_update(ds,pcat, init_path, final_path,info_dict=None,
     pcat.update_from_ds(ds=ds, path=str(final_path),info_dict=info_dict)
 
 
-def calculate_properties(ds, pcat, step, unstack=False, diag_dict=CONFIG['diagnostics']['properties']):
+def calculate_properties(ds, diag_dict, unstack=False, path_coords=None, unit_conversion={}):
     """
-    Calculate diagnostic in the dictionary, save them all in one zarr and updates the catalog.
-    The function verifies that a catalog entry doesn't exist already.
-    The initial calculations are made in the workdir, but move to a permanent location afterwards.
-
+    Calculate properties in the dictionary.
     If the property is monthly or seasonal, we only keep the first month/season.
 
     :param ds: Input dataset (with tasmin, tasmax, pr) and the attrs we want to be passed to the final dataset
-    :param pcat: Project Catalogue to update
-    :param step: Type of input (ref, sim or scen)
-    :param diag_dict: Dictionnary of properties to calculate. needs key func, var and args
+    :param diag_dict: Dictionary of properties to calculate. needs key func, var and args
+    :param unit_conversion: Dictionary {variable: units to convert to}
     :return: A dataset with all properties
     """
-    region_name = ds.attrs['cat/domain']
-    if not pcat.exists_in_cat(domain=region_name, processing_level=f'diag_{step}', id=ds.attrs['cat/id']):
-        for i, (name, prop) in enumerate(diag_dict.items()):
-            logger.info(f"Calculating {step} diagnostic {name}")
-            prop = eval(prop['func'])(da=ds[prop['var']], **prop['args']).load()
 
-            if unstack:
-                prop = maybe_unstack(
-                    prop,
-                    stack_drop_nans=CONFIG['custom']['stack_drop_nans'],
-                    coords=refdir / f'coords_{region_name}.nc',
-                    rechunk={d: CONFIG['custom']['out_chunks'][d] for d in ['lat', 'lon']}
-                )
-                prop=prop.transpose("lat", "lon")
+    # we will need to have same units to be able to do measures properly
+    # it won't always be able to convert after properties (eg. kg2 m-4 s-2 -> mm2 d-2 doesn't work)
+    # so we have to do it now
+    for var, unit in unit_conversion.items():
+        ds[var] = convert_units_to(ds[var], unit)
 
-            if "season" in prop.coords:
-                prop = prop.isel(season=0)
-                prop=prop.drop('season')
-            if "month" in prop.coords:
-                prop = prop.isel(month=0)
-                prop=prop.drop('month')
+    region_name=ds.attrs["cat/domain"]
+    for i, (name, prop_dict) in enumerate(diag_dict.items()):
+        logger.info(f"Calculating diagnostic {name}")
+        prop = eval(prop_dict['func'])(da=ds[prop_dict['var']], **prop_dict['args']).load()
 
+        # TODO: create something more general that keeps all months/seasons
+        if "season" in prop.coords:
+            prop = prop.isel(season=0)
+            prop=prop.drop('season')
+        if "month" in prop.coords:
+            prop = prop.isel(month=0)
+            prop=prop.drop('month')
 
-            # put all properties in one dataset
-            if i == 0:
-                all_prop = prop.to_dataset(name=name)
-            else:
-                all_prop[name] = prop
-        all_prop.attrs.update(ds.attrs)
+        if unstack:
+            prop = unstack_fill_nan(
+                prop,
+                coords=path_coords,
+            )
+            prop=prop.transpose("lat", "lon")
 
-        path_diag = Path(CONFIG['paths']['diagnostics'].format(region_name=region_name,
-                                                               sim_id=ds.attrs['cat/id'],
-                                                               step=step))
-        path_diag_exec = f"{workdir}/{path_diag.name}"
-
-        save_move_update(ds=all_prop, pcat=pcat, init_path=path_diag_exec, final_path=str(path_diag),
-                         info_dict={'processing_level': f'diag_{step}'}, encoding=None)
-
-        return all_prop
+        prop.attrs['measure']=prop_dict['measure'] if 'measure' in prop_dict else 'bias'
 
 
+        # put all properties in one dataset
+        if i == 0:
+            all_prop = prop.to_dataset(name=name)
+        else:
+            all_prop[name] = prop
+    all_prop.attrs.update(ds.attrs)
 
-def save_diagnotics(ref, sim, scen, pcat):
+
+    return all_prop
+
+
+
+
+def measures_and_heatmap(ref, sims):
     """
-    calculate the biases amd the heat map and save
-    Saves files of biases and heat map.
+    calculate the measures of the difference with the properties of ref and the properties of each sim and create the heat map
     :param ref: reference dataset
-    :param sim: simulation dataset
-    :param scen: scenario dataset
-    :param pcat: project catalog to update
+    :param sims: list of datasets to compare with ref. Each will be a row on the heatmap.
     """
     hmap = []
-    #iterate through all available properties
-    for i, var_name in enumerate(sim.data_vars):
-        # get property
-        prop_sim = sim[var_name]
-        prop_ref = ref[var_name]
-        prop_scen = scen[var_name]
+    all_measures=[]
+    for sim in sims:
+        row =[]
+        # iterate through all available properties
+        for i, var_name in enumerate(sorted(sim.data_vars)):
+            # get property
+            prop_sim = sim[var_name]
+            prop_ref = ref[var_name]
 
-        #calculate bias
-        bias_scen_prop = sdba.measures.bias(sim=prop_scen, ref=prop_ref).load()
-        bias_sim_prop = sdba.measures.bias(sim=prop_sim, ref=prop_ref).load()
+            #choose right measure
+            measure_name= prop_sim.attrs['measure'] if 'measure' in prop_sim.attrs else 'bias'
+            measure= getattr(sdba.measures,measure_name)
 
-        # put all bias in one dataset
-        if i == 0:
-            all_bias_scen_prop = bias_scen_prop.to_dataset(name=var_name)
-            all_bias_sim_prop = bias_sim_prop.to_dataset(name=var_name)
-        else:
-            all_bias_scen_prop[var_name] = bias_scen_prop
-            all_bias_sim_prop[var_name] = bias_sim_prop
+            #calculate bias
+            bias_sim_prop = measure(sim=prop_sim, ref=prop_ref).load()
+
+            # put all bias in one dataset
+            if i == 0:
+                all_bias_sim_prop = bias_sim_prop.to_dataset(name=var_name)
+            else:
+                all_bias_sim_prop[var_name] = bias_sim_prop
 
 
-        #mean the absolute value of the bias over all positions and add to heat map
-        hmap.append([abs(bias_sim_prop).mean().values, abs(bias_scen_prop).mean().values])
+            #mean the absolute value of the bias over all positions and add to heat map
+            if measure_name == 'ratio': #if ratio, best is 1, this moves "best to 0 to compare with bias
+                row.append(abs(bias_sim_prop -1).mean().values)
+            else:
+                row.append(abs(bias_sim_prop).mean().values)
+        all_bias_sim_prop.attrs.update(sim.attrs)
+        all_measures.append(all_bias_sim_prop)
+        # append all properties
+        hmap.append(row)
+
+
 
     # plot heat map of biases ( 1 column per properties, 1 column for sim , 1 column for scen)
-    hmap = np.array(hmap).T
+    hmap = np.array(hmap)
+    # normalize to 0-1 -> best-worst
     hmap = np.array(
         [(c - min(c)) / (max(c) - min(c)) if max(c) != min(c) else [0.5] * len(c) for c in
          hmap.T]).T
 
-    path_diag = Path(CONFIG['paths']['diagnostics'].format(region_name=scen.attrs['cat/domain'],
-                                                           sim_id=scen.attrs['cat/id'],
-                                                           step='hmap'))
-    #replace zarr by npy
-    path_diag = path_diag.with_suffix('.npy')
-    np.save(path_diag, hmap)
-
-    all_bias_scen_prop.attrs.update(scen.attrs)
-    all_bias_sim_prop.attrs.update(sim.attrs)
-    for ds, step in zip([all_bias_scen_prop,all_bias_sim_prop],['scen_bias','sim_bias']):
-        path_diag = Path(CONFIG['paths']['diagnostics'].format(region_name=scen.attrs['cat/domain'],
-                                                               sim_id=scen.attrs['cat/id'],
-                                                               step=step))
-        save_to_zarr(ds=ds, filename=str(path_diag), mode='o')
-        pcat.update_from_ds(ds=ds,
-                            info_dict={'processing_level': f'diag_{step}'},
-                            path=str(path_diag))
+    return all_measures, hmap
 
 
-def move_to_exec_and_reopen(ds, name):
-    save_to_zarr(ds, f"{CONFIG['paths']['exec_workdir']}{name}")
-    out = xr.open_zarr(f"{CONFIG['paths']['exec_workdir']}{name}", decode_timedelta=False)
-    return out
+
+
+def email_nan_count(path, region_name):
+    ds_ref_props_nan_count = xr.open_zarr(path, decode_timedelta=False).load()
+    fig, ax = plt.subplots(figsize=(10, 10))
+    cmap = plt.cm.winter.copy()
+    cmap.set_under('white')
+    ds_ref_props_nan_count.nan_count.plot(ax=ax, vmin=1, vmax=1000, cmap=cmap)
+    ax.set_title(
+        f'Reference {region_name} - NaN count \nmax {ds_ref_props_nan_count.nan_count.max().item()}')
+    plt.close('all')
+    send_mail(
+        subject=f'Reference for region {region_name} - Success',
+        msg=f"Action 'makeref' succeeded for region {region_name}.",
+        attachments=[fig]
+    )
