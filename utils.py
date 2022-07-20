@@ -5,6 +5,7 @@ import shutil
 from matplotlib import pyplot as plt
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+import os
 
 
 from xclim.sdba.measures import rmse
@@ -24,7 +25,8 @@ logger = logging.getLogger('xscen')
 
 
 def save_move_update(ds,pcat, init_path, final_path,info_dict=None,
-                     encoding=CONFIG['custom']['encoding'], mode='o', itervar=False):
+                     encoding=None, mode='o', itervar=False):
+    encoding = encoding or {var: {'dtype': 'float32'} for var in ds.data_vars}
     save_to_zarr(ds, init_path, encoding=encoding, mode=mode,itervar=itervar)
     shutil.move(init_path,final_path)
     pcat.update_from_ds(ds=ds, path=str(final_path),info_dict=info_dict)
@@ -151,3 +153,28 @@ def email_nan_count(path, region_name):
         msg=f"Action 'makeref' succeeded for region {region_name}.",
         attachments=[fig]
     )
+
+
+
+def move_then_delete(dirs_to_delete, moving_files, pcat):
+    """
+    First, move the moving_files. If they are zarr, update catalog
+    with new path.
+    Then, delete everything in dir_to_delete
+    :param dirs_to_delete: list of directory where all content will be deleted
+    :param moving_files: list of lists of path of files to move with format: [[source 1, destination1], [source 2, destination2],...]
+    :param pcat: project catalog to update
+    """
+
+    for files in moving_files:
+        source, dest = files[0], files[1]
+        shutil.move(source, dest)
+        if dest[-5:] =='.zarr':
+            ds = xr.open_zarr(dest)
+            pcat.update_from_ds(ds=ds, path=dest)
+
+    # erase workdir content if this is the last step
+    for dir_to_delete in dirs_to_delete:
+        if dir_to_delete.exists() and dir_to_delete.is_dir():
+            shutil.rmtree(dir_to_delete)
+            os.mkdir(dir_to_delete)
