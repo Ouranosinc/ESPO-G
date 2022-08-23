@@ -13,8 +13,8 @@ from xclim import atmos, sdba
 from xclim.core.units import convert_units_to
 
 from xscen.io import save_to_zarr
-from xscen.common import  maybe_unstack,unstack_fill_nan
-from xscen.scr_utils import measure_time, send_mail
+from xscen.utils import  maybe_unstack,unstack_fill_nan
+from xscen.scripting import measure_time, send_mail
 from xscen.config import CONFIG, load_config
 
 load_config('paths_ESPO-G.yml', 'config_ESPO-G.yml', verbose=(__name__ == '__main__'), reset=True)
@@ -168,10 +168,11 @@ def move_then_delete(dirs_to_delete, moving_files, pcat):
 
     for files in moving_files:
         source, dest = files[0], files[1]
-        shutil.move(source, dest)
-        if dest[-5:] =='.zarr':
-            ds = xr.open_zarr(dest)
-            pcat.update_from_ds(ds=ds, path=dest)
+        if Path(source).exists():
+            shutil.move(source, dest)
+            if dest[-5:] =='.zarr':
+                ds = xr.open_zarr(dest)
+                pcat.update_from_ds(ds=ds, path=dest)
 
     # erase workdir content if this is the last step
     for dir_to_delete in dirs_to_delete:

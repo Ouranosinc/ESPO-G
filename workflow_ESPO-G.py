@@ -16,16 +16,30 @@ from xclim.core.calendar import convert_calendar, get_calendar, date_range_like
 from xclim.core.units import convert_units_to
 from xclim.sdba import properties, measures, construct_moving_yearly_window, unpack_moving_yearly_window
 
-from xscen.checkups import fig_compare_and_diff, fig_bias_compare_and_diff
-from xscen.catalog import ProjectCatalog, parse_directory, parse_from_ds, DataCatalog
-from xscen.extraction import search_data_catalogs, extract_dataset
-from xscen.io import save_to_zarr, rechunk
-from xscen.config import CONFIG, load_config
-from xscen.common import minimum_calendar, translate_time_chunk, stack_drop_nans, unstack_fill_nan, maybe_unstack
-from xscen.regridding import regrid
-from xscen.biasadjust import train, adjust
-from xscen.scr_utils import measure_time, send_mail, send_mail_on_exit, timeout, TimeoutException
-from xscen.finalize import clean_up
+#from xscen.catalog import ProjectCatalog, parse_directory, parse_from_ds, DataCatalog
+#from xscen.extraction import search_data_catalogs, extract_dataset
+#from xscen.io import save_to_zarr, rechunk
+#from xscen.config import CONFIG, load_config
+#from xscen.common import minimum_calendar, translate_time_chunk, stack_drop_nans, unstack_fill_nan, maybe_unstack
+#from xscen.regridding import regrid
+#from xscen.biasadjust import train, adjust
+#from xscen.scr_utils import measure_time, send_mail, send_mail_on_exit, timeout, TimeoutException
+#from xscen.finalize import clean_up
+
+from xscen.utils import minimum_calendar, translate_time_chunk, stack_drop_nans, unstack_fill_nan, maybe_unstack
+from xscen.io import rechunk
+from xscen import (
+    ProjectCatalog,
+    search_data_catalogs,
+    extract_dataset,
+    save_to_zarr,
+    load_config,
+    CONFIG,
+    regrid_dataset,
+    train, adjust,
+    measure_time, send_mail, send_mail_on_exit, timeout, TimeoutException,
+    clean_up
+)
 
 from utils import  save_move_update, calculate_properties, measures_and_heatmap,email_nan_count,move_then_delete
 
@@ -50,7 +64,6 @@ if __name__ == '__main__':
     # defining variables
     ref_period = slice(*map(str, CONFIG['custom']['ref_period']))
     sim_period = slice(*map(str, CONFIG['custom']['sim_period']))
-
     ref_source = CONFIG['extraction']['ref_source']
 
     # initialize Project Catalog
@@ -110,8 +123,8 @@ if __name__ == '__main__':
                                      init_path=f"{exec_wdir}/ref_{region_name}_noleap.zarr",
                                      final_path=f"{refdir}/ref_{region_name}_noleap.zarr",
                                      info_dict={'calendar': 'noleap'})
-            # 360day
-            if not pcat.exists_in_cat(domain=region_name, calendar='360day', source=ref_source):
+            # 360_day
+            if not pcat.exists_in_cat(domain=region_name, calendar='360_day', source=ref_source):
                 with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)) :
 
                     ds_ref = pcat.search(source=ref_source,calendar='default',domain=region_name).to_dask()
@@ -119,8 +132,8 @@ if __name__ == '__main__':
                     ds_ref360 = convert_calendar(ds_ref, "360_day", align_on="year")
                     save_move_update(ds=ds_ref360,
                                      pcat=pcat,
-                                     init_path=f"{exec_wdir}/ref_{region_name}_360day.zarr",
-                                     final_path=f"{refdir}/ref_{region_name}_360day.zarr",
+                                     init_path=f"{exec_wdir}/ref_{region_name}_360_day.zarr",
+                                     final_path=f"{refdir}/ref_{region_name}_360_day.zarr",
                                      info_dict={'calendar': '360_day'})
 
             # nan_count
@@ -179,7 +192,6 @@ if __name__ == '__main__':
             sim_id = sim_id_exp.replace('EXPERIMENT',exp)
             if not pcat.exists_in_cat(domain='concat_regions',id =sim_id):
                 for region_name, region_dict in CONFIG['custom']['regions'].items():
-
                     # depending on the final tasks, check that the final file doesn't already exists
                     final = {'check_up': dict(domain=region_name, processing_level='final', id=sim_id),
                              'diagnostics': dict(domain=region_name, processing_level='diag_scen_meas', id=sim_id)}
@@ -231,7 +243,7 @@ if __name__ == '__main__':
                                                  pcat=pcat,
                                                  init_path=path_cut_exec,
                                                  final_path=path_cut,
-                                                 info_dict={'processing_level':'extracted'})
+                                                 )
                         # ---REGRID---
                         if (
                                 "regrid" in CONFIG["tasks"]
@@ -246,8 +258,9 @@ if __name__ == '__main__':
                                 # iter over all regriddings
                                 for reg_name, reg_dict in CONFIG['regrid'].items():
                                     # choose input
-                                    if reg_dict['input'] == 'cur_sim':  # get current extracted simulation
-                                        ds_in = pcat.search(id=sim_id, processing_level='extracted',
+                                    if reg_dict['input'] == 'cur_sim': # get current extracted simulation
+                                        ds_in = pcat.search(id=sim_id,
+                                                            processing_level='extracted',
                                                             domain=region_name).to_dask()
                                     elif reg_dict['input'] == 'previous':  # get results of previous regridding in the loop
                                         ds_in = ds_regrid
@@ -260,7 +273,7 @@ if __name__ == '__main__':
                                         ds_target = pcat.search(**reg_dict['target']['search'],
                                                                 domain=region_name).to_dask()
 
-                                    ds_regrid = regrid(
+                                    ds_regrid = regrid_dataset(
                                         ds=ds_in,
                                         ds_grid=ds_target,
                                         **reg_dict['xscen_regrid']
@@ -311,7 +324,7 @@ if __name__ == '__main__':
                             # ---TRAIN ---
                             if (
                                     "train" in CONFIG["tasks"]
-                                    and not pcat.exists_in_cat(domain=region_name, id=f"{sim_id}_training_{var}")
+                                    and not pcat.exists_in_cat(domain=region_name,id=f'{sim_id}', processing_level =f'training_{var}')
                             ):
                                 while True: # if code bugs forever, it will be stopped by the timeout and then tried again
                                     try:
@@ -348,8 +361,8 @@ if __name__ == '__main__':
                                                           **conf['training_args'])
 
 
-                                            ds_tr.lat.encoding.pop('chunks')
-                                            ds_tr.lon.encoding.pop('chunks')
+                                            #ds_tr.lat.encoding.pop('chunks')
+                                            #ds_tr.lon.encoding.pop('chunks')
 
                                             ds_tr = ds_tr.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_tr.dims
                                                                  if d in CONFIG['custom']['chunks'].keys() })
@@ -357,10 +370,11 @@ if __name__ == '__main__':
                                                              pcat=pcat,
                                                              init_path=f"{exec_wdir}/{sim_id}_{region_name}_{var}_training.zarr",
                                                              final_path=f"{workdir}/{sim_id}_{region_name}_{var}_training.zarr",
-                                                             info_dict= {'id': f"{sim_id}_training_{var}",
-                                                                           'domain': region_name,
-                                                                           'processing_level': "training",
-                                                                           'xrfreq': ds_hist.attrs['cat/xrfreq']
+                                                             info_dict= { # should have been fix # TODO: erase this
+                                                                 # 'id': f"{sim_id}_training_{var}",
+                                                                 # 'domain': region_name,
+                                                                 # 'processing_level': "training",
+                                                                 # 'xrfreq': ds_hist.attrs['cat/xrfreq']
                                                                             })# info_dict needed to reopen correctly in next step
                                             shutil.rmtree(f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr")
                                             shutil.rmtree(f"{CONFIG['paths']['exec_workdir']}ds_hist.zarr")
@@ -385,16 +399,16 @@ if __name__ == '__main__':
                                     # load sim ds
                                     ds_sim = pcat.search(id=sim_id,
                                                          processing_level='regridded_and_rechunked',
-                                                         domain=region_name).to_dataset_dict().popitem()[1]
-                                    ds_tr = pcat.search(id=f'{sim_id}_training_{var}', domain=region_name).to_dask()
+                                                         domain=region_name).to_dask()
+                                    ds_tr = pcat.search(id=f'{sim_id}', processing_level =f'training_{var}', domain=region_name).to_dask()
 
                                     # adjust
                                     ds_scen = adjust(dsim=ds_sim,
                                                      dtrain=ds_tr,
                                                      **conf['adjusting_args'])
 
-                                    ds_scen.lat.encoding.pop('chunks')
-                                    ds_scen.lon.encoding.pop('chunks')
+                                    # ds_scen.lat.encoding.pop('chunks')
+                                    # ds_scen.lon.encoding.pop('chunks')
 
                                     save_move_update(ds=ds_scen,
                                                      pcat=pcat,
@@ -475,17 +489,17 @@ if __name__ == '__main__':
 
                                 shutil.move(fi_path_exec, fi_path)
 
-                                # if this is last step, delete stuff
-                                if CONFIG["tasks"][-1] == 'final_zarr':
+                                # if this is last step, delete workdir, but save log and regridded
+                                if CONFIG["tasks"][-2] == 'final_zarr':
                                     final_regrid_path = f"{regriddir}/{sim_id}_{region_name}_regchunked.zarr"
                                     path_log = CONFIG['logging']['handlers']['file']['filename']
                                     move_then_delete(dirs_to_delete=[workdir, exec_wdir],
                                                      moving_files=
-                                                     [[f"{workdir}/{sim_id}_regchunked.zarr", final_regrid_path],
+                                                     [[f"{workdir}/{sim_id}_{region_name}_regchunked.zarr", final_regrid_path],
                                                       [path_log, CONFIG['paths']['logging'].format(**fmtkws)]],
                                                      pcat=pcat)
 
-
+                                # add final file to catalog
                                 ds = xr.open_zarr(fi_path)
                                 pcat.update_from_ds(ds=ds, path=str(fi_path), info_dict= {'processing_level': 'final'})
 
@@ -549,12 +563,12 @@ if __name__ == '__main__':
                                                         path=str(path_diag))
 
                                     # if this is last step, delete stuff
-                                    if CONFIG["tasks"][-1] == 'diagnostics':
+                                    if CONFIG["tasks"][-2] == 'diagnostics':
                                         final_regrid_path = f"{regriddir}/{sim_id}_{region_name}_regchunked.zarr"
                                         path_log = CONFIG['logging']['handlers']['file']['filename']
                                         move_then_delete(dirs_to_delete=[workdir, exec_wdir],
                                                          moving_files=
-                                                         [[f"{workdir}/{sim_id}_regchunked.zarr", final_regrid_path],
+                                                         [[f"{workdir}/{sim_id}_{region_name}_regchunked.zarr", final_regrid_path],
                                                           [path_log, CONFIG['paths']['logging'].format(**fmtkws)]],
                                                          pcat=pcat)
 
@@ -591,7 +605,10 @@ if __name__ == '__main__':
 
                     dsC_path = CONFIG['paths']['concat_output'].format(sim_id=sim_id)
                     dsC.attrs.pop('cat/path')
-                    dsC = dsC.chunk({'time':1460, 'lat':50, 'lon':50})
+                    if get_calendar(dsC) =='360_day':
+                        dsC = dsC.chunk({'time':1440, 'lat':50, 'lon':50})
+                    else:
+                        dsC = dsC.chunk({'time':1460, 'lat':50, 'lon':50})
                     save_to_zarr(ds=dsC,
                                  filename=dsC_path,
                                  mode='o')
