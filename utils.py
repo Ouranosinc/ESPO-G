@@ -49,7 +49,7 @@ def calculate_properties(ds, diag_dict, unstack=False, path_coords=None, unit_co
     for var, unit in unit_conversion.items():
         ds[var] = convert_units_to(ds[var], unit)
 
-    region_name=ds.attrs["cat/domain"]
+    region_name=ds.attrs["cat:domain"]
     for i, (name, prop_dict) in enumerate(diag_dict.items()):
         logger.info(f"Calculating diagnostic {name}")
         prop = eval(prop_dict['func'])(da=ds[prop_dict['var']], **prop_dict['args']).load()

@@ -59,7 +59,7 @@ mode = 'o'
 if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
-    atexit.register(send_mail_on_exit, subject=CONFIG['scr_utils']['subject'])
+    atexit.register(send_mail_on_exit, subject=CONFIG['scripting']['subject'])
 
     # defining variables
     ref_period = slice(*map(str, CONFIG['custom']['ref_period']))
@@ -161,7 +161,7 @@ if __name__ == '__main__':
                                                            diag_dict=CONFIG['diagnostics']['properties'])
 
                         path_diag = Path(CONFIG['paths']['diagnostics'].format(region_name=region_name,
-                                                                               sim_id=ds_ref.attrs['cat/id'],
+                                                                               sim_id=ds_ref.attrs['cat:id'],
                                                                                step='ref'))
                         path_diag_exec = f"{workdir}/{path_diag.name}"
                         save_move_update(ds=ds_ref_prop,
@@ -213,12 +213,15 @@ if __name__ == '__main__':
                                 and not pcat.exists_in_cat(domain=region_name, processing_level='extracted', id=sim_id)
                         ):
                             with (
-                                    Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws),
+                                    #Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws),
+                                    Client(n_workers=1, threads_per_worker=5,memory_limit="50GB", **daskkws), # only for CNRM-ESM2-1
+
                                     measure_time(name='extract', logger=logger),
                                     timeout(18000, task='extract')
                             ):
                                 # search the data that we need
                                 cat_sim = search_data_catalogs(**CONFIG['extraction']['simulations']['search_data_catalogs'],
+                                                               periods = ['1950','2100'],  # only for CNRM-ESM2-1
                                                                 other_search_criteria={'id': sim_id})
 
                                 # extract
@@ -233,7 +236,8 @@ if __name__ == '__main__':
                                 ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
 
                                 # need lat and lon -1 for the regrid
-                                ds_sim = ds_sim.chunk(CONFIG['extract']['chunks'])
+                                #ds_sim = ds_sim.chunk(CONFIG['extract']['chunks'])
+                                ds_sim = ds_sim.chunk({'time': 1, 'lat': -1, 'lon': -1})
 
                                 # save to zarr
                                 path_cut_exec = f"{exec_wdir}/{sim_id}_{region_name}_extracted.zarr"
@@ -268,7 +272,7 @@ if __name__ == '__main__':
                                     # choose target grid
                                     if 'cf_grid_2d' in reg_dict['target']:  # create a regular 2d grid
                                         ds_target = xesmf.util.cf_grid_2d(**reg_dict['target']['cf_grid_2d'])
-                                        ds_target.attrs['cat/domain'] = reg_name  # need this in xscen regrid
+                                        ds_target.attrs['cat:domain'] = reg_name  # need this in xscen regrid
                                     elif 'search' in reg_dict['target']:  # search a grid in the catalog
                                         ds_target = pcat.search(**reg_dict['target']['search'],
                                                                 domain=region_name).to_dask()
@@ -276,7 +280,7 @@ if __name__ == '__main__':
                                     ds_regrid = regrid_dataset(
                                         ds=ds_in,
                                         ds_grid=ds_target,
-                                        **reg_dict['xscen_regrid']
+                                        **reg_dict['regrid_dataset']
                                     )
 
                                 # chunk time dim
@@ -374,7 +378,7 @@ if __name__ == '__main__':
                                                                  # 'id': f"{sim_id}_training_{var}",
                                                                  # 'domain': region_name,
                                                                  # 'processing_level': "training",
-                                                                 # 'xrfreq': ds_hist.attrs['cat/xrfreq']
+                                                                 # 'xrfreq': ds_hist.attrs['cat:xrfreq']
                                                                             })# info_dict needed to reopen correctly in next step
                                             shutil.rmtree(f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr")
                                             shutil.rmtree(f"{CONFIG['paths']['exec_workdir']}ds_hist.zarr")
@@ -542,8 +546,8 @@ if __name__ == '__main__':
 
                                 # save hmap
                                 path_diag = Path(
-                                    CONFIG['paths']['diagnostics'].format(region_name=scen.attrs['cat/domain'],
-                                                                          sim_id=scen.attrs['cat/id'],
+                                    CONFIG['paths']['diagnostics'].format(region_name=scen.attrs['cat:domain'],
+                                                                          sim_id=scen.attrs['cat:id'],
                                                                           step='hmap'))
                                 path_diag = path_diag.with_suffix('.npy')  # replace zarr by npy
                                 np.save(path_diag, hmap)
@@ -600,11 +604,11 @@ if __name__ == '__main__':
                     dsC = xr.concat(list_dsR, 'lat')
 
                     dsC.attrs['title'] = f"ESPO-G6 v1.0.0 - {sim_id}"
-                    dsC.attrs['cat/domain'] = f"NAM"
+                    dsC.attrs['cat:domain'] = f"NAM"
                     dsC.attrs.pop('intake_esm_dataset_key')
 
                     dsC_path = CONFIG['paths']['concat_output'].format(sim_id=sim_id)
-                    dsC.attrs.pop('cat/path')
+                    dsC.attrs.pop('cat:path')
                     if get_calendar(dsC) =='360_day':
                         dsC = dsC.chunk({'time':1440, 'lat':50, 'lon':50})
                     else:

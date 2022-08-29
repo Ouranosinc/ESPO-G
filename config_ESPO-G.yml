@@ -22,7 +22,7 @@ ids:
     - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_EXPERIMENT_r1i1p1f1_global # remove because missing a file #None
     - CMIP6_ScenarioMIP_CAS_FGOALS-g3_EXPERIMENT_r1i1p1f1_global # None, but 1 file per year
     - CMIP6_ScenarioMIP_CMCC_CMCC-ESM2_EXPERIMENT_r1i1p1f1_global # [1, 192, 288]
-    #- CMIP6_ScenarioMIP_CNRM-CERFACS_CNRM-ESM2-1_EXPERIMENT_r1i1p1f2_global # [1, 128, 256] # cut didnt work here for some reason.. (x2)
+    - CMIP6_ScenarioMIP_CNRM-CERFACS_CNRM-ESM2-1_EXPERIMENT_r1i1p1f2_global # [1, 128, 256] # cut didnt work here for some reason.. (x2)
     - CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_EXPERIMENT_r1i1p1f1_global #  [1, 145, 192]
     - CMIP6_ScenarioMIP_CSIRO_ACCESS-ESM1-5_EXPERIMENT_r1i1p1f1_global # [1, 96, 144]
     - CMIP6_ScenarioMIP_DKRZ_MPI-ESM1-2-HR_EXPERIMENT_r1i1p1f1_global # [1, 192, 384]
@@ -33,6 +33,7 @@ ids:
     - CMIP6_ScenarioMIP_NCC_NorESM2-LM_EXPERIMENT_r1i1p1f1_global #[1, 96, 144]
     - CMIP6_ScenarioMIP_NIMS-KMA_KACE-1-0-G_EXPERIMENT_r1i1p1f1_global #[1, 144, 192]
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_EXPERIMENT_r1i1p1f1_global #[1, 180, 288]
+
 
 experiments: &experiments
     - ssp245
@@ -167,6 +168,7 @@ extraction:
             xr_open_kwargs:
               drop_variables:
                 - height
+              chunks: {'time': 1, 'lon': -1, 'lat': -1} # only for CNRM-ESM2-1
     ref_source: *ref_source
 
 regrid:
@@ -181,7 +183,7 @@ regrid:
         lat0_b: 39.75
         lat1_b: 64
         d_lat: 1
-    xscen_regrid:
+    regrid_dataset:
       regridder_kwargs:
           method: bilinear
           extrap_method: inverse_dist
@@ -198,7 +200,7 @@ regrid:
         lat0_b: 39.74
         lat1_b: 64
         d_lat: 0.5
-    xscen_regrid:
+    regrid_dataset:
       regridder_kwargs:
         method: bilinear
         extrap_method: inverse_dist
@@ -211,7 +213,7 @@ regrid:
       search:
         source: *ref_source
         calendar: noleap
-    xscen_regrid:
+    regrid_dataset:
       regridder_kwargs:
         method: bilinear
         extrap_method: inverse_dist
@@ -375,7 +377,7 @@ diagnostics:
 
 
 
-scr_utils:
+scripting:
     measure_time:
         cpu: True
     send_mail:
