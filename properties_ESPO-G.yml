@@ -1,0 +1,20 @@
+realm: generic
+indicators:
+  mean-tasmax:
+    base: xclim.sdba.properties.mean
+    cf_attrs:
+      long_name: Mean maximum temperature
+    input:
+      da: tasmax
+  mean-tasmin:
+    base: xclim.sdba.properties.mean
+    cf_attrs:
+      long_name: Mean minimum temperature
+    input:
+      da: tasmin
+  mean-pr:
+    base: xclim.sdba.properties.mean
+    cf_attrs:
+      long_name: Mean precipitation
+    input:
+      da: pr

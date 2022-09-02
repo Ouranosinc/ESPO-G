@@ -11,6 +11,7 @@ import os
 from dask.diagnostics import ProgressBar
 import dask
 import xesmf
+import xscen as xs
 
 from xclim.core.calendar import convert_calendar, get_calendar, date_range_like
 from xclim.core.units import convert_units_to
@@ -210,34 +211,47 @@ if __name__ == '__main__':
                         # ---EXTRACT---
                         if (
                                 "extract" in CONFIG["tasks"]
-                                and not pcat.exists_in_cat(domain=region_name, processing_level='extracted', id=sim_id)
+                                and not pcat.exists_in_cat(domain='NAM', processing_level='extracted', id=sim_id)
                         ):
                             with (
-                                    #Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws),
-                                    Client(n_workers=1, threads_per_worker=5,memory_limit="50GB", **daskkws), # only for CNRM-ESM2-1
+                                    Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws),
+                                    #Client(n_workers=1, threads_per_worker=5,memory_limit="50GB", **daskkws), # only for CNRM-ESM2-1
 
                                     measure_time(name='extract', logger=logger),
                                     timeout(18000, task='extract')
                             ):
                                 # search the data that we need
                                 cat_sim = search_data_catalogs(**CONFIG['extraction']['simulations']['search_data_catalogs'],
-                                                               periods = ['1950','2100'],  # only for CNRM-ESM2-1
+                                                               #periods = ['1950','2100'],  # only for CNRM-ESM2-1
                                                                 other_search_criteria={'id': sim_id})
 
                                 # extract
                                 dc = cat_sim[sim_id]
                                 # buffer is need to take a bit larger than actual domain, to avoid weird effect at the edge
                                 # domain will be cut to the right shape during the regrid
-                                region_dict['buffer']=1.5
+
+
+                                amno_region_dict = {
+                                    'name': 'NAM',
+                                    'method': 'bbox',
+                                    'buffer': 1.5,
+                                    'bbox':{
+                                        'lon_bnds': [-179.95, -10],
+                                        'lat_bnds': [10, 83.4]
+                                            }
+                                }
+                                # TODO: chunks in here??? xr_open_kwargs= {'chunks': {'lat':20, 'lon':20, 'time':1} }
+                                #region_dict['buffer']=1.5
                                 ds_sim = extract_dataset(catalog=dc,
-                                                         region=region_dict,
+                                                         #region=region_dict,
+                                                         region= amno_region_dict,
                                                          **CONFIG['extraction']['simulations']['extract_dataset'],
                                                          )['D']
                                 ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
 
                                 # need lat and lon -1 for the regrid
-                                #ds_sim = ds_sim.chunk(CONFIG['extract']['chunks'])
-                                ds_sim = ds_sim.chunk({'time': 1, 'lat': -1, 'lon': -1})
+                                ds_sim = ds_sim.chunk(CONFIG['extract']['chunks'])
+                                #ds_sim = ds_sim.chunk({'time': 1, 'lat': -1, 'lon': -1})# only for CNRM-ESM2-1
 
                                 # save to zarr
                                 path_cut_exec = f"{exec_wdir}/{sim_id}_{region_name}_extracted.zarr"
@@ -265,7 +279,7 @@ if __name__ == '__main__':
                                     if reg_dict['input'] == 'cur_sim': # get current extracted simulation
                                         ds_in = pcat.search(id=sim_id,
                                                             processing_level='extracted',
-                                                            domain=region_name).to_dask()
+                                                            domain='NAM').to_dask()
                                     elif reg_dict['input'] == 'previous':  # get results of previous regridding in the loop
                                         ds_in = ds_regrid
 
@@ -510,6 +524,99 @@ if __name__ == '__main__':
                         # ---DIAGNOSTICS ---
                         if (
                                 "diagnostics" in CONFIG["tasks"]
+                                and not pcat.exists_in_cat(domain=region_name,
+                                                           id=sim_id,
+                                                           processing_level='diag_improved')
+                        ):
+                            with (
+                                    Client(n_workers=3, threads_per_worker=5,
+                                           memory_limit="20GB", **daskkws),
+                                    measure_time(name=f'diagnostics', logger=logger),
+                                    timeout(18000, task='diagnostics')
+                            ):
+
+
+                                for step, step_dict in CONFIG['diagnostics'].items():
+                                    ds_input = pcat.search(
+                                        id=sim_id,
+                                        domain=region_name,
+                                        **step_dict['input']
+                                    ).to_dask().chunk({'time': -1}).sel(time=ref_period)
+
+                                    dref_for_measure=pcat.search(
+                                        id=sim_id,
+                                        domain=region_name,
+                                        **step_dict['dref_for_measure']).to_dask()
+
+                                    prop, meas = xs.properties_and_measures(
+                                        ds = ds_input,
+                                        dref_for_measure= dref_for_measure,
+                                        to_level_prop = f'diag_{step}_prop',
+                                        to_level_meas =f'diag_{step}_meas',
+                                        **step_dict['properties_and_measures']
+                                    )
+
+                                    for ds in [prop, meas]:
+                                        path_diag = Path(
+                                            CONFIG['paths']['diagnostics'].format(
+                                                region_name=region_name,
+                                                sim_id=sim_id,
+                                                level=ds.attrs['cat:processing_level']))
+
+                                        path_diag_exec = f"{workdir}/{path_diag.name}"
+                                        save_to_zarr(ds=ds, filename=path_diag_exec,
+                                                     mode='o', itervar=True)
+                                        shutil.move(path_diag_exec, path_diag)
+                                        pcat.update_from_ds(ds=ds, path=str(path_diag))
+
+
+                                meas_datasets= pcat.search(
+                                    processing_level = [
+                                        'diag_sim_meas',
+                                        'diag_scen_meas'
+                                    ]).to_dataset_dict()
+
+                                hm = xs.diagnostics.measures_heatmap(meas_datasets)
+
+                                ip = xs.diagnostics.measures_improvement(
+                                    list(meas_datasets.values)[::-1])
+
+                                for ds in [hm, ip]:
+                                    path_diag = Path(
+                                        CONFIG['paths']['diagnostics'].format(
+                                            region_name=ds.attrs['cat:domain'],
+                                            sim_id=ds.attrs['cat:id'],
+                                            level=ds.attrs['cat:processing_level']))
+                                    save_to_zarr(ds=ds, filename=path_diag, mode='o')
+                                    pcat.update_from_ds(ds=ds, path = path_diag)
+
+
+                                # if this is last step, delete stuff
+                                if CONFIG["tasks"][-2] == 'diagnostics':
+                                    final_regrid_path = f"{regriddir}/{sim_id}_{region_name}_regchunked.zarr"
+                                    path_log = \
+                                    CONFIG['logging']['handlers']['file'][
+                                        'filename']
+                                    move_then_delete(
+                                        dirs_to_delete=[workdir, exec_wdir],
+                                        moving_files=
+                                        [[
+                                             f"{workdir}/{sim_id}_{region_name}_regchunked.zarr",
+                                             final_regrid_path],
+                                         [path_log,
+                                          CONFIG['paths']['logging'].format(
+                                              **fmtkws)]],
+                                        pcat=pcat)
+
+                                send_mail(
+                                    subject=f"{sim_id}/{region_name} - Succès",
+                                    msg=f"Toutes les étapes demandées pour la simulation {sim_id}/{region_name} ont été accomplies.",
+                                )
+
+                        # ---DIAGNOSTICS_old ---
+
+                        if (
+                                "diagnostics_old" in CONFIG["tasks"]
                                 and not pcat.exists_in_cat(domain=region_name, id=sim_id, processing_level='scen_diag_meas')
                         ):
                             with (
@@ -555,6 +662,7 @@ if __name__ == '__main__':
                                 # save and update properties and biases/measures
                                 for ds, step in zip([sim, scen, meas_sim, meas_scen],
                                                     ["sim", "scen", 'sim_meas', 'scen_meas']):
+                                    ds.attrs.pop('cat:path')
                                     path_diag = Path(
                                         CONFIG['paths']['diagnostics'].format(region_name=region_name,
                                                                               sim_id=sim_id,
@@ -583,40 +691,48 @@ if __name__ == '__main__':
 
                 if (
                         "concat" in CONFIG["tasks"]
-                        and not pcat.exists_in_cat(domain='concat_regions', id=sim_id, processing_level='final', format='zarr')
+                        and not pcat.exists_in_cat(domain='concat_regions',
+                                                   id=sim_id,
+                                                   processing_level='final',
+                                                   format='zarr')
                 ):
                     dskconf.set(num_workers=12)
                     ProgressBar().register()
 
-                    print(f'Contenating {sim_id}.')
+                    levels = ['diag_sim', 'diag_scen', 'diag_sim_meas', 'diag_scen_meas', 'final']
+                    for level in levels:
+                        logger.info(f'Contenating {sim_id} {level}.')
 
-                    list_dsR = []
-                    for region_name in CONFIG['custom']['regions']:
-                        fmtkws = {'region_name': region_name,
-                                  'sim_id': sim_id}
+                        list_dsR = []
+                        for region_name in CONFIG['custom']['regions']:
+                            fmtkws = {'region_name': region_name,
+                                      'sim_id': sim_id}
 
-                        dsR = pcat.search(id=sim_id,
-                                          domain=region_name,
-                                          processing_level='final').to_dask()
+                            dsR = pcat.search(id=sim_id,
+                                              domain=region_name,
+                                              processing_level=level).to_dask()
 
-                        list_dsR.append(dsR)
+                            list_dsR.append(dsR)
 
-                    dsC = xr.concat(list_dsR, 'lat')
+                        dsC = xr.concat(list_dsR, 'lat')
 
-                    dsC.attrs['title'] = f"ESPO-G6 v1.0.0 - {sim_id}"
-                    dsC.attrs['cat:domain'] = f"NAM"
-                    dsC.attrs.pop('intake_esm_dataset_key')
+                        dsC.attrs['title'] = f"ESPO-G6 v1.0.0 - {sim_id}"
+                        dsC.attrs['cat:domain'] = f"NAM"
+                        dsC.attrs.pop('intake_esm_dataset_key')
 
-                    dsC_path = CONFIG['paths']['concat_output'].format(sim_id=sim_id)
-                    dsC.attrs.pop('cat:path')
-                    if get_calendar(dsC) =='360_day':
-                        dsC = dsC.chunk({'time':1440, 'lat':50, 'lon':50})
-                    else:
-                        dsC = dsC.chunk({'time':1460, 'lat':50, 'lon':50})
-                    save_to_zarr(ds=dsC,
-                                 filename=dsC_path,
-                                 mode='o')
-                    pcat.update_from_ds(ds=dsC, info_dict={'domain': 'concat_regions'},
-                                        path=str(dsC_path))
+                        dsC_path = CONFIG['paths'][f"concat_output" \
+                                                   f"_{level.split('_')[0]}"].format(
+                            sim_id=sim_id, step='_'.join(level.split('_')[1:]))
 
-                    print('All concatenations done for today.')
+                        dsC.attrs.pop('cat:path')
+                        if get_calendar(dsC) =='360_day':
+                            dsC = dsC.chunk({'time':1440, 'lat':50, 'lon':50})
+                        else:
+                            dsC = dsC.chunk({'time':1460, 'lat':50, 'lon':50})
+                        save_to_zarr(ds=dsC,
+                                     filename=dsC_path,
+                                     mode='o')
+                        pcat.update_from_ds(ds=dsC, info_dict={'domain': 'concat_regions'},
+                                            path=str(dsC_path))
+
+                    logger.info('All concatenations done.')
