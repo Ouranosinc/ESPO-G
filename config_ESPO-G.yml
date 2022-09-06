@@ -7,13 +7,13 @@ project:
 tasks:
   #- initialize_pcat
   - makeref
-  - extract
-  - regrid
-  - rechunk
-  - train
-  - adjust
-  - clean_up
-  - final_zarr
+#  - extract
+#  - regrid
+#  - rechunk
+#  - train
+#  - adjust
+#  - clean_up
+#  - final_zarr
   - diagnostics
   - concat
 
@@ -73,8 +73,6 @@ custom:
 #        loc: 5 # test
         time: -1
     out_chunks:
-#        lat: 2 # test
-#        lon: 2 # test
         lat: 50
         lon: 50
         time: 4year
@@ -107,6 +105,9 @@ extraction:
                 source: &ref_source
                     "ERA5-Land"
         extract_dataset: {}
+        properties_and_measures:
+          period: *ref_period
+          unstack: False
     simulations:
         search_data_catalogs:
             variables_and_freqs: *var_and_freq
@@ -331,17 +332,17 @@ clean_up:
 diagnostics:
   sim:
     input:
-      processing_level: final
+      processing_level:  regridded #_and_rechunked
     dref_for_measure:
-      processing_level: diag_ref_prop
+      processing_level: diag-ref-prop
     properties_and_measures:
       period: *ref_period
       unstack: *stack
   scen:
     input:
-      processing_level: regridded_and_rechunked
+      processing_level: final
     dref_for_measure:
-      processing_level: diag_ref_prop
+      processing_level: diag-ref-prop
     properties_and_measures:
       period: *ref_period
       unstack: False
