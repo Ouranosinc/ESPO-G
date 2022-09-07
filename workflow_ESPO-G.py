@@ -250,6 +250,7 @@ if __name__ == '__main__':
                                 and not pcat.exists_in_cat(domain='NAM', processing_level='extracted', id=sim_id)
                         ):
                             with (
+                                    # TODO: maybe more workers with less mem
                                     Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws),
                                     #Client(n_workers=1, threads_per_worker=5,memory_limit="50GB", **daskkws), # only for CNRM-ESM2-1
 
@@ -308,35 +309,26 @@ if __name__ == '__main__':
                                     measure_time(name='regrid', logger=logger),
                                     timeout(18000, task='regrid')
                             ):
-                                # iter over all regriddings
-                                for reg_name, reg_dict in CONFIG['regrid'].items():
-                                    # choose input
-                                    if reg_dict['input'] == 'cur_sim': # get current extracted simulation
-                                        ds_in = pcat.search(id=sim_id,
-                                                            processing_level='extracted',
-                                                            domain='NAM').to_dask()
-                                    elif reg_dict['input'] == 'previous':  # get results of previous regridding in the loop
-                                        ds_in = ds_regrid
 
-                                    # choose target grid
-                                    if 'cf_grid_2d' in reg_dict['target']:  # create a regular 2d grid
-                                        ds_target = xesmf.util.cf_grid_2d(**reg_dict['target']['cf_grid_2d'])
-                                        ds_target.attrs['cat:domain'] = reg_name  # need this in xscen regrid
-                                    elif 'search' in reg_dict['target']:  # search a grid in the catalog
-                                        ds_target = pcat.search(**reg_dict['target']['search'],
-                                                                domain=region_name).to_dask()
+                                ds_input = pcat.search(id=sim_id,
+                                                    processing_level='extracted',
+                                                    domain='NAM').to_dask()
 
-                                    ds_regrid = regrid_dataset(
-                                        ds=ds_in,
-                                        ds_grid=ds_target,
-                                        **reg_dict['regrid_dataset']
-                                    )
+                                ds_target = pcat.search(**CONFIG['regrid']['target'],
+                                                        domain=region_name).to_dask()
+
+                                ds_regrid = regrid_dataset(
+                                    ds=ds_input,
+                                    ds_grid=ds_target,
+                                    **CONFIG['regrid']['regrid_dataset']
+                                )
 
                                 # chunk time dim
-                                ds_regrid = ds_regrid.chunk(translate_time_chunk({'time': '4year'},
-                                                                                         get_calendar(ds_regrid),
-                                                                                         ds_regrid.time.size
-                                                                                         )
+                                ds_regrid = ds_regrid.chunk(
+                                    translate_time_chunk({'time': '4year'},
+                                                         get_calendar(ds_regrid),
+                                                         ds_regrid.time.size
+                                                         )
                                                                     )
 
                                 # save
@@ -591,7 +583,6 @@ if __name__ == '__main__':
                                         to_level_meas =f'diag-{step}-meas',
                                         **step_dict['properties_and_measures']
                                     )
-                                    print(prop['mean-pr'].attrs)
                                     for ds in [prop, meas]:
                                         path_diag = Path(
                                             CONFIG['paths']['diagnostics'].format(

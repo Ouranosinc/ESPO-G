@@ -7,32 +7,32 @@ project:
 tasks:
   #- initialize_pcat
   - makeref
-#  - extract
-#  - regrid
-#  - rechunk
-#  - train
-#  - adjust
-#  - clean_up
-#  - final_zarr
+  - extract
+  - regrid
+  - rechunk
+  - train
+  - adjust
+  - clean_up
+  - final_zarr
   - diagnostics
   - concat
 
 ids:
     # in the TCR likely range #https://zenodo.org/record/6476375#.YnVQNNPMJhE (14) #chunking
-#    - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_EXPERIMENT_r1i1p1f1_global # remove because missing a file #None
-#    - CMIP6_ScenarioMIP_CAS_FGOALS-g3_EXPERIMENT_r1i1p1f1_global # None, but 1 file per year
-#    - CMIP6_ScenarioMIP_CMCC_CMCC-ESM2_EXPERIMENT_r1i1p1f1_global # [1, 192, 288]
-#    - CMIP6_ScenarioMIP_CNRM-CERFACS_CNRM-ESM2-1_EXPERIMENT_r1i1p1f2_global # [1, 128, 256] # cut didnt work here for some reason.. (x2)
-#    - CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_EXPERIMENT_r1i1p1f1_global #  [1, 145, 192]
-#    - CMIP6_ScenarioMIP_CSIRO_ACCESS-ESM1-5_EXPERIMENT_r1i1p1f1_global # [1, 96, 144]
-#    - CMIP6_ScenarioMIP_DKRZ_MPI-ESM1-2-HR_EXPERIMENT_r1i1p1f1_global # [1, 192, 384]
-#    - CMIP6_ScenarioMIP_INM_INM-CM5-0_EXPERIMENT_r1i1p1f1_global # [1, 120, 180]
+    - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_EXPERIMENT_r1i1p1f1_global # #None
+    - CMIP6_ScenarioMIP_CAS_FGOALS-g3_EXPERIMENT_r1i1p1f1_global # None, but 1 file per year
+    - CMIP6_ScenarioMIP_CMCC_CMCC-ESM2_EXPERIMENT_r1i1p1f1_global # [1, 192, 288]
+    - CMIP6_ScenarioMIP_CNRM-CERFACS_CNRM-ESM2-1_EXPERIMENT_r1i1p1f2_global # [1, 128, 256] # cut didnt work here for some reason.. (x2)
+    - CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_EXPERIMENT_r1i1p1f1_global #  [1, 145, 192]
+    - CMIP6_ScenarioMIP_CSIRO_ACCESS-ESM1-5_EXPERIMENT_r1i1p1f1_global # [1, 96, 144]
+    - CMIP6_ScenarioMIP_DKRZ_MPI-ESM1-2-HR_EXPERIMENT_r1i1p1f1_global # [1, 192, 384]
+    - CMIP6_ScenarioMIP_INM_INM-CM5-0_EXPERIMENT_r1i1p1f1_global # [1, 120, 180]
     - CMIP6_ScenarioMIP_MIROC_MIROC6_EXPERIMENT_r1i1p1f1_global # [1, 96, 192]
-#    - CMIP6_ScenarioMIP_MPI-M_MPI-ESM1-2-LR_EXPERIMENT_r1i1p1f1_global #[1, 96, 192]
-#    - CMIP6_ScenarioMIP_MRI_MRI-ESM2-0_EXPERIMENT_r1i1p1f1_global #[1, 160, 320]
-#    - CMIP6_ScenarioMIP_NCC_NorESM2-LM_EXPERIMENT_r1i1p1f1_global #[1, 96, 144]
-#    - CMIP6_ScenarioMIP_NIMS-KMA_KACE-1-0-G_EXPERIMENT_r1i1p1f1_global #[1, 144, 192]
-#    - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_EXPERIMENT_r1i1p1f1_global #[1, 180, 288]
+    - CMIP6_ScenarioMIP_MPI-M_MPI-ESM1-2-LR_EXPERIMENT_r1i1p1f1_global #[1, 96, 192]
+    - CMIP6_ScenarioMIP_MRI_MRI-ESM2-0_EXPERIMENT_r1i1p1f1_global #[1, 160, 320]
+    - CMIP6_ScenarioMIP_NCC_NorESM2-LM_EXPERIMENT_r1i1p1f1_global #[1, 96, 144]
+    - CMIP6_ScenarioMIP_NIMS-KMA_KACE-1-0-G_EXPERIMENT_r1i1p1f1_global #[1, 144, 192]
+    - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_EXPERIMENT_r1i1p1f1_global #[1, 180, 288]
 
 
 experiments: &experiments
@@ -124,54 +124,44 @@ extraction:
               #chunks: {'time': 1, 'lon': -1, 'lat': -1} # only for CNRM-ESM2-1
     ref_source: *ref_source
 
+
 regrid:
-  reg1:
-    input:
-      cur_sim
-    target:
-      cf_grid_2d:
-        lon0_b: 179.05 #274.75
-        lon1_b: 351.2 #305.2
-        d_lon: 1
-        lat0_b: 9 #39.75
-        lat1_b: 84 #64
-        d_lat: 1
-    regrid_dataset:
-      regridder_kwargs:
-          method: bilinear
-          extrap_method: inverse_dist
-          locstream_out: False
-          reuse_weights: False
-  reg2:
-    input:
-      previous
-    target:
-      cf_grid_2d:
-        lon0_b: 179.04 #274.74
-        lon1_b: 351.2 #305.2
-        d_lon: 0.5
-        lat0_b: 8.9 #39.74
-        lat1_b: 84 #64
-        d_lat: 0.5
-    regrid_dataset:
-      regridder_kwargs:
-        method: bilinear
-        extrap_method: inverse_dist
-        locstream_out: False
-        reuse_weights: False
-  reg3:
-    input:
-      previous
-    target:
-      search:
-        source: *ref_source
-        calendar: noleap
-    regrid_dataset:
+  target:
+    source: *ref_source
+    calendar: noleap
+  regrid_dataset:
       regridder_kwargs:
         method: bilinear
         extrap_method: inverse_dist
         locstream_out: *stack
         reuse_weights: False
+      intermediate_reg_grids:
+        reg1:
+          cf_grid_2d:
+            lon0_b: 179.05
+            lon1_b: 351.2
+            d_lon: 1
+            lat0_b: 9
+            lat1_b: 84
+            d_lat: 1
+          regridder_kwargs:
+            method: bilinear
+            extrap_method: inverse_dist
+            locstream_out: False
+            reuse_weights: False
+        reg2:
+          cf_grid_2d:
+            lon0_b: 179.04
+            lon1_b: 351.2
+            d_lon: 0.5
+            lat0_b: 8.9
+            lat1_b: 84
+            d_lat: 0.5
+          regridder_kwargs:
+            method: bilinear
+            extrap_method: inverse_dist
+            locstream_out: False
+            reuse_weights: False
 
 rechunk:
     worker_mem: 2GB
@@ -332,7 +322,7 @@ clean_up:
 diagnostics:
   sim:
     input:
-      processing_level:  regridded #_and_rechunked
+      processing_level:  regridded_and_rechunked
     dref_for_measure:
       processing_level: diag-ref-prop
     properties_and_measures:
