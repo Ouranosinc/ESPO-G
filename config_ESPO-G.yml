@@ -31,7 +31,7 @@ ids:
     - CMIP6_ScenarioMIP_MPI-M_MPI-ESM1-2-LR_EXPERIMENT_r1i1p1f1_global #[1, 96, 192]
     - CMIP6_ScenarioMIP_MRI_MRI-ESM2-0_EXPERIMENT_r1i1p1f1_global #[1, 160, 320]
     - CMIP6_ScenarioMIP_NCC_NorESM2-LM_EXPERIMENT_r1i1p1f1_global #[1, 96, 144]
-    - CMIP6_ScenarioMIP_NIMS-KMA_KACE-1-0-G_EXPERIMENT_r1i1p1f1_global #[1, 144, 192]
+    - CMIP6_ScenarioMIP_NIMS-KMA_KACE-1-0-G_EXPERIMENT_r1i1p1f1_global #[1, 144, 192] time out extract
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_EXPERIMENT_r1i1p1f1_global #[1, 180, 288]
 
 
@@ -62,15 +62,9 @@ custom:
     stack_drop_nans: &stack
         True
     chunks:
-#        lat: 25 #10
-#        lon: 25 #10
-#        loc: 100 #40
         lat: 20 #espo-r
         lon: 20 #espo-r
         loc: 600 #espo-r
-#        lat: 2 # test
-#        lon: 2 # test
-#        loc: 5 # test
         time: -1
     out_chunks:
         lat: 50
@@ -86,9 +80,6 @@ custom:
         noleap
 
 
-
-extract:
-    chunks: {'time': 365, 'lat':-1, 'lon':-1}
 
 extraction:
     reference:
@@ -106,6 +97,7 @@ extraction:
                     "ERA5-Land"
         extract_dataset: {}
         properties_and_measures:
+          to_level_prop: diag-ref-prop
           period: *ref_period
           unstack: False
     simulations:
@@ -122,6 +114,7 @@ extraction:
               drop_variables:
                 - height
               #chunks: {'time': 1, 'lon': -1, 'lat': -1} # only for CNRM-ESM2-1
+        chunks: {'time': 365, 'lat':-1, 'lon':-1}
     ref_source: *ref_source
 
 
@@ -135,7 +128,7 @@ regrid:
         extrap_method: inverse_dist
         locstream_out: *stack
         reuse_weights: False
-      intermediate_reg_grids:
+      intermediate_grids:
         reg1:
           cf_grid_2d:
             lon0_b: 179.05
@@ -163,7 +156,8 @@ regrid:
             locstream_out: False
             reuse_weights: False
 
-rechunk:
+io:
+  rechunk:
     worker_mem: 2GB
 
 
@@ -253,7 +247,10 @@ clean_up:
         pr: D
       allow_conversion: True
       allow_resampling: False
-    xscen_clean_up:
+
+utils:
+  clean_up:
+      to_level: cleaned_up
       add_attrs:
         global:
           title: ESPO-G6 v1.0.0 - {sim_id} - Region {region_name}
@@ -277,46 +274,6 @@ clean_up:
             standard_name: precipitation_flux
             long_name: Mean daily precipitation flux
             cell_methods: "time: mean within days"
-#    final_attrs_names:
-#        - bias_adjustment
-#        - cell_methods
-#        - coordinates
-#        - history
-#        - long_name
-#        - standard_name
-#        - units
-#    attrs:
-#        global:
-#            Conventions: CF-1.9
-#            title: ESPO-G6 v1.0.0
-#            institution: Ouranos
-#            source: |
-#                Regridded on the grid of ERA5-Land, then bias-adjusted with detrended
-#                quantile mapping on a day-of-year basis with a window of 31 days, LOESS
-#                detrending and 50 quantiles. The reference was ERA5-Land over the
-#                1991-2020 period. Tasmax, dtr and pr were adjusted, tasmin was computed
-#                from tasmax and dtr after the adjustment.
-#            redistribution: Redistribution prohibited. For internal use only.
-#            version: "1.0.0"
-#            cat/_data_format_: zarr
-#        tasmax:
-#            standard_name: air_temperature
-#            long_name: Maximal daily temperature
-#            cell_methods: "time: maximum within days"
-#        tasmin:
-#            standard_name: air_temperature
-#            long_name: Minimal daily temperature
-#            cell_methods: "time: minimum within days"
-#        pr:
-#            standard_name: precipitation_flux
-#            long_name: Mean daily precipitation flux
-#            cell_methods: "time: mean within days"
-
-#diagnostics:
-#  properties:
-#    'mean-tasmax': {'func':sdba.properties.mean, 'var': 'tasmax', 'args': {}}
-#    'mean-tasmin': {'func':sdba.properties.mean, 'var': 'tasmin', 'args': {}}
-#    'mean-pr': {'func':sdba.properties.mean, 'var': 'pr', 'args': {}}
 
 
 diagnostics:
