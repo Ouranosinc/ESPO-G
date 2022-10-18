@@ -16,7 +16,7 @@ import xscen as xs
 from xclim.core.calendar import convert_calendar, get_calendar, date_range_like
 from xclim.core.units import convert_units_to
 from xclim.sdba import properties, measures, construct_moving_yearly_window, unpack_moving_yearly_window
-
+import xclim as xc
 
 from xscen.utils import minimum_calendar, translate_time_chunk, stack_drop_nans, unstack_fill_nan, maybe_unstack
 from xscen.io import rechunk
@@ -237,8 +237,8 @@ if __name__ == '__main__':
                                 and not pcat.exists_in_cat(domain='NAM', processing_level='extracted', id=sim_id)
                         ):
                             with (
-                                    #Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws),
-                                    Client(n_workers=1, threads_per_worker=5,memory_limit="50GB", **daskkws), # only for CNRM-ESM2-1
+                                    Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws),
+                                    #Client(n_workers=1, threads_per_worker=5,memory_limit="50GB", **daskkws), # only for CNRM-ESM2-1
 
                                     measure_time(name='extract', logger=logger),
                                     timeout(18000, task='extract')
@@ -474,6 +474,8 @@ if __name__ == '__main__':
                                               maybe_unstack_dict=maybe_unstack_dict,
                                               )
 
+                                # TODO: put in clean_up
+                                ds['pr']=ds.pr.round(14)
 
                                 save_move_update(ds=ds,
                                                  pcat=pcat,
@@ -667,3 +669,89 @@ if __name__ == '__main__':
                                             path=str(dsC_path))
 
                     logger.info('All concatenations done.')
+
+            # ---INDICATORS---
+            if (
+                    "indicators" in CONFIG["tasks"]
+                    and not pcat.exists_in_cat(id=sim_id,
+                                               processing_level='indicators')
+            ):
+                with (
+                        Client(n_workers=2, threads_per_worker=4,
+                               memory_limit="16GB", **daskkws),
+                        measure_time(name=f'indicators', logger=logger)
+                ):
+                    ds_input = pcat.search(**CONFIG['indicators']['input']).to_dask()
+                    ds_input = ds_input.assign(tas=xc.atmos.tg(ds=ds))
+                    mod = xs.load_xclim_module()
+
+                    for indname, ind in mod.iter_indicators():
+                        var_name = ind.cf_attrs[0]['var_name']
+                        if not pcat.exists_in_cat(id=sim_id,
+                                                  processing_level='indicator',
+                                                  variable=var_name):
+                            logger.info(f'Computing {indname}.')
+                            freq = ind.injected_parameters['freq'].replace('YS','AS-JAN')
+                            try:
+                                with timeout(7200, indname):
+                                    if freq == '2QS-OCT':
+                                        iAPR = np.where(ds.time.dt.month == 4)[0][0]
+                                        dsi = ds.isel(time=slice(iAPR, None))
+                                    else:
+                                        dsi = ds
+                                    if 'rolling' in ind.keywords:
+                                        temppath = f"{exec_wdir}/{sim_id}_{region_name}_{var_name}.zarr"
+                                        mult, *parts = xc.core.calendar.parse_offset(freq)
+                                        steps = xc.core.calendar.construct_offset(mult * 8, *parts)
+                                        for i, slc in enumerate(dsi.resample(time=steps).groups.values()):
+                                            dsc = dsi.isel(time=slc)
+                                            logger.info(f"Computing on slice {dsc.indexes['time'][0]}-{dsc.indexes['time'][-1]}.")
+                                            _, out = xs.compute_indicators(
+                                                dsc,
+                                                indicators=[ind]).popitem()
+                                            kwargs = {} if i == 0 else {'append_dim': 'time'}
+                                            save_to_zarr(out,
+                                                         temppath,
+                                                         rechunk={'time': -1},
+                                                         mode='a',
+                                                         zarr_kwargs=kwargs)
+
+                                        logger.info(f'Moving from temp dir to final dir, removing temp dir.')
+                                        outpath = f"{workdir}/{sim_id}_{region_name}_{var_name}.zarr"
+                                        shutil.move(temppath, outpath)
+                                        pcat.update_from_ds(ds=out,
+                                                            path=outpath)
+                                    else:
+                                        _, out = xs.compute_indicators(
+                                            dsi,
+                                            indicators=[ind]).popitem()
+                                        save_move_update(
+                                            ds=out,
+                                            pcat=pcat,
+                                            init_path=f"{exec_wdir}/{sim_id}_{region_name}_{var_name}.zarr",
+                                            final_path=f"{workdir}/{sim_id}_{region_name}_{var_name}.zarr",
+                                            rechunk={'time': -1}
+                                                         )
+                            except TimeoutException:
+                                logger.error(f'Timeout for task {indname}.')
+                                if 'rolling' in ind.keywords:
+                                    logger.warn(f'Removing folder {temppath}.')
+                                    shutil.rmtree(temppath)
+                                continue
+
+                    # merge all indicators in one dataset
+                    all_ind = pcat.search(processing_level='indicator',
+                                          id=sim_id).to_dataset_dict()
+                    ds_merge = xr.merge(all_ind.values, combine_attrs='drop_conflicts')
+                    ds_merge.attrs['cat:processing_level'] = 'indicators'
+
+                    save_move_update(
+                        ds=ds_merge,
+                        pcat=pcat,
+                        init_path=f"{workdir}/{sim_id}_{region_name}_indicators.zarr",
+                        final_path=Path(CONFIG['paths']['indicators'].format(
+                            region_name=region_name,
+                            sim_id=sim_id,
+                            level=ds_merge.attrs['cat:processing_level'])),
+                    )
+
