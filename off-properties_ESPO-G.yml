@@ -1,0 +1,72 @@
+realm: generic
+indicators:
+  q99_tasmax:
+    base: xclim.sdba.properties.quantile
+    cf_attrs:
+      long_name: oh my god
+    input:
+      da: tasmax
+    parameters:
+      q: 0.99
+  q99_tasmin:
+    base: xclim.sdba.properties.quantile
+    input:
+      da: tasmin
+    parameters:
+      q: 0.99
+  q01_tasmax:
+    base: xclim.sdba.properties.quantile
+    input:
+      da: tasmax
+    parameters:
+      q: 0.01
+  q01_tasmin:
+    base: xclim.sdba.properties.quantile
+    input:
+      da: tasmin
+    parameters:
+      q: 0.01
+  q99_pr:
+    base: xclim.sdba.properties.quantile
+    input:
+      da: pr
+    parameters:
+      q: 0.99
+  q95_pr:
+    base: xclim.sdba.properties.quantile
+    input:
+      da: pr
+    parameters:
+      q: 0.95
+  dry_spell_freq:
+    base: xclim.sdba.properties.relative_frequency
+    input:
+      da: pr
+    parameters:
+      op: "<"
+      thresh: "1 mm d-1"
+  aca_tasmax:
+    base: xclim.sdba.properties.annual_cycle_amplitude
+    input:
+      da: tasmax
+  aca_tasmin:
+    base: xclim.sdba.properties.annual_cycle_amplitude
+    input:
+      da: tasmin
+  aca_pr:
+    base: xclim.sdba.properties.relative_annual_cycle_amplitude
+    input:
+      da: pr
+  corr_tasmax_tasmin:
+    base: xclim.sdba.properties.corr_btw_var
+    input:
+      da1: tasmax
+      da2: tasmin
+  corr_tasmax_pr:
+    base: xclim.sdba.properties.corr_btw_var
+    input:
+      da1: tasmax
+      da2: pr
+  #Max dry/hot/cold spell length (codé)
+  #Decorrelation length (non codé)
+  #Wet-wet and Dry-wet transitions (non codé)

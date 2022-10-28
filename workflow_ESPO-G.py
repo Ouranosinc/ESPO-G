@@ -17,6 +17,7 @@ from xclim.core.calendar import convert_calendar, get_calendar, date_range_like
 from xclim.core.units import convert_units_to
 from xclim.sdba import properties, measures, construct_moving_yearly_window, unpack_moving_yearly_window
 import xclim as xc
+from xclim.core import dataflags
 
 from xscen.utils import minimum_calendar, translate_time_chunk, stack_drop_nans, unstack_fill_nan, maybe_unstack
 from xscen.io import rechunk
@@ -222,7 +223,8 @@ if __name__ == '__main__':
                     # depending on the final tasks, check that the final file doesn't already exists
                     final = {'final_zarr': dict(domain=region_name, processing_level='final', id=sim_id),
                              'diagnostics': dict(domain=region_name, processing_level='diag-improved', id=sim_id)}
-                    if not pcat.exists_in_cat(**final[CONFIG["tasks"][-2]]):
+                    final_task= 'diagnostics' if 'diagnostics' in CONFIG["tasks"] else 'final_zarr'
+                    if not pcat.exists_in_cat(**final[final_task]):
 
                         fmtkws = {'region_name': region_name, 'sim_id': sim_id}
 
@@ -431,6 +433,9 @@ if __name__ == '__main__':
                                                          domain=region_name).to_dask()
                                     ds_tr = pcat.search(id=f'{sim_id}', processing_level =f'training_{var}', domain=region_name).to_dask()
 
+                                    # there are some negative dtr in the data (GFDL-ESM4). This puts is back to a very small positive.
+                                    ds_sim['dtr'] = xc.sdba.processing.jitter_under_thresh(ds_sim.dtr, "1e-4 K")
+
                                     # adjust
                                     ds_scen = adjust(dsim=ds_sim,
                                                      dtrain=ds_tr,
@@ -465,17 +470,22 @@ if __name__ == '__main__':
                                                           )['D']
 
                                 # can't put in config because of dynamic path
-                                maybe_unstack_dict = {'stack_drop_nans': CONFIG['custom']['stack_drop_nans'],
-                                                      'rechunk': {d: CONFIG['custom']['chunks'][d]
-                                                                  for d in ['lon', 'lat', 'time']},
-                                                      }
+                                # maybe_unstack_dict = {'stack_drop_nans': CONFIG['custom']['stack_drop_nans'],
+                                #                       'rechunk': {d: CONFIG['custom']['chunks'][d]
+                                #                                   for d in ['lon', 'lat', 'time']},
+                                #                       }
 
                                 ds = clean_up(ds=ds,
-                                              maybe_unstack_dict=maybe_unstack_dict,
+                                              #maybe_unstack_dict=maybe_unstack_dict,
                                               )
 
                                 # TODO: put in clean_up
                                 ds['pr']=ds.pr.round(14)
+
+                                # fix the problematic data
+                                if sim_id in CONFIG['clean_up']['problems']:
+                                    logger.info('Mask grid cells where tasmin < 100 K.')
+                                    ds = ds.where(ds.tasmin > 100)
 
                                 save_move_update(ds=ds,
                                                  pcat=pcat,
@@ -513,7 +523,7 @@ if __name__ == '__main__':
                                 shutil.move(fi_path_exec, fi_path)
 
                                 # if this is last step, delete workdir, but save log and regridded
-                                if CONFIG["tasks"][-2] == 'final_zarr':
+                                if CONFIG['custom']['delete_in_final_zarr']:
                                     final_regrid_path = f"{regriddir}/{sim_id}_{region_name}_regchunked.zarr"
                                     path_log = CONFIG['logging']['handlers']['file']['filename']
                                     move_then_delete(dirs_to_delete=[workdir, exec_wdir],
@@ -602,13 +612,14 @@ if __name__ == '__main__':
 
 
                                 # if this is last step, delete stuff
-                                if CONFIG["tasks"][-2] == 'diagnostics':
+                                if CONFIG['custom']['delete_in_diag']:
                                     final_regrid_path = f"{regriddir}/{sim_id}_{region_name}_regchunked.zarr"
                                     path_log = \
                                     CONFIG['logging']['handlers']['file'][
                                         'filename']
                                     move_then_delete(
-                                        dirs_to_delete=[workdir, exec_wdir],
+                                        #dirs_to_delete=[workdir, exec_wdir],
+                                        dirs_to_delete=[], #TODO: put back
                                         moving_files=
                                         [[
                                              f"{workdir}/{sim_id}_{region_name}_regchunked.zarr",
@@ -670,88 +681,180 @@ if __name__ == '__main__':
 
                     logger.info('All concatenations done.')
 
-            # ---INDICATORS---
-            if (
-                    "indicators" in CONFIG["tasks"]
-                    and not pcat.exists_in_cat(id=sim_id,
-                                               processing_level='indicators')
-            ):
-                with (
-                        Client(n_workers=2, threads_per_worker=4,
-                               memory_limit="16GB", **daskkws),
-                        measure_time(name=f'indicators', logger=logger)
-                ):
-                    ds_input = pcat.search(**CONFIG['indicators']['input']).to_dask()
-                    ds_input = ds_input.assign(tas=xc.atmos.tg(ds=ds))
-                    mod = xs.load_xclim_module()
 
-                    for indname, ind in mod.iter_indicators():
-                        var_name = ind.cf_attrs[0]['var_name']
-                        if not pcat.exists_in_cat(id=sim_id,
-                                                  processing_level='indicator',
-                                                  variable=var_name):
-                            logger.info(f'Computing {indname}.')
-                            freq = ind.injected_parameters['freq'].replace('YS','AS-JAN')
-                            try:
-                                with timeout(7200, indname):
-                                    if freq == '2QS-OCT':
-                                        iAPR = np.where(ds.time.dt.month == 4)[0][0]
-                                        dsi = ds.isel(time=slice(iAPR, None))
-                                    else:
-                                        dsi = ds
-                                    if 'rolling' in ind.keywords:
-                                        temppath = f"{exec_wdir}/{sim_id}_{region_name}_{var_name}.zarr"
-                                        mult, *parts = xc.core.calendar.parse_offset(freq)
-                                        steps = xc.core.calendar.construct_offset(mult * 8, *parts)
-                                        for i, slc in enumerate(dsi.resample(time=steps).groups.values()):
-                                            dsc = dsi.isel(time=slc)
-                                            logger.info(f"Computing on slice {dsc.indexes['time'][0]}-{dsc.indexes['time'][-1]}.")
-                                            _, out = xs.compute_indicators(
-                                                dsc,
-                                                indicators=[ind]).popitem()
-                                            kwargs = {} if i == 0 else {'append_dim': 'time'}
-                                            save_to_zarr(out,
-                                                         temppath,
-                                                         rechunk={'time': -1},
-                                                         mode='a',
-                                                         zarr_kwargs=kwargs)
 
-                                        logger.info(f'Moving from temp dir to final dir, removing temp dir.')
-                                        outpath = f"{workdir}/{sim_id}_{region_name}_{var_name}.zarr"
-                                        shutil.move(temppath, outpath)
-                                        pcat.update_from_ds(ds=out,
-                                                            path=outpath)
-                                    else:
-                                        _, out = xs.compute_indicators(
-                                            dsi,
-                                            indicators=[ind]).popitem()
-                                        save_move_update(
-                                            ds=out,
-                                            pcat=pcat,
-                                            init_path=f"{exec_wdir}/{sim_id}_{region_name}_{var_name}.zarr",
-                                            final_path=f"{workdir}/{sim_id}_{region_name}_{var_name}.zarr",
-                                            rechunk={'time': -1}
-                                                         )
-                            except TimeoutException:
-                                logger.error(f'Timeout for task {indname}.')
+    #TODO: change it to workflow unique framework
+    # ---INDICATORS---
+    if (
+            "indicators" in CONFIG["tasks"]
+            and not pcat.exists_in_cat(id=sim_id,
+                                       processing_level='indicators',
+                                       xrfreq='AS-JUL')
+    ):
+        with (
+                Client(n_workers=2, threads_per_worker=4,
+                       memory_limit="16GB", **daskkws),
+                measure_time(name=f'indicators', logger=logger)
+        ):
+            dict_input = pcat.search(**CONFIG['indicators']['input']).to_dataset_dict()
+            for id_input , ds_input in dict_input.items():
+                sim_id = ds_input.attrs['cat:id']
+                ds_input = ds_input.assign(tas=xc.atmos.tg(ds=ds_input))
+                mod = xs.indicators.load_xclim_module(**CONFIG['indicators']['load_xclim_module'])
+
+                for indname, ind in mod.iter_indicators():
+                    var_name = ind.cf_attrs[0]['var_name']
+                    if not pcat.exists_in_cat(id=sim_id,
+                                              processing_level='indicator',
+                                              variable=var_name):
+                        freq = ind.injected_parameters['freq'].replace('YS','AS-JAN')
+                        #try:
+                        if True:
+                            with timeout(7200, indname):
+                                if freq == '2QS-OCT':
+                                    iAPR = np.where(ds_input.time.dt.month == 4)[0][0]
+                                    dsi = ds_input.isel(time=slice(iAPR, None))
+                                else:
+                                    dsi = ds_input
                                 if 'rolling' in ind.keywords:
-                                    logger.warn(f'Removing folder {temppath}.')
-                                    shutil.rmtree(temppath)
-                                continue
+                                    temppath = f"{exec_wdir}/{sim_id}_{indname}.zarr"
+                                    mult, *parts = xc.core.calendar.parse_offset(freq)
+                                    steps = xc.core.calendar.construct_offset(mult * 8, *parts)
+                                    for i, slc in enumerate(dsi.resample(time=steps).groups.values()):
+                                        dsc = dsi.isel(time=slc)
+                                        logger.info(f"Computing on slice {dsc.indexes['time'][0]}-{dsc.indexes['time'][-1]}.")
+                                        _, out = xs.compute_indicators(
+                                            dsc,
+                                            indicators=[ind]).popitem()
+                                        kwargs = {} if i == 0 else {'append_dim': 'time'}
+                                        save_to_zarr(out,
+                                                     temppath,
+                                                     rechunk={'time': -1},
+                                                     mode='a',
+                                                     zarr_kwargs=kwargs)
 
-                    # merge all indicators in one dataset
-                    all_ind = pcat.search(processing_level='indicator',
-                                          id=sim_id).to_dataset_dict()
-                    ds_merge = xr.merge(all_ind.values, combine_attrs='drop_conflicts')
-                    ds_merge.attrs['cat:processing_level'] = 'indicators'
+                                    logger.info(f'Moving from temp dir to final dir, removing temp dir.')
+                                    outpath = f"{workdir}/{sim_id}_{indname}.zarr"
+                                    shutil.move(temppath, outpath)
+                                    pcat.update_from_ds(ds=out,
+                                                        path=outpath)
+                                else:
+                                    _, out = xs.compute_indicators(
+                                        dsi,
+                                        indicators=[ind]).popitem()
+                                    save_move_update(
+                                        ds=out,
+                                        pcat=pcat,
+                                        init_path=f"{exec_wdir}/{sim_id}_{indname}.zarr",
+                                        final_path=f"{workdir}/{sim_id}_{indname}.zarr",
+                                        rechunk={'time': -1}
+                                                     )
+                        # except TimeoutException:
+                        #     logger.error(f'Timeout for task {indname}.')
+                        #     if 'rolling' in ind.keywords:
+                        #         logger.warn(f'Removing folder {temppath}.')
+                        #         shutil.rmtree(temppath)
+                        #     continue
 
-                    save_move_update(
-                        ds=ds_merge,
-                        pcat=pcat,
-                        init_path=f"{workdir}/{sim_id}_{region_name}_indicators.zarr",
-                        final_path=Path(CONFIG['paths']['indicators'].format(
-                            region_name=region_name,
-                            sim_id=sim_id,
-                            level=ds_merge.attrs['cat:processing_level'])),
-                    )
+                #iterate over possible freqs
+                freqs = pcat.search(processing_level='indicator',
+                                    id=sim_id).df.xrfreq.unique()
+                for xrfreq in freqs:
+                    if not pcat.exists_in_cat(id=sim_id,
+                                           processing_level='indicators',
+                                           xrfreq=xrfreq):
+                        # merge all indicators of this freq in one dataset
+                        all_ind = pcat.search(processing_level='indicator',
+                                              id=sim_id,
+                                              xrfreq=xrfreq).to_dataset_dict()
+                        ds_merge = xr.merge(all_ind.values(),
+                                            combine_attrs='drop_conflicts')
+                        ds_merge.attrs['cat:processing_level'] = 'indicators'
 
+                        save_move_update(
+                            ds=ds_merge,
+                            pcat=pcat,
+                            init_path=f"{workdir}/{sim_id}_{xrfreq}_indicators.zarr",
+                            final_path=Path(CONFIG['paths']['indicators'].format(
+                                **xs.utils.get_cat_attrs(ds_merge)))
+                        )
+
+                # TODO: empty workdir, maybe issue with log?
+                move_then_delete(dirs_to_delete=[workdir, exec_wdir],moving_files=[],pcat=pcat)
+
+    # # ---OFFICIAL-DIAGNOSTICS---
+    # for dom_name, dom_dict in CONFIG['diagnostics']['domains'].items():
+    #     if (
+    #             "official-diag" in CONFIG["tasks"]
+    #             and not pcat.exists_in_cat(id=sim_id,
+    #                                        processing_level='off-diag-improved',
+    #                                        domain=dom_name)
+    #     ):
+    #         with (
+    #                 Client(n_workers=3, threads_per_worker=5,
+    #                        memory_limit="20GB", **daskkws),
+    #                 measure_time(name=f'off-diag', logger=logger),
+    #                 timeout(18000, task='off-diag')
+    #         ):
+    #
+    #             # iterate over steps
+    #             for step, step_dict in CONFIG['off-diag']['steps'].items():
+    #                 ds_input = pcat.search(
+    #                     id=sim_id,
+    #                     domain= step_dict['domain'][dom_name],
+    #                     **step_dict['input']
+    #                 ).to_dask().chunk({'time': -1})
+    #
+    #                 ds_input = xs.extract.clisops_subset(ds_input, dom_dict)
+    #                 ds_input.attrs["cat:domain"] = dom_name
+    #
+    #                 dref_for_measure = None
+    #                 if 'dref_for_measure' in step_dict:
+    #                     dref_for_measure = pcat.search(
+    #                         domain=dom_name,
+    #                         **step_dict['dref_for_measure']).to_dask()
+    #
+    #                 prop, meas = xs.properties_and_measures(
+    #                     ds=ds_input,
+    #                     dref_for_measure=dref_for_measure,
+    #                     to_level_prop=f'off-diag-{step}-prop',
+    #                     to_level_meas=f'off-diag-{step}-meas',
+    #                     **step_dict['properties_and_measures']
+    #                 )
+    #                 for ds in [prop, meas]:
+    #                     path_diag = Path(
+    #                         CONFIG['paths']['diagnostics'].format(
+    #                             region_name=dom_name,
+    #                             sim_id=sim_id,
+    #                             level=ds.attrs['cat:processing_level']))
+    #
+    #                     path_diag_exec = f"{workdir}/{path_diag.name}"
+    #                     save_to_zarr(ds=ds, filename=path_diag_exec,
+    #                                  mode='o', itervar=True,
+    #                                  rechunk={'lat': 50, 'lon': 50})
+    #                     shutil.move(path_diag_exec, path_diag)
+    #                     pcat.update_from_ds(ds=ds, path=str(path_diag))
+    #
+    #             meas_datasets = pcat.search(
+    #                 processing_level=['off-diag-sim-meas',
+    #                                   'off-diag-scen-meas'],
+    #                 id=sim_id,
+    #                 domain=dom_name).to_dataset_dict()
+    #
+    #             # make sur sim is first (for improved)
+    #             order_keys = [f'{sim_id}.{dom_name}.diag-sim-meas.fx',
+    #                           f'{sim_id}.{dom_name}.diag-scen-meas.fx']
+    #             meas_datasets = {k: meas_datasets[k] for k in order_keys}
+    #
+    #             hm = xs.diagnostics.measures_heatmap(meas_datasets)
+    #
+    #             ip = xs.diagnostics.measures_improvement(meas_datasets)
+    #
+    #             for ds in [hm, ip]:
+    #                 path_diag = Path(
+    #                     CONFIG['paths']['diagnostics'].format(
+    #                         region_name=ds.attrs['cat:domain'],
+    #                         sim_id=ds.attrs['cat:id'],
+    #                         level=ds.attrs['cat:processing_level']))
+    #                 save_to_zarr(ds=ds, filename=path_diag, mode='o')
+    #                 pcat.update_from_ds(ds=ds, path=path_diag)
