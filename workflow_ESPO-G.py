@@ -618,8 +618,7 @@ if __name__ == '__main__':
                                     CONFIG['logging']['handlers']['file'][
                                         'filename']
                                     move_then_delete(
-                                        #dirs_to_delete=[workdir, exec_wdir],
-                                        dirs_to_delete=[], #TODO: put back
+                                        dirs_to_delete=[workdir, exec_wdir],
                                         moving_files=
                                         [[
                                              f"{workdir}/{sim_id}_{region_name}_regchunked.zarr",
@@ -683,7 +682,6 @@ if __name__ == '__main__':
 
 
 
-    #TODO: change it to workflow unique framework
     # ---INDICATORS---
     if (
             "indicators" in CONFIG["tasks"]
@@ -783,6 +781,9 @@ if __name__ == '__main__':
                 move_then_delete(dirs_to_delete=[workdir, exec_wdir],moving_files=[],pcat=pcat)
 
     # # ---OFFICIAL-DIAGNOSTICS---
+    # if "official-diag" in CONFIG["tasks"]:
+    # dict_input = pcat.search(**CONFIG['indicators']['input']).to_dataset_dict()
+    # for id_input, ds_input in dict_input.items():
     # for dom_name, dom_dict in CONFIG['diagnostics']['domains'].items():
     #     if (
     #             "official-diag" in CONFIG["tasks"]
