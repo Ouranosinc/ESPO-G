@@ -20,7 +20,7 @@ logger = logging.getLogger('xscen')
 def save_move_update(ds,pcat, init_path, final_path,info_dict=None,
                      encoding=None, mode='o', itervar=False, rechunk=None):
     encoding = encoding or {var: {'dtype': 'float32'} for var in ds.data_vars}
-    save_to_zarr(ds, init_path, encoding=encoding, mode=mode,itervar=itervar, rechunk=None)
+    save_to_zarr(ds, init_path, encoding=encoding, mode=mode,itervar=itervar, rechunk=rechunk)
     shutil.move(init_path,final_path)
     pcat.update_from_ds(ds=ds, path=str(final_path),info_dict=info_dict)
 

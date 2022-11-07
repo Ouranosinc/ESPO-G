@@ -67,6 +67,40 @@ indicators:
     input:
       da1: tasmax
       da2: pr
+  maximum_length_of_dry_spell:
+    base: xclim.sdba.properties.spell_length_distribution
+    input:
+      da: pr
+    parameters:
+      method: amount
+      op: '<'
+      thresh: 1 mm d-1
+      stat: max
+  maximum_length_of_warm_spell:
+    base: xclim.sdba.properties.spell_length_distribution
+    input:
+      da: tasmax
+    parameters:
+      method: quantile
+      op: '>='
+      thresh: 0.9
+      stat: max
+  wet_wet_transition:
+    base: xclim.sdba.properties.transition_probability
+    input:
+      da: pr
+    parameters:
+      initial_op: '>='
+      final_op: '>='
+      thresh: '1 mm d-1'
+  dry_wet_transition:
+    base: xclim.sdba.properties.transition_probability
+    input:
+      da: pr
+    parameters:
+      initial_op: '<'
+      final_op: '>='
+      thresh: '1 mm d-1'
   #Max dry/hot/cold spell length (codé)
   #Decorrelation length (non codé)
   #Wet-wet and Dry-wet transitions (non codé)

@@ -5,10 +5,10 @@ project:
     id: eg6
 
 tasks:
-  #- initialize_pcat
-#  - makeref
-#  - extract
-#  - regrid
+  ####- initialize_pcat
+  - makeref
+  - extract
+  - regrid
 #  - rechunk
 #  - train
 #  - adjust
@@ -16,53 +16,54 @@ tasks:
 #  - final_zarr
 #  - diagnostics
 #  - concat
-  - indicators
+#  - indicators
 #  - official-diag
 
 ids:
     # in the TCR likely range #https://zenodo.org/record/6476375#.YnVQNNPMJhE (14) #chunking
-    - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_EXPERIMENT_r1i1p1f1_global # #None
-    - CMIP6_ScenarioMIP_CAS_FGOALS-g3_EXPERIMENT_r1i1p1f1_global # None, but 1 file per year
-    - CMIP6_ScenarioMIP_CMCC_CMCC-ESM2_EXPERIMENT_r1i1p1f1_global # [1, 192, 288]
-    - CMIP6_ScenarioMIP_CNRM-CERFACS_CNRM-ESM2-1_EXPERIMENT_r1i1p1f2_global # [1, 128, 256] # cut didnt work here for some reason.. (x2)
-    - CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_EXPERIMENT_r1i1p1f1_global #  [1, 145, 192]
-    - CMIP6_ScenarioMIP_CSIRO_ACCESS-ESM1-5_EXPERIMENT_r1i1p1f1_global # [1, 96, 144]
-    - CMIP6_ScenarioMIP_DKRZ_MPI-ESM1-2-HR_EXPERIMENT_r1i1p1f1_global # [1, 192, 384]
-    - CMIP6_ScenarioMIP_INM_INM-CM5-0_EXPERIMENT_r1i1p1f1_global # [1, 120, 180]
-    - CMIP6_ScenarioMIP_MIROC_MIROC6_EXPERIMENT_r1i1p1f1_global # [1, 96, 192]
-    - CMIP6_ScenarioMIP_MPI-M_MPI-ESM1-2-LR_EXPERIMENT_r1i1p1f1_global #[1, 96, 192]
-    - CMIP6_ScenarioMIP_MRI_MRI-ESM2-0_EXPERIMENT_r1i1p1f1_global #[1, 160, 320]
-    - CMIP6_ScenarioMIP_NCC_NorESM2-LM_EXPERIMENT_r1i1p1f1_global #[1, 96, 144]
-    - CMIP6_ScenarioMIP_NIMS-KMA_KACE-1-0-G_EXPERIMENT_r1i1p1f1_global #[1, 144, 192] time out extract
+    #- CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_EXPERIMENT_r1i1p1f1_global # #None
+    #- CMIP6_ScenarioMIP_CAS_FGOALS-g3_EXPERIMENT_r1i1p1f1_global # None, but 1 file per year
+    #- CMIP6_ScenarioMIP_CMCC_CMCC-ESM2_EXPERIMENT_r1i1p1f1_global # [1, 192, 288]
+    #- CMIP6_ScenarioMIP_CNRM-CERFACS_CNRM-ESM2-1_EXPERIMENT_r1i1p1f2_global # [1, 128, 256] # cut didnt work here for some reason.. (x2)
+    #- CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_EXPERIMENT_r1i1p1f1_global #  [1, 145, 192]
+    #- CMIP6_ScenarioMIP_CSIRO_ACCESS-ESM1-5_EXPERIMENT_r1i1p1f1_global # [1, 96, 144]
+    #- CMIP6_ScenarioMIP_DKRZ_MPI-ESM1-2-HR_EXPERIMENT_r1i1p1f1_global # [1, 192, 384]
+    #- CMIP6_ScenarioMIP_INM_INM-CM5-0_EXPERIMENT_r1i1p1f1_global # [1, 120, 180]
+    #- CMIP6_ScenarioMIP_MIROC_MIROC6_EXPERIMENT_r1i1p1f1_global # [1, 96, 192]
+    #- CMIP6_ScenarioMIP_MPI-M_MPI-ESM1-2-LR_EXPERIMENT_r1i1p1f1_global #[1, 96, 192]
+    #- CMIP6_ScenarioMIP_MRI_MRI-ESM2-0_EXPERIMENT_r1i1p1f1_global #[1, 160, 320]
+    #- CMIP6_ScenarioMIP_NCC_NorESM2-LM_EXPERIMENT_r1i1p1f1_global #[1, 96, 144]
+    #- CMIP6_ScenarioMIP_NIMS-KMA_KACE-1-0-G_EXPERIMENT_r1i1p1f1_global #[1, 144, 192] time out extract
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_EXPERIMENT_r1i1p1f1_global #[1, 180, 288]
 
 
 experiments: &experiments
-    - ssp245
-    - ssp370
+    #- ssp245
+    #- ssp370
+  - ssp585
 
 custom:
     delete_in_final_zarr: False
     delete_in_diag: True
     regions:
-        south:
-            name: south
+        south_nodup:
+            name: south_nodup
             method: bbox
             bbox:
                 lon_bnds: [ -179.95, -10 ]
-                lat_bnds: [ 10, 40 ]
-        middle:
-            name: middle
+                lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
+        middle_nodup:
+            name: middle_nodup
             method: bbox
             bbox:
                 lon_bnds: [ -179.95, -10 ]
-                lat_bnds: [ 40, 65 ]
-        north:
-            name: north
+                lat_bnds: [ 40.05, 65.05 ]
+        north_nodup:
+            name: north_nodup
             method: bbox
             bbox:
                 lon_bnds: [-179.95, -10]
-                lat_bnds: [65, 83.4]
+                lat_bnds: [65.05, 83.4]
     stack_drop_nans: &stack
         True
     chunks:
@@ -318,38 +319,62 @@ indicators:
   compute_indicators:
     to_level: indicator
 
-#off-diag:
-#  domains:
-#  steps:
-#    ref:
-#      input:
-#        id: *ref_source
-#        calendar: default
-#      domain:
-#        a: south # examples
-#        b: north
-#    sim:
-#      input:
-#        processing_level:  regridded
-#      domain:
-#        a: south # examples
-#        b: north
-#      dref_for_measure:
-#        processing_level: off-diag-ref-prop
-#      properties_and_measures:
-#        period: *ref_period # TODO: check this
-#        unstack: *stack
-#    scen:
-#      input:
-#        processing_level: final
-#      domain:
-#        a: NAM # examples
-#        b: NAM
-#      dref_for_measure:
-#        processing_level: off-diag-ref-prop
-#      properties_and_measures:
-#        period: *ref_period # TODO: check this
-#        unstack: False
+off-diag:
+  domains:
+    Haudenosaunee:
+        name: Haudenosaunee
+        method: bbox
+        bbox:
+          lat_bnds: [ 42.0, 47.0 ]
+          lon_bnds: [ -79.0, -71.0 ]
+    Ute:
+        name: Ute
+        method: bbox
+        bbox:
+          lat_bnds: [ 35.0, 40.0 ]
+          lon_bnds: [ -111.0, -103.0 ]
+    Dene:
+        name: Dene
+        method: bbox
+        bbox:
+          lat_bnds: [ 60.0, 65.0 ]
+          lon_bnds: [ -124.0, -116.0 ]
+  steps:
+    ref:
+      input:
+        source: *ref_source
+        calendar: default
+      domain:
+        Haudenosaunee: middle
+        Ute: south
+        Dene: middle
+      properties_and_measures:
+        period: *ref_period # TODO: check this
+      unstack: *stack
+    sim:
+      input:
+        processing_level:  regridded
+      domain:
+        Haudenosaunee: middle
+        Ute: south
+        Dene: middle
+      dref_for_measure:
+        processing_level: off-diag-ref-prop
+      properties_and_measures:
+        period: *ref_period # TODO: check this
+      unstack: *stack
+    scen:
+      input:
+        processing_level: final
+      domain:
+        Haudenosaunee: NAM
+        Ute: NAM
+        Dene: NAM
+      dref_for_measure:
+        processing_level: off-diag-ref-prop
+      properties_and_measures:
+        period: *ref_period # TODO: check this
+      unstack: False
 
 
 
