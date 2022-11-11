@@ -101,6 +101,30 @@ indicators:
       initial_op: '<'
       final_op: '>='
       thresh: '1 mm d-1'
+  decorrelation_length_tasmax_0.5:
+    base: xclim.sdba.properties.decorrelation_length
+    input:
+      da: tasmax
+    parameters:
+      radius: 300
+      thresh: 0.50
+      bins: 100
+  decorrelation_length_tasmin_0.5:
+    base: xclim.sdba.properties.decorrelation_length
+    input:
+      da: tasmin
+    parameters:
+      radius: 300
+      thresh: 0.50
+      bins: 100
+  decorrelation_length_pr_0.5:
+    base: xclim.sdba.properties.decorrelation_length
+    input:
+      da: pr
+    parameters:
+      radius: 300
+      thresh: 0.50
+      bins: 100
   #Max dry/hot/cold spell length (codé)
   #Decorrelation length (non codé)
   #Wet-wet and Dry-wet transitions (non codé)

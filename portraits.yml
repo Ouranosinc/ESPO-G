@@ -103,14 +103,14 @@ indicators:
       window: 5
       freq: YS
     keywords: rolling
-#  max_n_day_precipitation_amount_n_5_biannual:
-#    base: max_n_day_precipitation_amount
-#    cf_attrs:
-#      var_name: rx5day
-#    parameters:
-#      window: 5
-#      freq: 2QS-OCT
-#    keywords: rolling
+  max_n_day_precipitation_amount_n_5_biannual:
+    base: max_n_day_precipitation_amount
+    cf_attrs:
+      var_name: rx5day
+    parameters:
+      window: 5
+      freq: 2QS-OCT
+    keywords: rolling
   heat_wave_total_length_class1:
     base: heat_wave_total_length
     cf_attrs:

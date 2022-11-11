@@ -470,18 +470,10 @@ if __name__ == '__main__':
                                                      periods=CONFIG['custom']['sim_period']
                                                           )['D']
 
-                                # can't put in config because of dynamic path
-                                # maybe_unstack_dict = {'stack_drop_nans': CONFIG['custom']['stack_drop_nans'],
-                                #                       'rechunk': {d: CONFIG['custom']['chunks'][d]
-                                #                                   for d in ['lon', 'lat', 'time']},
-                                #                       }
 
                                 ds = clean_up(ds=ds,
                                               #maybe_unstack_dict=maybe_unstack_dict,
                                               )
-
-                                # TODO: put in clean_up
-                                ds['pr']=ds.pr.round(14)
 
                                 # fix the problematic data
                                 if sim_id in CONFIG['clean_up']['problems']:
@@ -684,110 +676,97 @@ if __name__ == '__main__':
 
 
     # ---INDICATORS---
-    if (
-            "indicators" in CONFIG["tasks"]
-            and not pcat.exists_in_cat(id=sim_id,
-                                       processing_level='indicators',
-                                       xrfreq='AS-JUL')
-    ):
-        with (
-                Client(n_workers=2, threads_per_worker=4,
-                       memory_limit="16GB", **daskkws),
-                measure_time(name=f'indicators', logger=logger)
-        ):
-            dict_input = pcat.search(**CONFIG['indicators']['input']).to_dataset_dict()
-            for id_input , ds_input in dict_input.items():
-                sim_id = ds_input.attrs['cat:id']
-                ds_input = ds_input.assign(tas=xc.atmos.tg(ds=ds_input))
-                mod = xs.indicators.load_xclim_module(**CONFIG['indicators']['load_xclim_module'])
+    if "indicators" in CONFIG["tasks"]:
+        dict_input = pcat.search(**CONFIG['indicators']['input']).to_dataset_dict()
+        for id_input, ds_input in dict_input.items():
+            sim_id = ds_input.attrs['cat:id']
+            if not pcat.exists_in_cat(id = sim_id, processing_level = 'indicators', xrfreq='AS-JUL' ):
+                with (
+                        Client(n_workers=2, threads_per_worker=4,
+                               memory_limit="16GB", **daskkws),
+                        measure_time(name=f'indicators {sim_id}', logger=logger)
+                ):
 
-                for indname, ind in mod.iter_indicators():
-                    var_name = ind.cf_attrs[0]['var_name']
-                    if not pcat.exists_in_cat(id=sim_id,
-                                              processing_level='indicator',
-                                              variable=var_name):
-                        freq = ind.injected_parameters['freq'].replace('YS','AS-JAN')
-                        #try:
-                        if True:
-                            with timeout(7200, indname):
-                                if freq == '2QS-OCT':
-                                    iAPR = np.where(ds_input.time.dt.month == 4)[0][0]
-                                    dsi = ds_input.isel(time=slice(iAPR, None))
-                                else:
-                                    dsi = ds_input
-                                if 'rolling' in ind.keywords:
-                                    temppath = f"{exec_wdir}/{sim_id}_{indname}.zarr"
-                                    mult, *parts = xc.core.calendar.parse_offset(freq)
-                                    steps = xc.core.calendar.construct_offset(mult * 8, *parts)
-                                    for i, slc in enumerate(dsi.resample(time=steps).groups.values()):
-                                        dsc = dsi.isel(time=slc)
-                                        logger.info(f"Computing on slice {dsc.indexes['time'][0]}-{dsc.indexes['time'][-1]}.")
+                    ds_input = ds_input.assign(tas=xc.atmos.tg(ds=ds_input))
+                    mod = xs.indicators.load_xclim_module(**CONFIG['indicators']['load_xclim_module'])
+
+                    for indname, ind in mod.iter_indicators():
+                        var_name = ind.cf_attrs[0]['var_name']
+                        freq= ind.injected_parameters['freq']
+                        if not pcat.exists_in_cat(id=sim_id,
+                                                  processing_level='individual_indicator',
+                                                  variable=var_name,
+                                                  xrfreq = freq):
+                            freq = ind.injected_parameters['freq'].replace('YS','AS-JAN')
+                            #try:
+                            if True:
+                                with timeout(7200, indname):
+                                    if freq == '2QS-OCT':
+                                        iAPR = np.where(ds_input.time.dt.month == 4)[0][0]
+                                        dsi = ds_input.isel(time=slice(iAPR, None))
+                                    else:
+                                        dsi = ds_input
+                                    if 'rolling' in ind.keywords:
+                                        temppath = f"{exec_wdir}/{sim_id}_{indname}.zarr"
+                                        mult, *parts = xc.core.calendar.parse_offset(freq)
+                                        steps = xc.core.calendar.construct_offset(mult * 8, *parts)
+                                        for i, slc in enumerate(dsi.resample(time=steps).groups.values()):
+                                            dsc = dsi.isel(time=slc)
+                                            logger.info(f"Computing on slice {dsc.indexes['time'][0]}-{dsc.indexes['time'][-1]}.")
+                                            _, out = xs.compute_indicators(
+                                                dsc,
+                                                indicators=[ind]).popitem()
+                                            kwargs = {} if i == 0 else {'append_dim': 'time'}
+                                            save_to_zarr(out,
+                                                         temppath,
+                                                         rechunk={'time': -1},
+                                                         mode='a',
+                                                         zarr_kwargs=kwargs)
+
+                                        logger.info(f'Moving from temp dir to final dir, removing temp dir.')
+                                        #outpath = f"{workdir}/{sim_id}_{indname}.zarr"
+                                        #outpath = f"{workdir}/{sim_id}_{indname}.zarr"
+                                        #shutil.move(exec_wdir, outpath)
+                                        pcat.update_from_ds(ds=out,
+                                                            path=temppath)
+                                    else:
                                         _, out = xs.compute_indicators(
-                                            dsc,
+                                            dsi,
                                             indicators=[ind]).popitem()
-                                        kwargs = {} if i == 0 else {'append_dim': 'time'}
-                                        save_to_zarr(out,
-                                                     temppath,
-                                                     rechunk={'time': -1},
-                                                     mode='a',
-                                                     zarr_kwargs=kwargs)
+                                        xs.save_to_zarr(out,
+                                                        f"{exec_wdir}/{sim_id}_{indname}.zarr",
+                                                        rechunk={'time': -1},
+                                                        mode='o' )
+                                        pcat.update_from_ds(out,f"{exec_wdir}/{sim_id}_{indname}.zarr" )
 
-                                    logger.info(f'Moving from temp dir to final dir, removing temp dir.')
-                                    #outpath = f"{workdir}/{sim_id}_{indname}.zarr"
-                                    outpath = f"{workdir}/{sim_id}_{indname}.zarr"
-                                    shutil.move(exec_wdir, outpath)
-                                    pcat.update_from_ds(ds=out,
-                                                        path=outpath)
-                                else:
-                                    _, out = xs.compute_indicators(
-                                        dsi,
-                                        indicators=[ind]).popitem()
-                                    xs.save_to_zarr(out,
-                                                    f"{exec_wdir}/{sim_id}_{indname}.zarr",
-                                                    rechunk={'time': -1},
-                                                    mode='o' )
-                                    pcat.update_from_ds(out,f"{exec_wdir}/{sim_id}_{indname}.zarr" )
-                                    # save_move_update(
-                                    #     ds=out,
-                                    #     pcat=pcat,
-                                    #     init_path=f"{exec_wdir}/{sim_id}_{indname}.zarr",
-                                    #     final_path=f"{workdir}/{sim_id}_{indname}.zarr",
-                                    #     rechunk={'time': -1}
-                                    #                  )
-                        # except TimeoutException:
-                        #     logger.error(f'Timeout for task {indname}.')
-                        #     if 'rolling' in ind.keywords:
-                        #         logger.warn(f'Removing folder {temppath}.')
-                        #         shutil.rmtree(temppath)
-                        #     continue
 
-                #iterate over possible freqs
-                freqs = pcat.search(processing_level='indicator',
-                                    id=sim_id).df.xrfreq.unique()
-                for xrfreq in freqs:
-                    if not pcat.exists_in_cat(id=sim_id,
-                                           processing_level='indicators',
-                                           xrfreq=xrfreq):
-                        # merge all indicators of this freq in one dataset
-                        logger.info(f"Merge {xrfreq} indicators.")
-                        all_ind = pcat.search(processing_level='indicator',
-                                              id=sim_id,
-                                              xrfreq=xrfreq).to_dataset_dict()
-                        ds_merge = xr.merge(all_ind.values(),
-                                            combine_attrs='drop_conflicts')
-                        ds_merge.attrs['cat:processing_level'] = 'indicators'
+                    #iterate over possible freqs
+                    freqs = pcat.search(processing_level='individual_indicator',
+                                        id=sim_id).df.xrfreq.unique()
+                    for xrfreq in freqs:
+                        if not pcat.exists_in_cat(id=sim_id,
+                                               processing_level='indicators',
+                                               xrfreq=xrfreq):
+                            # merge all indicators of this freq in one dataset
+                            logger.info(f"Merge {xrfreq} indicators.")
+                            all_ind = pcat.search(processing_level='individual_indicator',
+                                                  id=sim_id,
+                                                  xrfreq=xrfreq).to_dataset_dict()
+                            ds_merge = xr.merge(all_ind.values(),
+                                                combine_attrs='drop_conflicts')
+                            ds_merge.attrs['cat:processing_level'] = 'indicators'
 
-                        save_move_update(
-                            ds=ds_merge,
-                            pcat=pcat,
-                            init_path=f"{exec_wdir}/{sim_id}_{xrfreq}_indicators.zarr",
-                            #init_path=f"{workdir}/{sim_id}_{xrfreq}_indicators.zarr",
-                            final_path=Path(CONFIG['paths']['indicators'].format(
-                                **xs.utils.get_cat_attrs(ds_merge)))
-                        )
+                            save_move_update(
+                                ds=ds_merge,
+                                pcat=pcat,
+                                init_path=f"{exec_wdir}/{sim_id}_{xrfreq}_indicators.zarr",
+                                #init_path=f"{workdir}/{sim_id}_{xrfreq}_indicators.zarr",
+                                final_path=Path(CONFIG['paths']['indicators'].format(
+                                    **xs.utils.get_cat_attrs(ds_merge)))
+                            )
 
-                # TODO: empty workdir, maybe issue with log?
-                move_then_delete(dirs_to_delete=[workdir, exec_wdir],moving_files=[],pcat=pcat)
+                    # TODO: empty workdir, maybe issue with log?
+                    move_then_delete(dirs_to_delete=[workdir, exec_wdir],moving_files=[],pcat=pcat)
 
     # ---OFFICIAL-DIAGNOSTICS---
     if "official-diag" in CONFIG["tasks"]:
@@ -877,12 +856,6 @@ if __name__ == '__main__':
                                         rechunk={'lat': 50, 'lon': 50}
                                     )
 
-                                # path_diag_exec = f"{exec_wdir}/{path_diag.name}"
-                                # save_to_zarr(ds=ds, filename=path_diag_exec,
-                                #              mode='o', itervar=True,
-                                #              rechunk={'lat': 50, 'lon': 50})
-                                # shutil.move(path_diag_exec, path_diag)
-                                # pcat.update_from_ds(ds=ds, path=str(path_diag))
 
             # iter over all sim meas
             meas_dict =pcat.search(
