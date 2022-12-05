@@ -2,8 +2,6 @@ realm: generic
 indicators:
   q99_tasmax:
     base: xclim.sdba.properties.quantile
-    cf_attrs:
-      long_name: oh my god
     input:
       da: tasmax
     parameters:

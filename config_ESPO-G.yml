@@ -16,8 +16,8 @@ tasks:
 #  - final_zarr
 #  - diagnostics
 #  - concat
-#  - indicators
-  - official-diag
+  - indicators
+#  - official-diag
 
 ids:
     # in the TCR likely range #https://zenodo.org/record/6476375#.YnVQNNPMJhE (14) #chunking
@@ -414,3 +414,7 @@ logging:
         xscen:
             level: INFO
             handlers: [file]
+
+tdd:
+  xarray_open_kwargs:
+    decode_timedelta: False

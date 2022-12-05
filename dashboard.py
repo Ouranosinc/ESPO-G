@@ -30,8 +30,10 @@ with tab1:
         load_config('paths_ESPO-G.yml', 'config_ESPO-G.yml', verbose=(__name__ == '__main__'), reset=True)
         pcat = ProjectCatalog(CONFIG['paths']['project_catalog'])
 
+        col1, col2, col3 = st.columns([3, 1, 1])
+
         # choose id
-        option_id = st.selectbox('id',pcat.search(type=['simulations','simulation']).df.id.unique())
+        option_id = st.selectbox('id',sorted(pcat.search(type=['simulations','simulation']).df.id.unique()))
         # choose region
         option_region = st.selectbox('region', pcat.search(type=['simulations','simulation']).df.domain.unique())
 
@@ -44,8 +46,7 @@ with tab1:
         meas_scen = pcat.search(id=option_id, processing_level='diag-scen-meas*', domain=option_region).to_dask()
 
         # load hmap
-        #if option_region != 'NAM':
-        if False:
+        if option_region != 'NAM':
             hm = pcat.search(domain=option_region,id=scen.attrs['cat:id'],processing_level='diag-heatmap*').to_dask()
 
             imp = pcat.search(domain=option_region,id=scen.attrs['cat:id'],processing_level='diag-improved*').to_dask()
@@ -113,8 +114,7 @@ with tab1:
     # plt.title('Normalised mean meas of properties', fontsize=6)
     # fig_hmap.tight_layout()
 
-    #if option_region != 'NAM':
-    if False:
+    if option_region != 'NAM':
         #plot the heat map
         fig_hmap, ax = plt.subplots(figsize=(7,3))
         cmap=plt.cm.RdYlGn_r
@@ -165,7 +165,7 @@ with tab2:
         pcat = ProjectCatalog(CONFIG['paths']['project_catalog'])
 
         # choose id
-        option_id_corr = st.selectbox('id',sorted(pcat.search(type='simulation', processing_level=f'correlogram*').df.id.unique()))
+        option_id_corr = st.selectbox('id ',sorted(pcat.search(type='simulation', processing_level=f'correlogram*').df.id.unique()))
         data ={}
         domains=['Haudenosaunee', 'Ute', 'Dene']
         steps=['sim','scen']
