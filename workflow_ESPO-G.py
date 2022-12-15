@@ -217,10 +217,11 @@ if __name__ == '__main__':
         pcat.update_from_ds(ds=dsC,
                             path=str(dsC_path))
 
-    #for sim_id_exp in CONFIG['ids']:
-    if False:
-        for exp in CONFIG['experiments']:
-            sim_id = sim_id_exp.replace('EXPERIMENT',exp)
+    cat_sim = search_data_catalogs(
+        **CONFIG['extraction']['simulation']['search_data_catalogs'])
+        # periods = ['1950','2100'],  # only for CNRM-ESM2-1
+    for sim_id, dc_id in cat_sim.items():
+
             if not pcat.exists_in_cat(domain='NAM', id =sim_id, processing_level='final'):
                 for region_name, region_dict in CONFIG['custom']['regions'].items():
                     # depending on the final tasks, check that the final file doesn't already exists
@@ -257,29 +258,10 @@ if __name__ == '__main__':
                                 f1.close()
                                 f2.close()
 
-                                # search the data that we need
-                                cat_sim = search_data_catalogs(**CONFIG['extraction']['simulations']['search_data_catalogs'],
-                                                               #periods = ['1950','2100'],  # only for CNRM-ESM2-1
-                                                                other_search_criteria={'id': sim_id})
-
-                                # extract
-                                dc = cat_sim[sim_id]
-                                # buffer is need to take a bit larger than actual domain, to avoid weird effect at the edge
-                                # domain will be cut to the right shape during the regrid
 
 
-                                amno_region_dict = {
-                                    'name': 'NAM',
-                                    'method': 'bbox',
-                                    'buffer': 1.5,
-                                    'bbox':{
-                                        'lon_bnds': [-179.95, -10],
-                                        'lat_bnds': [10, 83.4]
-                                            }
-                                }
-
-                                ds_sim = extract_dataset(catalog=dc,
-                                                         region= amno_region_dict,
+                                ds_sim = extract_dataset(catalog=dc_id,
+                                                         region= CONFIG['custom']['amno_region'],
                                                          **CONFIG['extraction']['simulations']['extract_dataset'],
                                                          )['D']
                                 ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
@@ -686,7 +668,7 @@ if __name__ == '__main__':
 
 
                 ds_input = ds_input.assign(tas=xc.atmos.tg(ds=ds_input))
-                mod = xs.indicators.load_xclim_module(**CONFIG['indicators']['load_xclim_module'])
+                mod = xs.indicators.load_xclim_module(**CONFIG['indicator']['load_xclim_module'])
 
                 for indname, ind in mod.iter_indicators():
                     var_name = ind.cf_attrs[0]['var_name']
