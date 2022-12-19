@@ -218,9 +218,10 @@ if __name__ == '__main__':
                             path=str(dsC_path))
 
     cat_sim = search_data_catalogs(
-        **CONFIG['extraction']['simulation']['search_data_catalogs'])
+         **CONFIG['extraction']['simulation']['search_data_catalogs'])
         # periods = ['1950','2100'],  # only for CNRM-ESM2-1
     for sim_id, dc_id in cat_sim.items():
+    #if False:
 
             if not pcat.exists_in_cat(domain='NAM', id =sim_id, processing_level='final'):
                 for region_name, region_dict in CONFIG['custom']['regions'].items():
@@ -262,12 +263,12 @@ if __name__ == '__main__':
 
                                 ds_sim = extract_dataset(catalog=dc_id,
                                                          region= CONFIG['custom']['amno_region'],
-                                                         **CONFIG['extraction']['simulations']['extract_dataset'],
+                                                         **CONFIG['extraction']['simulation']['extract_dataset'],
                                                          )['D']
                                 ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
 
                                 # need lat and lon -1 for the regrid
-                                ds_sim = ds_sim.chunk(CONFIG['extraction']['simulations']['chunks'])
+                                ds_sim = ds_sim.chunk(CONFIG['extraction']['simulation']['chunks'])
                                 #ds_sim = ds_sim.chunk({'time': 1, 'lat': -1, 'lon': -1})# only for CNRM-ESM2-1
 
                                 # save to zarr
@@ -456,7 +457,7 @@ if __name__ == '__main__':
 
 
                                 ds = clean_up(ds=ds,
-                                              #maybe_unstack_dict=maybe_unstack_dict,
+                                              **CONFIG['clean_up']['xscen_clean_up']
                                               )
 
                                 # fix the problematic data
@@ -751,6 +752,31 @@ if __name__ == '__main__':
 
                 # TODO: empty workdir, maybe issue with log?
                 move_then_delete(dirs_to_delete=[workdir, exec_wdir],moving_files=[],pcat=pcat)
+
+    # --- DELTAS ---
+    if "deltas" in CONFIG["tasks"]:
+        ind_dict = pcat.search( **CONFIG['aggregate']['input']).to_dataset_dict(**tdd)
+        for id_input, ds_input in ind_dict.items():
+            xrfreq_input = ds_input.attrs['cat:xrfreq']
+            sim_id = ds_input.attrs['cat:id']
+            if not pcat.exists_in_cat(id=sim_id, processing_level= 'delta_climatology',
+                                  xrfreq=xrfreq_input):
+                with (
+                        Client(n_workers=4, threads_per_worker=4,memory_limit="6GB", **daskkws),
+                        measure_time(name=f'delta {id_input}',logger=logger),
+                ):
+                    ds_input = ds_input.sel(lat=slice(41, 84), lon =slice(-141, -52))
+                    ds_mean = xs.climatological_mean(ds=ds_input,)
+                    ds_delta = xs.aggregate.compute_deltas(ds=ds_mean)
+
+                    save_move_update(
+                        ds=ds_delta,
+                        pcat=pcat,
+                        rechunk={'time': 4, "lat":50, "lon":50},
+                        init_path=f"{exec_wdir}/{sim_id}_{xrfreq_input}_deltas.zarr",
+                        final_path=Path(CONFIG['paths']['deltas'].format(
+                            **xs.utils.get_cat_attrs(ds_delta)))
+                    )
 
     # ---OFFICIAL-DIAGNOSTICS---
     if "official-diag" in CONFIG["tasks"]:

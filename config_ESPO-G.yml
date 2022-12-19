@@ -6,17 +6,18 @@ project:
 
 tasks:
   ####- initialize_pcat
-#  - makeref
-#  - extract
-#  - regrid
-#  - rechunk
-#  - train
-#  - adjust
-#  - clean_up
-#  - final_zarr
+  - makeref
+  - extract
+  - regrid
+  - rechunk
+  - train
+  - adjust
+  - clean_up
+  - final_zarr
 #  - diagnostics
 #  - concat
-  - indicators
+#  - indicators
+#  - deltas
 #  - official-diag
 
 ids:
@@ -42,7 +43,7 @@ experiments: &experiments
     - ssp370
 
 custom:
-    delete_in_final_zarr: False
+    delete_in_final_zarr: True
     delete_in_diag: True
     regions:
         south_nodup:
@@ -111,7 +112,7 @@ extraction:
           to_level_prop: diag-ref-prop
           period: *ref_period
           unstack: False
-    simulations:
+    simulation:
         search_data_catalogs:
             variables_and_freqs: *var_and_freq
             match_hist_and_fut: True
@@ -124,21 +125,21 @@ extraction:
               experiment:
                 - ssp245
                 - ssp370
-              source:     # in the TCR likely range #https://zenodo.org/record/6476375#.YnVQNNPMJhE (14) #chunking
-                - BCC-CSM2-MR
-                - FGOALS-g3 # None, but 1 file per year
-                - CMCC-ESM2 # [1, 192, 288]
-                - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
-                - ACCESS-CM2 #  [1, 145, 192]
-                - ACCESS-ESM1-5 # [1, 96, 144]
-                - MPI-ESM1-2-HR # [1, 192, 384]
-                - INM-CM5-0 # [1, 120, 180]
-                - MIROC6 # [1, 96, 192]
-                - MPI-ESM1-2-LR #[1, 96, 192]
-                - MRI-ESM2-0 #[1, 160, 320]
-                - NorESM2-LM #[1, 96, 144]
-                - KACE-1-0-G #[1, 144, 192] time out extract
-                - GFDL-ESM4 #[1, 180, 288]
+#              source:     # in the TCR likely range #https://zenodo.org/record/6476375#.YnVQNNPMJhE (14) #chunking
+#                - BCC-CSM2-MR
+#                - FGOALS-g3 # None, but 1 file per year
+#                - CMCC-ESM2 # [1, 192, 288]
+#                - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
+#                - ACCESS-CM2 #  [1, 145, 192]
+#                - ACCESS-ESM1-5 # [1, 96, 144]
+#                - MPI-ESM1-2-HR # [1, 192, 384]
+#                - INM-CM5-0 # [1, 120, 180]
+#                - MIROC6 # [1, 96, 192]
+#                - MPI-ESM1-2-LR #[1, 96, 192]
+#                - MRI-ESM2-0 #[1, 160, 320]
+#                - NorESM2-LM #[1, 96, 144]
+#                - KACE-1-0-G #[1, 144, 192] time out extract
+#                - GFDL-ESM4 #[1, 180, 288]
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
@@ -275,33 +276,30 @@ biasadjust:
                 bias_adjust_project: *b_a_pro
 
 clean_up:
-    search_data_catalogs:
-      variables_and_freqs:
-        tasmax: D
-        tasmin: D
-        pr: D
-      allow_conversion: True
-      allow_resampling: False
-    problems:
-      - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp245_r1i1p1f1_global
-      - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp370_r1i1p1f1_global
-      - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp245_r1i1p1f1_global
-      - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp370_r1i1p1f1_global
-
-utils:
-  clean_up:
+  search_data_catalogs:
+    variables_and_freqs:
+      tasmax: D
+      tasmin: D
+      pr: D
+    allow_conversion: True
+    allow_resampling: False
+  problems:
+    - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp245_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp370_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp245_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp370_r1i1p1f1_global
+  xscen_clean_up:
       maybe_unstack_dict:
         stack_drop_nans: *stack
-        round_var:
-          pr: 10
         rechunk:
           lat: 20 #espo-r
           lon: 20 #espo-r
           time: -1
+      round_var:
+        pr: 10
       to_level: cleaned_up
       add_attrs:
         global:
-          title: ESPO-G6 v1.0.0 - {sim_id} - Region {region_name}
           Notes: |
             Regridded on the grid of ERA5-Land, then bias-adjusted with detrended
             quantile mapping on a day-of-year basis with a window of 31 days, LOESS
@@ -348,6 +346,25 @@ indicators:
     domain: NAM
   compute_indicators:
     to_level: individual_indicator
+
+aggregate:
+  input:
+    processing_level: indicators
+    xrfreq:
+      - AS-JAN
+      - QS-DEC
+    variable:
+      - tg_mean
+      - tn_mean
+      - tx_mean
+      - prcptot
+    experiment: ssp245
+  climatological_mean:
+    window: 30
+    interval: 10
+    periods: [['1991', '2020'], ['2071', '2100']]
+  compute_deltas:
+    reference_horizon: "1991-2020"
 
 off-diag:
   domains:
