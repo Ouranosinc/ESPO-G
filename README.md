@@ -33,7 +33,7 @@ Source: https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
 The dataset has a resolution of 0.1° over a North American domain from  179.5°W to 10°W and from 10°N to 83.4°N.  
 Data is only available on land, as the reference dataset (ERA5-Land) is only defined there. 
 
-Some small regions in Alaska and Greenland have been masked out by NaNs for 2 models. More detail is available in section 5 of [the documentation of the adjustment method.](Documentation/adjustment.pdf)
+Some small regions in Alaska and Greenland have been masked out by NaNs for 2 models. More detail is available in section 5 of [the documentation of the adjustment method.](Documentation/ESPO_G6_adjustment.pdf)
 
 ### Temporal coverage
 As the bias-adjustment method requires a consistent number of calendar days (no leap days), all members using a standard
@@ -125,7 +125,7 @@ Adjustments are univariate, where corrections are applied separately for each of
 each day of the year, using a rolling window of 31 days. Although computational more expensive, the rolling window method
 allows for better adjustment of the annual cycle. Note that this method does not work well with leap years as there is four
 (4) times fewer data values for day 366. To remedy this problem, all simulations as well as the reference product are
-converted to this "noleap" calendar. A more detailed explanation of the adjustment process is given in [the documentation](Documentation/adjustment.pdf).
+converted to this "noleap" calendar. A more detailed explanation of the adjustment process is given in [the documentation](Documentation/ESPO_G6_adjustment.pdf).
 
 ## Data processing tools
 Production and regular updates of ESPO-R/G operational datasets represent a challenge in terms of computational resources. 
@@ -155,7 +155,7 @@ that the process brought to the simulations, we emulated the "VALUE" validation 
 While that project aimed to "to validate and compare downscaling methods", we based our approach on its ideas of statistical
 "properties" and "measures" to measure bias between the simulations, the scenarios, and the reference.
 
-A detailed analysis is given in [the documentation](Documentation/performance.pdf).
+A detailed analysis is given in [the documentation](Documentation/ESPO_G6_performance.pdf).
 Our general conclusions concerning the quality of ESPO-R6v1.0 are:
 
  - The marginal properties of the simulations (mean, quantiles) are very well-adjusted, by design of the Quantile Mapping algorithm.
