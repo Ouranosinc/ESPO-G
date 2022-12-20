@@ -5,7 +5,7 @@ project:
     id: eg6
 
 tasks:
-  ####- initialize_pcat
+  ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
   - makeref
   - extract
   - regrid
@@ -15,7 +15,7 @@ tasks:
   - clean_up
   - final_zarr
 #  - diagnostics
-#  - concat
+  - concat
 #  - indicators
 #  - deltas
 #  - official-diag
@@ -121,6 +121,8 @@ extraction:
             restrict_members:
               ordered: 1
             periods: *sim_period
+            exclusions:
+              institution: CNRM-CERFACS
             other_search_criteria:
               experiment:
                 - ssp245
@@ -362,7 +364,7 @@ aggregate:
   climatological_mean:
     window: 30
     interval: 10
-    periods: [['1991', '2020'], ['2071', '2100']]
+    periods: [['1961', '2100']] #[['1991', '2020'], ['2071', '2100']]
   compute_deltas:
     reference_horizon: "1991-2020"
 

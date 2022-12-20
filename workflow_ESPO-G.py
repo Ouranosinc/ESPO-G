@@ -620,8 +620,9 @@ if __name__ == '__main__':
                 ):
                     dskconf.set(num_workers=12)
                     ProgressBar().register()
-
-                    levels = ['diag-sim-prop', 'diag-scen-prop', 'diag-sim-meas', 'diag-scen-meas', 'final']
+                    # TODO: change back
+                    #levels = ['diag-sim-prop', 'diag-scen-prop', 'diag-sim-meas', 'diag-scen-meas', 'final']
+                    levels =['final']
                     for level in levels:
                         logger.info(f'Contenating {sim_id} {level}.')
 

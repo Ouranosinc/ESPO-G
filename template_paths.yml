@@ -1,0 +1,86 @@
+paths:
+  project_catalog: &pcat
+   OUTPUT_DIR/cat_ESPO-G6.json
+  workdir: OUTPUT_DIR/workdir/
+  exec_workdir: EXEC_DIR/ESPO-G_workdir/ # EXEC_DIR should be a directory where it is easy to read and write
+  refdir: OUTPUT_DIR/reference/
+  regriddir: OUTPUT_DIR/regridded/
+  output: OUTPUT_DIR/NAM_SPLIT/{region_name}/day_{sim_id}_1950-2100.zarr
+  diagnostics: OUTPUT_DIR/diagnostics/{sim_id}/{level}_{sim_id}_{region_name}.zarr
+  concat_output_final: OUTPUT_DIR/FINAL/day_{sim_id}_1950-2100.zarr
+  concat_output_diag: OUTPUT_DIR/diagnostics/{sim_id}/{level}_{sim_id}_NAM.zarr
+  logging: OUTPUT_DIR/logging/log_{sim_id}_{region_name}.log
+  indicators: OUTPUT_DIR/{id}/{id}_{xrfreq}_{processing_level}.zarr
+  deltas: OUTPUT_DIR/{id}/{id}_{xrfreq}_{processing_level}.zarr
+  figures: OUTPUT_DIR/figures/
+  data: LOCATION_OF_REPO/data/
+
+dask:
+  client:
+    local_directory: EXEC_DIR/tmp_eg6/
+
+logging:
+    handlers:
+        file:
+            filename: EXEC_DIR/ESPO-G_workdir/logger.log
+
+extraction:
+  reference:
+    search_data_catalogs:
+      data_catalogs:
+         - PATH/reconstruction.json
+    properties_and_measures:
+        properties: &properties
+          properties_ESPO-G.yml
+  simulation:
+    search_data_catalogs:
+      data_catalogs:
+        - PATH/simulation.json
+
+regrid:
+    regrid_dataset:
+      weights_location:
+        OUTPUT_DIR/workdir/weights/
+
+io:
+  rechunk:
+    temp_store: EXEC_DIR/ESPO-G_workdir/tmp/
+
+clean_up:
+  search_data_catalogs:
+    data_catalogs:
+      - *pcat
+
+diagnostics:
+  sim:
+    properties_and_measures:
+          properties: *properties
+  scen:
+    properties_and_measures:
+      properties: *properties
+
+off-diag:
+  steps:
+    ref:
+      properties_and_measures:
+        properties: &off-properties
+          off-properties_ESPO-G.yml
+    sim:
+      properties_and_measures:
+        properties: *off-properties
+    scen:
+      properties_and_measures:
+        properties: *off-properties
+
+indicator: # don't write the real name of the module or you will break extract.
+  load_xclim_module:
+    filename: portraits.yml
+
+utils:
+    stack_drop_nans:
+        to_file: &coords
+          OUTPUT_DIR/coords/coords_{domain}_{shape}.nc
+    unstack_fill_nan:
+      coords: *coords
+    maybe_unstack:
+      coords: *coords
