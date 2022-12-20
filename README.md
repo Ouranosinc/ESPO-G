@@ -1,28 +1,3 @@
-# ESPO-G
-
-
-## Licenses 
-|Model |License|
-|---|---|
-|BCC-CSM2-MR|CC BY 4.0|
-|FGOALS-g3|CC BY 4.0|
-|CMCC-ESM2| CC BY 4.0|
-|CNRM-ESM2-1|CC BY 4.0|
-|ACCESS-CM2|CC BY 4.0|
-|ACCESS-ESM1-5|CC BY 4.0|
-|MPI-ESM1-2-HR| CC BY 4.0|
-|INM-CM5-0|CC BY 4.0|
-|MIROC6|CC BY 4.0|
-|MPI-ESM1-2-LR| CC BY 4.0| 	
-|MRI-ESM2-0|CC BY 4.0|
-|NorESM2-LM|CC BY 4.0|
-|KACE-1-0-G|CC BY 4.0|
-|GFDL-ESM4| CC BY 4.0| 
-
-Source: https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
-
-
-
 # ESPO-G : Ensemble de scénarios polyvalents d'Ouranos - Global / Ouranos' Multipurpose Global Climate Scenarios
 
 ## Context
@@ -30,14 +5,7 @@ The need to adapt to climate change is present in a growing number of fields, le
 climate scenarios for often interrelated sectors of activity. In order to meet this growing demand and to ensure the 
 availability of climate scenarios responding to numerous vulnerability, impact, and adaptation (VIA) studies, 
 [Ouranos](https://www.ouranos.ca) is working to create a set of operational multipurpose climate scenarios called 
-"Ensemble de Scénarios Polyvalents d'Ouranos" (ESPO) covering North America at a resolution of 0.1 degree (~9km).
-This operational product consists of two related datasets 1) ESPO-R (https://github.com/Ouranosinc/ESPO-R) produced from bias-adjusted regional
-climate simulations, and 2) ESPO-G (described here) produced following the same methodology, but from global simulations available via the CMIP program.
-
-## ESPO-G6 v1.0
-ESPO-R5 v1.0 is an analysis-ready climate projection ensemble based on simulations from different global climate models (GCMs). 
-The full list of simulations that compose the ensemble is shown in the table below. Following Hausfather et al. (2022), the selected model all fall in the Transient Climate Response likely range.
-The simulation ensemble covers the period for years 1950-2100 and includes the daily minimum temperature (`tasmin`), the daily maximum temperature (`tasmax`) and the daily mean precipitation flux (`pr`).
+"Ensemble de Scénarios Polyvalents d'Ouranos" (ESPO) covering North America at a resolution of 0.1° e simulation ensemble covers the period for years 1950-2100 and includes the daily minimum temperature (`tasmin`), the daily maximum temperature (`tasmax`) and the daily mean precipitation flux (`pr`).
 The experiments included are SSP2-4.5, SSP3-7.0 and SSP5-8.5.
 Simulations are bias-adjusted using the ERA5-Land reference dataset.
 
@@ -59,31 +27,29 @@ Simulations are bias-adjusted using the ERA5-Land reference dataset.
 | 	NIMS-KMA |	KACE-1-0-G |	r1i1p1f1 |CC BY 4.0|
 | 	NOAA-GFDL |	GFDL-ESM4 |	r1i1p1f1 |CC BY 4.0|
 | 	BCC |	BCC-CSM2-MR |	r1i1p1f1 |CC BY 4.0|
+Source: https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
 
 ### Spatial coverage
-The dataset has a resolution of 0.1° over a domain corresponding to (almost) the largest common area covered by all
-simulations when using this resolution in a Plate Carrée coordinate system: from 147.5°W to 52.7°W and from 19.3°N to 74.2°N.
-In order to have the ESPO-R domain fully cover a few islands at the northern boundary of the domain, we had
-to extend it slightly further than the common area. As such, the region from 71.2°N to 74.2°N  is fully covered by only
-15 members. Data is only available on land, as the reference dataset (ERA5-Land) is only defined there.
+The dataset has a resolution of 0.1° over a North American domain from  179.5°W to 10°W and from 10°N to 83.4°N.  
+Data is only available on land, as the reference dataset (ERA5-Land) is only defined there. 
 
-The following map shows the domain and the diagnostic regions used when assessing the performance of the bias adjustment.
-![domain](../images/regions_domain_map.pdf)
+Some small regions in Alaska and Greenland have been masked out by NaNs for 2 models. More detail is available in section 5 of [the documentation of the adjustment method.](Documentation/adjustment.pdf)
 
 ### Temporal coverage
 As the bias-adjustment method requires a consistent number of calendar days (no leap days), all members using a standard
-calendar were converted to the noleap one by dropping any values for February 29th. `KACE-1-0-G`
+calendar were converted to the `noleap` one by dropping any values for February 29th. `KACE-1-0-G`
 is the only model simulated with a 360-day calendar, and was kept as is.
 
 The bias-adjustment was calibrated over the years 1991-2010, following the WMO recommendation for reference periods, and applied to the full 1950-2100 period.
 
 ### Reference data
-For uniformity, ESPO-G6 v1.0 uses the same reference dataset as ESPO-R5 v1.0. This section describes the analysis that was done to chose the reference dataset.
+For uniformity, ESPO-G6 v1.0 uses the same reference dataset as ESPO-R5 v1.0. This section describes the analysis that was done to choose the reference dataset.
+
 ESPO-R5 v1.0 uses the [ERA5-Land reanalysis](https://confluence.ecmwf.int/display/CKB/ERA5-Land) (Muñoz Sabater, J., 2019 & 2021)
 as its reference (or target) dataset. ERA5-Land is a re-run of the land component of the ERA5 climate reanalysis,
-forced by meteorological fields from ERA5 and cover the period from 1950 to the present (with a 2-3 month lag from present day for data quality assurance reasons).
+forced by meteorological fields from ERA5 and cover the period from 1950 to the present (with a 2-3 month lag from the present day for data quality assurance reasons).
 ERA5-Land benefits from numerous improvements, making it more accurate for all types of land applications than the original ERA5; 
-Specifically, ERA5-Land runs at an enhanced resolution (~9 km vs ~31 km in ERA5).
+Specifically, ERA5-Land runs at an enhanced resolution (~9 km vs. ~31 km in ERA5).
 
 Depending on the simulation to adjust, the ERA5-Land data was converted to a "noleap" or to a "360_day" calendar.
 In the first case, all instances of February 29th are dropped. In the second case, five (5) or six (6) days per year are
@@ -147,8 +113,8 @@ c)
 
 ### Methodology
 The workflow to prepare ESPO-G6 v1.0 was built with [xscen](https://github.com/Ouranosinc/xscen).
-The temperature and precipitation data from the simulations in table 2 were first extracted over North America.
-Then, all the extracted simulation data is interpolated bilinearly in cascade to the ERA5-Land grid.
+The temperature and precipitation data from the simulations in table 1 were first extracted over North America.
+Then, all the extracted simulation data is interpolated bilinearly in cascades to the ERA5-Land grid.
 
 The ESPO-G6 v.1.0 bias adjustment procedure then uses [xclim's bias adjustment algorithms](https://xclim.readthedocs.io/en/stable/sdba.html)
 to adjust simulation bias following a quantile mapping procedure. In particular, the algorithm used is inspired by the
@@ -162,7 +128,7 @@ allows for better adjustment of the annual cycle. Note that this method does not
 converted to this "noleap" calendar. A more detailed explanation of the adjustment process is given in [the documentation](Documentation/adjustment.pdf).
 
 ## Data processing tools
-Production and regular updates of ESPO-R/G operational datasets represents a challenge in terms of computational resources. 
+Production and regular updates of ESPO-R/G operational datasets represent a challenge in terms of computational resources. 
 Ouranos has invested a great deal of effort in the development of powerful tools for this type of data processing via its 
 [xclim software package](https://xclim.readthedocs.io/en/stable/) (Logan et al., 2021). Built upon the packages
 [xarray](https://xarray.dev/) and [dask](https://www.dask.org/), xclim benefits from simple-to-use parallelization and
@@ -175,11 +141,11 @@ scenario-building analysis framework, also being developed at Ouranos. This tool
 simple but specific structure. The catalog files and all paths needed by the configuration are missing from this
 repository, since they are specific to the data architecture of the computer running the code. To reproduce ESPO-G, one will need:
 
-- `simulation.json` and `simulation.csv` :An intake-esm catalog, compatible with xscen, listing the daily simulation datasets to use as inputs.
-- `reconstruction.json` and `reconstruction.csv` :An intake-esm catalog, compatible with xscen, listing the daily reference datasets to use as inputs.
+- `simulation.json` and `simulation.csv`: An intake-esm catalog, compatible with xscen, listing the daily simulation datasets to use as inputs.
+- `reconstruction.json` and `reconstruction.csv`: An intake-esm catalog, compatible with xscen, listing the daily reference datasets to use as inputs.
 - `paths_ESPO-G.yml`: A yaml file with the paths needed by the workflows. `template_paths.yml` shows an example of such a file, one only needs to replace the placeholders.
 
-To run the workflow, uncomment the tasks wanted at the top of the config. Then, run
+To run the workflow, uncomment the tasks wanted at the top of `config_ESPO-G.yml`. Then, run
 
 ``python workflow_ESPO-G.py``
 
