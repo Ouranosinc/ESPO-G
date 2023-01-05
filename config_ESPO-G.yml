@@ -6,41 +6,23 @@ project:
 
 tasks:
   ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
-  - makeref
-  - extract
-  - regrid
-  - rechunk
-  - train
-  - adjust
-  - clean_up
-  - final_zarr
-#  - diagnostics
-  - concat
+#  - makeref
+#  - extract
+#  - regrid
+#  - rechunk
+#  - train
+#  - adjust
+#  - clean_up
+#  - final_zarr
+# # - diagnostics
+#  - concat
 #  - indicators
 #  - deltas
+  - climatological_mean
+  - delta
+  - ensemble
 #  - official-diag
 
-ids:
-    # in the TCR likely range #https://zenodo.org/record/6476375#.YnVQNNPMJhE (14) #chunking
-    - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_EXPERIMENT_r1i1p1f1_global # #None
-    - CMIP6_ScenarioMIP_CAS_FGOALS-g3_EXPERIMENT_r1i1p1f1_global # None, but 1 file per year
-    - CMIP6_ScenarioMIP_CMCC_CMCC-ESM2_EXPERIMENT_r1i1p1f1_global # [1, 192, 288]
-    - CMIP6_ScenarioMIP_CNRM-CERFACS_CNRM-ESM2-1_EXPERIMENT_r1i1p1f2_global # [1, 128, 256] # cut didnt work here for some reason.. (x2)
-    - CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_EXPERIMENT_r1i1p1f1_global #  [1, 145, 192]
-    - CMIP6_ScenarioMIP_CSIRO_ACCESS-ESM1-5_EXPERIMENT_r1i1p1f1_global # [1, 96, 144]
-    - CMIP6_ScenarioMIP_DKRZ_MPI-ESM1-2-HR_EXPERIMENT_r1i1p1f1_global # [1, 192, 384]
-    - CMIP6_ScenarioMIP_INM_INM-CM5-0_EXPERIMENT_r1i1p1f1_global # [1, 120, 180]
-    - CMIP6_ScenarioMIP_MIROC_MIROC6_EXPERIMENT_r1i1p1f1_global # [1, 96, 192]
-    - CMIP6_ScenarioMIP_MPI-M_MPI-ESM1-2-LR_EXPERIMENT_r1i1p1f1_global #[1, 96, 192]
-    - CMIP6_ScenarioMIP_MRI_MRI-ESM2-0_EXPERIMENT_r1i1p1f1_global #[1, 160, 320]
-    - CMIP6_ScenarioMIP_NCC_NorESM2-LM_EXPERIMENT_r1i1p1f1_global #[1, 96, 144]
-    - CMIP6_ScenarioMIP_NIMS-KMA_KACE-1-0-G_EXPERIMENT_r1i1p1f1_global #[1, 144, 192] time out extract
-    - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_EXPERIMENT_r1i1p1f1_global #[1, 180, 288]
-
-
-experiments: &experiments
-    - ssp245
-    - ssp370
 
 custom:
     delete_in_final_zarr: True
@@ -122,7 +104,11 @@ extraction:
               ordered: 1
             periods: *sim_period
             exclusions:
-              institution: CNRM-CERFACS
+              #institution: CNRM-CERFACS # try again with other chunks
+              id:
+                - CMIP6_ScenarioMIP_KIOST_KIOST-ESM_ssp245_r1i1p1f1_global # time axis is broken. ssp370 doesn't exist for KIOST
+              #  - CMIP6_ScenarioMIP_CNRM-CERFACS_CNRM-CM6-1_ssp245_r1i1p1f2_global # try again with other chunks
+              #  - CMIP6_ScenarioMIP_CNRM-CERFACS_CNRM-CM6-1_ssp370_r1i1p1f2_global # try again with other chunks
             other_search_criteria:
               experiment:
                 - ssp245
@@ -351,22 +337,45 @@ indicators:
 
 aggregate:
   input:
-    processing_level: indicators
-    xrfreq:
-      - AS-JAN
-      - QS-DEC
-    variable:
-      - tg_mean
-      - tn_mean
-      - tx_mean
-      - prcptot
-    experiment: ssp245
+    clim:
+      processing_level: indicators
+      experiment: ssp245 # just for now, eventually do it on everything
+#      source:
+#        - ACCESS-CM2
+#        - MIROC6
+#      xrfreq: QS-DEC
+#      variable:
+#        - tg_mean
+#        - prcptot
+    delta:
+      processing_level: climatology
   climatological_mean:
     window: 30
     interval: 10
-    periods: [['1961', '2100']] #[['1991', '2020'], ['2071', '2100']]
+    periods: [['1951', '2100']] #[['1991', '2020'], ['2071', '2100']]
+    to_level: climatology
   compute_deltas:
     reference_horizon: "1991-2020"
+    kind:
+      prcptot: "%"
+      tx_mean: +
+      tg_mean: +
+      tn_mean: +
+    to_level: delta-climatology
+
+ensemble:
+    processing_levels:
+        - indicators
+        - climatology
+        - delta-climatology
+    ensemble_stats_xscen:
+      statistics:
+        ensemble_percentiles:
+          split: True
+      common_attrs_only: True
+      create_kwargs:
+        chunks:
+          horizon: -1
 
 off-diag:
   domains:

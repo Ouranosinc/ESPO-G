@@ -244,8 +244,8 @@ if __name__ == '__main__':
                                 and not pcat.exists_in_cat(domain='NAM', processing_level='extracted', id=sim_id)
                         ):
                             with (
-                                    Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws),
-                                    #Client(n_workers=1, threads_per_worker=5,memory_limit="50GB", **daskkws), # only for CNRM-ESM2-1
+                                    #Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws),
+                                    Client(n_workers=1, threads_per_worker=5,memory_limit="50GB", **daskkws), # only for CNRM-ESM2-1
 
                                     measure_time(name='extract', logger=logger),
                                     timeout(18000, task='extract')
@@ -754,30 +754,121 @@ if __name__ == '__main__':
                 # TODO: empty workdir, maybe issue with log?
                 move_then_delete(dirs_to_delete=[workdir, exec_wdir],moving_files=[],pcat=pcat)
 
-    # --- DELTAS ---
-    if "deltas" in CONFIG["tasks"]:
-        ind_dict = pcat.search( **CONFIG['aggregate']['input']).to_dataset_dict(**tdd)
+    # --- CLIMATOLOGICAL MEAN ---
+    if "climatological_mean" in CONFIG["tasks"]:
+        ind_dict = pcat.search( **CONFIG['aggregate']['input']['clim']).to_dataset_dict(**tdd)
         for id_input, ds_input in ind_dict.items():
             xrfreq_input = ds_input.attrs['cat:xrfreq']
             sim_id = ds_input.attrs['cat:id']
-            if not pcat.exists_in_cat(id=sim_id, processing_level= 'delta_climatology',
+            if not pcat.exists_in_cat(id=sim_id, processing_level= 'climatology',
+                                  xrfreq=xrfreq_input):
+                with (
+                        Client(n_workers=5, threads_per_worker=4,memory_limit="6GB", **daskkws),
+                        measure_time(name=f'clim {id_input}',logger=logger),
+                ):
+                    ds_mean = xs.climatological_mean(ds=ds_input)
+
+                    save_move_update(
+                        ds=ds_mean,
+                        pcat=pcat,
+                        itervar=True, #if xrfreq_input=='QS-DEC' else False,
+                        rechunk={'time': 4, "lat":50, "lon":50},
+                        init_path=f"{exec_wdir}/{sim_id}_{xrfreq_input}_climatology.zarr",
+                        final_path=Path(CONFIG['paths']['climatology'].format(
+                            **xs.utils.get_cat_attrs(ds_mean)))
+                    )
+
+    # --- DELTAS ---
+    if "delta" in CONFIG["tasks"]:
+        ind_dict = pcat.search( **CONFIG['aggregate']['input']['delta']).to_dataset_dict(**tdd)
+        for id_input, ds_input in ind_dict.items():
+            xrfreq_input = ds_input.attrs['cat:xrfreq']
+            sim_id = ds_input.attrs['cat:id']
+            if not pcat.exists_in_cat(id=sim_id, processing_level= 'delta-climatology',
                                   xrfreq=xrfreq_input):
                 with (
                         Client(n_workers=4, threads_per_worker=4,memory_limit="6GB", **daskkws),
                         measure_time(name=f'delta {id_input}',logger=logger),
                 ):
-                    ds_input = ds_input.sel(lat=slice(41, 84), lon =slice(-141, -52))
-                    ds_mean = xs.climatological_mean(ds=ds_input,)
-                    ds_delta = xs.aggregate.compute_deltas(ds=ds_mean)
+                    ds_delta = xs.aggregate.compute_deltas(ds=ds_input)
 
                     save_move_update(
                         ds=ds_delta,
                         pcat=pcat,
                         rechunk={'time': 4, "lat":50, "lon":50},
                         init_path=f"{exec_wdir}/{sim_id}_{xrfreq_input}_deltas.zarr",
-                        final_path=Path(CONFIG['paths']['deltas'].format(
+                        final_path=Path(CONFIG['paths']['delta'].format(
                             **xs.utils.get_cat_attrs(ds_delta)))
                     )
+
+    # # --- DELTAS ---
+    # if "deltas" in CONFIG["tasks"]:
+    #     ind_dict = pcat.search( **CONFIG['aggregate']['input']).to_dataset_dict(**tdd)
+    #     for id_input, ds_input in ind_dict.items():
+    #         xrfreq_input = ds_input.attrs['cat:xrfreq']
+    #         sim_id = ds_input.attrs['cat:id']
+    #         if not pcat.exists_in_cat(id=sim_id, processing_level= 'delta_climatology',
+    #                               xrfreq=xrfreq_input):
+    #             with (
+    #                     Client(n_workers=4, threads_per_worker=4,memory_limit="6GB", **daskkws),
+    #                     measure_time(name=f'delta {id_input}',logger=logger),
+    #             ):
+    #                 # cut only canada for comparison with PCIC
+    #                 ds_input = ds_input.sel(lat=slice(41, 84), lon =slice(-141, -52))
+    #                 ds_mean = xs.climatological_mean(ds=ds_input)
+    #                 ds_delta = xs.aggregate.compute_deltas(ds=ds_mean)
+    #
+    #                 save_move_update(
+    #                     ds=ds_delta,
+    #                     pcat=pcat,
+    #                     rechunk={'time': 4, "lat":50, "lon":50},
+    #                     init_path=f"{exec_wdir}/{sim_id}_{xrfreq_input}_deltas.zarr",
+    #                     final_path=Path(CONFIG['paths']['deltas'].format(
+    #                         **xs.utils.get_cat_attrs(ds_delta)))
+    #                 )
+
+
+    if "ensemble" in CONFIG["tasks"]:
+        # one ensemble (file) per level, per xrfreq, per variable, per experiment
+        for processing_level in CONFIG['ensemble']['processing_levels']:
+            ind_df = pcat.search(processing_level=processing_level).df
+            # iterate through available xrfreq, exp and variables
+            for experiment in ind_df.experiment.unique():
+                for xrfreq in ind_df.xrfreq.unique():
+                    for variable in list(ind_df[ind_df['xrfreq']==xrfreq].variable.unique()[0]):
+
+                        ind_dict = pcat.search( processing_level=processing_level,
+                                                experiment=experiment,
+                                                xrfreq=xrfreq,
+                                                variable=variable).to_dataset_dict(**tdd)
+
+                        if not pcat.exists_in_cat(
+                                processing_level= f'ensemble-{processing_level}',
+                                xrfreq=xrfreq,
+                                experiment=experiment,
+                                variable=variable
+                        ):
+                            with (
+                                    Client(n_workers=4, threads_per_worker=4,memory_limit="6GB", **daskkws),
+                                    #ProgressBar(),
+                                    measure_time(name=f'ensemble-{processing_level}',logger=logger),
+                            ):
+                                ens = xs.ensembles.ensemble_stats(
+                                    datasets=ind_dict,
+                                    to_level= f'ensemble-{processing_level}',
+                                    **CONFIG['ensemble']['ensemble_stats_xscen']
+                                )
+
+                                ens.attrs['cat:variable']= xs.catalog.parse_from_ds(ens, ["variable"])["variable"]
+
+                                save_move_update(
+                                    ds=ens,
+                                    pcat=pcat,
+                                    rechunk={'time': 4, "lat":50, "lon":50},
+                                    init_path=f"{exec_wdir}/ensemble_{processing_level}_{variable}_{xrfreq}_{experiment}.zarr",
+                                    final_path=Path(CONFIG['paths']['ensembles'].format(
+                                        var =variable, **xs.utils.get_cat_attrs(ens)))
+                                )
 
     # ---OFFICIAL-DIAGNOSTICS---
     if "official-diag" in CONFIG["tasks"]:

@@ -27,6 +27,7 @@ Simulations are bias-adjusted using the ERA5-Land reference dataset.
 | 	NIMS-KMA |	KACE-1-0-G |	r1i1p1f1 |CC BY 4.0|
 | 	NOAA-GFDL |	GFDL-ESM4 |	r1i1p1f1 |CC BY 4.0|
 | 	BCC |	BCC-CSM2-MR |	r1i1p1f1 |CC BY 4.0|
+
 Source: https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
 
 ### Spatial coverage
