@@ -159,10 +159,10 @@ Description of the tasks:
  - adjust: Adjust the simulation dataset with the trained bias adjustment algorithm.
  - clean_up: Join each individually adjusted variable back in one scenario dataset and clean up other details.
  - final_zarr: Rechunk the scenario dataset and save it.
- - diagnostics: Compute simple diagnostics on the whole domain for a quality check.
+ - diagnostics: Compute simple diagnostics (defined in properties_ESPO-G.yml) on the whole domain for a quality check.
  - concat: Concatenate scenario and diagnostics of the three regions into the complete NAM domain.  
- - official-diag: Compute diagnostics on smaller regions to assess the performance.
- - indicators: Compute indicators on the scenario.
+ - official-diag: Compute diagnostics (defined in off-properties_ESPO-G.yml) on smaller regions to assess the performance.
+ - indicators: Compute indicators (defined in portraits.yml) on the scenario.
  - climatological_mean: Compute the climatological mean of the indicators.
  - delta: Compute the deltas of the climatological means.
  - ensemble: Compute the ensemble statistics.
