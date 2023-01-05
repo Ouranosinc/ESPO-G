@@ -16,12 +16,13 @@ tasks:
 #  - final_zarr
 # # - diagnostics
 #  - concat
+#  - official-diag
 #  - indicators
 #  - deltas
   - climatological_mean
   - delta
   - ensemble
-#  - official-diag
+
 
 
 custom:

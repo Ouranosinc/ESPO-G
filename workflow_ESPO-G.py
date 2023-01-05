@@ -661,6 +661,142 @@ if __name__ == '__main__':
 
 
 
+    # ---OFFICIAL-DIAGNOSTICS---
+    if "official-diag" in CONFIG["tasks"]:
+        # iter over small domain
+        for dom_name, dom_dict in CONFIG['off-diag']['domains'].items():
+            # iter over step (ref, sim, scen)
+            for step, step_dict in CONFIG['off-diag']['steps'].items():
+                dict_input = pcat.search(domain=step_dict['domain'][dom_name],
+                                         **step_dict['input'], ).to_dataset_dict()
+                # iter over datasets in that setp
+                for name_input, ds_input in dict_input.items():
+                    id = ds_input.attrs['cat:id']
+                    if not pcat.exists_in_cat(id=id,
+                                              processing_level=f'off-diag-{step}-prop',
+                                              domain=dom_name):
+                        with (
+                                Client(n_workers=3, threads_per_worker=5,
+                                       memory_limit="20GB", **daskkws),
+                                measure_time(name=f'off-diag {dom_name} {step} {id}',
+                                             logger=logger),
+                                timeout(18000, task='off-diag')
+                        ):
+
+                            # unstack
+                            if step_dict['unstack']:
+                                ds_input = xs.utils.unstack_fill_nan(ds_input)
+
+                            # cut the domain
+                            ds_input = xs.extract.clisops_subset(
+                                ds_input.chunk({'time': -1}), dom_dict)
+                            ds_input.attrs["cat:domain"] = dom_name
+
+                            # correlogram
+                            if not pcat.exists_in_cat(id=id,
+                                                      processing_level=f'correlogram-{step}',
+                                                      domain=dom_name):
+                                logging.info(f'Computing correlogram {step}')
+                                correlogram = xr.Dataset(attrs=ds_input.attrs)
+                                for var in ds_input.data_vars:
+                                    correlogram[
+                                        f'correlogram_{var}'] = xc.sdba.properties.spatial_correlogram(
+                                        ds_input[var],
+                                        bins=99
+                                    )
+                                correlogram.attrs[
+                                    "cat:processing_level"] = f'correlogram-{step}'
+                                path_diag = Path(
+                                    CONFIG['paths']['diagnostics'].format(
+                                        region_name=dom_name,
+                                        sim_id=id,
+                                        level=correlogram.attrs[
+                                            'cat:processing_level']))
+                                path_diag_exec = f"{exec_wdir}/{path_diag.name}"
+                                save_move_update(
+                                    ds=correlogram,
+                                    pcat=pcat,
+                                    init_path=path_diag_exec,
+                                    final_path=path_diag,
+                                    itervar=True,
+                                    rechunk={'lat': 50, 'lon': 50}
+                                )
+
+                            dref_for_measure = None
+                            if 'dref_for_measure' in step_dict:
+                                dref_for_measure = pcat.search(
+                                    domain=dom_name,
+                                    **step_dict['dref_for_measure']).to_dask()
+
+                            prop, meas = xs.properties_and_measures(
+                                ds=ds_input,
+                                dref_for_measure=dref_for_measure,
+                                to_level_prop=f'off-diag-{step}-prop',
+                                to_level_meas=f'off-diag-{step}-meas',
+                                **step_dict['properties_and_measures']
+                            )
+                            for ds in [prop, meas]:
+                                if ds:
+                                    path_diag = Path(
+                                        CONFIG['paths']['diagnostics'].format(
+                                            region_name=dom_name,
+                                            sim_id=id,
+                                            level=ds.attrs['cat:processing_level']))
+                                    path_diag_exec = f"{exec_wdir}/{path_diag.name}"
+
+                                    save_move_update(
+                                        ds=ds,
+                                        pcat=pcat,
+                                        init_path=path_diag_exec,
+                                        final_path=path_diag,
+                                        itervar=True,
+                                        rechunk={'lat': 50, 'lon': 50}
+                                    )
+
+            # iter over all sim meas
+            meas_dict = pcat.search(
+                processing_level='off-diag-sim-meas',
+                domain=dom_name
+            ).to_dataset_dict()
+            for id_meas, ds_meas_sim in meas_dict.items():
+                sim_id = ds_meas_sim.attrs['cat:id']
+                if not pcat.exists_in_cat(id=sim_id,
+                                          processing_level='off-diag-improved'):
+                    with (
+                            Client(n_workers=3, threads_per_worker=5,
+                                   memory_limit="20GB", **daskkws),
+                            measure_time(name=f'off-diag-meas {dom_name} {sim_id}',
+                                         logger=logger),
+                    ):
+                        # get scen meas
+                        meas_datasets = {}
+                        meas_datasets[
+                            f'{sim_id}.{dom_name}.diag-sim-meas'] = ds_meas_sim
+                        meas_datasets[
+                            f'{sim_id}.{dom_name}.diag-scen-meas'] = pcat.search(
+                            processing_level='off-diag-scen-meas',
+                            id=sim_id,
+                            domain=dom_name).to_dask()
+
+                        hm = xs.diagnostics.measures_heatmap(meas_datasets)
+
+                        ip = xs.diagnostics.measures_improvement(meas_datasets)
+
+                        # save and update
+                        for ds in [hm, ip]:
+                            path_diag = Path(
+                                CONFIG['paths']['diagnostics'].format(
+                                    region_name=ds.attrs['cat:domain'],
+                                    sim_id=ds.attrs['cat:id'],
+                                    level=ds.attrs['cat:processing_level']))
+                            save_to_zarr(ds=ds, filename=path_diag, mode='o')
+                            pcat.update_from_ds(ds=ds, path=path_diag)
+
+                        move_then_delete(dirs_to_delete=[workdir, exec_wdir],
+                                         moving_files=[], pcat=pcat)
+
+
+
     # ---INDICATORS---
     if "indicators" in CONFIG["tasks"]:
         dict_input = pcat.search(**CONFIG['indicators']['input']).to_dataset_dict()
@@ -870,132 +1006,3 @@ if __name__ == '__main__':
                                         var =variable, **xs.utils.get_cat_attrs(ens)))
                                 )
 
-    # ---OFFICIAL-DIAGNOSTICS---
-    if "official-diag" in CONFIG["tasks"]:
-        # iter over small domain
-        for dom_name, dom_dict in CONFIG['off-diag']['domains'].items():
-            # iter over step (ref, sim, scen)
-            for step, step_dict in CONFIG['off-diag']['steps'].items():
-                dict_input= pcat.search(domain=step_dict['domain'][dom_name],
-                                        **step_dict['input'],).to_dataset_dict()
-                #iter over datasets in that setp
-                for name_input, ds_input in dict_input.items():
-                    id = ds_input.attrs['cat:id']
-                    if  not pcat.exists_in_cat(id=id ,
-                                               processing_level=f'off-diag-{step}-prop',
-                                               domain=dom_name):
-                        with (
-                                Client(n_workers=3, threads_per_worker=5,
-                                       memory_limit="20GB", **daskkws),
-                                measure_time(name=f'off-diag {dom_name} {step} {id}', logger=logger),
-                                timeout(18000, task='off-diag')
-                        ):
-
-                            # unstack
-                            if step_dict['unstack']:
-                                ds_input = xs.utils.unstack_fill_nan(ds_input)
-
-                            #cut the domain
-                            ds_input = xs.extract.clisops_subset(
-                                ds_input.chunk({'time': -1}), dom_dict)
-                            ds_input.attrs["cat:domain"] = dom_name
-
-                            # correlogram
-                            if not pcat.exists_in_cat(id=id ,
-                                               processing_level=f'correlogram-{step}',
-                                               domain=dom_name):
-                                logging.info(f'Computing correlogram {step}')
-                                correlogram = xr.Dataset(attrs= ds_input.attrs)
-                                for var in ds_input.data_vars:
-                                    correlogram[f'correlogram_{var}'] = xc.sdba.properties.spatial_correlogram(
-                                        ds_input[var],
-                                        bins=99
-                                    )
-                                correlogram.attrs["cat:processing_level"] = f'correlogram-{step}'
-                                path_diag = Path(
-                                    CONFIG['paths']['diagnostics'].format(
-                                        region_name=dom_name,
-                                        sim_id=id,
-                                        level=correlogram.attrs['cat:processing_level']))
-                                path_diag_exec = f"{exec_wdir}/{path_diag.name}"
-                                save_move_update(
-                                    ds=correlogram,
-                                    pcat=pcat,
-                                    init_path=path_diag_exec,
-                                    final_path=path_diag,
-                                    itervar=True,
-                                    rechunk={'lat': 50, 'lon': 50}
-                                )
-
-                            dref_for_measure = None
-                            if 'dref_for_measure' in step_dict:
-                                dref_for_measure = pcat.search(
-                                    domain=dom_name,
-                                    **step_dict['dref_for_measure']).to_dask()
-
-                            prop, meas = xs.properties_and_measures(
-                                ds=ds_input,
-                                dref_for_measure=dref_for_measure,
-                                to_level_prop=f'off-diag-{step}-prop',
-                                to_level_meas=f'off-diag-{step}-meas',
-                                **step_dict['properties_and_measures']
-                            )
-                            for ds in [prop, meas]:
-                                if ds:
-                                    path_diag = Path(
-                                        CONFIG['paths']['diagnostics'].format(
-                                            region_name=dom_name,
-                                            sim_id=id,
-                                            level=ds.attrs['cat:processing_level']))
-                                    path_diag_exec = f"{exec_wdir}/{path_diag.name}"
-
-                                    save_move_update(
-                                        ds=ds,
-                                        pcat=pcat,
-                                        init_path=path_diag_exec,
-                                        final_path=path_diag,
-                                        itervar=True,
-                                        rechunk={'lat': 50, 'lon': 50}
-                                    )
-
-
-            # iter over all sim meas
-            meas_dict =pcat.search(
-               processing_level='off-diag-sim-meas',
-               domain=dom_name
-            ).to_dataset_dict()
-            for id_meas, ds_meas_sim in meas_dict.items():
-                sim_id = ds_meas_sim.attrs['cat:id']
-                if not pcat.exists_in_cat(id=sim_id, processing_level='off-diag-improved'):
-                    with (
-                            Client(n_workers=3, threads_per_worker=5,
-                                   memory_limit="20GB", **daskkws),
-                            measure_time(name=f'off-diag-meas {dom_name} {sim_id}', logger=logger),
-                    ):
-                        # get scen meas
-                        meas_datasets={}
-                        meas_datasets[f'{sim_id}.{dom_name}.diag-sim-meas'] = ds_meas_sim
-                        meas_datasets[f'{sim_id}.{dom_name}.diag-scen-meas'] = pcat.search(
-                            processing_level='off-diag-scen-meas',
-                            id =sim_id,
-                            domain=dom_name).to_dask()
-
-
-                        hm = xs.diagnostics.measures_heatmap(meas_datasets)
-
-                        ip = xs.diagnostics.measures_improvement(meas_datasets)
-
-                        # save and update
-                        for ds in [hm, ip]:
-                            path_diag = Path(
-                                CONFIG['paths']['diagnostics'].format(
-                                    region_name=ds.attrs['cat:domain'],
-                                    sim_id=ds.attrs['cat:id'],
-                                    level=ds.attrs['cat:processing_level']))
-                            save_to_zarr(ds=ds, filename=path_diag, mode='o')
-                            pcat.update_from_ds(ds=ds, path=path_diag)
-
-
-
-                        move_then_delete(dirs_to_delete=[workdir, exec_wdir],
-                                         moving_files=[], pcat=pcat)

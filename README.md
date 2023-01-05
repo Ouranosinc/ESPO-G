@@ -150,6 +150,32 @@ To run the workflow, uncomment the tasks wanted at the top of `config_ESPO-G.yml
 
 ``python workflow_ESPO-G.py``
 
+Description of the tasks:
+ - makeref: Create the reference dataset with the right domain, period and calendar
+ - extract: Extract the simulation dataset with the right domain and period. 
+ - regrid: Regrid the simulation onto the reference grid.
+ - rechunk: Rechunk the regridded dataset to prepare for the bias adjustment (needed on large datasets).
+ - train: Train the bias adjustment algorithm
+ - adjust: Adjust the simulation dataset with the trained bias adjustment algorithm.
+ - clean_up: Join each individually adjusted variable back in one scenario dataset and clean up other details.
+ - final_zarr: Rechunk the scenario dataset and save it.
+ - diagnostics: Compute simple diagnostics on the whole domain for a quality check.
+ - concat: Concatenate scenario and diagnostics of the three region into the complete NAM domain.  
+ - official-diag: Compute diagnostics on smaller regions to assess the performance.
+ - indicators: Compute indicators on the scenario.
+ - climatological_mean: Compute the climatological mean of the indicators.
+ - delta: Compute the deltas of the climatological means.
+ - ensemble: Compute the ensemble statistics.
+ 
+
+The tasks `extract` to `concat` are in a loop iterating over each simulation found in `search_data_catalogs`.
+
+The tasks `extract` to `diagnostics` are in a loop iterating over each region (south, middle, north).
+
+The tasks `train` and `adjust` are in a loop iterating over each variable.
+
+The tasks `indicators`, `climatological_mean`, `delta` and `ensemble` each iterate over their inputs inside the task.
+
 ### Performance
 Bias-adjustment of climate simulations is a quest with many traps. In order to assess the improvements and regressions
 that the process brought to the simulations, we emulated the "VALUE" validation framework (Maraun et al., 2015).
