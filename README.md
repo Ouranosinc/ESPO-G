@@ -30,20 +30,20 @@ Simulations are bias-adjusted using the ERA5-Land reference dataset.
 
 Source: https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
 
-### Spatial coverage
+## Spatial coverage
 The dataset has a resolution of 0.1° over a North American domain from  179.5°W to 10°W and from 10°N to 83.4°N.  
 Data is only available on land, as the reference dataset (ERA5-Land) is only defined there. 
 
 Some small regions in Alaska and Greenland have been masked out by NaNs for 2 models. More details are available in section 5 of [the documentation of the adjustment method.](Documentation/ESPO_G6_adjustment.pdf)
 
-### Temporal coverage
+## Temporal coverage
 As the bias-adjustment method requires a consistent number of calendar days (no leap days), all members using a standard
 calendar were converted to the `noleap` one by dropping any values for February 29th. `KACE-1-0-G`
 is the only model simulated with a 360-day calendar, and was kept as is.
 
 The bias-adjustment was calibrated over the years 1991-2010, following the WMO recommendation for reference periods, and applied to the full 1950-2100 period.
 
-### Reference data
+## Reference data
 For uniformity, ESPO-G6 v1.0 uses the same reference dataset as ESPO-R5 v1.0. This section describes the analysis that was done to choose the reference dataset.
 
 ESPO-R5 v1.0 uses the [ERA5-Land reanalysis](https://confluence.ecmwf.int/display/CKB/ERA5-Land) (Muñoz Sabater, J., 2019 & 2021)
@@ -112,7 +112,7 @@ c)
 **Figure 3.** Summary of bias by percentile (1981-2010) between candidate datasets for daily values of maximum temperatures (a), minimum temperatures (b) and total precipitation (c). The comparison was made for the seasons of winter (DJF: 1st column), spring (MAM: 2nd column), summer (JJA: 3rd column) and autumn (SON: 4th column). The results for the compared percentiles (5, 25, 50, 75, and 95) are organized by row in ascending order, starting from the top.
 
 
-### Methodology
+## Methodology
 The workflow to prepare ESPO-G6 v1.0 was built with [xscen](https://github.com/Ouranosinc/xscen).
 The temperature and precipitation data from the simulations in table 1 were first extracted over North America.
 Then, all the extracted simulation data is interpolated bilinearly in cascades to the ERA5-Land grid.
@@ -176,11 +176,7 @@ The tasks `train` and `adjust` are in a loop iterating over each variable.
 
 The tasks `indicators`, `climatological_mean`, `delta` and `ensemble` each iterate over their inputs inside the task.
 
-Extras:
-
-- dashboard.py: Creates a streamlit dashboard to 
-
-### Performance
+## Performance
 Bias-adjustment of climate simulations is a quest with many traps. In order to assess the improvements and regressions
 that the process brought to the simulations, we emulated the "VALUE" validation framework (Maraun et al., 2015).
 While that project aimed to "to validate and compare downscaling methods", we based our approach on its ideas of statistical

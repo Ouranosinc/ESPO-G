@@ -51,14 +51,6 @@ with tab1:
 
             imp = pcat.search(domain=option_region,id=scen.attrs['cat:id'],processing_level='diag-improved*').to_dask()
 
-    else:
-        option_id = st.selectbox('id',[x[30:-5] for x in glob.glob('dashboard_data/diag_scen_meas_*')])
-        ref = xr.open_zarr(f'dashboard_data/diag_ref_ERA_ecmwf_ERA5_era5-land_NAM_qc.zarr')
-        sim = xr.open_zarr(f'dashboard_data/diag_sim_prop_{option_id}.zarr')
-        scen = xr.open_zarr(f'dashboard_data/diag_scen_prop_{option_id}.zarr')
-        meas_sim = xr.open_zarr(f'dashboard_data/diag_sim_meas_{option_id}.zarr')
-        meas_scen = xr.open_zarr(f'dashboard_data/diag_scen_meas_{option_id}.zarr')
-        hmap = np.load(f'dashboard_data/diag_hmap_{option_id}.npy')
 
 
     # choose properties
@@ -91,29 +83,6 @@ with tab1:
 
 
 
-
-
-    #plot hmap
-    # dict_prop = sorted(sim.data_vars)
-    # labels_row = ['sim', 'scen']
-    # #fig_hmap, ax = plt.subplots(figsize=(1 * len(dict_prop), 1 * len(labels_row) ))
-    # fig_hmap, ax = plt.subplots(figsize=(5,2))
-    #
-    # cmap=plt.cm.RdYlGn_r
-    # norm = colors.BoundaryNorm(np.linspace(0,1,len(labels_row)+2), cmap.N)
-    # im = ax.imshow(hmap, cmap=cmap, norm=norm)
-    # ax.set_xticks(ticks=np.arange(len(dict_prop)), labels=dict_prop, rotation=45,
-    #               ha='right', fontsize=5)
-    # ax.set_yticks(ticks=np.arange(len(labels_row)), labels=labels_row, fontsize=5)
-    #
-    # divider = make_axes_locatable(ax)
-    # cax = divider.new_vertical(size='15%', pad=0.2)
-    # fig_hmap.add_axes(cax)
-    # cbar = fig_hmap.colorbar(im, cax=cax, ticks=[0, 1], orientation='horizontal')
-    # cbar.ax.set_xticklabels(['best', 'worst'], fontsize=5)
-    # plt.title('Normalised mean meas of properties', fontsize=6)
-    # fig_hmap.tight_layout()
-
     if option_region != 'NAM':
         #plot the heat map
         fig_hmap, ax = plt.subplots(figsize=(7,3))
@@ -129,8 +98,6 @@ with tab1:
         cbar.ax.set_xticklabels(['best', 'worst'])
         plt.title('Normalised mean measure of properties')
         fig_hmap.tight_layout()
-
-
 
 
         #plot improved
