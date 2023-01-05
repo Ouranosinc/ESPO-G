@@ -11,7 +11,9 @@ paths:
   concat_output_diag: OUTPUT_DIR/diagnostics/{sim_id}/{level}_{sim_id}_NAM.zarr
   logging: OUTPUT_DIR/logging/log_{sim_id}_{region_name}.log
   indicators: OUTPUT_DIR/{id}/{id}_{xrfreq}_{processing_level}.zarr
-  deltas: OUTPUT_DIR/{id}/{id}_{xrfreq}_{processing_level}.zarr
+  climatology: OUTPUT_DIR/climatology/{id}/{id}_{xrfreq}_{processing_level}.zarr
+  delta: OUTPUT_DIR/delta/{id}/{id}_{xrfreq}_{processing_level}.zarr
+  ensemble: OUTPUT_DIR/ensemble/{processing_level}/{processing_level}_{id}_{xrfreq}_{var}.zarr
   figures: OUTPUT_DIR/figures/
   data: LOCATION_OF_REPO/data/
 

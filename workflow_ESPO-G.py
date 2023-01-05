@@ -302,7 +302,6 @@ if __name__ == '__main__':
                                 ds_regrid = regrid_dataset(
                                     ds=ds_input,
                                     ds_grid=ds_target,
-                                    #**CONFIG['regrid']['regrid_dataset']
                                 )
 
                                 # chunk time dim
