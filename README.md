@@ -176,6 +176,10 @@ The tasks `train` and `adjust` are in a loop iterating over each variable.
 
 The tasks `indicators`, `climatological_mean`, `delta` and `ensemble` each iterate over their inputs inside the task.
 
+Extras:
+
+- dashboard.py: Creates a streamlit dashboard to 
+
 ### Performance
 Bias-adjustment of climate simulations is a quest with many traps. In order to assess the improvements and regressions
 that the process brought to the simulations, we emulated the "VALUE" validation framework (Maraun et al., 2015).
