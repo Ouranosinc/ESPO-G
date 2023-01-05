@@ -37,7 +37,7 @@ from xscen import (
 from utils import  save_move_update,email_nan_count,move_then_delete
 
 # Load configuration
-load_config('paths_ESPO-G.yml', 'config_ESPO-G.yml', verbose=(__name__ == '__main__'), reset=True)
+load_config('configuration/paths_ESPO-G.yml', 'configuration/config_ESPO-G.yml', verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
 
 workdir = Path(CONFIG['paths']['workdir'])
@@ -254,7 +254,7 @@ if __name__ == '__main__':
                                 f1 = open(
                                     CONFIG['logging']['handlers']['file']['filename'],
                                     'a+')
-                                f2 = open('config_ESPO-G.yml', 'r')
+                                f2 = open('configuration/config_ESPO-G.yml', 'r')
                                 f1.write(f2.read())
                                 f1.close()
                                 f2.close()

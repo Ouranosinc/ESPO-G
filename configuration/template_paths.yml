@@ -33,7 +33,7 @@ extraction:
          - PATH/reconstruction.json
     properties_and_measures:
         properties: &properties
-          properties_ESPO-G.yml
+          configuration/properties_ESPO-G.yml
   simulation:
     search_data_catalogs:
       data_catalogs:
@@ -66,7 +66,7 @@ off-diag:
     ref:
       properties_and_measures:
         properties: &off-properties
-          off-properties_ESPO-G.yml
+          configuration/off-properties_ESPO-G.yml
     sim:
       properties_and_measures:
         properties: *off-properties
@@ -76,7 +76,7 @@ off-diag:
 
 indicator: # don't write the real name of the module or you will break extract.
   load_xclim_module:
-    filename: portraits.yml
+    filename: configuration/portraits.yml
 
 utils:
     stack_drop_nans:

@@ -34,7 +34,7 @@ Source: https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
 The dataset has a resolution of 0.1° over a North American domain from  179.5°W to 10°W and from 10°N to 83.4°N.  
 Data is only available on land, as the reference dataset (ERA5-Land) is only defined there. 
 
-Some small regions in Alaska and Greenland have been masked out by NaNs for 2 models. More details are available in section 5 of [the documentation of the adjustment method.](Documentation/ESPO_G6_adjustment.pdf)
+Some small regions in Alaska and Greenland have been masked out by NaNs for 2 models. More details are available in section 5 of [the documentation of the adjustment method.](documentation/ESPO_G6_adjustment.pdf)
 
 ## Temporal coverage
 As the bias-adjustment method requires a consistent number of calendar days (no leap days), all members using a standard
@@ -126,7 +126,7 @@ Adjustments are univariate, where corrections are applied separately for each of
 each day of the year, using a rolling window of 31 days. Although computational more expensive, the rolling window method
 allows for better adjustment of the annual cycle. Note that this method does not work well with leap years as there is four
 (4) times fewer data values for day 366. To remedy this problem, all simulations as well as the reference product are
-converted to this "noleap" calendar. A more detailed explanation of the adjustment process is given in [the documentation](Documentation/ESPO_G6_adjustment.pdf).
+converted to this "noleap" calendar. A more detailed explanation of the adjustment process is given in [the documentation](documentation/ESPO_G6_adjustment.pdf).
 
 ## Data processing tools
 Production and regular updates of ESPO-R/G operational datasets represent a challenge in terms of computational resources. 
@@ -144,7 +144,7 @@ repository, since they are specific to the data architecture of the computer run
 
 - `simulation.json` and `simulation.csv`: An intake-esm catalog, compatible with xscen, listing the daily simulation datasets to use as inputs.
 - `reconstruction.json` and `reconstruction.csv`: An intake-esm catalog, compatible with xscen, listing the daily reference datasets to use as inputs.
-- `paths_ESPO-G.yml`: A yaml file with the paths needed by the workflows. `template_paths.yml` shows an example of such a file, one only needs to replace the placeholders.
+- `paths_ESPO-G.yml`: A yaml file with the paths needed by the workflows. `configuration/template_paths.yml` shows an example of such a file, one only needs to replace the placeholders.
 
 To run the workflow, uncomment the tasks wanted at the top of `config_ESPO-G.yml`. Then, run
 
@@ -159,10 +159,10 @@ Description of the tasks:
  - adjust: Adjust the simulation dataset with the trained bias adjustment algorithm.
  - clean_up: Join each individually adjusted variable back in one scenario dataset and clean up other details.
  - final_zarr: Rechunk the scenario dataset and save it.
- - diagnostics: Compute simple diagnostics (defined in properties_ESPO-G.yml) on the whole domain for a quality check.
+ - diagnostics: Compute simple diagnostics (defined in configuration/properties_ESPO-G.yml) on the whole domain for a quality check.
  - concat: Concatenate scenario and diagnostics of the three regions into the complete NAM domain.  
- - official-diag: Compute diagnostics (defined in off-properties_ESPO-G.yml) on smaller regions to assess the performance.
- - indicators: Compute indicators (defined in portraits.yml) on the scenario.
+ - official-diag: Compute diagnostics (defined in configuration/off-properties_ESPO-G.yml) on smaller regions to assess the performance.
+ - indicators: Compute indicators (defined in configuration/portraits.yml) on the scenario.
  - climatological_mean: Compute the climatological mean of the indicators.
  - delta: Compute the deltas of the climatological means.
  - ensemble: Compute the ensemble statistics.
@@ -182,7 +182,7 @@ that the process brought to the simulations, we emulated the "VALUE" validation 
 While that project aimed to "to validate and compare downscaling methods", we based our approach on its ideas of statistical
 "properties" and "measures" to measure bias between the simulations, the scenarios, and the reference.
 
-A detailed analysis is given in [the documentation](Documentation/ESPO_G6_performance.pdf).
+A detailed analysis is given in [the documentation](documentation/ESPO_G6_performance.pdf).
 Our general conclusions concerning the quality of ESPO-G6v1.0 are:
 
  - The marginal properties of the simulations (mean, quantiles) are very well-adjusted, by design of the Quantile Mapping algorithm.
