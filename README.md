@@ -5,8 +5,8 @@ The need to adapt to climate change is present in a growing number of fields, le
 climate scenarios for often interrelated sectors of activity. In order to meet this growing demand and to ensure the 
 availability of climate scenarios responding to numerous vulnerability, impact, and adaptation (VIA) studies, 
 [Ouranos](https://www.ouranos.ca) is working to create a set of operational multipurpose climate scenarios called 
-"Ensemble de Scénarios Polyvalents d'Ouranos" (ESPO) covering North America at a resolution of 0.1° e simulation ensemble covers the period for years 1950-2100 and includes the daily minimum temperature (`tasmin`), the daily maximum temperature (`tasmax`) and the daily mean precipitation flux (`pr`).
-The experiments included are SSP2-4.5, SSP3-7.0 and SSP5-8.5.
+"Ensemble de Scénarios Polyvalents d'Ouranos" (ESPO) covering North America at a resolution of 0.1°. The simulation ensemble covers the period for years 1950-2100 and includes the daily minimum temperature (`tasmin`), the daily maximum temperature (`tasmax`) and the daily mean precipitation flux (`pr`).
+The experiments included are SSP2-4.5, SSP3-7.0 (and SSP5-8.5).
 Simulations are bias-adjusted using the ERA5-Land reference dataset.
 
 **Table 1. Members of ESPO-G6 v1.0.**
@@ -34,7 +34,7 @@ Source: https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
 The dataset has a resolution of 0.1° over a North American domain from  179.5°W to 10°W and from 10°N to 83.4°N.  
 Data is only available on land, as the reference dataset (ERA5-Land) is only defined there. 
 
-Some small regions in Alaska and Greenland have been masked out by NaNs for 2 models. More detail is available in section 5 of [the documentation of the adjustment method.](Documentation/ESPO_G6_adjustment.pdf)
+Some small regions in Alaska and Greenland have been masked out by NaNs for 2 models. More details are available in section 5 of [the documentation of the adjustment method.](Documentation/ESPO_G6_adjustment.pdf)
 
 ### Temporal coverage
 As the bias-adjustment method requires a consistent number of calendar days (no leap days), all members using a standard
@@ -151,16 +151,16 @@ To run the workflow, uncomment the tasks wanted at the top of `config_ESPO-G.yml
 ``python workflow_ESPO-G.py``
 
 Description of the tasks:
- - makeref: Create the reference dataset with the right domain, period and calendar
+ - makeref: Create the reference dataset with the right domain, period and calendar.
  - extract: Extract the simulation dataset with the right domain and period. 
  - regrid: Regrid the simulation onto the reference grid.
  - rechunk: Rechunk the regridded dataset to prepare for the bias adjustment (needed on large datasets).
- - train: Train the bias adjustment algorithm
+ - train: Train the bias adjustment algorithm.
  - adjust: Adjust the simulation dataset with the trained bias adjustment algorithm.
  - clean_up: Join each individually adjusted variable back in one scenario dataset and clean up other details.
  - final_zarr: Rechunk the scenario dataset and save it.
  - diagnostics: Compute simple diagnostics on the whole domain for a quality check.
- - concat: Concatenate scenario and diagnostics of the three region into the complete NAM domain.  
+ - concat: Concatenate scenario and diagnostics of the three regions into the complete NAM domain.  
  - official-diag: Compute diagnostics on smaller regions to assess the performance.
  - indicators: Compute indicators on the scenario.
  - climatological_mean: Compute the climatological mean of the indicators.
@@ -183,7 +183,7 @@ While that project aimed to "to validate and compare downscaling methods", we ba
 "properties" and "measures" to measure bias between the simulations, the scenarios, and the reference.
 
 A detailed analysis is given in [the documentation](Documentation/ESPO_G6_performance.pdf).
-Our general conclusions concerning the quality of ESPO-R6v1.0 are:
+Our general conclusions concerning the quality of ESPO-G6v1.0 are:
 
  - The marginal properties of the simulations (mean, quantiles) are very well-adjusted, by design of the Quantile Mapping algorithm.
  - The climate change signal is also conserved from the simulations by design of the algorithm.
