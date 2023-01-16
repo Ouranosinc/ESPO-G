@@ -6,27 +6,27 @@ project:
 
 tasks:
   ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
-#  - makeref
-#  - extract
-#  - regrid
-#  - rechunk
-#  - train
-#  - adjust
-#  - clean_up
-#  - final_zarr
-# # - diagnostics
-#  - concat
+  - makeref
+  - extract
+  - regrid
+  - rechunk
+  - train
+  - adjust
+  - clean_up
+  - final_zarr
+  - diagnostics
+  - concat
 #  - official-diag
 #  - indicators
-#  - deltas
   - climatological_mean
-  - delta
+  - abs-delta
+  - per-delta
   - ensemble
 
 
 
 custom:
-    delete_in_final_zarr: True
+    delete_in_final_zarr: False
     delete_in_diag: True
     regions:
         south_nodup:
@@ -105,30 +105,27 @@ extraction:
               ordered: 1
             periods: *sim_period
             exclusions:
-              #institution: CNRM-CERFACS # try again with other chunks
               id:
-                - CMIP6_ScenarioMIP_KIOST_KIOST-ESM_ssp245_r1i1p1f1_global # time axis is broken. ssp370 doesn't exist for KIOST
-              #  - CMIP6_ScenarioMIP_CNRM-CERFACS_CNRM-CM6-1_ssp245_r1i1p1f2_global # try again with other chunks
-              #  - CMIP6_ScenarioMIP_CNRM-CERFACS_CNRM-CM6-1_ssp370_r1i1p1f2_global # try again with other chunks
+                - CMIP6_ScenarioMIP_KIOST_KIOST-ESM_ssp245_r1i1p1f1_global # time axis is broken. but anyway ssp370 doesn't exist for KIOST
             other_search_criteria:
               experiment:
                 - ssp245
                 - ssp370
-#              source:     # in the TCR likely range #https://zenodo.org/record/6476375#.YnVQNNPMJhE (14) #chunking
-#                - BCC-CSM2-MR
-#                - FGOALS-g3 # None, but 1 file per year
-#                - CMCC-ESM2 # [1, 192, 288]
-#                - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
-#                - ACCESS-CM2 #  [1, 145, 192]
-#                - ACCESS-ESM1-5 # [1, 96, 144]
-#                - MPI-ESM1-2-HR # [1, 192, 384]
-#                - INM-CM5-0 # [1, 120, 180]
-#                - MIROC6 # [1, 96, 192]
-#                - MPI-ESM1-2-LR #[1, 96, 192]
-#                - MRI-ESM2-0 #[1, 160, 320]
-#                - NorESM2-LM #[1, 96, 144]
-#                - KACE-1-0-G #[1, 144, 192] time out extract
-#                - GFDL-ESM4 #[1, 180, 288]
+              source:     # in the TCR likely range #https://zenodo.org/record/6476375#.YnVQNNPMJhE (14) #chunking
+                - BCC-CSM2-MR
+                - FGOALS-g3 # None, but 1 file per year
+                - CMCC-ESM2 # [1, 192, 288]
+                - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
+                - ACCESS-CM2 #  [1, 145, 192]
+                - ACCESS-ESM1-5 # [1, 96, 144]
+                - MPI-ESM1-2-HR # [1, 192, 384]
+                - INM-CM5-0 # [1, 120, 180]
+                - MIROC6 # [1, 96, 192]
+                - MPI-ESM1-2-LR #[1, 96, 192]
+                - MRI-ESM2-0 #[1, 160, 320]
+                - NorESM2-LM #[1, 96, 144]
+                - KACE-1-0-G #[1, 144, 192] time out extract
+                - GFDL-ESM4 #[1, 180, 288]
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
@@ -340,35 +337,26 @@ aggregate:
   input:
     clim:
       processing_level: indicators
-      experiment: ssp245 # just for now, eventually do it on everything
-#      source:
-#        - ACCESS-CM2
-#        - MIROC6
-#      xrfreq: QS-DEC
-#      variable:
-#        - tg_mean
-#        - prcptot
-    delta:
+    abs-delta:
       processing_level: climatology
+    per-delta:
+      processing_level: climatology
+      variable: prcptot
   climatological_mean:
     window: 30
     interval: 10
-    periods: [['1951', '2100']] #[['1991', '2020'], ['2071', '2100']]
+    periods: [['1951', '2100']]
     to_level: climatology
   compute_deltas:
     reference_horizon: "1991-2020"
-    kind:
-      prcptot: "%"
-      tx_mean: +
-      tg_mean: +
-      tn_mean: +
-    to_level: delta-climatology
+
 
 ensemble:
     processing_levels:
         - indicators
         - climatology
-        - delta-climatology
+        - abs-delta
+        - per-delta
     ensemble_stats_xscen:
       statistics:
         ensemble_percentiles:

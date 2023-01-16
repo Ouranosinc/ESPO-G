@@ -153,7 +153,6 @@ if __name__ == '__main__':
                     if 'diagnostics' in CONFIG['tasks']:
                         prop, _ = xs.properties_and_measures(
                             ds=dref_ref,
-                            to_level_prop=f'diag-ref-prop',
                             **CONFIG['extraction']['reference']['properties_and_measures']
                         )
 
@@ -218,11 +217,10 @@ if __name__ == '__main__':
                             path=str(dsC_path))
 
     cat_sim = search_data_catalogs(
-         **CONFIG['extraction']['simulation']['search_data_catalogs'])
-        # periods = ['1950','2100'],  # only for CNRM-ESM2-1
+        **CONFIG['extraction']['simulation']['search_data_catalogs'])
+                #periods = ['1950','2100'],  # only for CNRM-ESM2-1
     for sim_id, dc_id in cat_sim.items():
     #if False:
-
             if not pcat.exists_in_cat(domain='NAM', id =sim_id, processing_level='final'):
                 for region_name, region_dict in CONFIG['custom']['regions'].items():
                     # depending on the final tasks, check that the final file doesn't already exists
@@ -619,9 +617,7 @@ if __name__ == '__main__':
                 ):
                     dskconf.set(num_workers=12)
                     ProgressBar().register()
-                    # TODO: change back
-                    #levels = ['diag-sim-prop', 'diag-scen-prop', 'diag-sim-meas', 'diag-scen-meas', 'final']
-                    levels =['final']
+                    levels = ['diag-sim-prop', 'diag-scen-prop', 'diag-sim-meas', 'diag-scen-meas', 'final']
                     for level in levels:
                         logger.info(f'Contenating {sim_id} {level}.')
 
@@ -886,7 +882,6 @@ if __name__ == '__main__':
                                     **xs.utils.get_cat_attrs(ds_merge)))
                             )
 
-                # TODO: empty workdir, maybe issue with log?
                 move_then_delete(dirs_to_delete=[workdir, exec_wdir],moving_files=[],pcat=pcat)
 
     # --- CLIMATOLOGICAL MEAN ---
@@ -914,27 +909,68 @@ if __name__ == '__main__':
                     )
 
     # --- DELTAS ---
-    if "delta" in CONFIG["tasks"]:
-        ind_dict = pcat.search( **CONFIG['aggregate']['input']['delta']).to_dataset_dict(**tdd)
+    if "abs-delta" in CONFIG["tasks"]:
+        with (
+                Client(n_workers=6, threads_per_worker=4, memory_limit="4GB",
+                       **daskkws),
+                measure_time(name=f'delta', logger=logger),
+        ):
+            ind_dict = pcat.search( **CONFIG['aggregate']['input']['abs-delta']).to_dataset_dict(**tdd)
+            for id_input, ds_input in ind_dict.items():
+                xrfreq_input = ds_input.attrs['cat:xrfreq']
+                sim_id = ds_input.attrs['cat:id']
+                if not pcat.exists_in_cat(id=sim_id, processing_level= 'abs-delta',
+                                      xrfreq=xrfreq_input):
+                     with (
+                    #         Client(n_workers=4, threads_per_worker=4,memory_limit="6GB", **daskkws),
+                             measure_time(name=f'delta {id_input}',logger=logger),
+                     ):
+                        ds_delta = xs.aggregate.compute_deltas(ds=ds_input,
+                                                               kind="+",
+                                                               to_level='abs-delta')
+
+                        path=Path(CONFIG['paths']['delta'].format(**xs.utils.get_cat_attrs(ds_delta)))
+                        xs.save_to_zarr(ds_delta, path)
+                        pcat.update_from_ds(ds_delta, path)
+
+                        # save_move_update(
+                        #     ds=ds_delta,
+                        #     pcat=pcat,
+                        #     rechunk={'time': 4, "lat":50, "lon":50},
+                        #     init_path=f"{exec_wdir}/{sim_id}_{xrfreq_input}_absdeltas.zarr",
+                        #     final_path=Path(CONFIG['paths']['delta'].format(
+                        #         **xs.utils.get_cat_attrs(ds_delta)))
+                        # )
+
+    # --- DELTAS ---
+    if "per-delta" in CONFIG["tasks"]:
+        ind_dict = pcat.search( **CONFIG['aggregate']['input']['per-delta']).to_dataset_dict(**tdd)
         for id_input, ds_input in ind_dict.items():
             xrfreq_input = ds_input.attrs['cat:xrfreq']
             sim_id = ds_input.attrs['cat:id']
-            if not pcat.exists_in_cat(id=sim_id, processing_level= 'delta-climatology',
+            if not pcat.exists_in_cat(id=sim_id, processing_level= 'per-delta',
                                   xrfreq=xrfreq_input):
                 with (
                         Client(n_workers=4, threads_per_worker=4,memory_limit="6GB", **daskkws),
                         measure_time(name=f'delta {id_input}',logger=logger),
                 ):
-                    ds_delta = xs.aggregate.compute_deltas(ds=ds_input)
+                    ds_delta = xs.aggregate.compute_deltas(ds=ds_input,
+                                                           kind="%",
+                                                           to_level='per-delta'
+                                                           )
 
-                    save_move_update(
-                        ds=ds_delta,
-                        pcat=pcat,
-                        rechunk={'time': 4, "lat":50, "lon":50},
-                        init_path=f"{exec_wdir}/{sim_id}_{xrfreq_input}_deltas.zarr",
-                        final_path=Path(CONFIG['paths']['delta'].format(
-                            **xs.utils.get_cat_attrs(ds_delta)))
-                    )
+                    path = CONFIG['paths']['delta'].format(**xs.utils.get_cat_attrs(ds_delta))
+                    xs.save_to_zarr(ds_delta, path)
+                    pcat.update_from_ds(ds_delta, path)
+
+                    # save_move_update(
+                    #     ds=ds_delta,
+                    #     pcat=pcat,
+                    #     rechunk={'time': 4, "lat":50, "lon":50},
+                    #     init_path=f"{exec_wdir}/{sim_id}_{xrfreq_input}_perdeltas.zarr",
+                    #     final_path=Path(CONFIG['paths']['delta'].format(
+                    #         **xs.utils.get_cat_attrs(ds_delta)))
+                    # )
 
     # # --- DELTAS ---
     # if "deltas" in CONFIG["tasks"]:
@@ -984,8 +1020,8 @@ if __name__ == '__main__':
                                 variable=variable
                         ):
                             with (
-                                    Client(n_workers=4, threads_per_worker=4,memory_limit="6GB", **daskkws),
-                                    #ProgressBar(),
+                                    #Client(n_workers=3, threads_per_worker=4,memory_limit="15GB", **daskkws),
+                                    ProgressBar(),
                                     measure_time(name=f'ensemble-{processing_level}',logger=logger),
                             ):
                                 ens = xs.ensembles.ensemble_stats(
@@ -996,12 +1032,17 @@ if __name__ == '__main__':
 
                                 ens.attrs['cat:variable']= xs.catalog.parse_from_ds(ens, ["variable"])["variable"]
 
+                                # path = Path(CONFIG['paths']['ensemble'].format(var=variable,
+                                #     **xs.utils.get_cat_attrs(ens)))
+                                # xs.save_to_zarr(ens, path)
+                                # pcat.update_from_ds(ens, path)
+
                                 save_move_update(
                                     ds=ens,
                                     pcat=pcat,
-                                    rechunk={'time': 4, "lat":50, "lon":50},
+                                    #rechunk={'time': 4, "lat":50, "lon":50},
                                     init_path=f"{exec_wdir}/ensemble_{processing_level}_{variable}_{xrfreq}_{experiment}.zarr",
-                                    final_path=Path(CONFIG['paths']['ensembles'].format(
+                                    final_path=Path(CONFIG['paths']['ensemble'].format(
                                         var =variable, **xs.utils.get_cat_attrs(ens)))
                                 )
 
