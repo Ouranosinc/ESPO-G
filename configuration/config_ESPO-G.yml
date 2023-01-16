@@ -111,7 +111,7 @@ extraction:
               experiment:
                 - ssp245
                 - ssp370
-              source:     # in the TCR likely range #https://zenodo.org/record/6476375#.YnVQNNPMJhE (14) #chunking
+              source: &hausfather-source    # in the TCR likely range #https://zenodo.org/record/6476375#.YnVQNNPMJhE (14) #chunking
                 - BCC-CSM2-MR
                 - FGOALS-g3 # None, but 1 file per year
                 - CMCC-ESM2 # [1, 192, 288]
@@ -330,6 +330,7 @@ indicators:
   input:
     processing_level: final
     domain: NAM
+    source: *hausfather-source
   compute_indicators:
     to_level: individual_indicator
 

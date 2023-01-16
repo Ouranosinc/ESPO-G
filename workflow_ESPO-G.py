@@ -972,32 +972,6 @@ if __name__ == '__main__':
                     #         **xs.utils.get_cat_attrs(ds_delta)))
                     # )
 
-    # # --- DELTAS ---
-    # if "deltas" in CONFIG["tasks"]:
-    #     ind_dict = pcat.search( **CONFIG['aggregate']['input']).to_dataset_dict(**tdd)
-    #     for id_input, ds_input in ind_dict.items():
-    #         xrfreq_input = ds_input.attrs['cat:xrfreq']
-    #         sim_id = ds_input.attrs['cat:id']
-    #         if not pcat.exists_in_cat(id=sim_id, processing_level= 'delta_climatology',
-    #                               xrfreq=xrfreq_input):
-    #             with (
-    #                     Client(n_workers=4, threads_per_worker=4,memory_limit="6GB", **daskkws),
-    #                     measure_time(name=f'delta {id_input}',logger=logger),
-    #             ):
-    #                 # cut only canada for comparison with PCIC
-    #                 ds_input = ds_input.sel(lat=slice(41, 84), lon =slice(-141, -52))
-    #                 ds_mean = xs.climatological_mean(ds=ds_input)
-    #                 ds_delta = xs.aggregate.compute_deltas(ds=ds_mean)
-    #
-    #                 save_move_update(
-    #                     ds=ds_delta,
-    #                     pcat=pcat,
-    #                     rechunk={'time': 4, "lat":50, "lon":50},
-    #                     init_path=f"{exec_wdir}/{sim_id}_{xrfreq_input}_deltas.zarr",
-    #                     final_path=Path(CONFIG['paths']['deltas'].format(
-    #                         **xs.utils.get_cat_attrs(ds_delta)))
-    #                 )
-
 
     if "ensemble" in CONFIG["tasks"]:
         # one ensemble (file) per level, per xrfreq, per variable, per experiment
@@ -1022,7 +996,7 @@ if __name__ == '__main__':
                             with (
                                     #Client(n_workers=3, threads_per_worker=4,memory_limit="15GB", **daskkws),
                                     ProgressBar(),
-                                    measure_time(name=f'ensemble-{processing_level}',logger=logger),
+                                    measure_time(name=f'ensemble-{processing_level} {experiment} {xrfreq} {variable}',logger=logger),
                             ):
                                 ens = xs.ensembles.ensemble_stats(
                                     datasets=ind_dict,
