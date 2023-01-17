@@ -991,7 +991,7 @@ if __name__ == '__main__':
                                 processing_level= f'ensemble-{processing_level}',
                                 xrfreq=xrfreq,
                                 experiment=experiment,
-                                variable=variable
+                                variable=variable+ "_p50",
                         ):
                             with (
                                     #Client(n_workers=3, threads_per_worker=4,memory_limit="15GB", **daskkws),
@@ -1006,15 +1006,10 @@ if __name__ == '__main__':
 
                                 ens.attrs['cat:variable']= xs.catalog.parse_from_ds(ens, ["variable"])["variable"]
 
-                                # path = Path(CONFIG['paths']['ensemble'].format(var=variable,
-                                #     **xs.utils.get_cat_attrs(ens)))
-                                # xs.save_to_zarr(ens, path)
-                                # pcat.update_from_ds(ens, path)
 
                                 save_move_update(
                                     ds=ens,
                                     pcat=pcat,
-                                    #rechunk={'time': 4, "lat":50, "lon":50},
                                     init_path=f"{exec_wdir}/ensemble_{processing_level}_{variable}_{xrfreq}_{experiment}.zarr",
                                     final_path=Path(CONFIG['paths']['ensemble'].format(
                                         var =variable, **xs.utils.get_cat_attrs(ens)))

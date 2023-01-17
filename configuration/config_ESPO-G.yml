@@ -18,10 +18,10 @@ tasks:
   - concat
 #  - official-diag
 #  - indicators
-  - climatological_mean
-  - abs-delta
-  - per-delta
-  - ensemble
+#  - climatological_mean
+#  - abs-delta
+#  - per-delta
+#  - ensemble
 
 
 
