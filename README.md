@@ -9,6 +9,7 @@ availability of climate scenarios responding to numerous vulnerability, impact, 
 The experiments included are SSP2-4.5, SSP3-7.0 (and SSP5-8.5).
 Simulations are bias-adjusted using the ERA5-Land reference dataset.
 
+To avoid the "hot model problem" (Hausfather et al, 2022), only models with a Transient Climate Response (TCR) in the likely range (1.4–2.2 °C) were kept in the official ensemble (Table 1).
 **Table 1. Members of ESPO-G6 v1.0.**
 
 |**Institution**|**Model** |**Member** |**License**|
