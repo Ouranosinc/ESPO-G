@@ -6,22 +6,22 @@ project:
 
 tasks:
   ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
-  - makeref
-  - extract
-  - regrid
-  - rechunk
-  - train
-  - adjust
-  - clean_up
-  - final_zarr
-  - diagnostics
-  - concat
+#  - makeref
+#  - extract
+#  - regrid
+#  - rechunk
+#  - train
+#  - adjust
+#  - clean_up
+#  - final_zarr
+#  - diagnostics
+#  - concat
 #  - official-diag
-#  - indicators
-#  - climatological_mean
-#  - abs-delta
-#  - per-delta
-#  - ensemble
+  - indicators
+  - climatological_mean
+  - abs-delta
+  - per-delta
+  - ensemble
 
 
 
@@ -111,7 +111,7 @@ extraction:
               experiment:
                 - ssp245
                 - ssp370
-              source: &hausfather-source    # in the TCR likely range #https://zenodo.org/record/6476375#.YnVQNNPMJhE (14) #chunking
+              source: &hausfather-source    # in the TCR likely range (14) #chunking
                 - BCC-CSM2-MR
                 - FGOALS-g3 # None, but 1 file per year
                 - CMCC-ESM2 # [1, 192, 288]

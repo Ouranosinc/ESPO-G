@@ -242,8 +242,8 @@ if __name__ == '__main__':
                                 and not pcat.exists_in_cat(domain='NAM', processing_level='extracted', id=sim_id)
                         ):
                             with (
-                                    #Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws),
-                                    Client(n_workers=1, threads_per_worker=5,memory_limit="50GB", **daskkws), # only for CNRM-ESM2-1
+                                    Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws),
+                                    #Client(n_workers=1, threads_per_worker=5,memory_limit="50GB", **daskkws), # only for CNRM-ESM2-1
 
                                     measure_time(name='extract', logger=logger),
                                     timeout(18000, task='extract')
@@ -876,8 +876,8 @@ if __name__ == '__main__':
                             save_move_update(
                                 ds=ds_merge,
                                 pcat=pcat,
+                                rechunk={'time': -1},
                                 init_path=f"{exec_wdir}/{sim_id}_{xrfreq}_indicators.zarr",
-                                #init_path=f"{workdir}/{sim_id}_{xrfreq}_indicators.zarr",
                                 final_path=Path(CONFIG['paths']['indicators'].format(
                                     **xs.utils.get_cat_attrs(ds_merge)))
                             )
