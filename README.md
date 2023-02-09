@@ -10,24 +10,35 @@ The experiments included are SSP2-4.5, SSP3-7.0 (and SSP5-8.5).
 Simulations are bias-adjusted using the ERA5-Land reference dataset.
 
 To avoid the "hot model problem" (Hausfather et al, 2022), only models with a Transient Climate Response (TCR) in the likely range (1.4–2.2 °C) were kept in the official ensemble (Table 1).
+Extra "hot models" are also available even if they are not in the official ensemble.
 **Table 1. Members of ESPO-G6 v1.0.**
 
-|**Institution**|**Model** |**Member** |**License**|
-|---|---|---|---|
-|CAS |	FGOALS-g3 |	r1i1p1f1 |CC BY 4.0|
-|CMCC 	|CMCC-ESM2 |	r1i1p1f1 |CC BY 4.0|
-|	CSIRO-ARCCSS |	ACCESS-CM2 |	r1i1p1f1  |CC BY 4.0|
-| CSIRO 	|ACCESS-ESM1-5 |	r1i1p1f1 |CC BY 4.0|
-| 	DKRZ |	MPI-ESM1-2-HR |	r1i1p1f1 |CC BY 4.0|
-| 	INM 	|INM-CM5-0 |	r1i1p1f1 |CC BY 4.0|
-| 	MIROC |	MIROC6 |	r1i1p1f1 |CC BY 4.0|
-| 	MPI-M |	MPI-ESM1-2-LR |	r1i1p1f1 |CC BY 4.0|
-| 	MRI |	MRI-ESM2-0 |	r1i1p1f1 |CC BY 4.0|
-| 	NCC |	NorESM2-LM |	r1i1p1f1 |CC BY 4.0|
-| 	CNRM-CERFACS |	CNRM-ESM2-1 |	r1i1p1f2 |CC BY 4.0|
-| 	NIMS-KMA |	KACE-1-0-G |	r1i1p1f1 |CC BY 4.0|
-| 	NOAA-GFDL |	GFDL-ESM4 |	r1i1p1f1 |CC BY 4.0|
-| 	BCC |	BCC-CSM2-MR |	r1i1p1f1 |CC BY 4.0|
+|**Institution**|**Model** |**Member** |**License**|**In TCR likely range**|
+|---|---|---|---|---|
+|CAS |	FGOALS-g3 |	r1i1p1f1 |CC BY 4.0|✓|
+|CMCC 	|CMCC-ESM2 |	r1i1p1f1 |CC BY 4.0|✓|
+|	CSIRO-ARCCSS |	ACCESS-CM2 |	r1i1p1f1  |CC BY 4.0|✓|
+| CSIRO 	|ACCESS-ESM1-5 |	r1i1p1f1 |CC BY 4.0|✓|
+| 	DKRZ |	MPI-ESM1-2-HR |	r1i1p1f1 |CC BY 4.0|✓|
+| 	INM 	|INM-CM5-0 |	r1i1p1f1 |CC BY 4.0|✓|
+| 	MIROC |	MIROC6 |	r1i1p1f1 |CC BY 4.0|✓|
+| 	MPI-M |	MPI-ESM1-2-LR |	r1i1p1f1 |CC BY 4.0|✓|
+| 	MRI |	MRI-ESM2-0 |	r1i1p1f1 |CC BY 4.0|✓|
+| 	NCC |	NorESM2-LM |	r1i1p1f1 |CC BY 4.0|✓|
+| 	CNRM-CERFACS |	CNRM-ESM2-1 |	r1i1p1f2 |CC BY 4.0|✓|
+| 	NIMS-KMA |	KACE-1-0-G |	r1i1p1f1 |CC BY 4.0|✓|
+| 	NOAA-GFDL |	GFDL-ESM4 |	r1i1p1f1 |CC BY 4.0|✓|
+| 	BCC |	BCC-CSM2-MR |	r1i1p1f1 |CC BY 4.0|✓|
+| AS-RCEC	 |	TaiESM1 |	r1i1p1f1 |CC BY 4.0| |
+| CCCma	 |	CanESM5 |	r1i1p1f1 |CC BY 4.0| |
+| CNRM-CERFACS	 |	CNRM-CM6-1 |r1i1p1f2	 |CC BY 4.0| |
+| EC-Earth-Consortium	 |	EC-Earth3 |r1i1p1f1	 |CC BY 4.0| |
+| IPSL	 |	IPSL-CM6A-LR |	r1i1p1f1 |CC BY 4.0| |
+| 	MOHC |	UKESM1-0-LL |	r1i1p1f2 |CC BY 4.0| |
+| 	NCC |NorESM2-MM	 |	r1i1p1f1 |CC BY 4.0| |
+| EC-Earth-Consortium	 |	EC-Earth3-CC (only SSP2-4.5) |r1i1p1f1	 |CC BY 4.0| |
+| 	NUIST |NESM3 (only SSP2-4.5)	 |	r1i1p1f1 |CC BY 4.0| |
+
 
 Source: https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
 
