@@ -45,7 +45,7 @@ Extra "hot models" are also available even if they are not in the official ensem
 Source: https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
 
 ## Spatial coverage
-The dataset has a resolution of 0.1° over a North American domain from  179.5°W to 10°W and from 10°N to 83.4°N.  
+The dataset has a resolution of 0.1° over a North American domain from  179.9°W to 10.0°W and from 10.0°N to 83.3°N.  
 Data is only available on land, as the reference dataset (ERA5-Land) is only defined there. 
 
 Some small regions in Alaska and Greenland have been masked out by NaNs for 2 models. More details are available in section 5 of [the documentation of the adjustment method.](documentation/ESPO_G6_adjustment.pdf)
@@ -207,7 +207,7 @@ Our general conclusions concerning the quality of ESPO-G6v1.0 are:
 A subset of the properties and measures discussed in the performance analysis is made available in this repository, in the `data/` folder.
 
 ## Data availability and download
-The ESPO-R6v1.0 data is currently available under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) license. [[ TODO: verify this!!]]
+The ESPO-G6v1.0 data is currently available under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) license. [[ TODO: verify this]]
 
 At the time of publication, the data is stored on [Ouranos](https://www.ouranos.ca/)' THREDDS server, a part of the [PAVICS](https://pavics.ouranos.ca/) project:
 
@@ -217,7 +217,6 @@ When new versions of ESPO-G will be released, previous versions may be pulled fr
 
 ## Acknowledgements
 We acknowledge the World Climate Research Programme, which, through its Working Group on Coupled Modelling, coordinated and promoted CMIP6. We thank the climate modeling groups for producing and making available their model output, the Earth System Grid Federation (ESGF) for archiving the data and providing access, and the multiple funding agencies who support CMIP6 and ESGF.
-
 
 The ESPO-G6 data was generated using ERA5-Land hourly data from 1950 to present (https://doi.org/10.24381/cds.e2161bac)
 made available through the Copernicus Climate Change Climate Data Store (https://cds.climate.copernicus.eu).
