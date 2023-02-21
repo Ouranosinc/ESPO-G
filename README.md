@@ -55,7 +55,7 @@ As the bias-adjustment method requires a consistent number of calendar days (no 
 calendar were converted to the `noleap` one by dropping any values for February 29th. `KACE-1-0-G`
 is the only model simulated with a 360-day calendar, and was kept as is.
 
-The bias-adjustment was calibrated over the years 1991-2010, following the WMO recommendation for reference periods, and applied to the full 1950-2100 period.
+The bias-adjustment was calibrated over the years 1991-2020, following the WMO recommendation for reference periods, and applied to the full 1950-2100 period.
 
 ## Reference data
 For uniformity, ESPO-G6 v1.0 uses the same reference dataset as ESPO-R5 v1.0. This section describes the analysis that was done to choose the reference dataset.
