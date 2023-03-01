@@ -1,43 +1,85 @@
 realm: generic
 indicators:
+  mean_tasmax:
+    base: xclim.sdba.properties.mean
+    cf_attrs:
+      long_name: mean maximum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmax
+  mean_tasmin:
+    base: xclim.sdba.properties.mean
+    cf_attrs:
+      long_name: mean minimum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmin
+  mean_pr:
+    base: xclim.sdba.properties.mean
+    cf_attrs:
+      long_name: mean precipitation
+      standard_name: precipitation_flux
+    input:
+      da: pr
   q99_tasmax:
     base: xclim.sdba.properties.quantile
+    cf_attrs:
+      long_name: 99th quantile of maximum temperature
+      standard_name: air_temperature
     input:
       da: tasmax
     parameters:
       q: 0.99
   q99_tasmin:
     base: xclim.sdba.properties.quantile
+    cf_attrs:
+      long_name: 99th quantile of minimum temperature
+      standard_name: air_temperature
     input:
       da: tasmin
     parameters:
       q: 0.99
   q01_tasmax:
     base: xclim.sdba.properties.quantile
+    cf_attrs:
+      long_name: 1st quantile of maximum temperature
+      standard_name: air_temperature
     input:
       da: tasmax
     parameters:
       q: 0.01
   q01_tasmin:
     base: xclim.sdba.properties.quantile
+    cf_attrs:
+      long_name: 1st quantile of minimum temperature
+      standard_name: air_temperature
     input:
       da: tasmin
     parameters:
       q: 0.01
   q99_pr:
     base: xclim.sdba.properties.quantile
+    cf_attrs:
+      long_name: 99th quantile of precipitation
+      standard_name: precipitation_flux
     input:
       da: pr
     parameters:
       q: 0.99
   q95_pr:
     base: xclim.sdba.properties.quantile
+    cf_attrs:
+      long_name: 95th quantile of precipitation
+      standard_name: precipitation_flux
     input:
       da: pr
     parameters:
       q: 0.95
   dry_spell_freq:
     base: xclim.sdba.properties.relative_frequency
+    cf_attrs:
+      long_name: dry spell frequency
+      standard_name: precipitation_flux
     input:
       da: pr
     parameters:
@@ -45,28 +87,44 @@ indicators:
       thresh: "1 mm d-1"
   aca_tasmax:
     base: xclim.sdba.properties.annual_cycle_amplitude
+    cf_attrs:
+      long_name: Amplitude of the annual cycle of the maximum temperature
+      standard_name: air_temperature
     input:
       da: tasmax
   aca_tasmin:
     base: xclim.sdba.properties.annual_cycle_amplitude
+    cf_attrs:
+      long_name: Amplitude of the annual cycle of the minimum temperature
+      standard_name: air_temperature
     input:
       da: tasmin
   aca_pr:
     base: xclim.sdba.properties.relative_annual_cycle_amplitude
+    cf_attrs:
+      long_name: Relative amplitude of the annual cycle of the precipitation
+      standard_name: precipitation_flux
     input:
       da: pr
   corr_tasmax_tasmin:
     base: xclim.sdba.properties.corr_btw_var
+    cf_attrs:
+      long_name: Correlation between maximum temperature and minimum temperature
     input:
       da1: tasmax
       da2: tasmin
   corr_tasmax_pr:
     base: xclim.sdba.properties.corr_btw_var
+    cf_attrs:
+      long_name: Correlation between maximum temperature and precipitation
     input:
       da1: tasmax
       da2: pr
   maximum_length_of_dry_spell:
     base: xclim.sdba.properties.spell_length_distribution
+    cf_attrs:
+      long_name: Maximum length of dry spell
+      standard_name: precipitation_flux
     input:
       da: pr
     parameters:
@@ -76,6 +134,9 @@ indicators:
       stat: max
   maximum_length_of_warm_spell:
     base: xclim.sdba.properties.spell_length_distribution
+    cf_attrs:
+      long_name: Maximum length of warm spell
+      standard_name: air_temperature
     input:
       da: tasmax
     parameters:
@@ -85,6 +146,9 @@ indicators:
       stat: max
   wet_wet_transition:
     base: xclim.sdba.properties.transition_probability
+    cf_attrs:
+      long_name: Transition probability from a wet day to a wet day
+      standard_name: precipitation_flux
     input:
       da: pr
     parameters:
@@ -93,36 +157,39 @@ indicators:
       thresh: '1 mm d-1'
   dry_wet_transition:
     base: xclim.sdba.properties.transition_probability
+    cf_attrs:
+      long_name: Transition probability from a dry day to a wet day
+      standard_name: precipitation_flux
     input:
       da: pr
     parameters:
       initial_op: '<'
       final_op: '>='
       thresh: '1 mm d-1'
-  decorrelation_length_tasmax_0.5:
-    base: xclim.sdba.properties.decorrelation_length
-    input:
-      da: tasmax
-    parameters:
-      radius: 300
-      thresh: 0.50
-      bins: 100
-  decorrelation_length_tasmin_0.5:
-    base: xclim.sdba.properties.decorrelation_length
-    input:
-      da: tasmin
-    parameters:
-      radius: 300
-      thresh: 0.50
-      bins: 100
-  decorrelation_length_pr_0.5:
-    base: xclim.sdba.properties.decorrelation_length
-    input:
-      da: pr
-    parameters:
-      radius: 300
-      thresh: 0.50
-      bins: 100
+#  decorrelation_length_tasmax_0.5:
+#    base: xclim.sdba.properties.decorrelation_length
+#    input:
+#      da: tasmax
+#    parameters:
+#      radius: 300
+#      thresh: 0.50
+#      bins: 100
+#  decorrelation_length_tasmin_0.5:
+#    base: xclim.sdba.properties.decorrelation_length
+#    input:
+#      da: tasmin
+#    parameters:
+#      radius: 300
+#      thresh: 0.50
+#      bins: 100
+#  decorrelation_length_pr_0.5:
+#    base: xclim.sdba.properties.decorrelation_length
+#    input:
+#      da: pr
+#    parameters:
+#      radius: 300
+#      thresh: 0.50
+#      bins: 100
   #Max dry/hot/cold spell length (codé)
   #Decorrelation length (non codé)
   #Wet-wet and Dry-wet transitions (non codé)

@@ -688,9 +688,12 @@ if __name__ == '__main__':
                             ds_input.attrs["cat:domain"] = dom_name
 
                             # correlogram
-                            if not pcat.exists_in_cat(id=id,
-                                                      processing_level=f'correlogram-{step}',
-                                                      domain=dom_name):
+                            if ((dom_name in CONFIG['off-diag']['correlogram_regions'])
+                                and
+                                (not pcat.exists_in_cat(id=id,
+                                                        processing_level=f'correlogram-{step}',
+                                                        domain=dom_name)) ):
+
                                 logging.info(f'Computing correlogram {step}')
                                 correlogram = xr.Dataset(attrs=ds_input.attrs)
                                 for var in ds_input.data_vars:

@@ -6,17 +6,17 @@ project:
 
 tasks:
   ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
-#  - makeref
-#  - extract
-#  - regrid
-#  - rechunk
-#  - train
-#  - adjust
-#  - clean_up
-#  - final_zarr
-#  - diagnostics
-#  - concat
-#  - official-diag
+  - makeref
+  - extract
+  - regrid
+  - rechunk
+  - train
+  - adjust
+  - clean_up
+  - final_zarr
+  - diagnostics
+  - concat
+  - official-diag
   - indicators
   - climatological_mean
   - abs-delta
@@ -133,6 +133,10 @@ extraction:
             xr_open_kwargs:
               drop_variables:
                 - height
+              chunks: #TODO: test this
+                lat: 100
+                lon: 100
+                time: 365
               #chunks: {'time': 1, 'lon': -1, 'lat': -1} # only for CNRM-ESM2-1
         chunks: {'time': 365, 'lat':-1, 'lon':-1}
     ref_source: *ref_source
@@ -369,24 +373,30 @@ ensemble:
 
 off-diag:
   domains:
-    Haudenosaunee:
-        name: Haudenosaunee
-        method: bbox
-        bbox:
-          lat_bnds: [ 42.0, 47.0 ]
-          lon_bnds: [ -79.0, -71.0 ]
-    Ute:
-        name: Ute
-        method: bbox
-        bbox:
-          lat_bnds: [ 35.0, 40.0 ]
-          lon_bnds: [ -111.0, -103.0 ]
-    Dene:
-        name: Dene
-        method: bbox
-        bbox:
-          lat_bnds: [ 60.0, 65.0 ]
-          lon_bnds: [ -124.0, -116.0 ]
+#    Haudenosaunee:
+#        name: Haudenosaunee
+#        method: bbox
+#        bbox:
+#          lat_bnds: [ 42.0, 47.0 ]
+#          lon_bnds: [ -79.0, -71.0 ]
+#    Ute:
+#        name: Ute
+#        method: bbox
+#        bbox:
+#          lat_bnds: [ 35.0, 40.0 ]
+#          lon_bnds: [ -111.0, -103.0 ]
+#    Dene:
+#        name: Dene
+#        method: bbox
+#        bbox:
+#          lat_bnds: [ 60.0, 65.0 ]
+#          lon_bnds: [ -124.0, -116.0 ]
+    Magtogoek:
+      name: Magtogoek
+      method: bbox
+      bbox:
+        lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
+        lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
   steps:
     ref:
       input:
@@ -396,16 +406,19 @@ off-diag:
         Haudenosaunee: middle_nodup
         Ute: south_nodup
         Dene: middle_nodup
+        Magtogoek: middle_nodup
       properties_and_measures:
         period: *ref_period
       unstack: *stack
     sim:
       input:
+        source: *hausfather-source
         processing_level:  regridded
       domain:
         Haudenosaunee: middle
         Ute: south
         Dene: middle
+        Magtogoek: middle
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
@@ -413,16 +426,22 @@ off-diag:
       unstack: *stack
     scen:
       input:
+        source: *hausfather-source
         processing_level: final
       domain:
         Haudenosaunee: NAM
         Ute: NAM
         Dene: NAM
+        Magtogoek: NAM
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
         period: *ref_period
       unstack: False
+  correlogram_regions: # list of region on which we want to caluclate the correlogram
+    - Haudenosaunee
+    - Ute
+    - Dene
 
 
 
