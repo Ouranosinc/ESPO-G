@@ -20,6 +20,7 @@ paths:
 dask:
   client:
     local_directory: EXEC_DIR/tmp_eg6/
+    dashboard_address: YOUR_RANDOM_NUMBER
 
 logging:
     handlers:
@@ -78,6 +79,7 @@ indicator: # don't write the real name of the module or you will break extract.
   load_xclim_module:
     filename: configuration/portraits.yml
 
+##TODO: activate for ERA5-Land but not RDRS
 utils:
     stack_drop_nans:
         to_file: &coords
@@ -86,3 +88,7 @@ utils:
       coords: *coords
     maybe_unstack:
       coords: *coords
+
+scripting:
+    send_mail:
+        to: YOUR_EMAIL

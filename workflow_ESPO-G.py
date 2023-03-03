@@ -37,7 +37,7 @@ from xscen import (
 from utils import  save_move_update,email_nan_count,move_then_delete
 
 # Load configuration
-load_config('configuration/paths_ESPO-G.yml', 'configuration/config_ESPO-G.yml', verbose=(__name__ == '__main__'), reset=True)
+load_config('configuration/paths_ESPO-G_jarre.yml', 'configuration/config_ESPO-G_RDRS.yml', verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
 
 workdir = Path(CONFIG['paths']['workdir'])
@@ -147,7 +147,7 @@ if __name__ == '__main__':
                     # drop to make faster
                     dref_ref = ds_ref.drop_vars('dtr')
 
-                    dref_ref = dref_ref.chunk({'lat': 225, 'lon': 252, 'time': 168})
+                    dref_ref = dref_ref.chunk(CONFIG['extraction']['reference']['chunks'])
 
                     # diagnostics
                     if 'diagnostics' in CONFIG['tasks']:
@@ -168,8 +168,8 @@ if __name__ == '__main__':
                                          )
 
                     # nan count
-                    ds_ref_props_nan_count = dref_ref.to_array().isnull().sum('time').mean('variable').chunk(
-                        {'lon': 10, 'lat': 10})
+                    ds_ref_props_nan_count = dref_ref.to_array().isnull().sum(
+                        'time').mean('variable').chunk(CONFIG['custom']['rechunk'])
                     ds_ref_props_nan_count = ds_ref_props_nan_count.to_dataset(name='nan_count')
                     ds_ref_props_nan_count.attrs.update(ds_ref.attrs)
 
@@ -185,8 +185,8 @@ if __name__ == '__main__':
 
     # concat diag-ref-prop
     if (
-            "makeref" in CONFIG["tasks"]
-            and not pcat.exists_in_cat(domain='NAM',
+            "makeref" in CONFIG["tasks"] and "concat" in CONFIG["tasks"]
+            and not pcat.exists_in_cat(domain=CONFIG['custom']['amno_region']['name'],
                                        processing_level='diag-ref-prop',
                                        source=ref_source)
     ):
@@ -201,14 +201,14 @@ if __name__ == '__main__':
             list_dsR.append(dsR)
 
         dsC = xr.concat(list_dsR, 'lat')
-        dsC.attrs['cat:domain'] = f"NAM"
+        dsC.attrs['cat:domain'] = CONFIG['custom']['amno_region']['name']
 
         dsC_path = CONFIG['paths'][f"concat_output_diag"].format(
             sim_id = dsC.attrs['cat:id'], level='diag-ref-prop')
         dsC.attrs.pop('cat:path')
         for var in dsC.data_vars:
             dsC[var].encoding.pop('chunks')
-        dsC = dsC.chunk({'lat': 50, 'lon': 50})
+        dsC = dsC.chunk(CONFIG['custom']['rechunk'])
 
         save_to_zarr(ds=dsC,
                      filename=dsC_path,
@@ -220,8 +220,8 @@ if __name__ == '__main__':
         **CONFIG['extraction']['simulation']['search_data_catalogs'])
                 #periods = ['1950','2100'],  # only for CNRM-ESM2-1
     for sim_id, dc_id in cat_sim.items():
-    #if False:
-            if not pcat.exists_in_cat(domain='NAM', id =sim_id, processing_level='final'):
+            if not pcat.exists_in_cat(domain=CONFIG['custom']['amno_region']['name'],
+                                      id =sim_id, processing_level='final'):
                 for region_name, region_dict in CONFIG['custom']['regions'].items():
                     # depending on the final tasks, check that the final file doesn't already exists
                     final = {'final_zarr': dict(domain=region_name, processing_level='final', id=sim_id),
@@ -239,7 +239,8 @@ if __name__ == '__main__':
                         # ---EXTRACT---
                         if (
                                 "extract" in CONFIG["tasks"]
-                                and not pcat.exists_in_cat(domain='NAM', processing_level='extracted', id=sim_id)
+                                and not pcat.exists_in_cat(domain=CONFIG['custom']['amno_region']['name'],
+                                                           processing_level='extracted', id=sim_id)
                         ):
                             with (
                                     Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws),
@@ -270,8 +271,8 @@ if __name__ == '__main__':
                                 #ds_sim = ds_sim.chunk({'time': 1, 'lat': -1, 'lon': -1})# only for CNRM-ESM2-1
 
                                 # save to zarr
-                                path_cut_exec = f"{exec_wdir}/{sim_id}_NAM_extracted.zarr"
-                                path_cut = f"{workdir}/{sim_id}_NAM_extracted.zarr"
+                                path_cut_exec = f"{exec_wdir}/{sim_id}_{ds_sim.attrs['cat:domain']}_extracted.zarr"
+                                path_cut = f"{workdir}/{sim_id}_{ds_sim.attrs['cat:domain']}_extracted.zarr"
 
                                 save_move_update(ds=ds_sim,
                                                  pcat=pcat,
@@ -292,7 +293,7 @@ if __name__ == '__main__':
 
                                 ds_input = pcat.search(id=sim_id,
                                                     processing_level='extracted',
-                                                    domain='NAM').to_dask()
+                                                    domain=CONFIG['custom']['amno_region']['name']).to_dask()
 
                                 ds_target = pcat.search(**CONFIG['regrid']['target'],
                                                         domain=region_name).to_dask()
@@ -556,7 +557,7 @@ if __name__ == '__main__':
                                         path_diag_exec = f"{workdir}/{path_diag.name}"
                                         save_to_zarr(ds=ds, filename=path_diag_exec,
                                                      mode='o', itervar=True,
-                                                     rechunk={'lat': 50, 'lon': 50})
+                                                     rechunk=CONFIG['custom']['rechunk'])
                                         shutil.move(path_diag_exec, path_diag)
                                         pcat.update_from_ds(ds=ds, path=str(path_diag))
 
@@ -610,7 +611,7 @@ if __name__ == '__main__':
 
                 if (
                         "concat" in CONFIG["tasks"]
-                        and not pcat.exists_in_cat(domain='NAM',
+                        and not pcat.exists_in_cat(domain=CONFIG['custom']['amno_region']['name'],
                                                    id=sim_id,
                                                    processing_level='final',
                                                    format='zarr')
@@ -632,7 +633,7 @@ if __name__ == '__main__':
                         dsC = xr.concat(list_dsR, 'lat')
 
                         dsC.attrs['title'] = f"ESPO-G6 v1.0.0 - {sim_id}"
-                        dsC.attrs['cat:domain'] = f"NAM"
+                        dsC.attrs['cat:domain'] = CONFIG['custom']['amno_region']['name']
                         dsC.attrs.pop('intake_esm_dataset_key')
 
                         dsC_path = CONFIG['paths'][f"concat_output" \
@@ -641,11 +642,11 @@ if __name__ == '__main__':
 
                         dsC.attrs.pop('cat:path')
                         if level !='final':
-                            dsC = dsC.chunk({ 'lat': 50, 'lon': 50})
+                            dsC = dsC.chunk(CONFIG['custom']['rechunk'])
                         elif get_calendar(dsC.time) =='360_day':
-                            dsC = dsC.chunk({'time':1440, 'lat':50, 'lon':50})
+                            dsC = dsC.chunk({'time':1440}|CONFIG['custom']['rechunk'])
                         else:
-                            dsC = dsC.chunk({'time':1460, 'lat':50, 'lon':50})
+                            dsC = dsC.chunk({'time':1460}|CONFIG['custom']['rechunk'])
                         save_to_zarr(ds=dsC,
                                      filename=dsC_path,
                                      mode='o')
@@ -717,7 +718,7 @@ if __name__ == '__main__':
                                     init_path=path_diag_exec,
                                     final_path=path_diag,
                                     itervar=True,
-                                    rechunk={'lat': 50, 'lon': 50}
+                                    rechunk=CONFIG['custom']['rechunk']
                                 )
 
                             dref_for_measure = None
@@ -748,7 +749,7 @@ if __name__ == '__main__':
                                         init_path=path_diag_exec,
                                         final_path=path_diag,
                                         itervar=True,
-                                        rechunk={'lat': 50, 'lon': 50}
+                                        rechunk=CONFIG['custom']['rechunk']
                                     )
 
             # iter over all sim meas
@@ -905,7 +906,7 @@ if __name__ == '__main__':
                         ds=ds_mean,
                         pcat=pcat,
                         itervar=True, #if xrfreq_input=='QS-DEC' else False,
-                        rechunk={'time': 4, "lat":50, "lon":50},
+                        rechunk={'time': 4}|CONFIG['custom']['rechunk'],
                         init_path=f"{exec_wdir}/{sim_id}_{xrfreq_input}_climatology.zarr",
                         final_path=Path(CONFIG['paths']['climatology'].format(
                             **xs.utils.get_cat_attrs(ds_mean)))
@@ -936,14 +937,6 @@ if __name__ == '__main__':
                         xs.save_to_zarr(ds_delta, path)
                         pcat.update_from_ds(ds_delta, path)
 
-                        # save_move_update(
-                        #     ds=ds_delta,
-                        #     pcat=pcat,
-                        #     rechunk={'time': 4, "lat":50, "lon":50},
-                        #     init_path=f"{exec_wdir}/{sim_id}_{xrfreq_input}_absdeltas.zarr",
-                        #     final_path=Path(CONFIG['paths']['delta'].format(
-                        #         **xs.utils.get_cat_attrs(ds_delta)))
-                        # )
 
     # --- DELTAS ---
     if "per-delta" in CONFIG["tasks"]:
@@ -966,14 +959,6 @@ if __name__ == '__main__':
                     xs.save_to_zarr(ds_delta, path)
                     pcat.update_from_ds(ds_delta, path)
 
-                    # save_move_update(
-                    #     ds=ds_delta,
-                    #     pcat=pcat,
-                    #     rechunk={'time': 4, "lat":50, "lon":50},
-                    #     init_path=f"{exec_wdir}/{sim_id}_{xrfreq_input}_perdeltas.zarr",
-                    #     final_path=Path(CONFIG['paths']['delta'].format(
-                    #         **xs.utils.get_cat_attrs(ds_delta)))
-                    # )
 
 
     if "ensemble" in CONFIG["tasks"]:

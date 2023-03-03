@@ -14,14 +14,14 @@ tasks:
   - adjust
   - clean_up
   - final_zarr
-  - diagnostics
-  - concat
-  - official-diag
-  - indicators
-  - climatological_mean
-  - abs-delta
-  - per-delta
-  - ensemble
+#  - diagnostics
+#  - concat
+#  - official-diag
+#  - indicators
+#  - climatological_mean
+#  - abs-delta
+#  - per-delta
+#  - ensemble
 
 
 
@@ -29,55 +29,60 @@ custom:
     delete_in_final_zarr: False
     delete_in_diag: True
     regions:
-        south_nodup:
-            name: south_nodup
-            method: bbox
-            bbox:
-                lon_bnds: [ -179.95, -10 ]
-                lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
-        middle_nodup:
-            name: middle_nodup
-            method: bbox
-            bbox:
-                lon_bnds: [ -179.95, -10 ]
-                lat_bnds: [ 40.05, 65.05 ]
-        north_nodup:
-            name: north_nodup
-            method: bbox
-            bbox:
-                lon_bnds: [-179.95, -10]
-                lat_bnds: [65.05, 83.4]
+      prob-reg:
+        name: prob-reg
+        method: bbox
+        bbox:
+            lat_bnds: [45, 47]
+            lon_bnds: [-75, -70]
+#        south-rdrs:
+#            name: south-rdrs
+#            method: bbox
+#            bbox:
+#                lon_bnds: [ -179.95, -10 ]
+#                lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
+#        middle-rdrs:
+#            name: middle-rdrs
+#            method: bbox
+#            bbox:
+#                lon_bnds: [ -179.95, -10 ]
+#                lat_bnds: [ 40.05, 65.05 ]
+#        north-rdrs:
+#            name: north-rdrs
+#            method: bbox
+#            bbox:
+#                lon_bnds: [-179.95, -10]
+#                lat_bnds: [65.05, 83.4]
     amno_region:
-      name: NAM
+      name:  &nam-name
+        NAM-rdrs
       method: bbox
       buffer: 1.5
       bbox:
         lon_bnds: [ -179.95, -10 ]
         lat_bnds: [ 10, 83.4 ]
-    stack_drop_nans: &stack # goal is to drop Nan to make it faster
+    stack_drop_nans: &stack
         True
     chunks:
-        lat: 20 #espo-r
-        lon: 20 #espo-r
-        loc: 600 #espo-r
+        rlat: 20
+        rlon: 20
+        loc: 600
         time: -1
     out_chunks:
-        lat: 50
-        lon: 50
+        rlat: 20 #50 20 for prob-reg. TODO: change back when normal
+        rlon: 20 # 50
         time: 4year
     ref_period : &ref_period
-        - '1991'
-        - '2020'
+        - '1989'
+        - '2018'
     sim_period: &sim_period
         - '1950'
         - '2100'
     maximal_calendar:
         noleap
     rechunk:
-      lat: 50
-      lon: 50
-
-
+      rlat: 50
+      rlon: 50
 
 extraction:
     reference:
@@ -92,16 +97,14 @@ extraction:
             periods : *ref_period
             other_search_criteria:
                 source: &ref_source
-                    "ERA5-Land"
+                    RDRS
         extract_dataset: {}
         properties_and_measures:
           to_level_prop: diag-ref-prop
           period: *ref_period
           unstack: False
         chunks:
-          lat: 225
-          lon: 252
-          time: 168
+          time: -1
     simulation:
         search_data_catalogs:
             variables_and_freqs: *var_and_freq
@@ -289,8 +292,8 @@ clean_up:
       maybe_unstack_dict:
         stack_drop_nans: *stack
         rechunk:
-          lat: 20 #espo-r
-          lon: 20 #espo-r
+          rlat: 20
+          rlon: 20
           time: -1
       round_var:
         pr: 10
@@ -340,7 +343,7 @@ diagnostics:
 indicators:
   input:
     processing_level: final
-    domain: NAM
+    domain: *nam-name
     source: *hausfather-source
   compute_indicators:
     to_level: individual_indicator
@@ -436,19 +439,19 @@ off-diag:
         source: *hausfather-source
         processing_level: final
       domain:
-        Haudenosaunee: NAM
-        Ute: NAM
-        Dene: NAM
-        Magtogoek: NAM
+        Haudenosaunee: *nam-name
+        Ute: *nam-name
+        Dene: *nam-name
+        Magtogoek: *nam-name
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
         period: *ref_period
       unstack: False
   correlogram_regions: # list of region on which we want to caluclate the correlogram
-    - Haudenosaunee
-    - Ute
-    - Dene
+    #- Haudenosaunee
+    #- Ute
+    #- Dene
 
 
 
@@ -487,3 +490,9 @@ logging:
 tdd:
   xarray_open_kwargs:
     decode_timedelta: False
+
+utils:
+  unstack_fill_nan:
+    coords: ['rlat', 'rlon']
+  maybe_unstack:
+    coords: ['rlat', 'rlon']
