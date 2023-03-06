@@ -15,7 +15,7 @@ tasks:
   - clean_up
   - final_zarr
   - diagnostics
-#  - concat
+  - concat
 #  - official-diag
 #  - indicators
 #  - climatological_mean

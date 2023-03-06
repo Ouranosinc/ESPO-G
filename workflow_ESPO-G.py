@@ -211,7 +211,7 @@ if __name__ == '__main__':
             sim_id = dsC.attrs['cat:id'], level='diag-ref-prop')
         dsC.attrs.pop('cat:path')
         for var in dsC.data_vars:
-            dsC[var].encoding.pop('chunks')
+            dsC[var].encoding.pop('chunks',None)
         dsC = dsC.chunk(CONFIG['custom']['rechunk'])
 
         save_to_zarr(ds=dsC,
