@@ -193,13 +193,13 @@ indicators:
 #    parameters:
 #      thresh: 30 degC
 #      freq: YS
-#  tx_days_above_32_annual:
-#    base: tx_days_above
-#    cf_attrs:
-#      var_name: tx_days_above_32
-#    parameters:
-#      thresh: 32 degC
-#      freq: YS
+  tx_days_above_32_annual:
+    base: tx_days_above
+    cf_attrs:
+      var_name: tx_days_above_32
+    parameters:
+      thresh: 32 degC
+      freq: YS
 #  tropical_nights_gt_22_annual:
 #    base: tn_days_above
 #    cf_attrs:

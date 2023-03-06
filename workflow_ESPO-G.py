@@ -165,6 +165,7 @@ if __name__ == '__main__':
                                          pcat=pcat,
                                          init_path=path_diag_exec,
                                          final_path=path_diag,
+                                         rechunk=CONFIG['custom']['rechunk']
                                          )
 
                     # nan count
@@ -200,7 +201,10 @@ if __name__ == '__main__':
 
             list_dsR.append(dsR)
 
-        dsC = xr.concat(list_dsR, 'lat')
+        if 'rlat' in dsR:
+            dsC = xr.merge(list_dsR)
+        else:
+            dsC = xr.concat(list_dsR, 'lat')
         dsC.attrs['cat:domain'] = CONFIG['custom']['amno_region']['name']
 
         dsC_path = CONFIG['paths'][f"concat_output_diag"].format(
@@ -630,7 +634,10 @@ if __name__ == '__main__':
 
                             list_dsR.append(dsR)
 
-                        dsC = xr.concat(list_dsR, 'lat')
+                        if 'rlat' in dsR:
+                            dsC = xr.merge(list_dsR)
+                        else:
+                            dsC = xr.concat(list_dsR, 'lat')
 
                         dsC.attrs['title'] = f"ESPO-G6 v1.0.0 - {sim_id}"
                         dsC.attrs['cat:domain'] = CONFIG['custom']['amno_region']['name']
@@ -801,7 +808,9 @@ if __name__ == '__main__':
         dict_input = pcat.search(**CONFIG['indicators']['input']).to_dataset_dict()
         for id_input, ds_input in dict_input.items():
             sim_id = ds_input.attrs['cat:id']
-            if not pcat.exists_in_cat(id = sim_id, processing_level = 'indicators', xrfreq='AS-JUL' ):
+            domain = ds_input.attrs['cat:domain']
+            if not pcat.exists_in_cat(id = sim_id, processing_level = 'indicators',
+                                      xrfreq='AS-JUL', domain=domain ):
 
 
                 ds_input = ds_input.assign(tas=xc.atmos.tg(ds=ds_input))
@@ -812,6 +821,7 @@ if __name__ == '__main__':
                     freq = ind.injected_parameters['freq'].replace('YS', 'AS-JAN')
                     if not pcat.exists_in_cat(id=sim_id,
                                               processing_level='individual_indicator',
+                                              domain=domain,
                                               variable=var_name,
                                               xrfreq = freq):
                         with (
@@ -827,7 +837,7 @@ if __name__ == '__main__':
                             else:
                                 dsi = ds_input
                             if 'rolling' in ind.keywords or freq=='QS-DEC':
-                                temppath = f"{exec_wdir}/{sim_id}_{indname}.zarr"
+                                temppath = f"{exec_wdir}/{sim_id}_{domain}_{indname}.zarr"
                                 mult, *parts = xc.core.calendar.parse_offset(freq)
                                 steps = xc.core.calendar.construct_offset(mult * 8, *parts)
                                 for i, slc in enumerate(dsi.resample(time=steps).groups.values()):
@@ -854,10 +864,10 @@ if __name__ == '__main__':
                                     dsi,
                                     indicators=[ind]).popitem()
                                 xs.save_to_zarr(out,
-                                                f"{exec_wdir}/{sim_id}_{indname}.zarr",
+                                                f"{exec_wdir}/{sim_id}_{domain}_{indname}.zarr",
                                                 rechunk={'time': -1},
                                                 mode='o' )
-                                pcat.update_from_ds(out,f"{exec_wdir}/{sim_id}_{indname}.zarr" )
+                                pcat.update_from_ds(out,f"{exec_wdir}/{sim_id}_{domain}_{indname}.zarr" )
 
 
                 #iterate over possible freqs
@@ -865,6 +875,7 @@ if __name__ == '__main__':
                                     id=sim_id).df.xrfreq.unique()
                 for xrfreq in freqs:
                     if not pcat.exists_in_cat(id=sim_id,
+                                            domain=domain,
                                            processing_level='indicators',
                                            xrfreq=xrfreq):
                         # merge all indicators of this freq in one dataset
@@ -881,7 +892,7 @@ if __name__ == '__main__':
                                 ds=ds_merge,
                                 pcat=pcat,
                                 rechunk={'time': -1},
-                                init_path=f"{exec_wdir}/{sim_id}_{xrfreq}_indicators.zarr",
+                                init_path=f"{exec_wdir}/{sim_id}_{domain}_{xrfreq}_indicators.zarr",
                                 final_path=Path(CONFIG['paths']['indicators'].format(
                                     **xs.utils.get_cat_attrs(ds_merge)))
                             )
@@ -894,8 +905,9 @@ if __name__ == '__main__':
         for id_input, ds_input in ind_dict.items():
             xrfreq_input = ds_input.attrs['cat:xrfreq']
             sim_id = ds_input.attrs['cat:id']
+            domain = ds_input.attrs['cat:domain']
             if not pcat.exists_in_cat(id=sim_id, processing_level= 'climatology',
-                                  xrfreq=xrfreq_input):
+                                  xrfreq=xrfreq_input, domain=domain):
                 with (
                         Client(n_workers=5, threads_per_worker=4,memory_limit="6GB", **daskkws),
                         measure_time(name=f'clim {id_input}',logger=logger),
@@ -907,7 +919,7 @@ if __name__ == '__main__':
                         pcat=pcat,
                         itervar=True, #if xrfreq_input=='QS-DEC' else False,
                         rechunk={'time': 4}|CONFIG['custom']['rechunk'],
-                        init_path=f"{exec_wdir}/{sim_id}_{xrfreq_input}_climatology.zarr",
+                        init_path=f"{exec_wdir}/{sim_id}_{domain}_{xrfreq_input}_climatology.zarr",
                         final_path=Path(CONFIG['paths']['climatology'].format(
                             **xs.utils.get_cat_attrs(ds_mean)))
                     )
@@ -923,8 +935,9 @@ if __name__ == '__main__':
             for id_input, ds_input in ind_dict.items():
                 xrfreq_input = ds_input.attrs['cat:xrfreq']
                 sim_id = ds_input.attrs['cat:id']
+                domain = ds_input.attrs['cat:domain']
                 if not pcat.exists_in_cat(id=sim_id, processing_level= 'abs-delta',
-                                      xrfreq=xrfreq_input):
+                                      xrfreq=xrfreq_input, domain=domain):
                      with (
                     #         Client(n_workers=4, threads_per_worker=4,memory_limit="6GB", **daskkws),
                              measure_time(name=f'delta {id_input}',logger=logger),
@@ -944,8 +957,9 @@ if __name__ == '__main__':
         for id_input, ds_input in ind_dict.items():
             xrfreq_input = ds_input.attrs['cat:xrfreq']
             sim_id = ds_input.attrs['cat:id']
+            domain = ds_input.attrs['cat:domain']
             if not pcat.exists_in_cat(id=sim_id, processing_level= 'per-delta',
-                                  xrfreq=xrfreq_input):
+                                  xrfreq=xrfreq_input, domain=domain):
                 with (
                         Client(n_workers=4, threads_per_worker=4,memory_limit="6GB", **daskkws),
                         measure_time(name=f'delta {id_input}',logger=logger),
@@ -963,8 +977,9 @@ if __name__ == '__main__':
 
     if "ensemble" in CONFIG["tasks"]:
         # one ensemble (file) per level, per xrfreq, per variable, per experiment
+        domain= CONFIG['ensemble']['domain']
         for processing_level in CONFIG['ensemble']['processing_levels']:
-            ind_df = pcat.search(processing_level=processing_level).df
+            ind_df = pcat.search(processing_level=processing_level,domain= domain).df
             # iterate through available xrfreq, exp and variables
             for experiment in ind_df.experiment.unique():
                 for xrfreq in ind_df.xrfreq.unique():
@@ -973,18 +988,20 @@ if __name__ == '__main__':
                         ind_dict = pcat.search( processing_level=processing_level,
                                                 experiment=experiment,
                                                 xrfreq=xrfreq,
+                                                domain= domain,
                                                 variable=variable).to_dataset_dict(**tdd)
 
                         if not pcat.exists_in_cat(
                                 processing_level= f'ensemble-{processing_level}',
                                 xrfreq=xrfreq,
                                 experiment=experiment,
+                                domain=domain,
                                 variable=variable+ "_p50",
                         ):
                             with (
                                     #Client(n_workers=3, threads_per_worker=4,memory_limit="15GB", **daskkws),
                                     ProgressBar(),
-                                    measure_time(name=f'ensemble-{processing_level} {experiment} {xrfreq} {variable}',logger=logger),
+                                    measure_time(name=f'ensemble- {domain} {processing_level} {experiment} {xrfreq} {variable}',logger=logger),
                             ):
                                 ens = xs.ensembles.ensemble_stats(
                                     datasets=ind_dict,
@@ -998,7 +1015,7 @@ if __name__ == '__main__':
                                 save_move_update(
                                     ds=ens,
                                     pcat=pcat,
-                                    init_path=f"{exec_wdir}/ensemble_{processing_level}_{variable}_{xrfreq}_{experiment}.zarr",
+                                    init_path=f"{exec_wdir}/ensemble_{domain}_{processing_level}_{variable}_{xrfreq}_{experiment}.zarr",
                                     final_path=Path(CONFIG['paths']['ensemble'].format(
                                         var =variable, **xs.utils.get_cat_attrs(ens)))
                                 )

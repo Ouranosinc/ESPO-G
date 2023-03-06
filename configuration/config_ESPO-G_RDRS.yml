@@ -14,7 +14,7 @@ tasks:
   - adjust
   - clean_up
   - final_zarr
-#  - diagnostics
+  - diagnostics
 #  - concat
 #  - official-diag
 #  - indicators
@@ -29,30 +29,36 @@ custom:
     delete_in_final_zarr: False
     delete_in_diag: True
     regions:
-      prob-reg:
-        name: prob-reg
-        method: bbox
-        bbox:
-            lat_bnds: [45, 47]
-            lon_bnds: [-75, -70]
-#        south-rdrs:
-#            name: south-rdrs
-#            method: bbox
-#            bbox:
-#                lon_bnds: [ -179.95, -10 ]
-#                lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
-#        middle-rdrs:
-#            name: middle-rdrs
-#            method: bbox
-#            bbox:
-#                lon_bnds: [ -179.95, -10 ]
-#                lat_bnds: [ 40.05, 65.05 ]
-#        north-rdrs:
-#            name: north-rdrs
-#            method: bbox
-#            bbox:
-#                lon_bnds: [-179.95, -10]
-#                lat_bnds: [65.05, 83.4]
+#      prob-reg:
+#        name: prob-reg
+#        method: bbox
+#        bbox:
+#            lat_bnds: [45, 47]
+#            lon_bnds: [-75, -70]
+#        QC-rdrs:
+#          name: QC--rdrs
+#          method: bbox
+#          bbox:
+#            lon_bnds: [ -83, -55 ]
+#            lat_bnds: [ 42, 63 ]
+        south-rdrs:
+            name: south-rdrs
+            method: bbox
+            bbox:
+                lon_bnds: [ -179.95, -10 ]
+                lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
+        middle-rdrs:
+            name: middle-rdrs
+            method: bbox
+            bbox:
+                lon_bnds: [ -179.95, -10 ]
+                lat_bnds: [ 40.05, 65.05 ]
+        north-rdrs:
+            name: north-rdrs
+            method: bbox
+            bbox:
+                lon_bnds: [-179.95, -10]
+                lat_bnds: [65.05, 83.4]
     amno_region:
       name:  &nam-name
         NAM-rdrs
@@ -69,8 +75,8 @@ custom:
         loc: 600
         time: -1
     out_chunks:
-        rlat: 20 #50 20 for prob-reg. TODO: change back when normal
-        rlon: 20 # 50
+        rlat: 50 #20 for prob-reg.
+        rlon: 50
         time: 4year
     ref_period : &ref_period
         - '1989'
@@ -143,7 +149,7 @@ extraction:
             xr_open_kwargs:
               drop_variables:
                 - height
-              chunks: #TODO: test this
+              chunks:
                 lat: 100
                 lon: 100
                 time: 365
@@ -352,11 +358,14 @@ aggregate:
   input:
     clim:
       processing_level: indicators
+      domain: *nam-name
     abs-delta:
       processing_level: climatology
+      domain: *nam-name
     per-delta:
       processing_level: climatology
       variable: prcptot
+      domain: *nam-name
   climatological_mean:
     window: 30
     interval: 10
@@ -372,6 +381,7 @@ ensemble:
         - climatology
         - abs-delta
         - per-delta
+    domain: *nam-name
     ensemble_stats_xscen:
       statistics:
         ensemble_percentiles:
@@ -449,9 +459,9 @@ off-diag:
         period: *ref_period
       unstack: False
   correlogram_regions: # list of region on which we want to caluclate the correlogram
-    #- Haudenosaunee
-    #- Ute
-    #- Dene
+    - Haudenosaunee
+    - Ute
+    - Dene
 
 
 
