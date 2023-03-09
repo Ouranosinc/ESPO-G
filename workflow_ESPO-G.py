@@ -82,10 +82,21 @@ if __name__ == '__main__':
 
                     # extract
                     dc = cat_ref.popitem()[1]
-                    ds_ref = extract_dataset(catalog=dc,
-                                             region=region_dict,
-                                             **CONFIG['extraction']['reference']['extract_dataset']
-                                             )['D']
+                    if region_dict['method']=='rotated':
+                        ds_ref = extract_dataset(catalog=dc,
+                                                 **CONFIG['extraction']['reference'][
+                                                     'extract_dataset']
+                                                 )['D']
+                        ds_ref= ds_ref.sel(
+                            rlat=slice(*map(float, region_dict['rotated']['rlat'])),
+                            rlon=slice(*map(float, region_dict['rotated'][ 'rlon'])),
+                                           )
+                        ds_ref.attrs['cat:domain']=region_name
+                    else:
+                        ds_ref = extract_dataset(catalog=dc,
+                                                 region=region_dict,
+                                                 **CONFIG['extraction']['reference']['extract_dataset']
+                                                 )['D']
 
                     # stack
                     if CONFIG['custom']['stack_drop_nans']:
@@ -139,10 +150,22 @@ if __name__ == '__main__':
 
                     # extract
                     dc = cat_ref.popitem()[1]
-                    ds_ref = extract_dataset(catalog=dc,
-                                             region=region_dict,
-                                             **CONFIG['extraction']['reference']['extract_dataset']
-                                             )['D']
+                    if region_dict['method'] == 'rotated':
+                        ds_ref = extract_dataset(catalog=dc,
+                                                 **CONFIG['extraction']['reference'][
+                                                     'extract_dataset']
+                                                 )['D']
+                        ds_ref = ds_ref.sel(
+                            rlat=slice(*map(float, region_dict['rotated']['rlat'])),
+                            rlon=slice(*map(float, region_dict['rotated']['rlon'])),
+                        )
+                        ds_ref.attrs['cat:domain'] = region_name
+                    else:
+                        ds_ref = extract_dataset(catalog=dc,
+                                                 region=region_dict,
+                                                 **CONFIG['extraction']['reference'][
+                                                     'extract_dataset']
+                                                 )['D']
 
                     # drop to make faster
                     dref_ref = ds_ref.drop_vars('dtr')
@@ -161,11 +184,11 @@ if __name__ == '__main__':
                                                                                sim_id=prop.attrs['cat:id'],
                                                                                level= prop.attrs['cat:processing_level']))
                         path_diag_exec = f"{workdir}/{path_diag.name}"
+                        prop= prop.chunk(CONFIG['custom']['rechunk'])
                         save_move_update(ds=prop,
                                          pcat=pcat,
                                          init_path=path_diag_exec,
                                          final_path=path_diag,
-                                         rechunk=CONFIG['custom']['rechunk']
                                          )
 
                     # nan count
@@ -202,7 +225,7 @@ if __name__ == '__main__':
             list_dsR.append(dsR)
 
         if 'rlat' in dsR:
-            dsC = xr.merge(list_dsR)
+            dsC = xr.concat(list_dsR, 'rlat')
         else:
             dsC = xr.concat(list_dsR, 'lat')
         dsC.attrs['cat:domain'] = CONFIG['custom']['amno_region']['name']
@@ -622,7 +645,8 @@ if __name__ == '__main__':
                 ):
                     dskconf.set(num_workers=12)
                     ProgressBar().register()
-                    levels = ['diag-sim-prop', 'diag-scen-prop', 'diag-sim-meas', 'diag-scen-meas', 'final']
+                    levels = ['diag-sim-prop', 'diag-scen-prop', 'diag-sim-meas',
+                              'diag-scen-meas', 'final']
                     for level in levels:
                         logger.info(f'Contenating {sim_id} {level}.')
 
@@ -635,7 +659,7 @@ if __name__ == '__main__':
                             list_dsR.append(dsR)
 
                         if 'rlat' in dsR:
-                            dsC = xr.merge(list_dsR)
+                            dsC = xr.concat(list_dsR, 'rlat')
                         else:
                             dsC = xr.concat(list_dsR, 'lat')
 

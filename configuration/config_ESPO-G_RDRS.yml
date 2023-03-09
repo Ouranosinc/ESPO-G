@@ -36,29 +36,29 @@ custom:
 #            lat_bnds: [45, 47]
 #            lon_bnds: [-75, -70]
 #        QC-rdrs:
-#          name: QC--rdrs
+#          name: QC-rdrs
 #          method: bbox
 #          bbox:
 #            lon_bnds: [ -83, -55 ]
 #            lat_bnds: [ 42, 63 ]
-        south-rdrs:
-            name: south-rdrs
-            method: bbox
-            bbox:
-                lon_bnds: [ -179.95, -10 ]
-                lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
-        middle-rdrs:
-            name: middle-rdrs
-            method: bbox
-            bbox:
-                lon_bnds: [ -179.95, -10 ]
-                lat_bnds: [ 40.05, 65.05 ]
-        north-rdrs:
-            name: north-rdrs
-            method: bbox
-            bbox:
-                lon_bnds: [-179.95, -10]
-                lat_bnds: [65.05, 83.4]
+        south-rdrs-rot:
+            name: south-rdrs-rot
+            method: rotated
+            rotated:
+                rlon: [ 324.5, 388.2 ]
+                rlat: [ -47, -23 ]
+        middle-rdrs-rot:
+            name: middle-rdrs-rot
+            method: rotated
+            rotated:
+                rlon: [ 324.5, 388.2 ]
+                rlat: [ -23, 1 ]
+        north-rdrs-rot:
+            name: north-rdrs-rot
+            method: rotated
+            rotated:
+                rlon: [ 324.5, 388.2 ]
+                rlat: [ 1, 26 ]
     amno_region:
       name:  &nam-name
         NAM-rdrs
