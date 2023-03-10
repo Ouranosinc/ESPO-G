@@ -6,15 +6,15 @@ project:
 
 tasks:
   ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
-  - makeref
-  - extract
-  - regrid
-  - rechunk
-  - train
-  - adjust
-  - clean_up
-  - final_zarr
-  - diagnostics
+#  - makeref
+#  - extract
+#  - regrid
+#  - rechunk
+#  - train
+#  - adjust
+#  - clean_up
+#  - final_zarr
+#  - diagnostics
   - concat
 #  - official-diag
 #  - indicators
@@ -108,7 +108,7 @@ extraction:
         properties_and_measures:
           to_level_prop: diag-ref-prop
           period: *ref_period
-          unstack: False
+          unstack: *stack
         chunks:
           time: -1
     simulation:

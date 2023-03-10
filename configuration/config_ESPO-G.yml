@@ -97,7 +97,7 @@ extraction:
         properties_and_measures:
           to_level_prop: diag-ref-prop
           period: *ref_period
-          unstack: False
+          unstack: *stack
         chunks:
           lat: 225
           lon: 252

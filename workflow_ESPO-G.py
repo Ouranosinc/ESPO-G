@@ -142,30 +142,11 @@ if __name__ == '__main__':
                                      info_dict={'calendar': '360_day'})
 
             # nan_count
-            if not pcat.exists_in_cat(domain=region_name, processing_level='nancount', source=ref_source):
+            if not pcat.exists_in_cat(domain=region_name, processing_level='diag-ref-prop', source=ref_source):
                 with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
 
-                    # search
-                    cat_ref = search_data_catalogs(**CONFIG['extraction']['reference']['search_data_catalogs'])
-
-                    # extract
-                    dc = cat_ref.popitem()[1]
-                    if region_dict['method'] == 'rotated':
-                        ds_ref = extract_dataset(catalog=dc,
-                                                 **CONFIG['extraction']['reference'][
-                                                     'extract_dataset']
-                                                 )['D']
-                        ds_ref = ds_ref.sel(
-                            rlat=slice(*map(float, region_dict['rotated']['rlat'])),
-                            rlon=slice(*map(float, region_dict['rotated']['rlon'])),
-                        )
-                        ds_ref.attrs['cat:domain'] = region_name
-                    else:
-                        ds_ref = extract_dataset(catalog=dc,
-                                                 region=region_dict,
-                                                 **CONFIG['extraction']['reference'][
-                                                     'extract_dataset']
-                                                 )['D']
+                    ds_ref = pcat.search(source=ref_source, calendar='default',
+                                         domain=region_name).to_dask()
 
                     # drop to make faster
                     dref_ref = ds_ref.drop_vars('dtr')
@@ -191,21 +172,6 @@ if __name__ == '__main__':
                                          final_path=path_diag,
                                          )
 
-                    # nan count
-                    ds_ref_props_nan_count = dref_ref.to_array().isnull().sum(
-                        'time').mean('variable').chunk(CONFIG['custom']['rechunk'])
-                    ds_ref_props_nan_count = ds_ref_props_nan_count.to_dataset(name='nan_count')
-                    ds_ref_props_nan_count.attrs.update(ds_ref.attrs)
-
-                    save_move_update(ds=ds_ref_props_nan_count,
-                                     pcat=pcat,
-                                     init_path=f"{exec_wdir}/ref_{region_name}_nancount.zarr",
-                                     final_path=f"{refdir}/ref_{region_name}_nancount.zarr",
-                                     info_dict={'processing_level': 'nancount'}
-                                     )
-
-                    # plot nan_count and email
-                    email_nan_count(path=f"{refdir}/ref_{region_name}_nancount.zarr", region_name=region_name)
 
     # concat diag-ref-prop
     if (
@@ -357,8 +323,7 @@ if __name__ == '__main__':
                             ):
                                 #rechunk in exec
                                 path_rc = f"{exec_wdir}/{sim_id}_{region_name}_regchunked.zarr"
-                                print(f"{workdir}/{sim_id}_{region_name}_regridded.zarr")
-                                print(path_rc)
+
                                 rechunk(path_in=f"{workdir}/{sim_id}_{region_name}_regridded.zarr",
                                         path_out=path_rc,
                                         chunks_over_dim=CONFIG['custom']['chunks'],
@@ -574,6 +539,8 @@ if __name__ == '__main__':
                                         to_level_meas =f'diag-{step}-meas',
                                         **step_dict['properties_and_measures']
                                     )
+                                    print(prop)
+                                    print(meas)
                                     for ds in [prop, meas]:
                                         path_diag = Path(
                                             CONFIG['paths']['diagnostics'].format(
@@ -610,7 +577,8 @@ if __name__ == '__main__':
                                             region_name=ds.attrs['cat:domain'],
                                             sim_id=ds.attrs['cat:id'],
                                             level=ds.attrs['cat:processing_level']))
-                                    save_to_zarr(ds=ds, filename=path_diag, mode='o')
+                                    save_to_zarr(ds=ds, filename=path_diag, mode='o',
+                                                 rechunk=CONFIG['custom']['rechunk'])
                                     pcat.update_from_ds(ds=ds, path = path_diag)
 
 
@@ -647,6 +615,7 @@ if __name__ == '__main__':
                     ProgressBar().register()
                     levels = ['diag-sim-prop', 'diag-scen-prop', 'diag-sim-meas',
                               'diag-scen-meas', 'final']
+                    #levels=['final']
                     for level in levels:
                         logger.info(f'Contenating {sim_id} {level}.')
 
@@ -655,7 +624,8 @@ if __name__ == '__main__':
                             dsR = pcat.search(id=sim_id,
                                               domain=region_name,
                                               processing_level=level).to_dask()
-
+                            dsR.lat.encoding.pop('chunks', None)
+                            dsR.lon.encoding.pop('chunks', None)
                             list_dsR.append(dsR)
 
                         if 'rlat' in dsR:
