@@ -207,11 +207,11 @@ Our general conclusions concerning the quality of ESPO-G6v1.0 are:
 A subset of the properties and measures discussed in the performance analysis is made available in this repository, in the `data/` folder.
 
 ## Data availability and download
-The ESPO-G6v1.0 data is currently available under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) license. [[ TODO: verify this]]
+The ESPO-G6v1.0 data is currently available under the [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) license.
 
 At the time of publication, the data is stored on [Ouranos](https://www.ouranos.ca/)' THREDDS server, a part of the [PAVICS](https://pavics.ouranos.ca/) project:
 
-LINK
+https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/datasets/simulations/bias_adjusted/cmip6/ouranos/ESPO-G/ESPO-G6v1.0.0/catalog.html
 
 When new versions of ESPO-G will be released, previous versions may be pulled from the server. [Please contact us](mailto:scenarios@ouranos.ca) if you wish to obtain these.
 
