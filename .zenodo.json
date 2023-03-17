@@ -1,0 +1,150 @@
+{
+    "creators": [
+        {
+          "name": "Lavoie, Juliette",
+          "affiliation": "Ouranos",
+          "orcid": "0000-0002-4708-5182"
+        },
+        {
+          "name": "Bourgault, Pascal",
+          "affiliation": "Ouranos",
+          "orcid": "0000-0003-1192-0403"
+        },
+        {
+          "name": "Logan, Travis",
+          "affiliation": "Ouranos",
+          "orcid": "0000-0002-2212-9580"
+        },
+        {
+            "name": "Caron, Louis-Philippe",
+            "affiliation": "Ouranos",
+            "orcid": "0000-0001-5221-0147"
+        },
+        {
+            "name": "Gammon, Sarah",
+            "affiliation": "Ouranos",
+            "orcid":"0009-0007-6082-9063"
+        },
+        {
+          "name": "Smith, Trevor James",
+          "affiliation": "Ouranos",
+          "orcid": "0000-0001-5393-8359"
+        },
+        {
+          "name": "Biner, Sébastien",
+          "orcid": "0000-0001-7515-490X"
+        }
+    ],
+
+    "license": "Apache-2.0",
+    "upload_type": "software",
+    "access_right": "open",
+    "title": "ESPO-G : Ensemble de scénarios polyvalents d'Ouranos - Modèles Globaux / Ouranos Multipurpose Climate Scenarios - Global models",
+    "related_identifiers": [
+        {
+            "scheme": "doi",
+            "identifier": "10.22033/ESGF/CMIP6.1732",
+            "relation": "isDerivedFrom",
+            "resource_type": "dataset"
+        },
+        {
+            "scheme": "doi",
+            "identifier": "10.22033/ESGF/CMIP6.2056",
+            "relation": "isDerivedFrom",
+            "resource_type": "dataset"
+        },
+        {
+            "scheme": "doi",
+            "identifier": "10.22033/ESGF/CMIP6.13168",
+            "relation": "isDerivedFrom",
+            "resource_type": "dataset"
+        },
+        {
+            "scheme": "doi",
+            "identifier": "10.22033/ESGF/CMIP6.1395",
+            "relation": "isDerivedFrom",
+            "resource_type": "dataset"
+        },
+        {
+            "scheme": "doi",
+            "identifier": "10.22033/ESGF/CMIP6.2285",
+            "relation": "isDerivedFrom",
+            "resource_type": "dataset"
+        },
+        {
+            "scheme": "doi",
+            "identifier": "10.22033/ESGF/CMIP6.2291",
+            "relation": "isDerivedFrom",
+            "resource_type": "dataset"
+        },
+        {
+            "scheme": "doi",
+            "identifier": "10.22033/ESGF/CMIP6.2450",
+            "relation": "isDerivedFrom",
+            "resource_type": "dataset"
+        },
+        {
+            "scheme": "doi",
+            "identifier": "10.22033/ESGF/CMIP6.12322",
+            "relation": "isDerivedFrom",
+            "resource_type": "dataset"
+        },
+        {
+            "scheme": "doi",
+            "identifier": "10.22033/ESGF/CMIP6.898",
+            "relation": "isDerivedFrom",
+            "resource_type": "dataset"
+        },
+        {
+            "scheme": "doi",
+            "identifier": "10.22033/ESGF/CMIP6.15349",
+            "relation": "isDerivedFrom",
+            "resource_type": "dataset"
+        },
+        {
+            "scheme": "doi",
+            "identifier": "10.22033/ESGF/CMIP6.638",
+            "relation": "isDerivedFrom",
+            "resource_type": "dataset"
+        },
+        {
+            "scheme": "doi",
+            "identifier": "10.22033/ESGF/CMIP6.604",
+            "relation": "isDerivedFrom",
+            "resource_type": "dataset"
+        },
+        {
+            "scheme": "doi",
+            "identifier": "10.22033/ESGF/CMIP6.2242",
+            "relation": "isDerivedFrom",
+            "resource_type": "dataset"
+        },
+        {
+            "scheme": "doi",
+            "identifier": "10.22033/ESGF/CMIP6.1414",
+            "relation": "isDerivedFrom",
+            "resource_type": "dataset"
+        },
+        {
+            "scheme": "doi",
+            "identifier": "10.24381/cds.e2161bac",
+            "relation": "isDerivedFrom",
+            "resource_type": "dataset"
+        }
+    ],
+
+    "keywords": [
+        "climate", 
+        "bias adjustment", 
+        "quantile mapping",
+        "North America",
+        "analysis",
+        "bias correction",
+        "climatology",
+        "climate change",
+        "climate data",
+        "climate indicators",
+        "climate simulation",
+        "era5"
+    ]
+}
