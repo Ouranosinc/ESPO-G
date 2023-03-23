@@ -37,7 +37,7 @@ from xscen import (
 from utils import  save_move_update,move_then_delete
 
 # Load configuration
-load_config('configuration/paths_ESPO-G_jarre.yml', 'configuration/config_ESPO-G.yml', verbose=(__name__ == '__main__'), reset=True)
+load_config('configuration/paths_ESPO-G.yml', 'configuration/config_ESPO-G.yml', verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
 
 workdir = Path(CONFIG['paths']['workdir'])
