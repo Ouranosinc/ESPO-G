@@ -1,5 +1,7 @@
 # ESPO-G : Ensemble de scénarios polyvalents d'Ouranos - Global / Ouranos Multipurpose Climate Scenarios - Global
 
+[![DOI](https://zenodo.org/badge/487861994.svg)](https://zenodo.org/badge/latestdoi/487861994)
+
 ## Context
 The need to adapt to climate change is present in a growing number of fields, leading to an increase in the demand for 
 climate scenarios for often interrelated sectors of activity. In order to meet this growing demand and to ensure the 
