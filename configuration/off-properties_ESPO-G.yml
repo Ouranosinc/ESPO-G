@@ -190,6 +190,3 @@ indicators:
 #      radius: 300
 #      thresh: 0.50
 #      bins: 100
-  #Max dry/hot/cold spell length (codé)
-  #Decorrelation length (non codé)
-  #Wet-wet and Dry-wet transitions (non codé)

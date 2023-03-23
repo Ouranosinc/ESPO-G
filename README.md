@@ -6,7 +6,7 @@ climate scenarios for often interrelated sectors of activity. In order to meet t
 availability of climate scenarios responding to numerous vulnerability, impact, and adaptation (VIA) studies, 
 [Ouranos](https://www.ouranos.ca) is working to create a set of operational multipurpose climate scenarios called 
 "Ensemble de Scénarios Polyvalents d'Ouranos" (ESPO) covering North America at a resolution of 0.1°. 
-In ESPO-G6 v1.0, CMIP6 global climate models simulations are bias-adjusted using the ERA5-Land reference dataset.
+In ESPO-G6 v1.0.0, CMIP6 global climate models simulations are bias-adjusted using the ERA5-Land reference dataset.
 The simulation ensemble covers the period for years 1950-2100 and includes the daily minimum temperature (`tasmin`), the daily maximum temperature (`tasmax`) and the daily mean precipitation flux (`pr`).
 The experiments included are SSP2-4.5 and SSP3-7.0 (SSP5-8.5 is coming soon).
 

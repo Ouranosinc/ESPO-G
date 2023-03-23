@@ -34,10 +34,10 @@ from xscen import (
     clean_up
 )
 
-from utils import  save_move_update,email_nan_count,move_then_delete
+from utils import  save_move_update,move_then_delete
 
 # Load configuration
-load_config('configuration/paths_ESPO-G_jarre.yml', 'configuration/config_ESPO-G_RDRS.yml', verbose=(__name__ == '__main__'), reset=True)
+load_config('configuration/paths_ESPO-G_jarre.yml', 'configuration/config_ESPO-G.yml', verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
 
 workdir = Path(CONFIG['paths']['workdir'])
@@ -539,8 +539,7 @@ if __name__ == '__main__':
                                         to_level_meas =f'diag-{step}-meas',
                                         **step_dict['properties_and_measures']
                                     )
-                                    print(prop)
-                                    print(meas)
+
                                     for ds in [prop, meas]:
                                         path_diag = Path(
                                             CONFIG['paths']['diagnostics'].format(
