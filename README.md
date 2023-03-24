@@ -1,6 +1,6 @@
-# ESPO-G : Ensemble de scénarios polyvalents d'Ouranos - Global / Ouranos Multipurpose Climate Scenarios - Global
+# ESPO-G6 : Ensemble de scénarios polyvalents d'Ouranos - modèles Globaux CMIP6 / Ouranos Multipurpose Climate Scenarios - Global Models CMIP6
 
-[![DOI](https://zenodo.org/badge/487861994.svg)](https://zenodo.org/badge/latestdoi/487861994)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764928.svg)](https://doi.org/10.5281/zenodo.7764928)
 
 ## Context
 The need to adapt to climate change is present in a growing number of fields, leading to an increase in the demand for 
@@ -188,7 +188,7 @@ Description of the tasks:
 
 The tasks `extract` to `concat` are in a loop iterating over each simulation found in `search_data_catalogs`.
 
-The tasks `extract` to `diagnostics` are in a loop iterating over each region (south, middle, north).
+The tasks `extract` to `diagnostics` are in a loop iterating over each region (south, middle, north). We split the domain in three in order to have less computationnaly expensive task.
 
 The tasks `train` and `adjust` are in a loop iterating over each variable.
 
