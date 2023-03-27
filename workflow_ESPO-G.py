@@ -6,20 +6,14 @@ import xarray as xr
 import shutil
 import logging
 import numpy as np
-from matplotlib import pyplot as plt
-import os
 from dask.diagnostics import ProgressBar
-import dask
-import xesmf
 import xscen as xs
 
 from xclim.core.calendar import convert_calendar, get_calendar, date_range_like
-from xclim.core.units import convert_units_to
-from xclim.sdba import properties, measures, construct_moving_yearly_window, unpack_moving_yearly_window
+from xclim.sdba import properties
 import xclim as xc
-from xclim.core import dataflags
 
-from xscen.utils import minimum_calendar, translate_time_chunk, stack_drop_nans, unstack_fill_nan, maybe_unstack
+from xscen.utils import minimum_calendar, translate_time_chunk, stack_drop_nans
 from xscen.io import rechunk
 from xscen import (
     ProjectCatalog,
@@ -37,7 +31,7 @@ from xscen import (
 from utils import  save_move_update,move_then_delete
 
 # Load configuration
-load_config('configuration/paths_ESPO-G.yml', 'configuration/config_ESPO-G.yml', verbose=(__name__ == '__main__'), reset=True)
+load_config('configuration/paths_ESPO-G_j.yml', 'configuration/config_ESPO-G_RDRS.yml', verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
 
 workdir = Path(CONFIG['paths']['workdir'])
@@ -87,6 +81,11 @@ if __name__ == '__main__':
                                                  **CONFIG['extraction']['reference'][
                                                      'extract_dataset']
                                                  )['D']
+
+                        # load mask and put nan over points that we don't need
+                        mask = xr.open_zarr(CONFIG['paths']['mask'])
+                        ds_ref= ds_ref.where(mask.mask == True)
+
                         ds_ref= ds_ref.sel(
                             rlat=slice(*map(float, region_dict['rotated']['rlat'])),
                             rlon=slice(*map(float, region_dict['rotated'][ 'rlon'])),
@@ -632,7 +631,6 @@ if __name__ == '__main__':
                         else:
                             dsC = xr.concat(list_dsR, 'lat')
 
-                        dsC.attrs['title'] = f"ESPO-G6 v1.0.0 - {sim_id}"
                         dsC.attrs['cat:domain'] = CONFIG['custom']['amno_region']['name']
                         dsC.attrs.pop('intake_esm_dataset_key')
 

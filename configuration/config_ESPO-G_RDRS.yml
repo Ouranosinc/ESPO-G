@@ -1,20 +1,20 @@
 project:
     name: ESPO-G6
-    version: 1.0.0
-    description: Ensemble de scénarios polyvalents d'Ouranos - Gloabl - CMIP6
+    version: 1.1.0
+    description: Ensemble de scénarios polyvalents d'Ouranos - Global - CMIP6
     id: eg6
 
 tasks:
   ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
-#  - makeref
-#  - extract
-#  - regrid
-#  - rechunk
-#  - train
-#  - adjust
-#  - clean_up
-#  - final_zarr
-#  - diagnostics
+  - makeref
+  - extract
+  - regrid
+  - rechunk
+  - train
+  - adjust
+  - clean_up
+  - final_zarr
+  - diagnostics
   - concat
 #  - official-diag
 #  - indicators
@@ -307,13 +307,13 @@ clean_up:
       add_attrs:
         global:
           Notes: |
-            Regridded on the grid of ERA5-Land, then bias-adjusted with detrended
+            Regridded on the grid of RDRS v2.1, then bias-adjusted with detrended
             quantile mapping on a day-of-year basis with a window of 31 days, LOESS
-            detrending and 50 quantiles. The reference was ERA5-Land over the
-            1991-2020 period. Tasmax, dtr and pr were adjusted, tasmin was computed
+            detrending and 50 quantiles. The reference was RDRS v2.1 over the
+            1989-2018 period. The variables tasmax, dtr and pr were adjusted, tasmin was computed
             from tasmax and dtr after the adjustment.
           redistribution: Redistribution prohibited. For internal use only.
-          version: "1.0.0"
+          version: "1.1.0"
         tasmax:
             standard_name: air_temperature
             long_name: Maximal daily temperature
@@ -393,30 +393,48 @@ ensemble:
 
 off-diag:
   domains:
-#    Haudenosaunee:
-#        name: Haudenosaunee
+#    Haudenosaunee-rdrs:
+#        name: Haudenosaunee-rdrs
 #        method: bbox
 #        bbox:
 #          lat_bnds: [ 42.0, 47.0 ]
 #          lon_bnds: [ -79.0, -71.0 ]
-#    Ute:
-#        name: Ute
+#    Ute-rdrs:
+#        name: Ute-rdrs
 #        method: bbox
 #        bbox:
 #          lat_bnds: [ 35.0, 40.0 ]
 #          lon_bnds: [ -111.0, -103.0 ]
-#    Dene:
-#        name: Dene
+#    Dene-rdrs:
+#        name: Dene-rdrs
 #        method: bbox
 #        bbox:
 #          lat_bnds: [ 60.0, 65.0 ]
 #          lon_bnds: [ -124.0, -116.0 ]
-    Magtogoek:
-      name: Magtogoek
+    Magtogoek-rdrs:
+      name: Magtogoek-rdrs
       method: bbox
       bbox:
         lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
         lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
+#    meridional-rdrs:
+#      name: meridional-rdrs
+#      method: bbox
+#      bbox:
+#        lon_bnds: [ -83, -55 ]
+#        lat_bnds: [ 42, 52 ]
+#    QC-rdrs:
+#      name: QC-rdrs
+#      method: bbox
+#      bbox:
+#        lon_bnds: [ -83, -55 ]
+#        lat_bnds: [ 42, 63 ]
+#    Haudenosaunee-rdrs:
+#        name: Haudenosaunee-rdrs
+#        method: bbox
+#        bbox:
+#          lat_bnds: [ 42.0, 47.0 ]
+#          lon_bnds: [ -79.0, -71.0 ]
   steps:
     ref:
       input:
@@ -427,6 +445,8 @@ off-diag:
         Ute: south_nodup
         Dene: middle_nodup
         Magtogoek: middle_nodup
+        meridional-rdrs: QC-rdrs
+        QC-rdrs: QC-rdrs
       properties_and_measures:
         period: *ref_period
       unstack: *stack
@@ -439,6 +459,8 @@ off-diag:
         Ute: south
         Dene: middle
         Magtogoek: middle
+        meridional-rdrs: QC-rdrs
+        QC-rdrs: QC-rdrs
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
@@ -453,15 +475,18 @@ off-diag:
         Ute: *nam-name
         Dene: *nam-name
         Magtogoek: *nam-name
+        meridional-rdrs: QC-rdrs
+        QC-rdrs: QC-rdrs
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
         period: *ref_period
       unstack: False
   correlogram_regions: # list of region on which we want to caluclate the correlogram
-    - Haudenosaunee
-    - Ute
-    - Dene
+    - Haudenosaunee-rdrs
+#    - Ute
+#    - Dene
+#    - meridional-rdrs
 
 
 
