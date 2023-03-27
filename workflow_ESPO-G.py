@@ -77,14 +77,16 @@ if __name__ == '__main__':
                     # extract
                     dc = cat_ref.popitem()[1]
                     if region_dict['method']=='rotated':
-                        ds_ref = extract_dataset(catalog=dc,
+                        dict_ref = extract_dataset(catalog=dc,
                                                  **CONFIG['extraction']['reference'][
                                                      'extract_dataset']
-                                                 )['D']
+                                                 )
+                        ds_ref=dict_ref['D']
 
                         # load mask and put nan over points that we don't need
-                        mask = xr.open_zarr(CONFIG['paths']['mask'])
-                        ds_ref= ds_ref.where(mask.mask == True)
+                        if 'fx' in dict_ref:
+                            mask= dict_ref['fx']
+                            ds_ref= ds_ref.where(mask.mask == True)
 
                         ds_ref= ds_ref.sel(
                             rlat=slice(*map(float, region_dict['rotated']['rlat'])),

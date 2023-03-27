@@ -93,11 +93,12 @@ custom:
 extraction:
     reference:
         search_data_catalogs:
-            variables_and_freqs: &var_and_freq
+            variables_and_freqs:
                 tasmax: D
                 tasmin: D
                 pr: D
                 dtr: D
+                mask: fx
             allow_resampling: False
             allow_conversion: True
             periods : *ref_period
@@ -113,7 +114,11 @@ extraction:
           time: -1
     simulation:
         search_data_catalogs:
-            variables_and_freqs: *var_and_freq
+            variables_and_freqs:
+              tasmax: D
+              tasmin: D
+              pr: D
+              dtr: D
             match_hist_and_fut: True
             allow_conversion: True
             allow_resampling: False
