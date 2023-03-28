@@ -445,10 +445,13 @@ off-diag:
       properties_and_measures:
         period: *ref_period
       unstack: False
-  correlogram_regions: # list of region on which we want to caluclate the correlogram
-    - Haudenosaunee
-    - Ute
-    - Dene
+  correlogram:
+    regions: # list of region on which we want to caluclate the correlogram
+     - Haudenosaunee
+     - Ute
+     - Dene
+    args:
+      bins: 100
 
 
 

@@ -129,9 +129,10 @@ extraction:
               id:
                 - CMIP6_ScenarioMIP_KIOST_KIOST-ESM_ssp245_r1i1p1f1_global # time axis is broken. but anyway ssp370 doesn't exist for KIOST
             other_search_criteria:
+              processing_level: raw
               experiment:
                 - ssp245
-                - ssp370
+                #- ssp370
               source: &hausfather-source    # in the TCR likely range (14) #chunking
                 - BCC-CSM2-MR
                 - FGOALS-g3 # None, but 1 file per year
@@ -398,12 +399,12 @@ ensemble:
 
 off-diag:
   domains:
-#    Haudenosaunee-rdrs:
-#        name: Haudenosaunee-rdrs
-#        method: bbox
-#        bbox:
-#          lat_bnds: [ 42.0, 47.0 ]
-#          lon_bnds: [ -79.0, -71.0 ]
+    Haudenosaunee-rdrs-rot:
+        name: Haudenosaunee-rdrs-rot
+        method: rotated
+        rotated:
+          rlat: [ -14, -8 ]
+          rlon: [ 370, 375 ]
 #    Ute-rdrs:
 #        name: Ute-rdrs
 #        method: bbox
@@ -416,24 +417,24 @@ off-diag:
 #        bbox:
 #          lat_bnds: [ 60.0, 65.0 ]
 #          lon_bnds: [ -124.0, -116.0 ]
-    Magtogoek-rdrs:
-      name: Magtogoek-rdrs
-      method: bbox
-      bbox:
-        lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
-        lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
+#    Magtogoek-rdrs:
+#      name: Magtogoek-rdrs
+#      method: bbox
+#      bbox:
+#        lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
+#        lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
 #    meridional-rdrs:
 #      name: meridional-rdrs
 #      method: bbox
 #      bbox:
 #        lon_bnds: [ -83, -55 ]
 #        lat_bnds: [ 42, 52 ]
-#    QC-rdrs:
-#      name: QC-rdrs
-#      method: bbox
-#      bbox:
-#        lon_bnds: [ -83, -55 ]
-#        lat_bnds: [ 42, 63 ]
+    QC-rdrs:
+      name: QC-rdrs
+      method: bbox
+      bbox:
+        lon_bnds: [ -83, -55 ]
+        lat_bnds: [ 42, 63 ]
 #    Haudenosaunee-rdrs:
 #        name: Haudenosaunee-rdrs
 #        method: bbox
@@ -445,6 +446,7 @@ off-diag:
       input:
         source: *ref_source
         calendar: default
+        processing_level: extracted
       domain:
         Haudenosaunee: middle_nodup
         Ute: south_nodup
@@ -452,6 +454,7 @@ off-diag:
         Magtogoek: middle_nodup
         meridional-rdrs: QC-rdrs
         QC-rdrs: QC-rdrs
+        Haudenosaunee-rdrs-rot: QC-rdrs
       properties_and_measures:
         period: *ref_period
       unstack: *stack
@@ -466,6 +469,7 @@ off-diag:
         Magtogoek: middle
         meridional-rdrs: QC-rdrs
         QC-rdrs: QC-rdrs
+        Haudenosaunee-rdrs-rot: QC-rdrs
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
@@ -482,16 +486,21 @@ off-diag:
         Magtogoek: *nam-name
         meridional-rdrs: QC-rdrs
         QC-rdrs: QC-rdrs
+        Haudenosaunee-rdrs-rot: QC-rdrs
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
         period: *ref_period
       unstack: False
-  correlogram_regions: # list of region on which we want to caluclate the correlogram
-    - Haudenosaunee-rdrs
-#    - Ute
-#    - Dene
-#    - meridional-rdrs
+  correlogram:
+    regions: # list of region on which we want to calculate the correlogram
+      - Haudenosaunee-rdrs-rot
+    args:
+      dims:
+        - rlat
+        - rlon
+      #bins: 100
+
 
 
 
@@ -531,8 +540,8 @@ tdd:
   xarray_open_kwargs:
     decode_timedelta: False
 
-utils:
-  unstack_fill_nan:
-    coords: ['rlat', 'rlon']
-  maybe_unstack:
-    coords: ['rlat', 'rlon']
+#utils:
+#  unstack_fill_nan:
+#    coords: ['rlat', 'rlon']
+#  maybe_unstack:
+#    coords: ['rlat', 'rlon']

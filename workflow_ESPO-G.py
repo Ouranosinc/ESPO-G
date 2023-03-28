@@ -684,12 +684,18 @@ if __name__ == '__main__':
                                 ds_input = xs.utils.unstack_fill_nan(ds_input)
 
                             # cut the domain
-                            ds_input = xs.extract.clisops_subset(
-                                ds_input.chunk({'time': -1}), dom_dict)
+                            if dom_dict['method']=='bbox':
+                                ds_input = xs.extract.clisops_subset(
+                                   ds_input.chunk({'time': -1}), dom_dict)
+                            elif dom_dict['method']=='rotated':
+                                ds_input=ds_input.sel(rlon=slice(*map(str, dom_dict['rotated']['rlon'])),
+                                                      rlat=slice(*map(str, dom_dict['rotated']['rlat'])))
+                            else:
+                                logger.warning(f"Method of cutting {dom_dict['method']} not recognised.")
                             ds_input.attrs["cat:domain"] = dom_name
 
                             # correlogram
-                            if ((dom_name in CONFIG['off-diag']['correlogram_regions'])
+                            if ((dom_name in CONFIG['off-diag']['correlogram']['regions'])
                                 and
                                 (not pcat.exists_in_cat(id=id,
                                                         processing_level=f'correlogram-{step}',
@@ -701,7 +707,7 @@ if __name__ == '__main__':
                                     correlogram[
                                         f'correlogram_{var}'] = xc.sdba.properties.spatial_correlogram(
                                         ds_input[var],
-                                        bins=99
+                                        **CONFIG['off-diag']['correlogram']['args']
                                     )
                                 correlogram.attrs[
                                     "cat:processing_level"] = f'correlogram-{step}'
