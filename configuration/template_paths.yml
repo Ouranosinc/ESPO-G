@@ -5,10 +5,10 @@ paths:
   exec_workdir: EXEC_DIR/ESPO-G_workdir/ # EXEC_DIR should be a directory where it is easy to read and write
   refdir: OUTPUT_DIR/reference/
   regriddir: OUTPUT_DIR/regridded/
-  output: OUTPUT_DIR/NAM_SPLIT/{region_name}/day_{sim_id}_1950-2100.zarr
+  output: OUTPUT_DIR/NAM_SPLIT/{region_name}/day_{sim_id}_{region_name}_1950-2100.zarr
   diagnostics: OUTPUT_DIR/diagnostics/{sim_id}/{level}_{sim_id}_{region_name}.zarr
-  concat_output_final: OUTPUT_DIR/FINAL/day_{sim_id}_1950-2100.zarr
-  concat_output_diag: OUTPUT_DIR/diagnostics/{sim_id}/{level}_{sim_id}_NAM.zarr
+  concat_output_final: OUTPUT_DIR/FINAL/{domain}/day_{sim_id}_{domain}_1950-2100.zarr
+  concat_output_diag: OUTPUT_DIR/diagnostics/{domain}/{sim_id}/{level}_{sim_id}_{domain}.zar
   logging: OUTPUT_DIR/logging/log_{sim_id}_{region_name}.log
   indicators: OUTPUT_DIR/{id}/{id}_{xrfreq}_{processing_level}.zarr
   climatology: OUTPUT_DIR/climatology/{id}/{id}_{xrfreq}_{processing_level}.zarr
@@ -79,7 +79,6 @@ indicator: # don't write the real name of the module or you will break extract.
   load_xclim_module:
     filename: configuration/portraits.yml
 
-##TODO: activate for ERA5-Land but not RDRS
 utils:
     stack_drop_nans:
         to_file: &coords
