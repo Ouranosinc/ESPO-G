@@ -57,7 +57,7 @@ As the bias-adjustment method requires a consistent number of calendar days (no 
 calendar were converted to the `noleap` one by dropping any values for February 29th. `KACE-1-0-G`
 is the only model simulated with a 360-day calendar, and was kept as is.
 
-The bias-adjustment was calibrated over the years 1991-2020, following the WMO recommendation for reference periods, and applied to the full 1950-2100 period.
+The bias-adjustment was calibrated over the years 1989-2018, the most recont 30-year period available, and applied to the full 1950-2100 period.
 
 ## Reference data
 The ESPO-G6-R2 v1.0 dataset uses the RDRS v2.1 (Gasset et al., 2021) as reference dataset. This is a product
@@ -80,7 +80,7 @@ The ESPO-G6 v.1.0 bias adjustment procedure then uses [xclim's bias adjustment a
 to adjust simulation bias following a quantile mapping procedure. In particular, the algorithm used is inspired by the
 "Detrended Quantile Mapping" (DQM) method described by Cannon (2015). The procedure is bipartite;
 First, the adjustment factors are calculated based on reference data and simulations over a common period (training stage),
-and second, the entire simulation is corrected with these factors (adjustment step). The reference period chosen here were years 1991-2020.
+and second, the entire simulation is corrected with these factors (adjustment step). The reference period chosen here were years 1989-2018.
 Adjustments are univariate, where corrections are applied separately for each of the 3 variables. Data is adjusted for
 each day of the year, using a rolling window of 31 days. Although computational more expensive, the rolling window method
 allows for better adjustment of the annual cycle. Note that this method does not work well with leap years as there is four
