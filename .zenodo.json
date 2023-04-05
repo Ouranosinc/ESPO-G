@@ -33,13 +33,18 @@
         {
           "name": "Biner, Sébastien",
           "orcid": "0000-0001-7515-490X"
+        },
+        {
+          "name": "Braun, Marco",
+          "affiliation": "Ouranos",
+          "orcid": "0000-0001-5061-3217"
         }
     ],
 
     "license": "Apache-2.0",
     "upload_type": "software",
     "access_right": "open",
-    "title": "ESPO-G : Ensemble de scénarios polyvalents d'Ouranos - Modèles Globaux / Ouranos Multipurpose Climate Scenarios - Global models",
+    "title": "ESPO-G6-R2 : Ensemble de scénarios polyvalents d'Ouranos - Modèles Globaux / Ouranos Multipurpose Climate Scenarios - Global models",
     "related_identifiers": [
         {
             "scheme": "doi",
@@ -145,6 +150,6 @@
         "climate data",
         "climate indicators",
         "climate simulation",
-        "era5"
+        "rdrs"
     ]
 }

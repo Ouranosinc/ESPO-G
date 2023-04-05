@@ -43,20 +43,20 @@ custom:
 #            lat_bnds: [ 42, 63 ]
         south-rdrs-rot:
             name: south-rdrs-rot
-            method: rotated
-            rotated:
+            method: sel
+            sel:
                 rlon: [ 324.5, 388.2 ]
                 rlat: [ -47, -23 ]
         middle-rdrs-rot:
             name: middle-rdrs-rot
-            method: rotated
-            rotated:
+            method: sel
+            sel:
                 rlon: [ 324.5, 388.2 ]
                 rlat: [ -23, 1 ]
         north-rdrs-rot:
             name: north-rdrs-rot
-            method: rotated
-            rotated:
+            method: sel
+            sel:
                 rlon: [ 324.5, 388.2 ]
                 rlat: [ 1, 26 ]
     amno_region:
@@ -105,7 +105,8 @@ extraction:
             other_search_criteria:
                 source: &ref_source
                     RDRS
-        extract_dataset: {}
+        extract_dataset:
+          mask: True
         properties_and_measures:
           to_level_prop: diag-ref-prop
           period: *ref_period
@@ -401,8 +402,8 @@ off-diag:
   domains:
     Haudenosaunee-rdrs-rot:
         name: Haudenosaunee-rdrs-rot
-        method: rotated
-        rotated:
+        method: sel
+        sel:
           rlat: [ -14, -8 ]
           rlon: [ 370, 375 ]
 #    Ute-rdrs:
@@ -429,12 +430,12 @@ off-diag:
 #      bbox:
 #        lon_bnds: [ -83, -55 ]
 #        lat_bnds: [ 42, 52 ]
-    QC-rdrs:
-      name: QC-rdrs
-      method: bbox
-      bbox:
-        lon_bnds: [ -83, -55 ]
-        lat_bnds: [ 42, 63 ]
+#    QC-rdrs:
+#      name: QC-rdrs
+#      method: bbox
+#      bbox:
+#        lon_bnds: [ -83, -55 ]
+#        lat_bnds: [ 42, 63 ]
 #    Haudenosaunee-rdrs:
 #        name: Haudenosaunee-rdrs
 #        method: bbox
@@ -447,11 +448,11 @@ off-diag:
         source: *ref_source
         calendar: default
         processing_level: extracted
-      domain:
-        Haudenosaunee: middle_nodup
-        Ute: south_nodup
-        Dene: middle_nodup
-        Magtogoek: middle_nodup
+      domain: &domains-off-diag
+        Haudenosaunee: middle-rdrs-rot
+        Ute: south-rdrs-rot
+        Dene: middle-rdrs-rot
+        Magtogoek: middle-rdrs-rot
         meridional-rdrs: QC-rdrs
         QC-rdrs: QC-rdrs
         Haudenosaunee-rdrs-rot: QC-rdrs
@@ -462,14 +463,7 @@ off-diag:
       input:
         source: *hausfather-source
         processing_level:  regridded
-      domain:
-        Haudenosaunee: middle
-        Ute: south
-        Dene: middle
-        Magtogoek: middle
-        meridional-rdrs: QC-rdrs
-        QC-rdrs: QC-rdrs
-        Haudenosaunee-rdrs-rot: QC-rdrs
+      domain: *domains-off-diag
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:

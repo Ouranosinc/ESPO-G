@@ -76,37 +76,19 @@ if __name__ == '__main__':
 
                     # extract
                     dc = cat_ref.popitem()[1]
-                    if region_dict['method']=='rotated':
-                        dict_ref = extract_dataset(catalog=dc,
-                                                 **CONFIG['extraction']['reference'][
-                                                     'extract_dataset']
-                                                 )
-                        ds_ref=dict_ref['D']
-
-                        # load mask and put nan over points that we don't need
-                        if 'fx' in dict_ref:
-                            mask= dict_ref['fx']
-                            ds_ref= ds_ref.where(mask.mask == True)
-
-                        ds_ref= ds_ref.sel(
-                            rlat=slice(*map(float, region_dict['rotated']['rlat'])),
-                            rlon=slice(*map(float, region_dict['rotated'][ 'rlon'])),
-                                           )
-                        ds_ref.attrs['cat:domain']=region_name
-                    else:
-                        ds_ref = extract_dataset(catalog=dc,
-                                                 region=region_dict,
-                                                 **CONFIG['extraction']['reference']['extract_dataset']
-                                                 )['D']
+                    ds_ref = extract_dataset(catalog=dc,
+                                             region=region_dict,
+                                             **CONFIG['extraction']['reference']['extract_dataset']
+                                             )['D']
 
                     # stack
                     if CONFIG['custom']['stack_drop_nans']:
-                        variables = list(CONFIG['extraction']['reference']['search_data_catalogs'][
-                                             'variables_and_freqs'].keys())
+                        var = list(ds_ref.data_vars)[0]
                         ds_ref = stack_drop_nans(
                             ds_ref,
-                            ds_ref[variables[0]].isel(time=130, drop=True).notnull(),
+                            ds_ref[var].isel(time=0, drop=True).notnull(),
                         )
+                    #chunk
                     ds_ref = ds_ref.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_ref.dims})
 
                     save_move_update(ds=ds_ref,
@@ -142,8 +124,9 @@ if __name__ == '__main__':
                                      final_path=f"{refdir}/ref_{region_name}_360_day.zarr",
                                      info_dict={'calendar': '360_day'})
 
-            # nan_count
-            if not pcat.exists_in_cat(domain=region_name, processing_level='diag-ref-prop', source=ref_source):
+            # diagnostics
+            if (not pcat.exists_in_cat(domain=region_name, processing_level='diag-ref-prop',
+                                      source=ref_source)) and ('diagnostics' in CONFIG['tasks']):
                 with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
 
                     ds_ref = pcat.search(source=ref_source, calendar='default',
@@ -154,24 +137,24 @@ if __name__ == '__main__':
 
                     dref_ref = dref_ref.chunk(CONFIG['extraction']['reference']['chunks'])
 
-                    # diagnostics
-                    if 'diagnostics' in CONFIG['tasks']:
-                        prop, _ = xs.properties_and_measures(
-                            ds=dref_ref,
-                            **CONFIG['extraction']['reference']['properties_and_measures']
-                        )
 
+                    prop, _ = xs.properties_and_measures(
+                        ds=dref_ref,
+                        **CONFIG['extraction']['reference']['properties_and_measures']
+                    )
 
-                        path_diag = Path(CONFIG['paths']['diagnostics'].format(region_name=region_name,
-                                                                               sim_id=prop.attrs['cat:id'],
-                                                                               level= prop.attrs['cat:processing_level']))
-                        path_diag_exec = f"{workdir}/{path_diag.name}"
-                        prop= prop.chunk(CONFIG['custom']['rechunk'])
-                        save_move_update(ds=prop,
-                                         pcat=pcat,
-                                         init_path=path_diag_exec,
-                                         final_path=path_diag,
-                                         )
+                    prop = prop.chunk(CONFIG['custom']['rechunk'])
+
+                    path_diag = Path(CONFIG['paths']['diagnostics'].format(region_name=region_name,
+                                                                           sim_id=prop.attrs['cat:id'],
+                                                                           level= prop.attrs['cat:processing_level']))
+                    path_diag_exec = f"{workdir}/{path_diag.name}"
+
+                    save_move_update(ds=prop,
+                                     pcat=pcat,
+                                     init_path=path_diag_exec,
+                                     final_path=path_diag,
+                                     )
 
 
     # concat diag-ref-prop
@@ -198,7 +181,7 @@ if __name__ == '__main__':
         dsC.attrs['cat:domain'] = CONFIG['custom']['amno_region']['name']
 
         dsC_path = CONFIG['paths'][f"concat_output_diag"].format(
-            sim_id = dsC.attrs['cat:id'], level='diag-ref-prop')
+            sim_id = dsC.attrs['cat:id'], level='diag-ref-prop', domain=dsC.attrs['cat:domain'])
         dsC.attrs.pop('cat:path')
         for var in dsC.data_vars:
             dsC[var].encoding.pop('chunks',None)
@@ -454,6 +437,11 @@ if __name__ == '__main__':
                                 # fix the problematic data
                                 if sim_id in CONFIG['clean_up']['problems']:
                                     logger.info('Mask grid cells where tasmin < 100 K.')
+
+                                    #TODO: remove this
+                                    save_to_zarr(ds, CONFIG['paths']['tmp'].format(
+                                        **xs.utils.get_cat_attrs(ds)))
+
                                     ds = ds.where(ds.tasmin > 100)
 
                                 save_move_update(ds=ds,
@@ -638,7 +626,7 @@ if __name__ == '__main__':
 
                         dsC_path = CONFIG['paths'][f"concat_output" \
                                                    f"_{level.split('-')[0]}"].format(
-                            sim_id=sim_id, level=level)
+                            sim_id=sim_id, level=level, domain=dsC.attrs['cat:domain'])
 
                         dsC.attrs.pop('cat:path')
                         if level !='final':
@@ -684,15 +672,9 @@ if __name__ == '__main__':
                                 ds_input = xs.utils.unstack_fill_nan(ds_input)
 
                             # cut the domain
-                            if dom_dict['method']=='bbox':
-                                ds_input = xs.extract.clisops_subset(
-                                   ds_input.chunk({'time': -1}), dom_dict)
-                            elif dom_dict['method']=='rotated':
-                                ds_input=ds_input.sel(rlon=slice(*map(str, dom_dict['rotated']['rlon'])),
-                                                      rlat=slice(*map(str, dom_dict['rotated']['rlat'])))
-                            else:
-                                logger.warning(f"Method of cutting {dom_dict['method']} not recognised.")
-                            ds_input.attrs["cat:domain"] = dom_name
+                            ds_input = xs.spatial.subset(
+                               ds_input.chunk({'time': -1}), dom_dict)
+
 
                             # correlogram
                             if ((dom_name in CONFIG['off-diag']['correlogram']['regions'])
@@ -706,7 +688,7 @@ if __name__ == '__main__':
                                 for var in ds_input.data_vars:
                                     correlogram[
                                         f'correlogram_{var}'] = xc.sdba.properties.spatial_correlogram(
-                                        ds_input[var],
+                                        ds_input[var].sel(time=ref_period),
                                         **CONFIG['off-diag']['correlogram']['args']
                                     )
                                 correlogram.attrs[
