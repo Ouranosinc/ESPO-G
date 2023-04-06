@@ -2,7 +2,7 @@
 
 ESPO-G6:[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764928.svg)](https://doi.org/10.5281/zenodo.7764928)
 
-ESPO-G6-EL v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764929.svg)](https://doi.org/10.5281/zenodo.7764929)
+ESPO-G6-E5L v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764929.svg)](https://doi.org/10.5281/zenodo.7764929)
 
 ## Context
 The need to adapt to climate change is present in a growing number of fields, leading to an increase in the demand for 
@@ -18,7 +18,7 @@ The experiments included are SSP2-4.5 and SSP3-7.0.
 To avoid the "hot model problem" (Hausfather et al, 2022), only models with a Transient Climate Response (TCR) in the likely range (1.4–2.2 °C) were kept in the official ensemble (Table 1).
 Extra "hot models" will also available even if they are not in the official ensemble.
 
-**Table 1. Members of ESPO-G6-R2 v1.0.**
+**Table 1. Members of ESPO-G6-R2 v1.0.0**
 
 |**Institution**|**Model** |**Member** |**License**|**In TCR likely range**|**Status**|
 |---|---|---|---|---|---|
@@ -60,7 +60,7 @@ is the only model simulated with a 360-day calendar, and was kept as is.
 The bias-adjustment was calibrated over the years 1989-2018, the most recont 30-year period available, and applied to the full 1950-2100 period.
 
 ## Reference data
-The ESPO-G6-R2 v1.0 dataset uses the RDRS v2.1 (Gasset et al., 2021) as reference dataset. This is a product
+The ESPO-G6-R2 v1.0.0 dataset uses the RDRS v2.1 (Gasset et al., 2021) as reference dataset. This is a product
 from Environment and Climate Change Canada (ECCC) created by using the Regional 
 Deterministic Reforecast System (RDRS) to downscale the Global Deterministic Reforecast 
 System (GDRS) initialized by ERA-Interim. The system is also coupled with the Canadian 
@@ -68,15 +68,15 @@ Land Data Assimilation System (CaLDAS) and Precipitation Analysis (CaPA). It was
 [CaSPAR](https://caspar-data.ca).
 
 Warning: A different version of ESPO-G6 uses ERA5-Land as a reference. 
-The information for ESPO-G6-EL can be found in this [release](https://github.com/Ouranosinc/ESPO-G/releases/tag/v1.0.0) and at doi:10.5281/zenodo.7764929.
+The information for ESPO-G6-E5L can be found in this [release](https://github.com/Ouranosinc/ESPO-G/releases/tag/v1.0.0) and at doi:10.5281/zenodo.7764929.
 Compared to ERA5-Land, RDRS v2.1 is closer to station data and has a better modelisation of lakes.
 
 ## Methodology
-The workflow to prepare ESPO-G6-R2 v1.0 was built with [xscen](https://github.com/Ouranosinc/xscen).
+The workflow to prepare ESPO-G6-R2 v1.0.0 was built with [xscen](https://github.com/Ouranosinc/xscen).
 The temperature and precipitation data from the simulations in table 1 were first extracted over North America.
 Then, all the extracted simulation data is interpolated bilinearly in cascades to the ERA5-Land grid.
 
-The ESPO-G6 v.1.0 bias adjustment procedure then uses [xclim's bias adjustment algorithms](https://xclim.readthedocs.io/en/stable/sdba.html)
+The ESPO-G6 v.1.0.0 bias adjustment procedure then uses [xclim's bias adjustment algorithms](https://xclim.readthedocs.io/en/stable/sdba.html)
 to adjust simulation bias following a quantile mapping procedure. In particular, the algorithm used is inspired by the
 "Detrended Quantile Mapping" (DQM) method described by Cannon (2015). The procedure is bipartite;
 First, the adjustment factors are calculated based on reference data and simulations over a common period (training stage),
@@ -158,7 +158,7 @@ While that project aimed to "to validate and compare downscaling methods", we ba
 "properties" and "measures" to measure bias between the simulations, the scenarios, and the reference.
 
 A detailed analysis is given in [the documentation](documentation/ESPO_G6_performance.pdf).
-Our general conclusions concerning the quality of ESPO-G6-R2 v1.0 are:
+Our general conclusions concerning the quality of ESPO-G6-R2 v1.0.0 are:
 
  - The marginal properties of the simulations (mean, quantiles) are very well-adjusted, by design of the Quantile Mapping algorithm.
  - The climate change signal is also conserved from the simulations by design of the algorithm.
@@ -167,7 +167,7 @@ Our general conclusions concerning the quality of ESPO-G6-R2 v1.0 are:
  
 
 ## Data availability and download
-The ESPO-G6-R2 v1.0 data is currently available under the [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) license.
+The ESPO-G6-R2 v1.0.0 data is currently available under the [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) license.
 
 At the time of publication, the data is stored on [Ouranos](https://www.ouranos.ca/)' THREDDS server, a part of the [PAVICS](https://pavics.ouranos.ca/) project:
 COMING
