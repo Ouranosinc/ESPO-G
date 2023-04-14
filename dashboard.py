@@ -27,7 +27,7 @@ with tab1:
     if useCat:
         from xscen.config import CONFIG, load_config
         from xscen.catalog import ProjectCatalog
-        load_config('paths_ESPO-G.yml', 'config_ESPO-G.yml', verbose=(__name__ == '__main__'), reset=True)
+        load_config('configuration/paths_ESPO-G_j.yml', 'configuration/config_ESPO-G.yml', verbose=(__name__ == '__main__'), reset=True)
         pcat = ProjectCatalog(CONFIG['paths']['project_catalog'])
 
         col1, col2, col3 = st.columns([3, 1, 1])
@@ -46,7 +46,7 @@ with tab1:
         meas_scen = pcat.search(id=option_id, processing_level='diag-scen-meas*', domain=option_region).to_dask()
 
         # load hmap
-        if option_region != 'NAM':
+        if 'NAM' not in option_region:
             hm = pcat.search(domain=option_region,id=scen.attrs['cat:id'],processing_level='diag-heatmap*').to_dask()
 
             imp = pcat.search(domain=option_region,id=scen.attrs['cat:id'],processing_level='diag-improved*').to_dask()
@@ -65,8 +65,9 @@ with tab1:
     maxi_prop = max(prop_ref.max().values, prop_scen.max().values, prop_sim.max().values)
     mini_prop = min(prop_ref.min().values, prop_scen.min().values, prop_sim.min().values)
     maxi_meas = max(abs(meas_scen_prop).max().values, abs(meas_sim_prop).max().values)
-    cmap='viridis_r' if 'standard_name' in prop_sim and   prop_sim.attrs['standard_name']== 'precipitation_flux' else 'plasma'
-    cmap_meas ='BrBG' if 'standard_name' in prop_sim and prop_sim.attrs['standard_name']== 'precipitation_flux' else 'coolwarm'
+    print(prop_sim)
+    cmap='viridis_r' if 'standard_name' in prop_sim.attrs and   prop_sim.attrs['standard_name']== 'precipitation_flux' else 'plasma'
+    cmap_meas ='BrBG' if 'standard_name' in prop_sim.attrs and prop_sim.attrs['standard_name']== 'precipitation_flux' else 'coolwarm'
 
     long_name=prop_sim.attrs['long_name']
 
@@ -83,7 +84,7 @@ with tab1:
 
 
 
-    if option_region != 'NAM':
+    if 'NAM' not in option_region :
         #plot the heat map
         fig_hmap, ax = plt.subplots(figsize=(7,3))
         cmap=plt.cm.RdYlGn_r
@@ -128,7 +129,7 @@ with tab2:
     if useCat:
         from xscen.config import CONFIG, load_config
         from xscen.catalog import ProjectCatalog
-        load_config('paths_ESPO-G.yml', 'config_ESPO-G.yml', verbose=(__name__ == '__main__'), reset=True)
+        load_config('paths_ESPO-G_j.yml', 'config_ESPO-G.yml', verbose=(__name__ == '__main__'), reset=True)
         pcat = ProjectCatalog(CONFIG['paths']['project_catalog'])
 
         # choose id
