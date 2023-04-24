@@ -67,16 +67,13 @@ System (GDRS) initialized by ERA-Interim. The system is also coupled with the Ca
 Land Data Assimilation System (CaLDAS) and Precipitation Analysis (CaPA). It was downloaded from
 [CaSPAR](https://caspar-data.ca).
 
-Warning: A different version of ESPO-G6 uses ERA5-Land as a reference. 
-The information for ESPO-G6-E5L can be found in this [release](https://github.com/Ouranosinc/ESPO-G/releases/tag/v1.0.0) and at doi:10.5281/zenodo.7764929.
+> :warning: ** Warning: A different version of ESPO-G6 uses ERA5-Land as a reference. 
+The information for ESPO-G6-E5L can be found in this [release](https://github.com/Ouranosinc/ESPO-G/releases/tag/v1.0.0) with [doi:10.5281/zenodo.7764929](https://zenodo.org/record/7764929#.ZEbAg3aZPz8).
 Compared to ERA5-Land, RDRS v2.1 is closer to station data and has a better modelisation of lakes.
 
 ## Methodology
-The workflow to prepare ESPO-G6-R2 v1.0.0 was built with [xscen](https://github.com/Ouranosinc/xscen).
-The temperature and precipitation data from the simulations in table 1 were first extracted over North America.
-Then, all the extracted simulation data is interpolated bilinearly in cascades to the ERA5-Land grid.
-
-The ESPO-G6 v.1.0.0 bias adjustment procedure then uses [xclim's bias adjustment algorithms](https://xclim.readthedocs.io/en/stable/sdba.html)
+The temperature and precipitation data from the simulations in Table 1 were first extracted over North America.
+Then, all the extracted simulation data are interpolated bilinearly in cascades to the RDRS v2.1 grid. The ESPO-G6-R2 v.1.0.0 bias adjustment procedure then uses [xclim's bias adjustment algorithms](https://xclim.readthedocs.io/en/stable/sdba.html)
 to adjust simulation bias following a quantile mapping procedure. In particular, the algorithm used is inspired by the
 "Detrended Quantile Mapping" (DQM) method described by Cannon (2015). The procedure is bipartite;
 First, the adjustment factors are calculated based on reference data and simulations over a common period (training stage),
