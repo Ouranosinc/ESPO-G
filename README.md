@@ -50,7 +50,7 @@ had a sea area fraction of 1 in the reference dataset and then putting back a bu
 of one grid cell along the coasts.
 
 Some small regions in Alaska and Greenland have been masked out by NaNs for 2 models.
-More details are available in section 5 of [the documentation of the adjustment method.](documentation/ESPO_G6_adjustment.pdf)
+More details are available in section 5 of [the documentation of the adjustment method.](documentation/ESPO_G6_R2v100_adjustment.pdf)
 
 ## Temporal coverage
 As the bias-adjustment method requires a consistent number of calendar days (no leap days), all members using a standard
