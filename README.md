@@ -81,7 +81,7 @@ Adjustments are univariate, where corrections are applied separately for each of
 each day of the year, using a rolling window of 31 days. Although computational more expensive, the rolling window method
 allows for better adjustment of the annual cycle. Note that this method does not work well with leap years as there is four
 (4) times fewer data values for day 366. To remedy this problem, all simulations as well as the reference product are
-converted to this "noleap" calendar. A more detailed explanation of the adjustment process is given in [the documentation](documentation/ESPO_G6_adjustment.pdf).
+converted to this "noleap" calendar. A more detailed explanation of the adjustment process is given in [the documentation](documentation/ESPO_G6_R2v100_adjustment.pdf).
 
 ## Data processing tools
 Production and regular updates of ESPO-R/G operational datasets represent a challenge in terms of computational resources. 
@@ -99,9 +99,9 @@ repository, since they are specific to the data architecture of the computer run
 
 - `simulation.json` and `simulation.csv`: An intake-esm catalog, compatible with xscen, listing the daily simulation datasets to use as inputs.
 - `reconstruction.json` and `reconstruction.csv`: An intake-esm catalog, compatible with xscen, listing the daily reference datasets to use as inputs.
-- `paths_ESPO-G.yml`: A yaml file with the paths needed by the workflows. `configuration/template_paths.yml` shows an example of such a file, one only needs to replace the placeholders.
+- `paths.yml`: A yaml file with the paths needed by the workflows. `configuration/template_paths.yml` shows an example of such a file, one only needs to replace the placeholders.
 
-To run the workflow, uncomment the tasks wanted at the top of `config_ESPO-G.yml`. Then, run
+To run the workflow, uncomment the tasks wanted at the top of config file. Then, run
 
 ``python workflow_ESPO-G.py``
 
@@ -153,7 +153,7 @@ that the process brought to the simulations, we emulated the "VALUE" validation 
 While that project aimed to "to validate and compare downscaling methods", we based our approach on its ideas of statistical
 "properties" and "measures" to measure bias between the simulations, the scenarios, and the reference.
 
-A detailed analysis is given in [the documentation](documentation/ESPO_G6_performance.pdf).
+A detailed analysis is given in [the documentation](documentation/ESPO_G6_R2v100_performance.pdf).
 Our general conclusions concerning the quality of ESPO-G6-R2 v1.0.0 are:
 
  - The marginal properties of the simulations (mean, quantiles) are very well-adjusted, by design of the Quantile Mapping algorithm.
