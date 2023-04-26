@@ -1,6 +1,8 @@
+# Configuration file for ESPO-G6-R2 v1.0.0
+
 project:
-    name: ESPO-G6
-    version: 1.1.0
+    name: ESPO-G6-R2
+    version: 1.0.0
     description: Ensemble de scénarios polyvalents d'Ouranos - Global - CMIP6
     id: eg6
 
@@ -16,12 +18,12 @@ tasks:
   - final_zarr
   - diagnostics
   - concat
-#  - official-diag
-#  - indicators
-#  - climatological_mean
-#  - abs-delta
-#  - per-delta
-#  - ensemble
+  - official-diag
+  - indicators
+  - climatological_mean
+  - abs-delta
+  - per-delta
+  - ensemble
 
 
 
@@ -133,7 +135,7 @@ extraction:
               processing_level: raw
               experiment:
                 - ssp245
-                #- ssp370
+                - ssp370
               source: &hausfather-source    # in the TCR likely range (14) #chunking
                 - BCC-CSM2-MR
                 - FGOALS-g3 # None, but 1 file per year
@@ -320,7 +322,7 @@ clean_up:
             1989-2018 period. The variables tasmax, dtr and pr were adjusted, tasmin was computed
             from tasmax and dtr after the adjustment.
           redistribution: Redistribution prohibited. For internal use only.
-          version: "1.1.0"
+          version: "1.0.0"
         tasmax:
             standard_name: air_temperature
             long_name: Maximal daily temperature
@@ -400,12 +402,12 @@ ensemble:
 
 off-diag:
   domains:
-    Haudenosaunee-rdrs-rot:
-        name: Haudenosaunee-rdrs-rot
-        method: sel
-        sel:
-          rlat: [ -14, -8 ]
-          rlon: [ 370, 375 ]
+#    Haudenosaunee-rdrs-rot:
+#        name: Haudenosaunee-rdrs-rot
+#        method: sel
+#        sel:
+#          rlat: [ -14, -8 ]
+#          rlon: [ 370, 375 ]
 #    Ute-rdrs:
 #        name: Ute-rdrs
 #        method: bbox
@@ -418,12 +420,12 @@ off-diag:
 #        bbox:
 #          lat_bnds: [ 60.0, 65.0 ]
 #          lon_bnds: [ -124.0, -116.0 ]
-#    Magtogoek-rdrs:
-#      name: Magtogoek-rdrs
-#      method: bbox
-#      bbox:
-#        lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
-#        lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
+    Magtogoek-rdrs:
+      name: Magtogoek-rdrs
+      method: bbox
+      bbox:
+        lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
+        lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
 #    meridional-rdrs:
 #      name: meridional-rdrs
 #      method: bbox
@@ -449,13 +451,10 @@ off-diag:
         calendar: default
         processing_level: extracted
       domain: &domains-off-diag
-        Haudenosaunee: middle-rdrs-rot
-        Ute: south-rdrs-rot
-        Dene: middle-rdrs-rot
-        Magtogoek: middle-rdrs-rot
         meridional-rdrs: QC-rdrs
         QC-rdrs: QC-rdrs
         Haudenosaunee-rdrs-rot: QC-rdrs
+        Magtogoek-rdrs: middle-rdrs-rot
       properties_and_measures:
         period: *ref_period
       unstack: *stack
@@ -474,10 +473,7 @@ off-diag:
         source: *hausfather-source
         processing_level: final
       domain:
-        Haudenosaunee: *nam-name
-        Ute: *nam-name
-        Dene: *nam-name
-        Magtogoek: *nam-name
+        Magtogoek-rdrs: *nam-name
         meridional-rdrs: QC-rdrs
         QC-rdrs: QC-rdrs
         Haudenosaunee-rdrs-rot: QC-rdrs
@@ -493,7 +489,6 @@ off-diag:
       dims:
         - rlat
         - rlon
-      #bins: 100
 
 
 

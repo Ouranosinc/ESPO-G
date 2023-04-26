@@ -68,7 +68,6 @@ dependencies:
   - cartopy=0.20.2=py39hc85cdae_3
   - certifi=2022.12.7=pyhd8ed1ab_0
   - cf-units=3.0.1=py39hce5d2b2_2
-  - cf_xarray=0.7.4=pyhd8ed1ab_0
   - cffi=1.15.0=py39h4bc2ebd_0
   - cfgv=3.3.1=pyhd8ed1ab_0
   - cfitsio=4.0.0=h9a35b8e_0
@@ -76,7 +75,6 @@ dependencies:
   - charset-normalizer=2.0.12=pyhd8ed1ab_0
   - click-plugins=1.1.1=py_0
   - cligj=0.7.2=pyhd8ed1ab_1
-  - clisops=0.8.0=pyh6c4a22f_0
   - cloudpickle=2.0.0=pyhd8ed1ab_0
   - colorama=0.4.4=pyh9f0ad1d_0
   - contextily=1.2.0=pyhd8ed1ab_0
@@ -275,10 +273,9 @@ dependencies:
   - numpy=1.21.5=py39haac66dc_0
   - oauthlib=3.2.0=pyhd8ed1ab_0
   - openjpeg=2.4.0=hb52868f_1
-  - openssl=3.0.8=h0b41bf4_0
+  - openssl=3.1.0=h0b41bf4_0
   - orc=1.8.2=hfdbbad2_2
   - packaging=21.3=pyhd8ed1ab_0
-  - pandas=1.4.3=py39h1832856_0
   - pandoc=2.17.1.1=ha770c72_0
   - pandocfilters=1.5.0=pyhd8ed1ab_0
   - parquet-cpp=1.5.1=2
@@ -348,7 +345,6 @@ dependencies:
   - regionmask=0.8.0=pyhd8ed1ab_1
   - requests=2.27.1=pyhd8ed1ab_0
   - requests-oauthlib=1.3.1=pyhd8ed1ab_0
-  - roocs-utils=0.5.0=pyh6c4a22f_0
   - rtree=0.9.7=py39hb102c33_3
   - s2n=1.3.30=h3358134_0
   - s3fs=0.5.1=py_0
@@ -399,7 +395,7 @@ dependencies:
   - wheel=0.37.1=pyhd8ed1ab_0
   - widgetsnbextension=3.5.2=py39hf3d152e_1
   - wrapt=1.13.3=py39h3811e60_1
-  - xarray=2023.2.0=pyhd8ed1ab_0
+  - xclim=0.41.0=pyhd8ed1ab_0
   - xerces-c=3.2.3=h8ce2273_4
   - xesmf=0.7.0=pyhd8ed1ab_0
   - xorg-kbproto=1.0.7=h7f98852_1002
@@ -427,7 +423,9 @@ dependencies:
       - boto3==1.26.63
       - botocore==1.29.63
       - cachetools==5.2.0
+      - cf-xarray==0.8.0
       - click==8.0.0
+      - clisops==0.9.5
       - colorcet==3.0.0
       - commonmark==0.9.1
       - dask==2022.12.1
@@ -435,15 +433,18 @@ dependencies:
       - et-xmlfile==1.1.0
       - flox==0.6.8
       - fsspec==2022.11.0
+      - geoviews==1.9.6
       - gitdb==4.0.9
       - gitpython==3.1.27
       - holoviews==1.14.9
       - hvplot==0.8.0
       - intake==0.6.6
       - intake-esm==2022.9.18
+      - loguru==0.6.0
       - numcodecs==0.11.0
       - numpy-groupies==0.9.20
       - openpyxl==3.0.9
+      - pandas==1.3.5
       - panel==0.13.1
       - param==1.12.1
       - protobuf==3.20.1
@@ -454,16 +455,18 @@ dependencies:
       - pyviz-comms==2.2.0
       - rechunker==0.4.2
       - rich==12.5.1
+      - roocs-utils==0.6.4
       - s3transfer==0.6.0
       - semver==2.13.0
       - smmap==5.0.0
+      - spirograph==0.1.0
       - streamlit==1.11.1
       - tzdata==2022.1
       - tzlocal==4.2
       - validators==0.19.0
       - watchdog==2.1.8
-      - xclim==0.38.8b0
+      - xarray==2023.1.0
       - xcollection==2021.12.23
-      - xscen==0.5.0
+      - xscen==0.5.13b0
       - zarr==2.13.3
 prefix: /exec/jlavoie/.conda/espo-g

@@ -1,3 +1,5 @@
+#Configuration file for ESPO-G6-E5L v1.0.0
+
 project:
     name: ESPO-G6
     version: 1.0.0
