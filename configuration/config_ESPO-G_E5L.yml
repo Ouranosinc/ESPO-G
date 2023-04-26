@@ -343,7 +343,6 @@ indicators:
   input:
     processing_level: final
     domain: NAM
-    source: *hausfather-source
   compute_indicators:
     to_level: individual_indicator
 
