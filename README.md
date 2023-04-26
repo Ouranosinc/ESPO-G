@@ -67,7 +67,7 @@ System (GDRS) initialized by ERA-Interim. The system is also coupled with the Ca
 Land Data Assimilation System (CaLDAS) and Precipitation Analysis (CaPA). It was downloaded from
 [CaSPAR](https://caspar-data.ca).
 
-> :warning: ** Warning: A different version of ESPO-G6 uses ERA5-Land as a reference. 
+> :warning: A different version of ESPO-G6 uses ERA5-Land as a reference. 
 The information for ESPO-G6-E5L can be found in this [release](https://github.com/Ouranosinc/ESPO-G/releases/tag/v1.0.0) with [doi:10.5281/zenodo.7764929](https://zenodo.org/record/7764929#.ZEbAg3aZPz8).
 Compared to ERA5-Land, RDRS v2.1 is closer to station data and has a better modelisation of lakes.
 
