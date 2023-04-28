@@ -166,7 +166,7 @@ Our general conclusions concerning the quality of ESPO-G6-R2 v1.0.0 are:
 The ESPO-G6-R2 v1.0.0 data is currently available under the [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) license.
 
 At the time of publication, the data is stored on [Ouranos](https://www.ouranos.ca/)' THREDDS server, a part of the [PAVICS](https://pavics.ouranos.ca/) project:
-COMING
+https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/datasets/simulations/bias_adjusted/cmip6/ouranos/ESPO-G/ESPO-G6-R2v1.0.0/catalog.html
 
 When new versions of ESPO-G will be released, previous versions may be pulled from the server. [Please contact us](mailto:scenarios@ouranos.ca) if you wish to obtain these.
 
