@@ -2,24 +2,14 @@
 
 
 +----------------------------+-----------------------------------------------------+
-| ESPO-G6                    |            |zenodo1|                                |
+| ESPO-G6                    ||zenodo1|                                            |
 +----------------------------+-----------------------------------------------------+
-| ESPO-G6-R2 v1.0.0          |                     |zenodo2|                       |
+| ESPO-G6-R2 v1.0.0          ||zenodo2|                                            |
 +----------------------------+-----------------------------------------------------+
-| ESPO-G6-E5L v1.0.0         |     |zenodo3|                                       |
+| ESPO-G6-E5L v1.0.0         ||zenodo3|                                            |
 +----------------------------+-----------------------------------------------------+
 
-.. |zenodo1| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.7764928.svg
-        :target: https://doi.org/10.5281/zenodo.7764928
-        :alt: DOI
 
-.. |zenodo2| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.7764930.svg
-        :target: https://doi.org/10.5281/zenodo.7764930
-        :alt: DOI
-
-.. |zenodo3| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.7764929.svg
-        :target: https://doi.org/10.5281/zenodo.7764929
-        :alt: DOI
 
 
 ## Context
@@ -204,3 +194,16 @@ Logan, T., Bourgault, P., Smith, T. J., Huard, D., Biner, S., Labonté, M.-P., R
 Maraun, D., Widmann, M., Gutiérrez,  J.M., Kotlarski, S., Chandler, R. E., Hertig, E., Wibig, J., Huth, R., Wilcke, R. A. I. (2015). VALUE: A Framework to Validate Downscaling Approaches for Climate Change Studies. Earth’s Future 3, 1, 1‑14. https://doi.org/10.1002/2014EF000259.
 
 Zhuang, J., Dussin, R., Huard, D., Bourgault, P., Banihirwe, A., Raynaud, S., Malevich, B., Schupfner, M., Hamman, J., Levang, S., Jüling, A., Almansi, M., Fernandes, F., Rondeau-Genesse, G., Rasp, S., & Bell, R. (2021). pangeo-data/xESMF (0.6.2) [Python]. Zenodo. https://doi.org/10.5281/zenodo.5721118
+
+
+.. |zenodo1| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.7764928.svg
+        :target: https://doi.org/10.5281/zenodo.7764928
+        :alt: DOI
+
+.. |zenodo2| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.7764930.svg
+        :target: https://doi.org/10.5281/zenodo.7764930
+        :alt: DOI
+
+.. |zenodo3| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.7764929.svg
+        :target: https://doi.org/10.5281/zenodo.7764929
+        :alt: DOI
