@@ -1,13 +1,11 @@
 # ESPO-G6-R2 : Ensemble de scénarios polyvalents d'Ouranos - modèles Globaux CMIP6 / Ouranos Multipurpose Climate Scenarios - Global Models CMIP6
 
 
-+----------------------------+-----------------------------------------------------+
-| ESPO-G6                    ||zenodo1|                                            |
-+----------------------------+-----------------------------------------------------+
-| ESPO-G6-R2 v1.0.0          ||zenodo2|                                            |
-+----------------------------+-----------------------------------------------------+
-| ESPO-G6-E5L v1.0.0         ||zenodo3|                                            |
-+----------------------------+-----------------------------------------------------+
+ESPO-G6:[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764928.svg)](https://doi.org/10.5281/zenodo.7764928)
+
+ESPO-G6-R2 v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764930.svg)](https://doi.org/10.5281/zenodo.7764930)
+
+ESPO-G6-E5L v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764929.svg)](https://doi.org/10.5281/zenodo.7764929)
 
 
 
@@ -195,15 +193,3 @@ Maraun, D., Widmann, M., Gutiérrez,  J.M., Kotlarski, S., Chandler, R. E., Hert
 
 Zhuang, J., Dussin, R., Huard, D., Bourgault, P., Banihirwe, A., Raynaud, S., Malevich, B., Schupfner, M., Hamman, J., Levang, S., Jüling, A., Almansi, M., Fernandes, F., Rondeau-Genesse, G., Rasp, S., & Bell, R. (2021). pangeo-data/xESMF (0.6.2) [Python]. Zenodo. https://doi.org/10.5281/zenodo.5721118
 
-
-.. |zenodo1| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.7764928.svg
-        :target: https://doi.org/10.5281/zenodo.7764928
-        :alt: DOI
-
-.. |zenodo2| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.7764930.svg
-        :target: https://doi.org/10.5281/zenodo.7764930
-        :alt: DOI
-
-.. |zenodo3| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.7764929.svg
-        :target: https://doi.org/10.5281/zenodo.7764929
-        :alt: DOI
