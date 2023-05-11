@@ -51,6 +51,8 @@ The dataset has a resolution of 0.1° over a North American domain on a rotated 
 a grid pole latitude of 31.7583 and longitude of 87.5970. The latitude range covered is 
 from 5.7560°N to 83.9816°N and the longitude range is from 179.9728°E to 9.0204°W.
 
+> :warning: Users should be careful with precipitation data close to the south edge of the domain where there is less trust in the reference data.
+
 Data is only available on or near land. A mask was created by removing all grid cells that 
 had a sea area fraction of 1 in the reference dataset and then putting back a buffer 
 of one grid cell along the coasts.
