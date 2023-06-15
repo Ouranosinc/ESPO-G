@@ -42,6 +42,18 @@ Extra "hot models" will also available even if they are not in the official ense
 | 	NIMS-KMA |	KACE-1-0-G |	r1i1p1f1 |CC BY 4.0|✓|Completed|
 | 	NOAA-GFDL |	GFDL-ESM4 |	r1i1p1f1 |CC BY 4.0|✓|Completed|
 | 	BCC |	BCC-CSM2-MR |	r1i1p1f1 |CC BY 4.0|✓|Completed|
+| AS-RCEC	 |	TaiESM1 |	r1i1p1f1 |CC BY 4.0| |Completed|
+| CCCma	 |	CanESM5 |	r1i1p1f1 |CC BY 4.0| |Completed|
+| CNRM-CERFACS	 |	CNRM-CM6-1 |r1i1p1f2	 |CC BY 4.0| |Completed|
+| EC-Earth-Consortium	 |	EC-Earth3 |r1i1p1f1	 |CC BY 4.0| |Completed|
+| IPSL	 |	IPSL-CM6A-LR |	r1i1p1f1 |CC BY 4.0| |Completed|
+| 	MOHC |	UKESM1-0-LL |	r1i1p1f2 |CC BY 4.0| |Completed|
+| 	NCC |NorESM2-MM	 |	r1i1p1f1 |CC BY 4.0| |Completed|
+| EC-Earth-Consortium	 |	EC-Earth3-CC  |r1i1p1f1	 |CC BY 4.0| |Completed (only SSP2-4.5)|
+| 	NUIST |NESM3 	 |	r1i1p1f1 |CC BY 4.0| |Completed (only SSP2-4.5)|
+| 	MIROC |MIROC-ES2L	 |	r1i1p1f2 |CC BY 4.0| |Planned|
+| 	EC-Earth-Consortium |EC-Earth3-Veg	 |	r1i1p1f1 |CC BY 4.0| |Planned|
+| CCCma	 |	CanESM5-1 |	r1i1p1f1 |CC BY 4.0| |Planned|
 
 
 Source: https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
