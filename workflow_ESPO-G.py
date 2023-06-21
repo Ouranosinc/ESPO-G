@@ -9,7 +9,8 @@ import numpy as np
 from dask.diagnostics import ProgressBar
 import xscen as xs
 
-from xclim.core.calendar import convert_calendar, get_calendar, date_range_like
+from xclim.core.calendar import convert_calendar, get_calendar, date_range_like,doy_to_days_since
+from xclim.core.calendar import convert_calendar, get_calendar, date_range_like,doy_to_days_since
 from xclim.sdba import properties
 import xclim as xc
 
@@ -438,9 +439,6 @@ if __name__ == '__main__':
                                 if sim_id in CONFIG['clean_up']['problems']:
                                     logger.info('Mask grid cells where tasmin < 100 K.')
 
-                                    #TODO: remove this
-                                    save_to_zarr(ds, CONFIG['paths']['tmp'].format(
-                                        **xs.utils.get_cat_attrs(ds)))
 
                                     ds = ds.where(ds.tasmin > 100)
 
@@ -748,6 +746,7 @@ if __name__ == '__main__':
             for id_meas, ds_meas_sim in meas_dict.items():
                 sim_id = ds_meas_sim.attrs['cat:id']
                 if not pcat.exists_in_cat(id=sim_id,
+                                          domain = dom_name,
                                           processing_level='off-diag-improved'):
                     with (
                             Client(n_workers=3, threads_per_worker=5,
@@ -807,7 +806,7 @@ if __name__ == '__main__':
                                               xrfreq = freq):
                         with (
                                 Client(n_workers=2, threads_per_worker=4,
-                                       memory_limit="30GB", **daskkws),
+                                     memory_limit="30GB", **daskkws),
                                 measure_time(name=f'indicators {sim_id}',
                                              logger=logger),
                                 timeout(10000, indname)
@@ -894,11 +893,10 @@ if __name__ == '__main__':
                         measure_time(name=f'clim {id_input}',logger=logger),
                 ):
                     ds_mean = xs.climatological_mean(ds=ds_input)
-
                     save_move_update(
                         ds=ds_mean,
                         pcat=pcat,
-                        itervar=True, #if xrfreq_input=='QS-DEC' else False,
+                        itervar=True,
                         rechunk={'time': 4}|CONFIG['custom']['rechunk'],
                         init_path=f"{exec_wdir}/{sim_id}_{domain}_{xrfreq_input}_climatology.zarr",
                         final_path=Path(CONFIG['paths']['climatology'].format(
@@ -906,53 +904,29 @@ if __name__ == '__main__':
                     )
 
     # --- DELTAS ---
-    if "abs-delta" in CONFIG["tasks"]:
-        with (
-                Client(n_workers=6, threads_per_worker=4, memory_limit="4GB",
-                       **daskkws),
-                measure_time(name=f'delta', logger=logger),
-        ):
-            ind_dict = pcat.search( **CONFIG['aggregate']['input']['abs-delta']).to_dataset_dict(**tdd)
-            for id_input, ds_input in ind_dict.items():
-                xrfreq_input = ds_input.attrs['cat:xrfreq']
-                sim_id = ds_input.attrs['cat:id']
-                domain = ds_input.attrs['cat:domain']
-                if not pcat.exists_in_cat(id=sim_id, processing_level= 'abs-delta',
-                                      xrfreq=xrfreq_input, domain=domain):
-                     with (
-                    #         Client(n_workers=4, threads_per_worker=4,memory_limit="6GB", **daskkws),
-                             measure_time(name=f'delta {id_input}',logger=logger),
-                     ):
-                        ds_delta = xs.aggregate.compute_deltas(ds=ds_input,
-                                                               kind="+",
-                                                               to_level='abs-delta')
+    for delta_task, kind in zip(["abs-delta","per-delta"], ['+','%']):
+        if delta_task in CONFIG["tasks"]:
+                ref_horizon=CONFIG['aggregate']['compute_deltas']['reference_horizon']
+                ind_dict = pcat.search( **CONFIG['aggregate']['input'][delta_task]).to_dataset_dict(**tdd)
+                for id_input, ds_input in ind_dict.items():
+                    xrfreq_input = ds_input.attrs['cat:xrfreq']
+                    sim_id = ds_input.attrs['cat:id']
+                    domain = ds_input.attrs['cat:domain']
+                    if not pcat.exists_in_cat(id=sim_id, processing_level= f"{delta_task}-{ref_horizon}",
+                                          xrfreq=xrfreq_input, domain=domain):
+                         with (
+                                 Client(n_workers=4, threads_per_worker=4,memory_limit="6GB", **daskkws),
+                                 measure_time(name=f'{delta_task} {ref_horizon} {id_input}',logger=logger),
+                         ):
+                            ds_delta = xs.aggregate.compute_deltas(ds=ds_input,
+                                                                   kind=kind,
+                                                                   to_level=f"{delta_task}-{ref_horizon}")
 
-                        path=Path(CONFIG['paths']['delta'].format(**xs.utils.get_cat_attrs(ds_delta)))
-                        xs.save_to_zarr(ds_delta, path)
-                        pcat.update_from_ds(ds_delta, path)
+                            path=Path(CONFIG['paths']['delta'].format(**xs.utils.get_cat_attrs(ds_delta)))
+                            xs.save_to_zarr(ds_delta, path,rechunk={'time': 4}|CONFIG['custom']['rechunk'],)
+                            pcat.update_from_ds(ds_delta, path)
 
 
-    # --- DELTAS ---
-    if "per-delta" in CONFIG["tasks"]:
-        ind_dict = pcat.search( **CONFIG['aggregate']['input']['per-delta']).to_dataset_dict(**tdd)
-        for id_input, ds_input in ind_dict.items():
-            xrfreq_input = ds_input.attrs['cat:xrfreq']
-            sim_id = ds_input.attrs['cat:id']
-            domain = ds_input.attrs['cat:domain']
-            if not pcat.exists_in_cat(id=sim_id, processing_level= 'per-delta',
-                                  xrfreq=xrfreq_input, domain=domain):
-                with (
-                        Client(n_workers=4, threads_per_worker=4,memory_limit="6GB", **daskkws),
-                        measure_time(name=f'delta {id_input}',logger=logger),
-                ):
-                    ds_delta = xs.aggregate.compute_deltas(ds=ds_input,
-                                                           kind="%",
-                                                           to_level='per-delta'
-                                                           )
-
-                    path = CONFIG['paths']['delta'].format(**xs.utils.get_cat_attrs(ds_delta))
-                    xs.save_to_zarr(ds_delta, path)
-                    pcat.update_from_ds(ds_delta, path)
 
 
 
@@ -978,7 +952,7 @@ if __name__ == '__main__':
                                 experiment=experiment,
                                 domain=domain,
                                 variable=variable+ "_p50",
-                        ):
+                        ) :
                             with (
                                     #Client(n_workers=3, threads_per_worker=4,memory_limit="15GB", **daskkws),
                                     ProgressBar(),

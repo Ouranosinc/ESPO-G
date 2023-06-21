@@ -214,3 +214,19 @@ indicators:
     parameters:
       thresh: 20 degC
       freq: YS
+#  fdd_380: # for plat_comp
+#    base: degree_days_exceedance_date
+#    cf_attrs:
+#      var_name: fdd_380
+#    parameters:
+#      thresh: '0 degC'
+#      sum_thresh: "380 K days"
+#      op: '<'
+#      after_date: '10-01'
+#      freq: AS-JUL
+  tn_min: # for plat_comp
+    base: tn_min
+    cf_attrs:
+      var_name: tn_min
+    parameters:
+      freq: QS-DEC

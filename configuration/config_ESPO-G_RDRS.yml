@@ -388,8 +388,8 @@ ensemble:
     processing_levels:
         - indicators
         - climatology
-        - abs-delta
-        - per-delta
+        - abs-delta-1991-2020
+        - per-delta-1991-2020
     domain: *nam-name
     ensemble_stats_xscen:
       statistics:
