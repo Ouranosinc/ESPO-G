@@ -673,7 +673,7 @@ if __name__ == '__main__':
                             if step!='scen' and dom_name=='Nelson-Churchill':
                                 ds_north = pcat.search(
                                     domain='north-rdrs-rot',
-                                    processing_level=ds_input.attrs['cat:processing_level'],
+                                    **step_dict['input'],
                                     id = ds_input.attrs['cat:id']).to_dataset()
                                 ds_north = xs.utils.unstack_fill_nan(ds_north)
                                 ds_input = xr.concat([ds_input,ds_north], 'rlat')
@@ -753,7 +753,7 @@ if __name__ == '__main__':
                     with (
                             Client(n_workers=3, threads_per_worker=5,
                                    memory_limit="20GB", **daskkws),
-                            measure_time(name=f'off-diag-meas {dom_name} {sim_id}',
+                            measure_time(name=f'off-diag-imp {dom_name} {sim_id}',
                                          logger=logger),
                     ):
                         # get scen meas
@@ -766,9 +766,11 @@ if __name__ == '__main__':
                             id=sim_id,
                             domain=dom_name).to_dask()
 
-                        hm = xs.diagnostics.measures_heatmap(meas_datasets)
+                        hm = xs.diagnostics.measures_heatmap(meas_datasets,
+                                                             to_level='off-diag-heatmap')
 
-                        ip = xs.diagnostics.measures_improvement(meas_datasets)
+                        ip = xs.diagnostics.measures_improvement(meas_datasets,
+                                                                 to_level='off-diag-improved')
 
                         # save and update
                         for ds in [hm, ip]:
@@ -780,7 +782,8 @@ if __name__ == '__main__':
                             save_to_zarr(ds=ds, filename=path_diag, mode='o')
                             pcat.update_from_ds(ds=ds, path=path_diag)
 
-            move_then_delete(moving_files=[[exec_wdir+"diagnostics/", CONFIG['paths']['diagnostics']]],
+            move_then_delete(moving_files=[[str(exec_wdir)+'/'+dom_name,
+                                            CONFIG['paths']['final_diag']]],
                              dirs_to_delete=[exec_wdir],
                              pcat=pcat)
 
