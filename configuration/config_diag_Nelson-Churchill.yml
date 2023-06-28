@@ -1,0 +1,136 @@
+# Configuration file to compute diagnostics for  ESPO-G6-R2 v1.0.0 on the Nelson-Churchill River Basin
+
+# Some of the parameters are not needed for the computation of the diagnostics (e.g. extraction),
+# but are needed for the workflow to run. They are defined as NO.
+
+tasks:
+  - official-diag
+
+
+custom:
+  regions:
+    NO: NO
+  stack_drop_nans: &stack
+    True
+  ref_period : &ref_period
+    - '1989'
+    - '2018'
+  sim_period: &sim_period
+    - '1950'
+    - '2100'
+  rechunk:
+    rlat: 50
+    rlon: 50
+
+
+extraction:
+  simulation:
+    search_data_catalogs:
+      variables_and_freqs:
+        NO: D
+  ref_source: &ref_source
+    RDRS
+
+
+off-diag:
+  domains:
+    Nelson-Churchill:
+      name: Nelson-Churchill
+      method: bbox
+      bbox:
+        lat_bnds: [ 40.0, 60.5 ] # max middle-rdrs-rot is 59.213905. do we really need the extra 1.3 degrees?
+        lon_bnds: [ -118, -88.5 ]
+  steps:
+    ref:
+      input:
+        source: *ref_source
+        calendar: default
+        processing_level: extracted
+      domain: &domains-off-diag
+        Nelson-Churchill: middle-rdrs-rot #TODO: need to concat with north (in workflow)
+      properties_and_measures:
+        period: *ref_period
+      unstack: *stack
+    sim:
+      input:
+        source: &hausfather-source
+          - BCC-CSM2-MR
+#          - FGOALS-g3
+#          - CMCC-ESM2
+#          - CNRM-ESM2-1
+#          - ACCESS-CM2
+#          - ACCESS-ESM1-5
+#          - MPI-ESM1-2-HR
+#          - INM-CM5-0
+#          - MIROC6
+#          - MPI-ESM1-2-LR
+#          - MRI-ESM2-0
+#          - NorESM2-LM
+#          - KACE-1-0-G
+#          - GFDL-ESM4
+        processing_level:  regridded
+        experiment: ssp370
+      domain: *domains-off-diag
+      dref_for_measure:
+        processing_level: off-diag-ref-prop
+      properties_and_measures:
+        period: *ref_period
+      unstack: *stack
+    scen:
+      input:
+        source: *hausfather-source
+        processing_level: final
+        experiment: ssp370
+      domain:
+        Nelson-Churchill: NAM-rdrs
+      dref_for_measure:
+        processing_level: off-diag-ref-prop
+      properties_and_measures:
+        period: *ref_period
+      unstack: False
+  correlogram:
+    regions: # list of region on which we want to calculate the correlogram
+      - NO
+    args:
+      dims:
+        - rlat
+        - rlon
+
+
+scripting:
+    measure_time:
+        cpu: True
+    subject: ESPO-G6
+    send_mail_on_exit:
+        msg_ok: Toutes les étapes demandées ont été complétées.
+        msg_err: Une erreur est survenue durant le traitement.
+        on_error_only: True
+
+
+dask:
+    array.slicing.split_large_chunks: False
+
+
+logging:
+    formatters:
+        default:
+            format: '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
+            datefmt: '%Y-%m-%d %H:%M:%S'
+    handlers:
+        console:
+            class : logging.StreamHandler
+            formatter: default
+            level : INFO
+        file:
+            class: logging.FileHandler
+            formatter: default
+            level : DEBUG
+    loggers:
+        xscen:
+            level: INFO
+            handlers: [file]
+
+
+tdd:
+  xarray_open_kwargs:
+    decode_timedelta: False

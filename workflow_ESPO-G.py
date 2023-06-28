@@ -32,7 +32,7 @@ from xscen import (
 from utils import  save_move_update,move_then_delete
 
 # Load configuration
-load_config('configuration/paths_ESPO-G_j.yml', 'configuration/config_ESPO-G_RDRS.yml', verbose=(__name__ == '__main__'), reset=True)
+load_config('configuration/paths_ESPO-G_j.yml', 'configuration/config_diag_Nelson-Churchill.yml', verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
 
 workdir = Path(CONFIG['paths']['workdir'])
@@ -650,8 +650,8 @@ if __name__ == '__main__':
             # iter over step (ref, sim, scen)
             for step, step_dict in CONFIG['off-diag']['steps'].items():
                 dict_input = pcat.search(domain=step_dict['domain'][dom_name],
-                                         **step_dict['input'], ).to_dataset_dict()
-                # iter over datasets in that setp
+                                             **step_dict['input'], ).to_dataset_dict()
+                # iter over datasets in that step
                 for name_input, ds_input in dict_input.items():
                     id = ds_input.attrs['cat:id']
                     if not pcat.exists_in_cat(id=id,
@@ -668,6 +668,15 @@ if __name__ == '__main__':
                             # unstack
                             if step_dict['unstack']:
                                 ds_input = xs.utils.unstack_fill_nan(ds_input)
+
+                            # for Nelson-Churchill, we need to concat middle and north before cutting the zone
+                            if step!='scen' and dom_name=='Nelson-Churchill':
+                                ds_north = pcat.search(
+                                    domain='north-rdrs-rot',
+                                    processing_level=ds_input.attrs['cat:processing_level'],
+                                    id = ds_input.attrs['cat:id']).to_dataset()
+                                ds_north = xs.utils.unstack_fill_nan(ds_north)
+                                ds_input = xr.concat([ds_input,ds_north], 'rlat')
 
                             # cut the domain
                             ds_input = xs.spatial.subset(
@@ -692,20 +701,15 @@ if __name__ == '__main__':
                                 correlogram.attrs[
                                     "cat:processing_level"] = f'correlogram-{step}'
                                 path_diag = Path(
-                                    CONFIG['paths']['diagnostics'].format(
+                                    CONFIG['paths']['exec_diag'].format(
                                         region_name=dom_name,
                                         sim_id=id,
                                         level=correlogram.attrs[
                                             'cat:processing_level']))
-                                path_diag_exec = f"{exec_wdir}/{path_diag.name}"
-                                save_move_update(
-                                    ds=correlogram,
-                                    pcat=pcat,
-                                    init_path=path_diag_exec,
-                                    final_path=path_diag,
-                                    itervar=True,
-                                    rechunk=CONFIG['custom']['rechunk']
-                                )
+                                xs.save_to_zarr(ds=correlogram,
+                                                filename=path_diag,
+                                                itervar=True,
+                                                rechunk=CONFIG['custom']['rechunk'])
 
                             dref_for_measure = None
                             if 'dref_for_measure' in step_dict:
@@ -723,20 +727,18 @@ if __name__ == '__main__':
                             for ds in [prop, meas]:
                                 if ds:
                                     path_diag = Path(
-                                        CONFIG['paths']['diagnostics'].format(
+                                        CONFIG['paths']['exec_diag'].format(
                                             region_name=dom_name,
                                             sim_id=id,
                                             level=ds.attrs['cat:processing_level']))
-                                    path_diag_exec = f"{exec_wdir}/{path_diag.name}"
 
-                                    save_move_update(
-                                        ds=ds,
-                                        pcat=pcat,
-                                        init_path=path_diag_exec,
-                                        final_path=path_diag,
-                                        itervar=True,
-                                        rechunk=CONFIG['custom']['rechunk']
-                                    )
+                                    xs.save_to_zarr(ds=ds,
+                                                    filename=path_diag,
+                                                    itervar=True,
+                                                    rechunk=CONFIG['custom']['rechunk'])
+
+                                    pcat.update_from_ds(ds=ds,path=path_diag)
+
 
             # iter over all sim meas
             meas_dict = pcat.search(
@@ -771,15 +773,16 @@ if __name__ == '__main__':
                         # save and update
                         for ds in [hm, ip]:
                             path_diag = Path(
-                                CONFIG['paths']['diagnostics'].format(
+                                CONFIG['paths']['exec_diag'].format(
                                     region_name=ds.attrs['cat:domain'],
                                     sim_id=ds.attrs['cat:id'],
                                     level=ds.attrs['cat:processing_level']))
                             save_to_zarr(ds=ds, filename=path_diag, mode='o')
                             pcat.update_from_ds(ds=ds, path=path_diag)
 
-                        move_then_delete(dirs_to_delete=[workdir, exec_wdir],
-                                         moving_files=[], pcat=pcat)
+            move_then_delete(moving_files=[[exec_wdir+"diagnostics/", CONFIG['paths']['diagnostics']]],
+                             dirs_to_delete=[exec_wdir],
+                             pcat=pcat)
 
 
 
