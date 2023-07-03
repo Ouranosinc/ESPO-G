@@ -49,8 +49,8 @@ Extra "hot models" will also available even if they are not in the official ense
 | IPSL	 |	IPSL-CM6A-LR |	r1i1p1f1 |CC BY 4.0| |Completed|
 | 	MOHC |	UKESM1-0-LL |	r1i1p1f2 |CC BY 4.0| |Completed|
 | 	NCC |NorESM2-MM	 |	r1i1p1f1 |CC BY 4.0| |Completed|
-| EC-Earth-Consortium	 |	EC-Earth3-CC  |r1i1p1f1	 |CC BY 4.0| |Completed (only SSP2-4.5)|
-| 	NUIST |NESM3 	 |	r1i1p1f1 |CC BY 4.0| |Completed (only SSP2-4.5)|
+| EC-Earth-Consortium	 |	EC-Earth3-CC  |r1i1p1f1	 |CC BY 4.0| |Completed (no SSP3-7.0)|
+| 	NUIST |NESM3 	 |	r1i1p1f1 |CC BY 4.0| |Completed (no SSP3-7.0)|
 | 	MIROC |MIROC-ES2L	 |	r1i1p1f2 |CC BY 4.0| |Planned|
 | 	EC-Earth-Consortium |EC-Earth3-Veg	 |	r1i1p1f1 |CC BY 4.0| |Planned|
 | CCCma	 |	CanESM5-1 |	r1i1p1f1 |CC BY 4.0| |Planned|

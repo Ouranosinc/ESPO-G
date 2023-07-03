@@ -53,21 +53,6 @@ off-diag:
       unstack: *stack
     sim:
       input:
-        source: &hausfather-source
-          - BCC-CSM2-MR
-          - FGOALS-g3
-          - CMCC-ESM2
-          - CNRM-ESM2-1
-          - ACCESS-CM2
-          - ACCESS-ESM1-5
-          - MPI-ESM1-2-HR
-          - INM-CM5-0
-          - MIROC6
-          - MPI-ESM1-2-LR
-          - MRI-ESM2-0
-          - NorESM2-LM
-          - KACE-1-0-G
-          - GFDL-ESM4
         processing_level:  regridded
         experiment: ssp370
       domain: *domains-off-diag
@@ -78,7 +63,6 @@ off-diag:
       unstack: *stack
     scen:
       input:
-        source: *hausfather-source
         processing_level: final
         experiment: ssp370
       domain:
