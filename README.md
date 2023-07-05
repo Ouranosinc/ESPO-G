@@ -18,7 +18,7 @@ availability of climate scenarios responding to numerous vulnerability, impact, 
 "Ensemble de Scénarios Polyvalents d'Ouranos" (ESPO) covering North America at a resolution of 0.1°. 
 In ESPO-G6-R2 v1.0.0, CMIP6 global climate models simulations are bias-adjusted using the RDRS v2.1 reference dataset.
 The simulation ensemble covers the period for years 1950-2100 and includes the daily minimum temperature (`tasmin`), the daily maximum temperature (`tasmax`) and the daily mean precipitation flux (`pr`).
-The experiments included are SSP2-4.5 and SSP3-7.0.
+The experiments included are SSP2-4.5 and SSP3-7.0 (SSP5-8.5 will also be available soon.)
 
 
 To avoid the "hot model problem" (Hausfather et al, 2022), only models with a Transient Climate Response (TCR) in the likely range (1.4–2.2 °C) were kept in the official ensemble (Table 1).
