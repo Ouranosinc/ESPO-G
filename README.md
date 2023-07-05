@@ -22,7 +22,7 @@ The experiments included are SSP2-4.5 and SSP3-7.0 (SSP5-8.5 will also be availa
 
 
 To avoid the "hot model problem" (Hausfather et al, 2022), only models with a Transient Climate Response (TCR) in the likely range (1.4–2.2 °C) were kept in the official ensemble (Table 1).
-Extra "hot models" will also available even if they are not in the official ensemble.
+Extra "hot models" are also available even if they are not in the official ensemble.
 
 **Table 1. Members of ESPO-G6-R2 v1.0.0**
 
