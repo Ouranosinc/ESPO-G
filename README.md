@@ -52,8 +52,8 @@ Extra "hot models" are also available even if they are not in the official ensem
 | EC-Earth-Consortium	 |	EC-Earth3-CC  |r1i1p1f1	 |CC BY 4.0| |Completed (only SSP2-4.5)|
 | 	NUIST |NESM3 	 |	r1i1p1f1 |CC BY 4.0| |Completed (only SSP2-4.5)|
 | 	MIROC |MIROC-ES2L	 |	r1i1p1f2 |CC BY 4.0| |Planned|
-| 	EC-Earth-Consortium |EC-Earth3-Veg	 |	r1i1p1f1 |CC BY 4.0| |Planned|
-| CCCma	 |	CanESM5-1 |	r1i1p1f1 |CC BY 4.0| |Planned|
+| 	EC-Earth-Consortium |EC-Earth3-Veg	 |	r1i1p1f1 |CC BY 4.0|✓ |Planned|
+| CCCma	 |	CanESM5-1 |	r1i1p1f1 |CC BY 4.0| ?|Planned|
 
 
 Source: https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
