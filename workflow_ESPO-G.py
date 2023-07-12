@@ -8,8 +8,8 @@ import logging
 import numpy as np
 from dask.diagnostics import ProgressBar
 import xscen as xs
+import glob
 
-from xclim.core.calendar import convert_calendar, get_calendar, date_range_like,doy_to_days_since
 from xclim.core.calendar import convert_calendar, get_calendar, date_range_like,doy_to_days_since
 from xclim.sdba import properties
 import xclim as xc
@@ -194,10 +194,11 @@ if __name__ == '__main__':
         pcat.update_from_ds(ds=dsC,
                             path=str(dsC_path))
 
-    cat_sim = search_data_catalogs(
-        **CONFIG['extraction']['simulation']['search_data_catalogs'])
-                #periods = ['1950','2100'],  # only for CNRM-ESM2-1
-    for sim_id, dc_id in cat_sim.items():
+    # cat_sim = search_data_catalogs(
+    #     **CONFIG['extraction']['simulation']['search_data_catalogs'])
+    #             #periods = ['1950','2100'],  # only for CNRM-ESM2-1
+    # for sim_id, dc_id in cat_sim.items():
+    if False:
             if not pcat.exists_in_cat(domain=CONFIG['custom']['amno_region']['name'],
                                       id =sim_id, processing_level='final'):
                 for region_name, region_dict in CONFIG['custom']['regions'].items():
@@ -817,7 +818,7 @@ if __name__ == '__main__':
                             else:
                                 dsi = ds_input
                             if 'rolling' in ind.keywords or freq=='QS-DEC':
-                                temppath = f"{exec_wdir}/{sim_id}_{domain}_{indname}.zarr"
+                                temppath = f"{exec_wdir}/tmp/{sim_id}_{domain}_{indname}.zarr"
                                 mult, *parts = xc.core.calendar.parse_offset(freq)
                                 steps = xc.core.calendar.construct_offset(mult * 8, *parts)
                                 for i, slc in enumerate(dsi.resample(time=steps).groups.values()):
@@ -844,10 +845,10 @@ if __name__ == '__main__':
                                     dsi,
                                     indicators=[ind]).popitem()
                                 xs.save_to_zarr(out,
-                                                f"{exec_wdir}/{sim_id}_{domain}_{indname}.zarr",
+                                                f"{exec_wdir}/tmp/{sim_id}_{domain}_{indname}.zarr",
                                                 rechunk={'time': -1},
                                                 mode='o' )
-                                pcat.update_from_ds(out,f"{exec_wdir}/{sim_id}_{domain}_{indname}.zarr" )
+                                pcat.update_from_ds(out,f"{exec_wdir}/tmp/{sim_id}_{domain}_{indname}.zarr" )
 
 
                 #iterate over possible freqs
@@ -867,17 +868,20 @@ if __name__ == '__main__':
                             ds_merge = xr.merge(all_ind.values(),
                                                 combine_attrs='drop_conflicts')
                             ds_merge.attrs['cat:processing_level'] = 'indicators'
-
-                            save_move_update(
-                                ds=ds_merge,
-                                pcat=pcat,
-                                rechunk={'time': -1},
-                                init_path=f"{exec_wdir}/{sim_id}_{domain}_{xrfreq}_indicators.zarr",
-                                final_path=Path(CONFIG['paths']['indicators'].format(
-                                    **xs.utils.get_cat_attrs(ds_merge)))
-                            )
-
-                move_then_delete(dirs_to_delete=[workdir, exec_wdir],moving_files=[],pcat=pcat)
+                            path = f"{exec_wdir}/{sim_id}_{domain}_{xrfreq}_indicators.zarr"
+                            xs.save_to_zarr(ds= ds_merge,
+                                            filename=path,
+                                            rechunk={'time': -1})
+                            pcat.update_from_ds(ds=ds_merge,path=path)
+                move_then_delete(dirs_to_delete=[f"{exec_wdir}/tmp/"],
+                                 moving_files=[], pcat=pcat)
+        # move to final destination
+        moving=[]
+        for f in glob.glob(f"{exec_wdir}/*.zarr"):
+            ds =xr.open_zarr(f)
+            final_path = CONFIG['paths']['indicators'].format( **xs.utils.get_cat_attrs(ds))
+            moving.append([f, final_path])
+        move_then_delete(dirs_to_delete=[exec_wdir],moving_files=moving,pcat=pcat)
 
     # --- CLIMATOLOGICAL MEAN ---
     if "climatological_mean" in CONFIG["tasks"]:
