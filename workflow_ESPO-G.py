@@ -29,7 +29,7 @@ from xscen import (
     clean_up
 )
 
-from utils import  save_move_update,move_then_delete
+from utils import  save_move_update,move_then_delete, save_and_update
 
 # Load configuration
 load_config('configuration/paths_ESPO-G_j.yml', 'configuration/config_ESPO-G_RDRS.yml', verbose=(__name__ == '__main__'), reset=True)
@@ -251,12 +251,9 @@ if __name__ == '__main__':
 
                                 # save to zarr
                                 path_cut_exec = f"{exec_wdir}/{sim_id}_{ds_sim.attrs['cat:domain']}_extracted.zarr"
-                                path_cut = f"{workdir}/{sim_id}_{ds_sim.attrs['cat:domain']}_extracted.zarr"
-
-                                save_move_update(ds=ds_sim,
+                                save_and_update(ds=ds_sim,
                                                  pcat=pcat,
-                                                 init_path=path_cut_exec,
-                                                 final_path=path_cut,
+                                                 path=path_cut_exec,
                                                  )
                         # ---REGRID---
                         if (
@@ -291,10 +288,9 @@ if __name__ == '__main__':
                                                                     )
 
                                 # save
-                                save_move_update(ds=ds_regrid,
+                                save_and_update(ds=ds_regrid,
                                                  pcat=pcat,
-                                                 init_path=f"{exec_wdir}/{sim_id}_{region_name}_regridded.zarr",
-                                                 final_path=f"{workdir}/{sim_id}_{region_name}_regridded.zarr",
+                                                 path=f"{exec_wdir}/{sim_id}_{region_name}_regridded.zarr",
                                                  )
 
                         #  ---RECHUNK---
@@ -314,12 +310,11 @@ if __name__ == '__main__':
                                         path_out=path_rc,
                                         chunks_over_dim=CONFIG['custom']['chunks'],
                                         overwrite=True)
-                                # move to workdir
-                                shutil.move(f"{exec_wdir}/{sim_id}_{region_name}_regchunked.zarr",f"{workdir}/{sim_id}_{region_name}_regchunked.zarr")
 
-                                ds_sim_rechunked = xr.open_zarr(f"{workdir}/{sim_id}_{region_name}_regchunked.zarr", decode_timedelta=False)
+
+                                ds_sim_rechunked = xr.open_zarr(path_rc, decode_timedelta=False)
                                 pcat.update_from_ds(ds=ds_sim_rechunked,
-                                                    path=f"{workdir}/{sim_id}_{region_name}_regchunked.zarr",
+                                                    path=path_rc,
                                                     info_dict={'processing_level': 'regridded_and_rechunked'})
 
                         # ---BIAS ADJUST---
@@ -353,9 +348,7 @@ if __name__ == '__main__':
 
                                             # move to exec and reopen to help dask
                                             save_to_zarr(ds_ref, f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr", mode='o')
-                                            save_to_zarr(ds_hist, f"{CONFIG['paths']['exec_workdir']}ds_hist.zarr", mode='o')
                                             ds_ref=xr.open_zarr(f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr", decode_timedelta=False)
-                                            ds_hist=xr.open_zarr(f"{CONFIG['paths']['exec_workdir']}ds_hist.zarr", decode_timedelta=False)
 
                                             # training
                                             ds_tr = train(dref=ds_ref,
@@ -366,11 +359,10 @@ if __name__ == '__main__':
 
                                             ds_tr = ds_tr.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_tr.dims
                                                                  if d in CONFIG['custom']['chunks'].keys() })
-                                            save_move_update(ds=ds_tr,
+                                            save_and_update(ds=ds_tr,
                                                              pcat=pcat,
-                                                             init_path=f"{exec_wdir}/{sim_id}_{region_name}_{var}_training.zarr",
-                                                             final_path=f"{workdir}/{sim_id}_{region_name}_{var}_training.zarr")
-                                            shutil.rmtree(f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr")
+                                                             path=f"{exec_wdir}/{sim_id}_{region_name}_{var}_training.zarr"
+                                                            )
                                             shutil.rmtree(f"{CONFIG['paths']['exec_workdir']}ds_hist.zarr")
 
                                     except TimeoutException:
@@ -404,10 +396,9 @@ if __name__ == '__main__':
                                                      **conf['adjusting_args'])
 
 
-                                    save_move_update(ds=ds_scen,
+                                    save_and_update(ds=ds_scen,
                                                      pcat=pcat,
-                                                     init_path=f"{exec_wdir}/{sim_id}_{region_name}_{var}_adjusted.zarr",
-                                                     final_path=f"{workdir}/{sim_id}_{region_name}_{var}_adjusted.zarr",
+                                                     path=f"{exec_wdir}/{sim_id}_{region_name}_{var}_adjusted.zarr",
                                                      )
 
                         # ---CLEAN UP ---
@@ -443,10 +434,9 @@ if __name__ == '__main__':
 
                                     ds = ds.where(ds.tasmin > 100)
 
-                                save_move_update(ds=ds,
+                                save_and_update(ds=ds,
                                                  pcat=pcat,
-                                                 init_path=f"{exec_wdir}/{sim_id}_{region_name}_cleaned_up.zarr",
-                                                 final_path = f"{workdir}/{sim_id}_{region_name}_cleaned_up.zarr",
+                                                 path=f"{exec_wdir}/{sim_id}_{region_name}_cleaned_up.zarr",
                                                  itervar=True
                                                  )
 
@@ -466,8 +456,6 @@ if __name__ == '__main__':
                                 fi_path.parent.mkdir(exist_ok=True, parents=True)
                                 fi_path_exec = f"{exec_wdir}/{fi_path.name}"
 
-                                shutil.copytree(f"{workdir}/{sim_id}_{region_name}_cleaned_up.zarr",
-                                            f"{exec_wdir}/{sim_id}_{region_name}_cleaned_up.zarr")
 
                                 #rechunk in exec and move to final path after
                                 rechunk(
@@ -482,9 +470,9 @@ if __name__ == '__main__':
                                 if CONFIG['custom']['delete_in_final_zarr']:
                                     final_regrid_path = f"{regriddir}/{sim_id}_{region_name}_regchunked.zarr"
                                     path_log = CONFIG['logging']['handlers']['file']['filename']
-                                    move_then_delete(dirs_to_delete=[workdir, exec_wdir],
+                                    move_then_delete(dirs_to_delete=[exec_wdir],
                                                      moving_files=
-                                                     [[f"{workdir}/{sim_id}_{region_name}_regchunked.zarr", final_regrid_path],
+                                                     [[f"{exec_wdir}/{sim_id}_{region_name}_regchunked.zarr", final_regrid_path],
                                                       [path_log, CONFIG['paths']['logging'].format(**fmtkws)]],
                                                      pcat=pcat)
 
@@ -539,8 +527,7 @@ if __name__ == '__main__':
                                         save_to_zarr(ds=ds, filename=path_diag_exec,
                                                      mode='o', itervar=True,
                                                      rechunk=CONFIG['custom']['rechunk'])
-                                        shutil.move(path_diag_exec, path_diag)
-                                        pcat.update_from_ds(ds=ds, path=str(path_diag))
+                                        pcat.update_from_ds(ds=ds, path=str(path_diag_exec))
 
 
                                 meas_datasets= pcat.search(
@@ -564,26 +551,43 @@ if __name__ == '__main__':
                                             region_name=ds.attrs['cat:domain'],
                                             sim_id=ds.attrs['cat:id'],
                                             level=ds.attrs['cat:processing_level']))
-                                    save_to_zarr(ds=ds, filename=path_diag, mode='o',
+                                    path_diag_exec = f"{workdir}/{path_diag.name}"
+                                    save_to_zarr(ds=ds, filename=path_diag_exec, mode='o',
                                                  rechunk=CONFIG['custom']['rechunk'])
-                                    pcat.update_from_ds(ds=ds, path = path_diag)
+                                    pcat.update_from_ds(ds=ds, path = path_diag_exec)
 
 
                                 # if this is last step, delete stuff
                                 if CONFIG['custom']['delete_in_diag']:
                                     final_regrid_path = f"{regriddir}/{sim_id}_{region_name}_regchunked.zarr"
-                                    path_log = \
-                                    CONFIG['logging']['handlers']['file'][
-                                        'filename']
+                                    path_log = CONFIG['logging']['handlers']['file']['filename']
+
+                                    paths_diag_move=[]
+                                    for level in ['diag-sim-meas', 'diag-scen-meas', 'diag-improved',
+                                                  'diag-sim-prop', 'diag-scen-prop', 'diag-heatmap']:
+                                        if level =='diag-heatmap':
+                                            cur_id = sim_id.replace('global',region_name)
+                                        else:
+                                            cur_id = sim_id
+                                        path_diag = Path(
+                                            CONFIG['paths']['diagnostics'].format(
+                                                region_name=region_name,
+                                                sim_id=cur_id,
+                                                level=level))
+                                        path_diag_exec = f"{workdir}/{path_diag.name}"
+                                        paths_diag_move.append([path_diag_exec, path_diag])
+
+
+
                                     move_then_delete(
-                                        dirs_to_delete=[workdir, exec_wdir],
+                                        dirs_to_delete=[ exec_wdir],
                                         moving_files=
-                                        [[
-                                             f"{workdir}/{sim_id}_{region_name}_regchunked.zarr",
+                                        [
+                                            [f"{exec_wdir}/{sim_id}_{region_name}_regchunked.zarr",
                                              final_regrid_path],
-                                         [path_log,
-                                          CONFIG['paths']['logging'].format(
-                                              **fmtkws)]],
+                                            [path_log,
+                                             CONFIG['paths']['logging'].format(**fmtkws)],
+                                         ].extend(paths_diag_move),
                                         pcat=pcat)
 
                                 send_mail(

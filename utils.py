@@ -15,6 +15,11 @@ from xscen.config import CONFIG, load_config
 
 logger = logging.getLogger('xscen')
 
+def save_and_update(ds,pcat, path, info_dict=None,
+                     encoding=None, mode='o', itervar=False, rechunk=None):
+    encoding = encoding or {var: {'dtype': 'float32'} for var in ds.data_vars}
+    save_to_zarr(ds, path, encoding=encoding, mode=mode,itervar=itervar, rechunk=rechunk)
+    pcat.update_from_ds(ds=ds, path=str(path),info_dict=info_dict)
 
 
 def save_move_update(ds,pcat, init_path, final_path,info_dict=None,

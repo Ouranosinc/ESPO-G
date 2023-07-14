@@ -8,22 +8,22 @@ project:
 
 tasks:
   ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
-  - makeref
-  - extract
-  - regrid
-  - rechunk
-  - train
-  - adjust
-  - clean_up
-  - final_zarr
-  - diagnostics
-  - concat
-  - official-diag
+#  - makeref
+#  - extract
+#  - regrid
+#  - rechunk
+#  - train
+#  - adjust
+#  - clean_up
+#  - final_zarr
+#  - diagnostics
+#  - concat
+#  - official-diag
   - indicators
-  - climatological_mean
-  - abs-delta
-  - per-delta
-  - ensemble
+#  - climatological_mean
+#  - abs-delta
+#  - per-delta
+#  - ensemble
 
 
 
