@@ -1,4 +1,4 @@
-# Configuration file to compute diagnostics for  ESPO-G6-R2 v1.0.0 on the Nelson-Churchill River Basin
+# Configuration file to compute diagnostics for  ESPO-G6-E5L v1.0.0 on the Hispaniola
 
 # Some of the parameters are not needed for the computation of the diagnostics (e.g. extraction),
 # but are needed for the workflow to run. They are defined as NO.
@@ -13,14 +13,14 @@ custom:
   stack_drop_nans: &stack
     True
   ref_period : &ref_period
-    - '1989'
-    - '2018'
+    - '1991' #TODO: check ?
+    - '2020'
   sim_period: &sim_period
     - '1950'
     - '2100'
   rechunk:
-    rlat: 50
-    rlon: 50
+    lat: 50
+    lon: 50
 
 
 extraction:
@@ -29,17 +29,17 @@ extraction:
       variables_and_freqs:
         NO: D
   ref_source: &ref_source
-    RDRS
+    ERA5-Land
 
 
 off-diag:
   domains:
-    Nelson-Churchill:
-      name: Nelson-Churchill
+    Hispaniola:
+      name: Hispaniola
       method: bbox
       bbox:
-        lat_bnds: [ 40.0, 60.5 ]
-        lon_bnds: [ -118, -88.5 ]
+        lat_bnds: #TODO
+        lon_bnds: #TODO
   steps:
     ref:
       input:
@@ -77,8 +77,8 @@ off-diag:
       - NO
     args:
       dims:
-        - rlat
-        - rlon
+        - lat
+        - lon
 
 
 scripting:
