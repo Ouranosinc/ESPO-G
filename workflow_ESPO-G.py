@@ -9,7 +9,7 @@ import numpy as np
 from dask.diagnostics import ProgressBar
 import xscen as xs
 import glob
-
+from itertools import product
 from xclim.core.calendar import convert_calendar, get_calendar, date_range_like,doy_to_days_since
 from xclim.sdba import properties
 import xclim as xc
@@ -194,11 +194,10 @@ if __name__ == '__main__':
         pcat.update_from_ds(ds=dsC,
                             path=str(dsC_path))
 
-    # cat_sim = search_data_catalogs(
-    #     **CONFIG['extraction']['simulation']['search_data_catalogs'])
-    #             #periods = ['1950','2100'],  # only for CNRM-ESM2-1
-    # for sim_id, dc_id in cat_sim.items():
-    if False:
+    cat_sim = search_data_catalogs(
+        **CONFIG['extraction']['simulation']['search_data_catalogs'])
+                #periods = ['1950','2100'],  # only for CNRM-ESM2-1
+    for sim_id, dc_id in cat_sim.items():
         if not pcat.exists_in_cat(domain=CONFIG['custom']['amno_region']['name'],
                                   id =sim_id, processing_level='final'):
             for region_name, region_dict in CONFIG['custom']['regions'].items():
@@ -299,7 +298,7 @@ if __name__ == '__main__':
                             #rechunk in exec
                             path_rc = f"{exec_wdir}/{sim_id}_{region_name}_regchunked.zarr"
 
-                            rechunk(path_in=f"{workdir}/{sim_id}_{region_name}_regridded.zarr",
+                            rechunk(path_in=f"{exec_wdir}/{sim_id}_{region_name}_regridded.zarr",
                                     path_out=path_rc,
                                     chunks_over_dim=CONFIG['custom']['chunks'],
                                     overwrite=True)
@@ -356,8 +355,7 @@ if __name__ == '__main__':
                                                          pcat=pcat,
                                                          path=f"{exec_wdir}/{sim_id}_{region_name}_{var}_training.zarr"
                                                         )
-                                        shutil.rmtree(f"{CONFIG['paths']['exec_workdir']}ds_hist.zarr")
-
+                                        shutil.rmtree(f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr")
                                 except TimeoutException:
                                     pass
                                 else:
@@ -462,9 +460,10 @@ if __name__ == '__main__':
                                 final_regrid_path = f"{regriddir}/{sim_id}_{region_name}_regchunked.zarr"
                                 path_log = CONFIG['logging']['handlers']['file']['filename']
                                 move_then_delete(dirs_to_delete=[exec_wdir],
-                                                 moving_files=
-                                                 [[f"{exec_wdir}/{sim_id}_{region_name}_regchunked.zarr", final_regrid_path],
-                                                  [path_log, CONFIG['paths']['logging'].format(**fmtkws)]],
+                                                 moving_files=[
+                                                     [f"{exec_wdir}/{sim_id}_{region_name}_regchunked.zarr", final_regrid_path],
+                                                  [path_log, CONFIG['paths']['logging'].format(**fmtkws)]
+                                                 ],
                                                  pcat=pcat)
 
                             # add final file to catalog
@@ -476,7 +475,7 @@ if __name__ == '__main__':
                     # ---DIAGNOSTICS ---
                     if (
                             "diagnostics" in CONFIG["tasks"]
-                            and not pcat.exists_in_cat(domain=region_name,
+                            and not  pcat.exists_in_cat(domain=region_name,
                                                        id=sim_id,
                                                        processing_level='diag-improved')
                     ):
@@ -567,13 +566,12 @@ if __name__ == '__main__':
 
                                 move_then_delete(
                                     dirs_to_delete=[ exec_wdir],
-                                    moving_files=
-                                    [
+                                    moving_files=[
                                         [f"{exec_wdir}/{sim_id}_{region_name}_regchunked.zarr",
                                          final_regrid_path],
                                         [path_log,
                                          CONFIG['paths']['logging'].format(**fmtkws)],
-                                     ].extend(paths_diag_move),
+                                     ]+paths_diag_move,
                                     pcat=pcat)
 
                             send_mail(
@@ -590,8 +588,9 @@ if __name__ == '__main__':
             ):
                 dskconf.set(num_workers=12)
                 ProgressBar().register()
-                levels = ['diag-sim-prop', 'diag-scen-prop', 'diag-sim-meas',
-                          'diag-scen-meas', 'final']
+                levels = [
+                    'diag-sim-prop', 'diag-scen-prop', 'diag-sim-meas','diag-scen-meas',
+                    'final']
                 #levels=['final']
                 for level in levels:
                     logger.info(f'Contenating {sim_id} {level}.')
@@ -853,7 +852,7 @@ if __name__ == '__main__':
                                  moving_files=[], pcat=pcat)
         # move to final destination
         moving=[]
-        for f in glob.glob(f"{exec_wdir}/*.zarr"):
+        for f in glob.glob(f"{exec_wdir}/*indicators.zarr"):
             ds =xr.open_zarr(f)
             final_path = CONFIG['paths']['indicators'].format( **xs.utils.get_cat_attrs(ds))
             moving.append([f, final_path])
@@ -863,14 +862,18 @@ if __name__ == '__main__':
     if "climatological_mean" in CONFIG["tasks"]:
         ind_dict = pcat.search( **CONFIG['aggregate']['input']['clim']).to_dataset_dict(**tdd)
         for id_input, ds_input in ind_dict.items():
+
             xrfreq_input = ds_input.attrs['cat:xrfreq']
             sim_id = ds_input.attrs['cat:id']
             domain = ds_input.attrs['cat:domain']
-            if not pcat.exists_in_cat(id=sim_id, processing_level= 'climatology',
-                                  xrfreq=xrfreq_input, domain=domain):
+            #if not pcat.exists_in_cat(id=sim_id, processing_level= 'climatology',
+             #                     xrfreq=xrfreq_input, domain=domain):
+            if True:
                 with (
                         Client(n_workers=5, threads_per_worker=4,memory_limit="6GB", **daskkws),
                         measure_time(name=f'clim {id_input}',logger=logger),
+
+
                 ):
                     ds_mean = xs.climatological_mean(ds=ds_input)
                     save_and_update(
@@ -882,7 +885,7 @@ if __name__ == '__main__':
                     )
 
         # move to final destination
-        large_move(exec_wdir, CONFIG['paths']['climatolgy'], pcat)
+        large_move(exec_wdir,"climatology", CONFIG['paths']['climatology'], pcat)
 
 
     # --- DELTAS ---
@@ -912,7 +915,7 @@ if __name__ == '__main__':
                         )
 
             # move to final destination
-            large_move(exec_wdir, CONFIG['paths']['delta'], pcat)
+            large_move(exec_wdir,"delta", CONFIG['paths']['delta'], pcat)
 
 
 
@@ -923,46 +926,41 @@ if __name__ == '__main__':
         for processing_level in CONFIG['ensemble']['processing_levels']:
             ind_df = pcat.search(processing_level=processing_level,domain= domain).df
             # iterate through available xrfreq, exp and variables
-            for experiment in ind_df.experiment.unique():
-                for xrfreq in ind_df.xrfreq.unique():
-                    for variable in list(ind_df[ind_df['xrfreq']==xrfreq].variable.unique()[0]):
+            for experiment, xrfreq in product(ind_df.experiment.unique(), ind_df.xrfreq.unique()):
+                for variable in list(ind_df[ind_df['xrfreq']==xrfreq].variable.unique()[0]):
 
-                        ind_dict = pcat.search( processing_level=processing_level,
-                                                experiment=experiment,
-                                                xrfreq=xrfreq,
-                                                domain= domain,
-                                                variable=variable).to_dataset_dict(**tdd)
+                    ind_dict = pcat.search( processing_level=processing_level,
+                                            experiment=experiment,
+                                            xrfreq=xrfreq,
+                                            domain= domain,
+                                            source=CONFIG['ensemble']['source'],
+                                            variable=variable).to_dataset_dict(**tdd)
 
-                        if not pcat.exists_in_cat(
-                                processing_level= f'ensemble-{processing_level}',
-                                xrfreq=xrfreq,
-                                experiment=experiment,
-                                domain=domain,
-                                variable=variable+ "_p50",
-                        ) :
-                            with (
-                                    #Client(n_workers=3, threads_per_worker=4,memory_limit="15GB", **daskkws),
-                                    ProgressBar(),
-                                    measure_time(name=f'ensemble- {domain} {processing_level} {experiment} {xrfreq} {variable}',logger=logger),
-                            ):
-                                ens = xs.ensembles.ensemble_stats(
-                                    datasets=ind_dict,
-                                    to_level= f'ensemble-{processing_level}',
-                                    **CONFIG['ensemble']['ensemble_stats_xscen']
-                                )
+                    if not pcat.exists_in_cat(
+                            processing_level= f'ensemble-{processing_level}',
+                            xrfreq=xrfreq,
+                            experiment=experiment,
+                            domain=domain,
+                            variable=variable+ "_p50",
+                    ) and len(ind_dict)==14:
+                        with (
+                                ProgressBar(),
+                                measure_time(name=f'ensemble- {domain} {experiment}'
+                                                  f' {processing_level}  {xrfreq} {variable}',logger=logger),
+                        ):
+                            ens = xs.ensembles.ensemble_stats(
+                                datasets=ind_dict,
+                                to_level= f'ensemble-{processing_level}',
+                                **CONFIG['ensemble']['ensemble_stats_xscen']
+                            )
 
-                                ens.attrs['cat:variable']= xs.catalog.parse_from_ds(ens, ["variable"])["variable"]
+                            ens.attrs['cat:variable']= xs.catalog.parse_from_ds(ens, ["variable"])["variable"]
+                            ens.attrs['cat:var'] = variable # for final filename
 
+                            save_and_update(
+                                ds=ens,
+                                pcat=pcat,
+                                path=f"{exec_wdir}/{domain}_{processing_level}_{variable}_{xrfreq}_{experiment}_ensemble.zarr",
+                            )
 
-                                save_and_update(
-                                    ds=ens,
-                                    pcat=pcat,
-                                    path=f"{exec_wdir}/ensemble_{domain}_{processing_level}_{variable}_{xrfreq}_{experiment}.zarr",
-                                    final_path=Path(
-                                        CONFIG['paths']['ensemble'].format(
-                                            var =variable, # can't do large_move because of this
-                                            **xs.utils.get_cat_attrs(ens)
-                                        )
-                                    )
-                                )
-
+        large_move(exec_wdir, "ensemble", CONFIG['paths']['ensemble'], pcat)

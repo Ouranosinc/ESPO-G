@@ -17,10 +17,10 @@ import glob
 
 logger = logging.getLogger('xscen')
 
-def large_move(init_dir, final_dir, pcat):
+def large_move(init_dir,end, final_dir, pcat):
     # move to final destination
     moving = []
-    for f in glob.glob(f"{init_dir}/*.zarr"):
+    for f in glob.glob(f"{init_dir}/*{end}.zarr"):
         ds = xr.open_zarr(f)
         final_path = final_dir.format(**xs.utils.get_cat_attrs(ds))
         moving.append([f, final_path])
