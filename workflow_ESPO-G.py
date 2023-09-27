@@ -866,9 +866,8 @@ if __name__ == '__main__':
             xrfreq_input = ds_input.attrs['cat:xrfreq']
             sim_id = ds_input.attrs['cat:id']
             domain = ds_input.attrs['cat:domain']
-            #if not pcat.exists_in_cat(id=sim_id, processing_level= 'climatology',
-             #                     xrfreq=xrfreq_input, domain=domain):
-            if True:
+            if not pcat.exists_in_cat(id=sim_id, processing_level= 'climatology',
+                                  xrfreq=xrfreq_input, domain=domain):
                 with (
                         Client(n_workers=5, threads_per_worker=4,memory_limit="6GB", **daskkws),
                         measure_time(name=f'clim {id_input}',logger=logger),

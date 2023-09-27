@@ -20,7 +20,7 @@ tasks:
 #  - concat
 #  - official-diag
   - indicators
-  - climatological_mean
+#  - climatological_mean
 #  - abs-delta
 #  - per-delta
 #  - ensemble
@@ -364,9 +364,6 @@ indicators:
     processing_level: final
     domain:
      - *nam-name
-    id:
-      - CMIP6_ScenarioMIP_MIROC_MIROC-ES2L_ssp585_r1i1p1f2_global
-      - CMIP6_ScenarioMIP_INM_INM-CM4-8_ssp370_r1i1p1f1_global
     #source: *hausfather-source
   compute_indicators:
     to_level: individual_indicator
@@ -375,14 +372,14 @@ aggregate:
   input:
     clim:
       processing_level: indicators
-      domain: NAM-rdrs-kb-12_zstd-1 #*nam-name
+      domain: *nam-name
     abs-delta:
       processing_level: climatology
-      domain: NAM-rdrs-kb-12_zstd-1 #*nam-name
+      domain: *nam-name
     per-delta:
       processing_level: climatology
       variable: prcptot
-      domain: NAM-rdrs-kb-12_zstd-1 #*nam-name
+      domain: *nam-name
   climatological_mean:
     window: 30
     interval: 10
