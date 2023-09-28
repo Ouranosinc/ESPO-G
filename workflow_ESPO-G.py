@@ -29,7 +29,7 @@ from xscen import (
     clean_up
 )
 
-from utils import  save_move_update,move_then_delete
+from utils import  save_move_update,move_then_delete, large_move
 
 # Load configuration
 load_config('configuration/paths_ESPO-G.yml', 'configuration/config_diag_Hispaniola-E5L.yml', verbose=(__name__ == '__main__'), reset=True)
@@ -766,10 +766,12 @@ if __name__ == '__main__':
                             save_to_zarr(ds=ds, filename=path_diag, mode='o')
                             pcat.update_from_ds(ds=ds, path=path_diag)
 
-            move_then_delete(moving_files=[[str(exec_wdir)+'/'+dom_name,
-                                            CONFIG['paths']['final_diag']]],
-                             dirs_to_delete=[],#[exec_wdir],
-                             pcat=pcat)
+            large_move(exec_wdir,"Hispaniola-E5L", CONFIG['paths']['final_diag'], pcat)
+
+            # move_then_delete(moving_files=[[str(exec_wdir)+'/'+dom_name,
+            #                                 CONFIG['paths']['final_diag']]],
+            #                  dirs_to_delete=[],#[exec_wdir],
+            #                  pcat=pcat)
 
 
 

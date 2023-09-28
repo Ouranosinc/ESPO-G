@@ -4,6 +4,8 @@ from pathlib import Path
 import shutil
 from matplotlib import pyplot as plt
 import os
+import glob
+import xscen as xs
 
 
 from xscen.io import save_to_zarr
@@ -42,6 +44,14 @@ def email_nan_count(path, region_name):
     )
 
 
+def large_move(init_dir,end, final_dir, pcat):
+    # move to final destination
+    moving = []
+    for f in glob.glob(f"{init_dir}/*{end}.zarr"):
+        ds = xr.open_zarr(f)
+        final_path = final_dir.format(**xs.utils.get_cat_attrs(ds))
+        moving.append([f, final_path])
+    move_then_delete(dirs_to_delete=[init_dir], moving_files=moving, pcat=pcat)
 
 def move_then_delete(dirs_to_delete, moving_files, pcat):
     """
