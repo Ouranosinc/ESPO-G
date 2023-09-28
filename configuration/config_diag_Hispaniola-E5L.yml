@@ -13,7 +13,7 @@ custom:
   stack_drop_nans: &stack
     True
   ref_period : &ref_period
-    - '1991' #TODO: check ?
+    - '1991'
     - '2020'
   sim_period: &sim_period
     - '1950'
@@ -34,12 +34,12 @@ extraction:
 
 off-diag:
   domains:
-    Hispaniola:
-      name: Hispaniola
+    Hispaniola-E5L:
+      name: Hispaniola-E5L
       method: bbox
       bbox:
-        lat_bnds: #TODO
-        lon_bnds: #TODO
+        lon_bnds: [-75,-68]
+        lat_bnds: [17.5,20.0]
   steps:
     ref:
       input:
@@ -47,7 +47,7 @@ off-diag:
         calendar: default
         processing_level: extracted
       domain: &domains-off-diag
-        Nelson-Churchill: middle-rdrs-rot # need to concat with north (in workflow)
+        Hispaniola-E5L: south_nodup
       properties_and_measures:
         period: *ref_period
       unstack: *stack
@@ -55,7 +55,23 @@ off-diag:
       input:
         processing_level:  regridded
         experiment: ssp370
-      domain: *domains-off-diag
+        source: &hausfather-source    # in the TCR likely range (14)
+          - BCC-CSM2-MR
+          - FGOALS-g3
+          - CMCC-ESM2
+          - CNRM-ESM2-1
+          - ACCESS-CM2
+          - ACCESS-ESM1-5
+          - MPI-ESM1-2-HR
+          - INM-CM5-0
+          - MIROC6
+          - MPI-ESM1-2-LR
+          - MRI-ESM2-0
+          - NorESM2-LM
+          - KACE-1-0-G
+          - GFDL-ESM4
+      domain:
+        Hispaniola-E5L: south
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
@@ -65,8 +81,9 @@ off-diag:
       input:
         processing_level: final
         experiment: ssp370
+        source: *hausfather-source
       domain:
-        Nelson-Churchill: NAM-rdrs
+        Hispaniola-E5L: NAM
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
