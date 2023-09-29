@@ -768,10 +768,6 @@ if __name__ == '__main__':
 
             large_move(exec_wdir,"Hispaniola-E5L", CONFIG['paths']['final_diag'], pcat)
 
-            # move_then_delete(moving_files=[[str(exec_wdir)+'/'+dom_name,
-            #                                 CONFIG['paths']['final_diag']]],
-            #                  dirs_to_delete=[],#[exec_wdir],
-            #                  pcat=pcat)
 
 
 
