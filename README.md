@@ -27,7 +27,7 @@ Extra "hot models" are also available even if they are not in the official ensem
 **Table 1. Members of ESPO-G6-R2 v1.0.0**
 
 |**Institution**|**Model** |**Member** |**License**|**TCR (degC)**|**In TCR likely range**|**Status**|
-|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|
 |CAS |	FGOALS-g3 |	r1i1p1f1 |CC BY 4.0|1.50|✓| Completed|
 |CMCC 	|CMCC-ESM2 |	r1i1p1f1 |CC BY 4.0|1.92|✓|Completed|
 |	CSIRO-ARCCSS |	ACCESS-CM2 |	r1i1p1f1  |CC BY 4.0|1.96|✓|Completed|
@@ -53,10 +53,14 @@ Extra "hot models" are also available even if they are not in the official ensem
 | 	NUIST |NESM3 	 |	r1i1p1f1 |CC BY 4.0|2.72| |Completed (only SSP2-4.5)|
 | 	MIROC |MIROC-ES2L	 |	r1i1p1f2 |CC BY 4.0|1.49| ✓|Planned|
 | 	EC-Earth-Consortium |EC-Earth3-Veg	 |	r1i1p1f1 |CC BY 4.0|2.66| |Planned|
-| CCCma	 |	CanESM5-1 |	r1i1p1f1 |CC BY 4.0|| ?|Planned|
+| CCCma	 |	CanESM5-1 |	r1i1p1f1 |CC BY 4.0| | ?|Planned|
 
 
-Source: https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
+Sources: 
+
+Licences: https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
+
+TCR: Hausfather et al. 2022, Climate simulations: recognize the 'hot model' problem, comment in Nature: [DOI: 10.5281/zenodo.6476375](https://doi.org/10.5281/zenodo.6476375)
 
 ## Spatial coverage
 The dataset has a resolution of 0.1° over a North American domain on a rotated grid with
