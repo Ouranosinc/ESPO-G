@@ -26,34 +26,34 @@ Extra "hot models" are also available even if they are not in the official ensem
 
 **Table 1. Members of ESPO-G6-R2 v1.0.0**
 
-|**Institution**|**Model** |**Member** |**License**|**In TCR likely range**|**Status**|
+|**Institution**|**Model** |**Member** |**License**|**TCR (degC)**|**In TCR likely range**|**Status**|
 |---|---|---|---|---|---|
-|CAS |	FGOALS-g3 |	r1i1p1f1 |CC BY 4.0|✓| Completed|
-|CMCC 	|CMCC-ESM2 |	r1i1p1f1 |CC BY 4.0|✓|Completed|
-|	CSIRO-ARCCSS |	ACCESS-CM2 |	r1i1p1f1  |CC BY 4.0|✓|Completed|
-| CSIRO 	|ACCESS-ESM1-5 |	r1i1p1f1 |CC BY 4.0|✓|Completed|
-| 	DKRZ |	MPI-ESM1-2-HR |	r1i1p1f1 |CC BY 4.0|✓|Completed|
-| 	INM 	|INM-CM5-0 |	r1i1p1f1 |CC BY 4.0|✓|Completed|
-| 	MIROC |	MIROC6 |	r1i1p1f1 |CC BY 4.0|✓|Completed|
-| 	MPI-M |	MPI-ESM1-2-LR |	r1i1p1f1 |CC BY 4.0|✓|Completed|
-| 	MRI |	MRI-ESM2-0 |	r1i1p1f1 |CC BY 4.0|✓|Completed|
-| 	NCC |	NorESM2-LM |	r1i1p1f1 |CC BY 4.0|✓|Completed|
-| 	CNRM-CERFACS |	CNRM-ESM2-1 |	r1i1p1f2 |CC BY 4.0|✓|Completed|
-| 	NIMS-KMA |	KACE-1-0-G |	r1i1p1f1 |CC BY 4.0|✓|Completed|
-| 	NOAA-GFDL |	GFDL-ESM4 |	r1i1p1f1 |CC BY 4.0|✓|Completed|
-| 	BCC |	BCC-CSM2-MR |	r1i1p1f1 |CC BY 4.0|✓|Completed|
-| AS-RCEC	 |	TaiESM1 |	r1i1p1f1 |CC BY 4.0| |Completed|
-| CCCma	 |	CanESM5 |	r1i1p1f1 |CC BY 4.0| |Completed|
-| CNRM-CERFACS	 |	CNRM-CM6-1 |r1i1p1f2	 |CC BY 4.0| |Completed|
-| EC-Earth-Consortium	 |	EC-Earth3 |r1i1p1f1	 |CC BY 4.0| |Completed|
-| IPSL	 |	IPSL-CM6A-LR |	r1i1p1f1 |CC BY 4.0| |Completed|
-| 	MOHC |	UKESM1-0-LL |	r1i1p1f2 |CC BY 4.0| |Completed|
-| 	NCC |NorESM2-MM	 |	r1i1p1f1 |CC BY 4.0| |Completed|
-| EC-Earth-Consortium	 |	EC-Earth3-CC  |r1i1p1f1	 |CC BY 4.0| |Completed (only SSP2-4.5)|
-| 	NUIST |NESM3 	 |	r1i1p1f1 |CC BY 4.0| |Completed (only SSP2-4.5)|
-| 	MIROC |MIROC-ES2L	 |	r1i1p1f2 |CC BY 4.0| ✓|Planned|
-| 	EC-Earth-Consortium |EC-Earth3-Veg	 |	r1i1p1f1 |CC BY 4.0| |Planned|
-| CCCma	 |	CanESM5-1 |	r1i1p1f1 |CC BY 4.0| ?|Planned|
+|CAS |	FGOALS-g3 |	r1i1p1f1 |CC BY 4.0|1.50|✓| Completed|
+|CMCC 	|CMCC-ESM2 |	r1i1p1f1 |CC BY 4.0|1.92|✓|Completed|
+|	CSIRO-ARCCSS |	ACCESS-CM2 |	r1i1p1f1  |CC BY 4.0|1.96|✓|Completed|
+| CSIRO 	|ACCESS-ESM1-5 |	r1i1p1f1 |CC BY 4.0|1.97|✓|Completed|
+| 	DKRZ |	MPI-ESM1-2-HR |	r1i1p1f1 |CC BY 4.0|1,64|✓|Completed|
+| 	INM 	|INM-CM5-0 |	r1i1p1f1 |CC BY 4.0|1.41|✓|Completed|
+| 	MIROC |	MIROC6 |	r1i1p1f1 |CC BY 4.0|1.55|✓|Completed|
+| 	MPI-M |	MPI-ESM1-2-LR |	r1i1p1f1 |CC BY 4.0|1.82|✓|Completed|
+| 	MRI |	MRI-ESM2-0 |	r1i1p1f1 |CC BY 4.0|1.67|✓|Completed|
+| 	NCC |	NorESM2-LM |	r1i1p1f1 |CC BY 4.0|1.49|✓|Completed|
+| 	CNRM-CERFACS |	CNRM-ESM2-1 |	r1i1p1f2 |CC BY 4.0|1.83|✓|Completed|
+| 	NIMS-KMA |	KACE-1-0-G |	r1i1p1f1 |CC BY 4.0|2.04|✓|Completed|
+| 	NOAA-GFDL |	GFDL-ESM4 |	r1i1p1f1 |CC BY 4.0|1.63|✓|Completed|
+| 	BCC |	BCC-CSM2-MR |	r1i1p1f1 |CC BY 4.0|1.55|✓|Completed|
+| AS-RCEC	 |	TaiESM1 |	r1i1p1f1 |CC BY 4.0|2.27| |Completed|
+| CCCma	 |	CanESM5 |	r1i1p1f1 |CC BY 4.0|2.71| |Completed|
+| CNRM-CERFACS	 |	CNRM-CM6-1 |r1i1p1f2	 |CC BY 4.0|2.22| |Completed|
+| EC-Earth-Consortium	 |	EC-Earth3 |r1i1p1f1	 |CC BY 4.0|2.30| |Completed|
+| IPSL	 |	IPSL-CM6A-LR |	r1i1p1f1 |CC BY 4.0|2.35| |Completed|
+| 	MOHC |	UKESM1-0-LL |	r1i1p1f2 |CC BY 4.0|2.77| |Completed|
+| 	NCC |NorESM2-MM	 |	r1i1p1f1 |CC BY 4.0|1.22| |Completed|
+| EC-Earth-Consortium	 |	EC-Earth3-CC  |r1i1p1f1	 |CC BY 4.0|2,63| |Completed (only SSP2-4.5)|
+| 	NUIST |NESM3 	 |	r1i1p1f1 |CC BY 4.0|2.72| |Completed (only SSP2-4.5)|
+| 	MIROC |MIROC-ES2L	 |	r1i1p1f2 |CC BY 4.0|1.49| ✓|Planned|
+| 	EC-Earth-Consortium |EC-Earth3-Veg	 |	r1i1p1f1 |CC BY 4.0|2.66| |Planned|
+| CCCma	 |	CanESM5-1 |	r1i1p1f1 |CC BY 4.0|| ?|Planned|
 
 
 Source: https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
