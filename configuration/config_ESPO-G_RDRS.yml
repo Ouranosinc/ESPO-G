@@ -8,18 +8,18 @@ project:
 
 tasks:
   ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
-#  - makeref
-#  - extract
-#  - regrid
-#  - rechunk
-#  - train
-#  - adjust
-#  - clean_up
-#  - final_zarr
-#  - diagnostics
-#  - concat
-#  - official-diag
-  - indicators
+  - makeref
+  - extract
+  - regrid
+  - rechunk
+  - train
+  - adjust
+  - clean_up
+  - final_zarr
+  - diagnostics
+  - concat
+  - official-diag
+#  - indicators
 #  - climatological_mean
 #  - abs-delta
 #  - per-delta
@@ -138,23 +138,20 @@ extraction:
                 - ssp370
                 - ssp585
               source: &hausfather-source    # in the TCR likely range (14) #chunking
-#                - BCC-CSM2-MR
-#                - FGOALS-g3 # None, but 1 file per year
-#                - CMCC-ESM2 # [1, 192, 288]
-#                - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
-#                - ACCESS-CM2 #  [1, 145, 192]
-#                - ACCESS-ESM1-5 # [1, 96, 144]
-#                - MPI-ESM1-2-HR # [1, 192, 384]
-#                - INM-CM5-0 # [1, 120, 180]
-#                - MIROC6 # [1, 96, 192]
-#                - MPI-ESM1-2-LR #[1, 96, 192]
-#                - MRI-ESM2-0 #[1, 160, 320]
-#                - NorESM2-LM #[1, 96, 144]
-#                - KACE-1-0-G #[1, 144, 192] time out extract
-#                - GFDL-ESM4 #[1, 180, 288]
-                - MIROC-ES2L
-                - EC-Earth3-Veg
-                - INM-CM4-8
+                - BCC-CSM2-MR
+                - FGOALS-g3 # None, but 1 file per year
+                - CMCC-ESM2 # [1, 192, 288]
+                - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
+                - ACCESS-CM2 #  [1, 145, 192]
+                - ACCESS-ESM1-5 # [1, 96, 144]
+                - MPI-ESM1-2-HR # [1, 192, 384]
+                - INM-CM5-0 # [1, 120, 180]
+                - MIROC6 # [1, 96, 192]
+                - MPI-ESM1-2-LR #[1, 96, 192]
+                - MRI-ESM2-0 #[1, 160, 320]
+                - NorESM2-LM #[1, 96, 144]
+                - KACE-1-0-G #[1, 144, 192] time out extract
+                - GFDL-ESM4 #[1, 180, 288]
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:

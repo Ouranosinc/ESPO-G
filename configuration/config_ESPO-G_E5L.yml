@@ -142,7 +142,7 @@ extraction:
             xr_open_kwargs:
               drop_variables:
                 - height
-              chunks: #TODO: test this
+              chunks:
                 lat: 100
                 lon: 100
                 time: 365
