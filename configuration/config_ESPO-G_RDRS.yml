@@ -19,11 +19,11 @@ tasks:
   - diagnostics
   - concat
   - official-diag
-  - indicators
-  - climatological_mean
-  - abs-delta
-  - per-delta
-  - ensemble
+#  - indicators
+#  - climatological_mean
+#  - abs-delta
+#  - per-delta
+#  - ensemble
 
 
 
@@ -136,6 +136,7 @@ extraction:
               experiment:
                 - ssp245
                 - ssp370
+                - ssp585
               source: &hausfather-source    # in the TCR likely range (14) #chunking
                 - BCC-CSM2-MR
                 - FGOALS-g3 # None, but 1 file per year
@@ -358,8 +359,9 @@ diagnostics:
 indicators:
   input:
     processing_level: final
-    domain: *nam-name
-    source: *hausfather-source
+    domain:
+     - *nam-name
+    #source: *hausfather-source
   compute_indicators:
     to_level: individual_indicator
 
@@ -391,6 +393,7 @@ ensemble:
         - abs-delta-1991-2020
         - per-delta-1991-2020
     domain: *nam-name
+    source: *hausfather-source
     ensemble_stats_xscen:
       statistics:
         ensemble_percentiles:

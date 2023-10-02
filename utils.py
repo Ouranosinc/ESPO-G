@@ -2,19 +2,36 @@ import xarray as xr
 import logging
 from pathlib import Path
 import shutil
+
+import xscen.utils
 from matplotlib import pyplot as plt
 import os
 
-
+import xscen as xs
 from xscen.io import save_to_zarr
 from xscen.scripting import measure_time, send_mail
 from xscen.config import CONFIG, load_config
-
+import glob
 #load_config('paths_ESPO-G.yml', 'config_ESPO-G.yml', verbose=(__name__ == '__main__'), reset=True)
 
 
 logger = logging.getLogger('xscen')
 
+def large_move(init_dir,end, final_dir, pcat):
+    # move to final destination
+    moving = []
+    for f in glob.glob(f"{init_dir}/*{end}.zarr"):
+        ds = xr.open_zarr(f)
+        final_path = final_dir.format(**xs.utils.get_cat_attrs(ds))
+        moving.append([f, final_path])
+    move_then_delete(dirs_to_delete=[init_dir], moving_files=moving, pcat=pcat)
+
+def save_and_update(ds,pcat, path, info_dict=None,
+                     encoding=None, mode='o', itervar=False, rechunk=None):
+    encoding = encoding or {var: {'dtype': 'float32'} for var in ds.data_vars}
+    path =path.format(**xscen.utils.get_cat_attrs(ds))
+    save_to_zarr(ds, path, encoding=encoding, mode=mode,itervar=itervar, rechunk=rechunk)
+    pcat.update_from_ds(ds=ds, path=str(path),info_dict=info_dict)
 
 
 def save_move_update(ds,pcat, init_path, final_path,info_dict=None,
