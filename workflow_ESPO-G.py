@@ -663,6 +663,10 @@ if __name__ == '__main__':
                             ds_input = xs.spatial.subset(
                                ds_input.chunk({'time': -1}), dom_dict)
 
+                            if 'dtr' not in ds_input.data_vars:
+                                ds_input = ds_input.assign(
+                                    dtr=xc.indicators.cf.dtr(ds=ds_input, freq='D'))
+
 
                             # correlogram
                             if ((dom_name in CONFIG['off-diag']['correlogram']['regions'])

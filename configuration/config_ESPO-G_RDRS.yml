@@ -470,7 +470,7 @@ off-diag:
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
-        period: *ref_period
+        period: 1980-2010
       unstack: *stack
     scen:
       input:
