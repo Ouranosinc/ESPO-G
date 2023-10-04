@@ -750,17 +750,12 @@ if __name__ == '__main__':
                             domain=dom_name
                         ).to_dask()
 
-                        hm = xs.diagnostics.measures_heatmap(meas_datasets)
-
                         ip = xs.diagnostics.measures_improvement(meas_datasets)
 
                         # save and update
-                        for ds in [hm, ip]:
-                            save_and_update(
-                                ds=ds,
-                                pcat=pcat,
-                                path=CONFIG['paths']['exec_diag'],
-                            )
+
+                        save_and_update(ds=ip,pcat=pcat,
+                                        path=CONFIG['paths']['exec_diag'])
 
 
         # move to final destination

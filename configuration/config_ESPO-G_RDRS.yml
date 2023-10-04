@@ -423,6 +423,15 @@ off-diag:
 #        bbox:
 #          lat_bnds: [ 60.0, 65.0 ]
 #          lon_bnds: [ -124.0, -116.0 ]
+    Cree-rdrs:
+      lat_bnds: [ 46.9, 53.8 ]
+      lon_bnds: [ -115, -97.1 ]
+    UteBig-rdrs:
+      lat_bnds:  [ 35.5, 43]
+      lon_bnds: [ -109.6, -95.5 ]
+    Tlicho-rdrs:
+      lat_bnds:  [ 61.3, 66.75]
+      lon_bnds: [ -130, -103.8 ]
     Magtogoek-rdrs:
       name: Magtogoek-rdrs
       method: bbox
@@ -458,6 +467,9 @@ off-diag:
         QC-rdrs: QC-rdrs
         Haudenosaunee-rdrs-rot: QC-rdrs
         Magtogoek-rdrs: middle-rdrs-rot
+        UteBig-rdrs: middle-rdrs-rot
+        Cree-rdrs: middle-rdrs-rot
+        Tlicho-rdrs: north-rdrs-rot
       properties_and_measures:
         period: *ref_period
       unstack: *stack
