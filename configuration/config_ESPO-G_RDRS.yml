@@ -8,16 +8,16 @@ project:
 
 tasks:
   ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
-  - makeref
-  - extract
-  - regrid
-  - rechunk
-  - train
-  - adjust
-  - clean_up
-  - final_zarr
-  - diagnostics
-  - concat
+#  - makeref
+#  - extract
+#  - regrid
+#  - rechunk
+#  - train
+#  - adjust
+#  - clean_up
+#  - final_zarr
+#  - diagnostics
+#  - concat
   - official-diag
 #  - indicators
 #  - climatological_mean
@@ -464,6 +464,7 @@ off-diag:
     sim:
       input:
         source: *hausfather-source
+        experiment: ssp370
         processing_level:  regridded
       domain: *domains-off-diag
       dref_for_measure:
@@ -475,6 +476,7 @@ off-diag:
       input:
         source: *hausfather-source
         processing_level: final
+        experiment: ssp370
       domain:
         Magtogoek-rdrs: *nam-name
         meridional-rdrs: QC-rdrs

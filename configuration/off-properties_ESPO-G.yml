@@ -120,7 +120,7 @@ indicators:
     input:
       da1: tasmax
       da2: pr
-  maximum_length_of_dry_spell:
+  max_dry_spell:
     base: xclim.sdba.properties.spell_length_distribution
     cf_attrs:
       long_name: Maximum length of dry spell
@@ -132,7 +132,7 @@ indicators:
       op: '<'
       thresh: 1 mm d-1
       stat: max
-  maximum_length_of_warm_spell:
+  max_warm_spell:
     base: xclim.sdba.properties.spell_length_distribution
     cf_attrs:
       long_name: Maximum length of warm spell
@@ -144,7 +144,7 @@ indicators:
       op: '>='
       thresh: 0.9
       stat: max
-  wet_wet_transition:
+  wet_wet:
     base: xclim.sdba.properties.transition_probability
     cf_attrs:
       long_name: Transition probability from a wet day to a wet day
@@ -155,7 +155,7 @@ indicators:
       initial_op: '>='
       final_op: '>='
       thresh: '1 mm d-1'
-  dry_wet_transition:
+  dry_wet:
     base: xclim.sdba.properties.transition_probability
     cf_attrs:
       long_name: Transition probability from a dry day to a wet day
@@ -166,6 +166,31 @@ indicators:
       initial_op: '<'
       final_op: '>='
       thresh: '1 mm d-1'
+  mean_dtr:
+    base: xclim.sdba.properties.mean
+    cf_attrs:
+      long_name: mean diurnal temperature range
+      standard_name: air_temperature_range
+    input:
+      da: dtr
+  q99_dtr:
+    base: xclim.sdba.properties.quantile
+    cf_attrs:
+      long_name: 99th quantile of diurnal temperature range
+      standard_name: air_temperature_range
+    input:
+      da: dtr
+    parameters:
+      q: 0.99
+  q01_dtr:
+    base: xclim.sdba.properties.quantile
+    cf_attrs:
+      long_name: 1st quantile of diurnal temperature range
+      standard_name: air_temperature_range
+    input:
+      da: dtr
+    parameters:
+      q: 0.01
 #  decorrelation_length_tasmax_0.5:
 #    base: xclim.sdba.properties.decorrelation_length
 #    input:
