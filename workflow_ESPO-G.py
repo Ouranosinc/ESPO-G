@@ -660,46 +660,18 @@ if __name__ == '__main__':
                                 ds_input = xs.utils.unstack_fill_nan(ds_input)
 
                             # cut the domain
-                            ds_input = xs.spatial.subset(
-                               ds_input.chunk({'time': -1}), dom_dict)
+                            ds_input = xs.spatial.subset( ds_input.chunk({'time': -1}),
+                                                          dom_dict)
 
                             if 'dtr' not in ds_input.data_vars:
-                                ds_input = ds_input.assign(
-                                    dtr=xc.indicators.cf.dtr(ds=ds_input, freq='D'))
+                                # need to write to file. if not, dask kills workers silently.
+                                dtr= xc.indicators.cf.dtr(ds=ds_input, freq='D')
+                                xs.save_to_zarr(
+                                    dtr.to_dataset().chunk({'rlat': 50,'rlon': 50}),
+                                    f'{exec_wdir}/{step}_{id}_{dom_name}_dtr.zarr')
 
-
-                            # correlogram
-                            if ((dom_name in CONFIG['off-diag']['correlogram']['regions'])
-                                and
-                                (not pcat.exists_in_cat(id=id,
-                                                        processing_level=f'correlogram-{step}',
-                                                        domain=dom_name)) ):
-
-                                logging.info(f'Computing correlogram {step}')
-                                correlogram = xr.Dataset(attrs=ds_input.attrs)
-                                for var in ds_input.data_vars:
-                                    correlogram[
-                                        f'correlogram_{var}'] = xc.sdba.properties.spatial_correlogram(
-                                        ds_input[var].sel(time=ref_period),
-                                        **CONFIG['off-diag']['correlogram']['args']
-                                    )
-                                correlogram.attrs[
-                                    "cat:processing_level"] = f'correlogram-{step}'
-                                path_diag_exec = Path(
-                                    CONFIG['paths']['diagnostics'].format(
-                                        region_name=dom_name,
-                                        sim_id=id,
-                                        level=correlogram.attrs[
-                                            'cat:processing_level']))
-                                path_diag_exec = f"{exec_wdir}/{path_diag.name}"
-                                save_move_update(
-                                    ds=correlogram,
-                                    pcat=pcat,
-                                    init_path=path_diag_exec,
-                                    final_path=path_diag,
-                                    itervar=True,
-                                    rechunk=CONFIG['custom']['rechunk']
-                                )
+                                ds_input = ds_input.assign(dtr=xr.open_zarr(
+                                    f'{exec_wdir}/{step}_{id}_{dom_name}_dtr.zarr')['dtr'])
 
                             dref_for_measure = None
                             if 'dref_for_measure' in step_dict:
@@ -723,7 +695,8 @@ if __name__ == '__main__':
                                         itervar=True,
                                         rechunk=CONFIG['custom']['rechunk']
                                     )
-
+                            shutil.rmtree(f'{exec_wdir}/{step}_{id}_{dom_name}_dtr.zarr',
+                                          ignore_errors=True)
 
             # iter over all sim meas
             meas_dict = pcat.search(

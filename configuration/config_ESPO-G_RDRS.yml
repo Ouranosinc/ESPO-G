@@ -424,14 +424,23 @@ off-diag:
 #          lat_bnds: [ 60.0, 65.0 ]
 #          lon_bnds: [ -124.0, -116.0 ]
     Cree-rdrs:
-      lat_bnds: [ 46.9, 53.8 ]
-      lon_bnds: [ -115, -97.1 ]
+      name: Cree-rdrs
+      method: bbox
+      bbox:
+        lat_bnds: [ 46.9, 53.8 ]
+        lon_bnds: [ -115, -97.1 ]
     UteBig-rdrs:
-      lat_bnds:  [ 35.5, 43]
-      lon_bnds: [ -109.6, -95.5 ]
+      name: UteBig-rdrs
+      method: bbox
+      bbox:
+        lat_bnds:  [ 35.5, 43]
+        lon_bnds: [ -109.6, -95.5 ]
     Tlicho-rdrs:
-      lat_bnds:  [ 61.3, 66.75]
-      lon_bnds: [ -130, -103.8 ]
+      name: Tlicho-rdrs
+      method: bbox
+      bbox:
+        lat_bnds:  [ 61.3, 66.75]
+        lon_bnds: [ -130, -103.8 ]
     Magtogoek-rdrs:
       name: Magtogoek-rdrs
       method: bbox
@@ -482,7 +491,9 @@ off-diag:
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
-        period: 1980-2010
+        period:
+        - '1981'
+        - '2010'
       unstack: *stack
     scen:
       input:
@@ -494,14 +505,14 @@ off-diag:
         meridional-rdrs: QC-rdrs
         QC-rdrs: QC-rdrs
         Haudenosaunee-rdrs-rot: QC-rdrs
+        Cree-rdrs: NAM-rdrs
+        UteBig-rdrs: NAM-rdrs
+        Tlicho-rdrs: NAM-rdrs
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
         period: *ref_period
       unstack: False
-  correlogram:
-    regions: # list of region on which we want to calculate the correlogram
-      - Haudenosaunee-rdrs-rot
     args:
       dims:
         - rlat

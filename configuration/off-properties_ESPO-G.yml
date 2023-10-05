@@ -1,4 +1,9 @@
 realm: generic
+variables:
+  dtr:
+    standard_name: air_temperature_range
+    canonical_units: K
+    description: The difference between the daily maximum and minimum temperature.
 indicators:
   mean_tasmax:
     base: xclim.sdba.properties.mean
