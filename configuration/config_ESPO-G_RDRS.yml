@@ -441,8 +441,8 @@ off-diag:
       bbox:
         lat_bnds:  [ 61.3, 66.75]
         lon_bnds: [ -130, -103.8 ]
-    Magtogoek-rdrs:
-      name: Magtogoek-rdrs
+    Magtogoek81-rdrs:
+      name: Magtogoek81-rdrs
       method: bbox
       bbox:
         lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
@@ -476,6 +476,7 @@ off-diag:
         QC-rdrs: QC-rdrs
         Haudenosaunee-rdrs-rot: QC-rdrs
         Magtogoek-rdrs: middle-rdrs-rot
+        Magtogoek81-rdrs: middle-rdrs-rot
         UteBig-rdrs: middle-rdrs-rot
         Cree-rdrs: middle-rdrs-rot
         Tlicho-rdrs: north-rdrs-rot
@@ -502,12 +503,13 @@ off-diag:
         experiment: ssp370
       domain:
         Magtogoek-rdrs: *nam-name
+        Magtogoek81-rdrs: *nam-name
         meridional-rdrs: QC-rdrs
         QC-rdrs: QC-rdrs
         Haudenosaunee-rdrs-rot: QC-rdrs
-        Cree-rdrs: NAM-rdrs
-        UteBig-rdrs: NAM-rdrs
-        Tlicho-rdrs: NAM-rdrs
+        Cree-rdrs: *nam-name
+        UteBig-rdrs: *nam-name
+        Tlicho-rdrs: *nam-name
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:

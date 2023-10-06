@@ -668,7 +668,9 @@ if __name__ == '__main__':
                                 dtr= xc.indicators.cf.dtr(ds=ds_input, freq='D')
                                 xs.save_to_zarr(
                                     dtr.to_dataset().chunk({'rlat': 50,'rlon': 50}),
-                                    f'{exec_wdir}/{step}_{id}_{dom_name}_dtr.zarr')
+                                    f'{exec_wdir}/{step}_{id}_{dom_name}_dtr.zarr',
+                                    mode='o',
+                                )
 
                                 ds_input = ds_input.assign(dtr=xr.open_zarr(
                                     f'{exec_wdir}/{step}_{id}_{dom_name}_dtr.zarr')['dtr'])
