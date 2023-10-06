@@ -481,7 +481,7 @@ off-diag:
         Cree-rdrs: middle-rdrs-rot
         Tlicho-rdrs: north-rdrs-rot
       properties_and_measures:
-        period:
+        period: &diag_period
           - '1981'
           - '2010'
       unstack: *stack
@@ -494,9 +494,7 @@ off-diag:
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
-        period:
-          - '1981'
-          - '2010'
+        period: *diag_period
       unstack: *stack
     scen:
       input:
@@ -515,9 +513,7 @@ off-diag:
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
-        period:
-          - '1981'
-          - '2010'
+        period: *diag_period
       unstack: False
     args:
       dims:
