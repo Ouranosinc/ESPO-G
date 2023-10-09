@@ -515,10 +515,6 @@ off-diag:
       properties_and_measures:
         period: *diag_period
       unstack: False
-    args:
-      dims:
-        - rlat
-        - rlon
 
 
 
