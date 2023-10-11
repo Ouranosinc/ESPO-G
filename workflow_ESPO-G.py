@@ -648,8 +648,10 @@ if __name__ == '__main__':
                                               processing_level=f'off-diag-{step}-prop',
                                               domain=dom_name):
                         with (
-                                Client(n_workers=3, threads_per_worker=5,
-                                       memory_limit="20GB", **daskkws),
+                                # Client(n_workers=3, threads_per_worker=5,
+                                #        memory_limit="20GB", **daskkws),
+                                Client(n_workers=2, threads_per_worker=3,
+                                       memory_limit="40GB", **daskkws),
                                 measure_time(name=f'off-diag {dom_name} {step} {id}',
                                              logger=logger),
                                 timeout(18000, task='off-diag')
@@ -709,7 +711,7 @@ if __name__ == '__main__':
                 sim_id = ds_meas_sim.attrs['cat:id']
                 if not pcat.exists_in_cat(id=sim_id,
                                           domain = dom_name,
-                                          processing_level='off-diag-improved'):
+                                          processing_level='diag-improved'):
                     with (
                             Client(n_workers=3, threads_per_worker=5,
                                    memory_limit="20GB", **daskkws),
@@ -734,7 +736,7 @@ if __name__ == '__main__':
 
 
         # move to final destination
-        large_move(exec_wdir, CONFIG['paths']['final_diag'], pcat)
+        large_move(exec_wdir, "", CONFIG['paths']['final_diag'], pcat)
 
 
 
