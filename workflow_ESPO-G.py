@@ -630,6 +630,7 @@ if __name__ == '__main__':
                                         path=str(dsC_path))
 
                 logger.info('All concatenations done.')
+                #TODO: add health checks inside workflow
 
 
 
