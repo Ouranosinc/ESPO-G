@@ -1,4 +1,4 @@
-# ESPO-G6-R2 : Ensemble de simulations post-traitées d'Ouranos - modèles Globaux CMIP6 / Ouranos Multipurpose bias-adjusted Climate Scenarios - Global Models CMIP6
+# ESPO-G6-R2 : Ensemble de Simulations Post-traitées d’Ouranos - Modèles Globaux CMIP6  - RDRS v2.1 / Ouranos Ensemble of Bias-adjusted Simulations - Global models CMIP6 - RDRS v2.1
 
 
 ESPO-G6:[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764928.svg)](https://doi.org/10.5281/zenodo.7764928)
