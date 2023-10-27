@@ -649,10 +649,8 @@ if __name__ == '__main__':
                                               processing_level=f'off-diag-{step}-prop',
                                               domain=dom_name):
                         with (
-                                # Client(n_workers=3, threads_per_worker=5,
-                                #        memory_limit="20GB", **daskkws),
-                                Client(n_workers=2, threads_per_worker=3,
-                                       memory_limit="40GB", **daskkws),
+                                Client(n_workers=3, threads_per_worker=5,
+                                        memory_limit="20GB", **daskkws),
                                 measure_time(name=f'off-diag {dom_name} {step} {id}',
                                              logger=logger),
                                 timeout(18000, task='off-diag')
