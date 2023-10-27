@@ -187,15 +187,6 @@ indicators:
       da: dtr
     parameters:
       q: 0.99
-  q01_dtr:
-    base: xclim.sdba.properties.quantile
-    cf_attrs:
-      long_name: 1st quantile of diurnal temperature range
-      standard_name: air_temperature_range
-    input:
-      da: dtr
-    parameters:
-      q: 0.01
 #  decorrelation_length_tasmax_0.5:
 #    base: xclim.sdba.properties.decorrelation_length
 #    input:
