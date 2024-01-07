@@ -8,6 +8,9 @@ ESPO-G6-R2 v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7877330.s
 ESPO-G6-E5L v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764929.svg)](https://doi.org/10.5281/zenodo.7764929)
 
 
+The dataset is described in the following article:
+
+Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024).
 
 
 ## Context
@@ -42,7 +45,6 @@ Extra "hot models" are also available even if they are not in the official ensem
 | 	NIMS-KMA |	KACE-1-0-G |	r1i1p1f1 |CC BY 4.0|2.04|✓|Completed|
 | 	NOAA-GFDL |	GFDL-ESM4 |	r1i1p1f1 |CC BY 4.0|1.63|✓|Completed|
 | 	BCC |	BCC-CSM2-MR |	r1i1p1f1 |CC BY 4.0|1.55|✓|Completed|
-| AS-RCEC	 |	TaiESM1 |	r1i1p1f1 |CC BY 4.0|2.27| |Completed|
 | CCCma	 |	CanESM5 |	r1i1p1f1 |CC BY 4.0|2.71| |Completed|
 | CNRM-CERFACS	 |	CNRM-CM6-1 |r1i1p1f2	 |CC BY 4.0|2.22| |Completed|
 | EC-Earth-Consortium	 |	EC-Earth3 |r1i1p1f1	 |CC BY 4.0|2.30| |Completed|

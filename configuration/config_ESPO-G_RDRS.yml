@@ -18,6 +18,7 @@ tasks:
   - final_zarr
   - diagnostics
   - concat
+  - health_checks
   - official-diag
 #  - indicators
 #  - climatological_mean
@@ -302,6 +303,7 @@ clean_up:
   problems:
     - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp245_r1i1p1f1_global
     - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp370_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp585_r1i1p1f1_global
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp245_r1i1p1f1_global
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp370_r1i1p1f1_global
   xscen_clean_up:
@@ -355,6 +357,54 @@ diagnostics:
     properties_and_measures:
       period: *ref_period
       unstack: False
+
+health_checks:
+    structure:
+      coords:
+        - rotated_pole
+        - rlat
+        - rlon
+        - lat
+        - lon
+        - time
+      dims:
+        - rlat
+        - rlon
+        - time
+    start_date: "1950-01-01"
+    end_date: "2100-12-30"
+    variables_and_units:
+      tasmax: "K"
+      tasmin: "K"
+      pr: "kg m-2 s-1"
+    cfchecks:
+      tasmax:
+        cfcheck_from_name: {}
+      tasmin:
+        cfcheck_from_name: {}
+      pr:
+        cfcheck_from_name: {}
+    freq: D
+    flags:
+      tasmax:
+        temperature_extremely_high:
+          thresh: '60 degC'
+        tasmax_below_tasmin:
+      tasmin:
+        temperature_extremely_low:
+          thresh: '-70 degC'
+      pr:
+        negative_accumulation_values:
+        very_large_precipitation_events:
+          thresh: '300 mm/d'
+    return_flags: True
+    raise_on:
+      - structure
+      - start_date
+      - end_date
+      - variables_and_units
+      - cfchecks
+      - freq
 
 indicators:
   input:
