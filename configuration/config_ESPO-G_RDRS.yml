@@ -473,8 +473,26 @@ off-diag:
 #        bbox:
 #          lat_bnds: [ 60.0, 65.0 ]
 #          lon_bnds: [ -124.0, -116.0 ]
-    Magtogoek-rdrs:
-      name: Magtogoek-rdrs
+    Cree-rdrs:
+      name: Cree-rdrs
+      method: bbox
+      bbox:
+        lat_bnds: [ 46.9, 53.8 ]
+        lon_bnds: [ -115, -97.1 ]
+    UteBig-rdrs:
+      name: UteBig-rdrs
+      method: bbox
+      bbox:
+        lat_bnds:  [ 35.5, 43]
+        lon_bnds: [ -109.6, -95.5 ]
+    Tlicho-rdrs:
+      name: Tlicho-rdrs
+      method: bbox
+      bbox:
+        lat_bnds:  [ 61.3, 66.75]
+        lon_bnds: [ -130, -103.8 ]
+    Magtogoek81-rdrs:
+      name: Magtogoek81-rdrs
       method: bbox
       bbox:
         lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
@@ -508,40 +526,45 @@ off-diag:
         QC-rdrs: QC-rdrs
         Haudenosaunee-rdrs-rot: QC-rdrs
         Magtogoek-rdrs: middle-rdrs-rot
+        Magtogoek81-rdrs: middle-rdrs-rot
+        UteBig-rdrs: middle-rdrs-rot
+        Cree-rdrs: middle-rdrs-rot
+        Tlicho-rdrs: north-rdrs-rot
       properties_and_measures:
-        period: *ref_period
+        period: &diag_period
+          - '1981'
+          - '2010'
       unstack: *stack
     sim:
       input:
         source: *hausfather-source
+        experiment: ssp370
         processing_level:  regridded
       domain: *domains-off-diag
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
-        period: *ref_period
+        period: *diag_period
       unstack: *stack
     scen:
       input:
         source: *hausfather-source
         processing_level: final
+        experiment: ssp370
       domain:
         Magtogoek-rdrs: *nam-name
+        Magtogoek81-rdrs: *nam-name
         meridional-rdrs: QC-rdrs
         QC-rdrs: QC-rdrs
         Haudenosaunee-rdrs-rot: QC-rdrs
+        Cree-rdrs: *nam-name
+        UteBig-rdrs: *nam-name
+        Tlicho-rdrs: *nam-name
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
-        period: *ref_period
+        period: *diag_period
       unstack: False
-  correlogram:
-    regions: # list of region on which we want to calculate the correlogram
-      - Haudenosaunee-rdrs-rot
-    args:
-      dims:
-        - rlat
-        - rlon
 
 
 
