@@ -11,6 +11,7 @@ ESPO-G6-E5L v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764929.
 The dataset is described in the following article:
 
 Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024).
+https://www.nature.com/articles/s41597-023-02855-z
 
 
 ## Context
@@ -51,12 +52,12 @@ Extra "hot models" and SSP5-8.5 are also available even if they are not in the o
 | IPSL	 |	IPSL-CM6A-LR |	r1i1p1f1 |CC BY 4.0|2.35| |Completed|
 | 	MOHC |	UKESM1-0-LL |	r1i1p1f2 |CC BY 4.0|2.77| |Completed|
 | 	NCC |NorESM2-MM	 |	r1i1p1f1 |CC BY 4.0|1.22| |Completed|
-| EC-Earth-Consortium	 |	EC-Earth3-CC  |r1i1p1f1	 |CC BY 4.0|2.63| |Completed (only SSP2-4.5)|
-| 	NUIST |NESM3 	 |	r1i1p1f1 |CC BY 4.0|2.72| |Completed (only SSP2-4.5)|
-| 	MIROC |MIROC-ES2L	 |	r1i1p1f2 |CC BY 4.0|1.49| ✓|Planned|
-| 	EC-Earth-Consortium |EC-Earth3-Veg	 |	r1i1p1f1 |CC BY 4.0|2.66| |Planned|
-| 	INM |INM-CM4-8	 |	r1i1p1f1 |CC BY 4.0|1.30| |Planned|
-| CCCma	 |	CanESM5-1 |	r1i1p1f1 |CC BY 4.0| | ?|Planned|
+| EC-Earth-Consortium	 |	EC-Earth3-CC  |r1i1p1f1	 |CC BY 4.0|2.63| |Completed (no SSP3-7.0)|
+| 	NUIST |NESM3 	 |	r1i1p1f1 |CC BY 4.0|2.72| |Completed (no SSP3-7.0)|
+| 	MIROC |MIROC-ES2L	 |	r1i1p1f2 |CC BY 4.0|1.49| ✓|Completed |
+| 	EC-Earth-Consortium |EC-Earth3-Veg	 |	r1i1p1f1 |CC BY 4.0|2.66| |Completed |
+| 	INM |INM-CM4-8	 |	r1i1p1f1 |CC BY 4.0|1.30| |Completed |
+| 	AS-RCEC |TaiESM1	 |	r1i1p1f1 |CC BY 4.0|1.30| |Completed for SSP2-4.5 and SSP3-7.0. Planned for SSP5-8.5 |
 
 
 
