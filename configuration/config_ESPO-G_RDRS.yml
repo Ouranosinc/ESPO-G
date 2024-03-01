@@ -63,7 +63,7 @@ custom:
       name:  &nam-name
         NAM-rdrs
       method: bbox
-      buffer: 1.5
+      tile_buffer: 1.5
       lon_bnds: [ -179.95, -10 ]
       lat_bnds: [ 10, 83.4 ]
     stack_drop_nans: &stack
