@@ -32,7 +32,7 @@ from xscen import (
 from utils import  save_move_update,move_then_delete, save_and_update, large_move
 
 # Load configuration
-load_config('configuration/paths_ESPO-G_j.yml', 'configuration/config_ESPO-G_RDRS.yml', verbose=(__name__ == '__main__'), reset=True)
+load_config('configuration/paths_ESPO-G_j.yml', 'configuration/config_ESPO-G_E5L.yml', verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
 
 workdir = Path(CONFIG['paths']['workdir'])
@@ -87,7 +87,7 @@ if __name__ == '__main__':
                         var = list(ds_ref.data_vars)[0]
                         ds_ref = stack_drop_nans(
                             ds_ref,
-                            ds_ref[var].isel(time=0, drop=True).notnull(),
+                            ds_ref[var].isel(time=0, drop=True).notnull().compute(),
                         )
                     #chunk
                     ds_ref = ds_ref.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_ref.dims})

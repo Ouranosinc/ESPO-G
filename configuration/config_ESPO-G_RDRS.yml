@@ -47,29 +47,25 @@ custom:
         south-rdrs-rot:
             name: south-rdrs-rot
             method: sel
-            sel:
-                rlon: [ 324.5, 388.2 ]
-                rlat: [ -47, -23 ]
+            rlon: [ 324.5, 388.2 ]
+            rlat: [ -47, -23 ]
         middle-rdrs-rot:
             name: middle-rdrs-rot
             method: sel
-            sel:
-                rlon: [ 324.5, 388.2 ]
-                rlat: [ -23, 1 ]
+            rlon: [ 324.5, 388.2 ]
+            rlat: [ -23, 1 ]
         north-rdrs-rot:
             name: north-rdrs-rot
             method: sel
-            sel:
-                rlon: [ 324.5, 388.2 ]
-                rlat: [ 1, 26 ]
+            rlon: [ 324.5, 388.2 ]
+            rlat: [ 1, 26 ]
     amno_region:
       name:  &nam-name
         NAM-rdrs
       method: bbox
       buffer: 1.5
-      bbox:
-        lon_bnds: [ -179.95, -10 ]
-        lat_bnds: [ 10, 83.4 ]
+      lon_bnds: [ -179.95, -10 ]
+      lat_bnds: [ 10, 83.4 ]
     stack_drop_nans: &stack
         True
     chunks:

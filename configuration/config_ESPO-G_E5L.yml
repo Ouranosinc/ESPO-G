@@ -18,12 +18,13 @@ tasks:
   - final_zarr
   - diagnostics
   - concat
+  - health_checks
   - official-diag
-  - indicators
-  - climatological_mean
-  - abs-delta
-  - per-delta
-  - ensemble
+#  - indicators
+#  - climatological_mean
+#  - abs-delta
+#  - per-delta
+#  - ensemble
 
 
 
@@ -34,28 +35,24 @@ custom:
         south_nodup:
             name: south_nodup
             method: bbox
-            bbox:
-                lon_bnds: [ -179.95, -10 ]
-                lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
+            lon_bnds: [ -179.95, -10 ]
+            lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
         middle_nodup:
             name: middle_nodup
             method: bbox
-            bbox:
-                lon_bnds: [ -179.95, -10 ]
-                lat_bnds: [ 40.05, 65.05 ]
+            lon_bnds: [ -179.95, -10 ]
+            lat_bnds: [ 40.05, 65.05 ]
         north_nodup:
             name: north_nodup
             method: bbox
-            bbox:
-                lon_bnds: [-179.95, -10]
-                lat_bnds: [65.05, 83.4]
+            lon_bnds: [-179.95, -10]
+            lat_bnds: [65.05, 83.4]
     amno_region:
       name: NAM
       method: bbox
       buffer: 1.5
-      bbox:
-        lon_bnds: [ -179.95, -10 ]
-        lat_bnds: [ 10, 83.4 ]
+      lon_bnds: [ -179.95, -10 ]
+      lat_bnds: [ 10, 83.4 ]
     stack_drop_nans: &stack # goal is to drop Nan to make it faster
         True
     chunks:
@@ -101,9 +98,7 @@ extraction:
           period: *ref_period
           unstack: *stack
         chunks:
-          lat: 225
-          lon: 252
-          time: 168
+          time: -1
     simulation:
         search_data_catalogs:
             variables_and_freqs: *var_and_freq
@@ -118,23 +113,24 @@ extraction:
                 - CMIP6_ScenarioMIP_KIOST_KIOST-ESM_ssp245_r1i1p1f1_global # time axis is broken. but anyway ssp370 doesn't exist for KIOST
             other_search_criteria:
               experiment:
-                - ssp245
-                - ssp370
+                - ssp585
+                #- ssp245
+                #- ssp370
               source: &hausfather-source    # in the TCR likely range (14) #chunking
-                - BCC-CSM2-MR
-                - FGOALS-g3 # None, but 1 file per year
-                - CMCC-ESM2 # [1, 192, 288]
+#                - BCC-CSM2-MR
+#                - FGOALS-g3 # None, but 1 file per year
+#                - CMCC-ESM2 # [1, 192, 288]
                 - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
-                - ACCESS-CM2 #  [1, 145, 192]
-                - ACCESS-ESM1-5 # [1, 96, 144]
-                - MPI-ESM1-2-HR # [1, 192, 384]
-                - INM-CM5-0 # [1, 120, 180]
-                - MIROC6 # [1, 96, 192]
-                - MPI-ESM1-2-LR #[1, 96, 192]
-                - MRI-ESM2-0 #[1, 160, 320]
-                - NorESM2-LM #[1, 96, 144]
-                - KACE-1-0-G #[1, 144, 192] time out extract
-                - GFDL-ESM4 #[1, 180, 288]
+#                - ACCESS-CM2 #  [1, 145, 192]
+#                - ACCESS-ESM1-5 # [1, 96, 144]
+#                - MPI-ESM1-2-HR # [1, 192, 384]
+#                - INM-CM5-0 # [1, 120, 180]
+#                - MIROC6 # [1, 96, 192]
+#                - MPI-ESM1-2-LR #[1, 96, 192]
+#                - MRI-ESM2-0 #[1, 160, 320]
+#                - NorESM2-LM #[1, 96, 144]
+#                - KACE-1-0-G #[1, 144, 192] time out extract
+#                - GFDL-ESM4 #[1, 180, 288]
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
@@ -378,6 +374,55 @@ ensemble:
       create_kwargs:
         chunks:
           horizon: -1
+
+
+health_checks:
+    structure:
+      coords:
+        - rotated_pole
+        - rlat
+        - rlon
+        - lat
+        - lon
+        - time
+      dims:
+        - rlat
+        - rlon
+        - time
+    start_date: "1950-01-01"
+    end_date: "2100-12-30"
+    variables_and_units:
+      tasmax: "K"
+      tasmin: "K"
+      pr: "kg m-2 s-1"
+    cfchecks:
+      tasmax:
+        cfcheck_from_name: {}
+      tasmin:
+        cfcheck_from_name: {}
+      pr:
+        cfcheck_from_name: {}
+    freq: D
+    flags:
+      tasmax:
+        temperature_extremely_high:
+          thresh: '60 degC'
+        tasmax_below_tasmin:
+      tasmin:
+        temperature_extremely_low:
+          thresh: '-70 degC'
+      pr:
+        negative_accumulation_values:
+        very_large_precipitation_events:
+          thresh: '300 mm/d'
+    return_flags: True
+    raise_on:
+      - structure
+      - start_date
+      - end_date
+      - variables_and_units
+      - cfchecks
+      - freq
 
 off-diag:
   domains:
