@@ -206,7 +206,7 @@ biasadjust:
                     kind: "*"
                     nquantiles: 50
             adjusting_args:
-                simulation_period: *sim_period
+                periods: *sim_period
                 xclim_adjust_args:
                     detrend:
                         LoessDetrend:
@@ -231,7 +231,7 @@ biasadjust:
                     kind: "+"
                     nquantiles: 50
             adjusting_args:
-                simulation_period: *sim_period
+                periods: *sim_period
                 xclim_adjust_args:
                   detrend:
                     LoessDetrend:
@@ -258,7 +258,7 @@ biasadjust:
                     kind: "*"
                     nquantiles: 50
             adjusting_args:
-                simulation_period: *sim_period
+                periods: *sim_period
                 xclim_adjust_args:
                   detrend:
                     LoessDetrend:
