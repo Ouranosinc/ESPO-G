@@ -237,12 +237,7 @@ if __name__ == '__main__':
                                                      )['D']
                             ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
 
-                            # need lat and lon -1 for the regrid
-                            #ds_sim = ds_sim.chunk(CONFIG['extraction']['simulation']['chunks']) #TODO: put back
-                            if 'CNRM-ESM2-1' in sim_id:
-                                ds_sim = ds_sim.chunk({'time': 365, 'lat': -1, 'lon': -1})# only for CNRM-ESM2-1
-                            else:
-                                ds_sim = ds_sim.chunk(CONFIG['extraction']['simulation']['chunks'])
+                            ds_sim = ds_sim.chunk(CONFIG['extraction']['simulation']['chunks'])
                             # save to zarr
                             path_cut_exec = f"{exec_wdir}/{sim_id}_{ds_sim.attrs['cat:domain']}_extracted.zarr"
                             save_and_update(ds=ds_sim,
@@ -255,12 +250,10 @@ if __name__ == '__main__':
                             and not pcat.exists_in_cat(domain=region_name, processing_level='regridded', id=sim_id)
                     ):
                         with (
-                                Client(n_workers=2, threads_per_worker=5,
-                                       memory_limit="60GB", **daskkws),
-                                #Client(n_workers=4, threads_per_worker=5, memory_limit="30GB", **daskkws),
-                                #Client(n_workers=3, threads_per_worker=3, memory_limit="16GB", **daskkws),
+
+                                Client(n_workers=3, threads_per_worker=3, memory_limit="16GB", **daskkws),
                                 measure_time(name='regrid', logger=logger),
-                               # timeout(18000*4, task='regrid')
+                               timeout(18000, task='regrid')
                         ):
 
                             ds_input = pcat.search(id=sim_id,
@@ -268,11 +261,8 @@ if __name__ == '__main__':
                                                 domain=CONFIG['custom']['amno_region']['name']).to_dask()
 
                             ds_target = pcat.search(**CONFIG['regrid']['target'],
-                                                    domain=region_name).to_dask()#.chunk({'loc':200})
-                            print(ds_input)
-                            print(ds_input.chunks)
-                            print(ds_target)
-                            print(ds_target.chunks)
+                                                    domain=region_name).to_dask()
+
                             ds_regrid = regrid_dataset(
                                 ds=ds_input,
                                 ds_grid=ds_target.isel(time=slice(0,1)),
@@ -280,7 +270,6 @@ if __name__ == '__main__':
 
                             #next try no chunks
 
-                            #ds_regrid = ds_regrid.chunk({'time':365,'loc':600})
                             #chunk time dim
                             ds_regrid = ds_regrid.chunk(
                                 translate_time_chunk({'time': '4year'},
@@ -289,13 +278,10 @@ if __name__ == '__main__':
                                                     )
                                                         )
 
-                            print(ds_regrid)
                             # save
                             save_and_update(ds=ds_regrid,
-                                             pcat=pcat,
-                                            #itervar=True,
-                                             #path=f"/crue/jlavoie/ESPO/workdir/{sim_id}_{region_name}_regridded.zarr"
-                                             path=f"{exec_wdir}/{sim_id}_{region_name}_regridded.zarr",
+                                            pcat=pcat,
+                                            path=f"{exec_wdir}/{sim_id}_{region_name}_regridded.zarr",
                                              )
 
                     #  ---RECHUNK---

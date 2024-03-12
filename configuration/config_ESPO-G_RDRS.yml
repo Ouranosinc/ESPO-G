@@ -212,7 +212,7 @@ biasadjust:
     variables:
         dtr:
             training_args:
-                reference_period: *ref_period
+                period: *ref_period
                 method: DetrendedQuantileMapping
                 group:
                     group: time.dayofyear
@@ -239,7 +239,7 @@ biasadjust:
                   ESPO-G6
         tasmax:
             training_args:
-                reference_period: *ref_period
+                period: *ref_period
                 method: DetrendedQuantileMapping
                 group:
                     group: time.dayofyear
@@ -262,7 +262,7 @@ biasadjust:
                 bias_adjust_project: *b_a_pro
         pr:
             training_args:
-                reference_period: *ref_period
+                period: *ref_period
                 method: DetrendedQuantileMapping
                 group:
                     group: time.dayofyear
