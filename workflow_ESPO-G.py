@@ -13,6 +13,8 @@ from itertools import product
 from xclim.core.calendar import convert_calendar, get_calendar, date_range_like,doy_to_days_since
 from xclim.sdba import properties
 import xclim as xc
+from contextlib import contextmanager
+
 
 from xscen.utils import minimum_calendar, translate_time_chunk, stack_drop_nans
 from xscen.io import rechunk
@@ -62,6 +64,15 @@ if __name__ == '__main__':
 
     # load project catalog
     pcat = ProjectCatalog(CONFIG['paths']['project_catalog'])
+
+
+    @contextmanager
+    def context(dask_kw, measure_time_kw, timeout_kw):
+        """ Set up context for each task."""
+        with (Client(**dask_kw, **daskkws),
+              measure_time(**measure_time_kw, logger=logger),
+              timeout(**timeout_kw)):
+            yield
 
     # ---MAKEREF---
     for region_name, region_dict in CONFIG['custom']['regions'].items():
@@ -237,7 +248,11 @@ if __name__ == '__main__':
                                                      )['D']
                             ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
 
-                            ds_sim = ds_sim.chunk(CONFIG['extraction']['simulation']['chunks'])
+                            #ds_sim = ds_sim.chunk(CONFIG['extraction']['simulation']['chunks'])
+
+                            #TODO: try spatial chunks
+                            ds_sim = ds_sim.chunk({'time': 365, 'lat': 100, 'lon': 100})
+
                             # save to zarr
                             path_cut_exec = f"{exec_wdir}/{sim_id}_{ds_sim.attrs['cat:domain']}_extracted.zarr"
                             save_and_update(ds=ds_sim,
@@ -245,6 +260,7 @@ if __name__ == '__main__':
                                              path=path_cut_exec,
                                              )
                     # ---REGRID---
+                    # onlye works with xesmf 0.7
                     if (
                             "regrid" in CONFIG["tasks"]
                             and not pcat.exists_in_cat(domain=region_name, processing_level='regridded', id=sim_id)
@@ -319,7 +335,9 @@ if __name__ == '__main__':
                             while True: # if code bugs forever, it will be stopped by the timeout and then tried again
                                 try:
                                     with (
-                                            Client(n_workers=9, threads_per_worker=3, memory_limit="7GB", **daskkws),
+                                            #Client(n_workers=9, threads_per_worker=3, memory_limit="7GB", **daskkws),
+                                            Client(n_workers=4, threads_per_worker=3,
+                                                   memory_limit="15GB", **daskkws),
                                             measure_time(name=f'train {var}', logger=logger),
                                             timeout(18000, task='train')
                                     ):
@@ -366,11 +384,16 @@ if __name__ == '__main__':
                                 and not pcat.exists_in_cat(domain=region_name, id=sim_id, processing_level='biasadjusted',
                                                            variable=var)
                         ):
-                            with (
-                                    Client(n_workers=5, threads_per_worker=3, memory_limit="12GB", **daskkws),
-                                    measure_time(name=f'adjust {var}', logger=logger),
-                                    timeout(18000, task='adjust')
-                            ):
+                            # with (
+                            #         Client(n_workers=5, threads_per_worker=3, memory_limit="12GB", **daskkws),
+                            #         measure_time(name=f'adjust {var}', logger=logger),
+                            #         timeout(18000, task='adjust')
+                            # ):
+                            # with context(dask_kw={'n_workers': 5, 'threads_per_worker': 3, 'memory_limit': "12GB", **daskkws},
+                            #              measure_time_kw={'name': f'adjust {var}'},
+                            #              timeout_kw={"seconds":'18000', 'task': 'adjust'}
+                            #              ):
+                            with context(**conf['context_adjust']):
                                 # load sim ds
                                 ds_sim = pcat.search(id=sim_id,
                                                      processing_level='regridded_and_rechunked',

@@ -244,6 +244,16 @@ biasadjust:
                 bias_adjust_institution: *b_a_inst
                 bias_adjust_project: *b_a_pro
         pr:
+            context_adjust:
+                dask_kw:
+                    n_workers: 5
+                    threads_per_worker: 3
+                    memory_limit: "12GB"
+                measure_time_kw:
+                    name: adjust pr
+                timeout_kw:
+                    seconds: 18000
+                    task: adjust pr
             training_args:
                 period: *ref_period
                 method: DetrendedQuantileMapping
