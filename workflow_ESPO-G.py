@@ -13,7 +13,6 @@ from itertools import product
 from xclim.core.calendar import convert_calendar, get_calendar, date_range_like,doy_to_days_since
 from xclim.sdba import properties
 import xclim as xc
-from contextlib import contextmanager
 
 
 from xscen.utils import minimum_calendar, translate_time_chunk, stack_drop_nans
@@ -66,13 +65,7 @@ if __name__ == '__main__':
     pcat = ProjectCatalog(CONFIG['paths']['project_catalog'])
 
 
-    @contextmanager
-    def context(dask_kw, measure_time_kw, timeout_kw):
-        """ Set up context for each task."""
-        with (Client(**dask_kw, **daskkws),
-              measure_time(**measure_time_kw, logger=logger),
-              timeout(**timeout_kw)):
-            yield
+
 
     # ---MAKEREF---
     for region_name, region_dict in CONFIG['custom']['regions'].items():
@@ -384,16 +377,12 @@ if __name__ == '__main__':
                                 and not pcat.exists_in_cat(domain=region_name, id=sim_id, processing_level='biasadjusted',
                                                            variable=var)
                         ):
-                            # with (
-                            #         Client(n_workers=5, threads_per_worker=3, memory_limit="12GB", **daskkws),
-                            #         measure_time(name=f'adjust {var}', logger=logger),
-                            #         timeout(18000, task='adjust')
-                            # ):
-                            # with context(dask_kw={'n_workers': 5, 'threads_per_worker': 3, 'memory_limit': "12GB", **daskkws},
-                            #              measure_time_kw={'name': f'adjust {var}'},
-                            #              timeout_kw={"seconds":'18000', 'task': 'adjust'}
-                            #              ):
-                            with context(**conf['context_adjust']):
+                            with (
+                                Client(n_workers=5, threads_per_worker=3,
+                                       memory_limit="12GB", **daskkws),
+                                measure_time(name=f'adjust {var}', logger=logger),
+                                timeout(18000, task='adjust')
+                            ):
                                 # load sim ds
                                 ds_sim = pcat.search(id=sim_id,
                                                      processing_level='regridded_and_rechunked',

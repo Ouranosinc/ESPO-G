@@ -84,3 +84,18 @@ def move_then_delete(dirs_to_delete, moving_files, pcat):
         if dir_to_delete.exists() and dir_to_delete.is_dir():
             shutil.rmtree(dir_to_delete)
             os.mkdir(dir_to_delete)
+
+
+    @contextmanager
+    def context(dask_kw=None, measure_time_kw=None, timeout_kw=None):
+        """ Set up context for each task."""
+        # set default
+        dask_kw = dask_kw or {'n_workers': 4, 'threads_per_worker': 3, 'memory_limit': "7GB"}
+        measure_time_kw = measure_time_kw or {'name': "undefined task"}
+        timeout_kw = timeout_kw or {'seconds': 1e5, 'task': "undefined task"}
+
+        # call context
+        with (Client(**dask_kw, **daskkws),
+              measure_time(**measure_time_kw, logger=logger),
+              timeout(**timeout_kw)):
+            yield
