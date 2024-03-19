@@ -149,6 +149,7 @@ extraction:
                 - NorESM2-LM #[1, 96, 144]
                 - KACE-1-0-G #[1, 144, 192] time out extract
                 - GFDL-ESM4 #[1, 180, 288]
+                - MIROC-ES2L # new one!
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
@@ -588,6 +589,7 @@ logging:
             class : logging.StreamHandler
             formatter: default
             level : INFO
+            stream: ext://sys.stdout #needed to have the right color in pycharm
         file:
             class: logging.FileHandler
             formatter: default

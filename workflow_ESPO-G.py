@@ -241,10 +241,10 @@ if __name__ == '__main__':
                                                      )['D']
                             ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
 
-                            #ds_sim = ds_sim.chunk(CONFIG['extraction']['simulation']['chunks'])
+                            ds_sim = ds_sim.chunk(CONFIG['extraction']['simulation']['chunks'])
 
                             #TODO: try spatial chunks
-                            ds_sim = ds_sim.chunk({'time': 365, 'lat': 100, 'lon': 100})
+                            #ds_sim = ds_sim.chunk({'time': 365, 'lat': 100, 'lon': 100})
 
                             # save to zarr
                             path_cut_exec = f"{exec_wdir}/{sim_id}_{ds_sim.attrs['cat:domain']}_extracted.zarr"
@@ -253,16 +253,17 @@ if __name__ == '__main__':
                                              path=path_cut_exec,
                                              )
                     # ---REGRID---
-                    # onlye works with xesmf 0.7
+                    # only works with xesmf 0.7
                     if (
                             "regrid" in CONFIG["tasks"]
                             and not pcat.exists_in_cat(domain=region_name, processing_level='regridded', id=sim_id)
                     ):
                         with (
-
+                            # Client(n_workers=2, threads_per_worker=5,
+                            #        memory_limit="32GB", **daskkws),
                                 Client(n_workers=3, threads_per_worker=3, memory_limit="16GB", **daskkws),
                                 measure_time(name='regrid', logger=logger),
-                               timeout(18000, task='regrid')
+                               #timeout(18000, task='regrid')
                         ):
 
                             ds_input = pcat.search(id=sim_id,
@@ -274,10 +275,8 @@ if __name__ == '__main__':
 
                             ds_regrid = regrid_dataset(
                                 ds=ds_input,
-                                ds_grid=ds_target.isel(time=slice(0,1)),
+                                ds_grid=ds_target,
                             )
-
-                            #next try no chunks
 
                             #chunk time dim
                             ds_regrid = ds_regrid.chunk(
@@ -644,37 +643,38 @@ if __name__ == '__main__':
 
                 #TODO: verify xscen version ( new env?)
 
-                # --- HEALTH CHECKS ---
-                if (
-                        "health_checks" in CONFIG["tasks"]
-                        and not pcat.exists_in_cat(
-                    domain=CONFIG['custom']['amno_region']['name'], id=sim_id,
-                    processing_level='health_checks')
+            # --- HEALTH CHECKS ---
+            if (
+                    "health_checks" in CONFIG["tasks"]
+                    and not pcat.exists_in_cat(
+                domain=CONFIG['custom']['amno_region']['name'], id=sim_id,
+                processing_level='health_checks')
+            ):
+                with (
+                        Client(n_workers=8, threads_per_worker=5,
+                               memory_limit="5GB", **daskkws),
+                        measure_time(name=f'health_checks', logger=logger)
                 ):
-                    with (
-                            Client(n_workers=8, threads_per_worker=5,
-                                   memory_limit="5GB", **daskkws),
-                            measure_time(name=f'health_checks', logger=logger)
-                    ):
-                        ds_input = pcat.search(
-                            id=sim_id, processing_level='final',
-                            domain=CONFIG['custom']['amno_region']['name']
-                        ).to_dataset(**tdd)
+                    ds_input = pcat.search(
+                        id=sim_id, processing_level='final',
+                        domain=CONFIG['custom']['amno_region']['name']
+                    ).to_dataset(**tdd)
 
-                        hc = xs.diagnostics.health_checks(
-                            ds=ds_input,
-                            **CONFIG['health_checks'])
+                    hc = xs.diagnostics.health_checks(
+                        ds=ds_input,
+                        **CONFIG['health_checks'])
 
-                        hc.attrs.update(ds_input.attrs)
-                        hc.attrs['cat:processing_level'] = 'health_checks'
-                        path = CONFIG['paths']['checks'].format(
-                            sim_id=sim_id,
-                            region_name=CONFIG['custom']['amno_region']['name'])
-                        xs.save_and_update(ds=hc, path=path, pcat=pcat)
-                        send_mail(
-                            subject=f"{sim_id} - Succès",
-                            msg=f"{sim_id} est terminé. \n Health checks:"+ "".join([f"\n{var}: {ds[var].values}" for var in ds.data_vars]),
-                        )
+                    hc.attrs.update(ds_input.attrs)
+                    hc.attrs['cat:processing_level'] = 'health_checks'
+                    path = CONFIG['paths']['checks'].format(
+                        sim_id=sim_id,
+                        region_name=CONFIG['custom']['amno_region']['name'])
+                    xs.save_and_update(ds=hc, path=path, pcat=pcat)
+                    send_mail(
+                        subject=f"{sim_id} - Succès",
+                        msg=f"{sim_id} est terminé. \n Health checks:"+ "".join(
+                            [f"\n{var}: {ds_input[var].values}" for var in ds_input.data_vars]),
+                    )
 
 
 
