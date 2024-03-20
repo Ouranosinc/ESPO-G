@@ -3,7 +3,7 @@
 project:
     name: ESPO-G6
     version: 1.0.0
-    description: Ensemble de scénarios polyvalents d'Ouranos - Gloabl - CMIP6
+    description: Ensemble de scénarios polyvalents d'Ouranos - Global - CMIP6
     id: eg6
 
 tasks:
@@ -19,7 +19,7 @@ tasks:
   - diagnostics
   - concat
   - health_checks
-#  - official-diag
+  - official-diag
 #  - indicators
 #  - climatological_mean
 #  - abs-delta
@@ -47,7 +47,7 @@ custom:
             method: bbox
             lon_bnds: [-179.95, -10]
             lat_bnds: [65.05, 83.3] # changed from 83.4 to make it fit with other files
-    amno_region:
+    amno_region: &nam-name
       name: NAM
       method: bbox
       tile_buffer: 1.5
@@ -56,9 +56,9 @@ custom:
     stack_drop_nans: &stack # goal is to drop Nan to make it faster
         True
     chunks:
-        lat: 20 #espo-r
-        lon: 20 #espo-r
-        loc: 600 #espo-r
+        lat: 20
+        lon: 20
+        loc: 600
         time: -1
     out_chunks:
         lat: 50
@@ -292,8 +292,8 @@ clean_up:
       maybe_unstack_dict:
         stack_drop_nans: *stack
         rechunk:
-          lat: 20 #espo-r
-          lon: 20 #espo-r
+          lat: 20
+          lon: 20
           time: -1
       round_var:
         pr: 10
@@ -340,47 +340,6 @@ diagnostics:
       period: *ref_period
       unstack: False
 
-indicators:
-  input:
-    processing_level: final
-    domain: NAM
-  compute_indicators:
-    to_level: individual_indicator
-
-aggregate:
-  input:
-    clim:
-      processing_level: indicators
-    abs-delta:
-      processing_level: climatology
-    per-delta:
-      processing_level: climatology
-      variable: prcptot
-  climatological_mean:
-    window: 30
-    interval: 10
-    periods: [['1951', '2100']]
-    to_level: climatology
-  compute_deltas:
-    reference_horizon: "1991-2020"
-
-
-ensemble:
-    processing_levels:
-        - indicators
-        - climatology
-        - abs-delta
-        - per-delta
-    ensemble_stats_xscen:
-      statistics:
-        ensemble_percentiles:
-          split: True
-      common_attrs_only: True
-      create_kwargs:
-        chunks:
-          horizon: -1
-
-
 health_checks:
     structure:
       coords:
@@ -416,7 +375,7 @@ health_checks:
       pr:
         negative_accumulation_values:
         very_large_precipitation_events:
-          thresh: '300 mm/d'
+          thresh: '1650 mm/d'
     return_flags: True
     raise_on:
       - structure
@@ -425,6 +384,52 @@ health_checks:
       - variables_and_units
       - cfchecks
       - freq
+
+indicators:
+  input:
+    processing_level: final
+    domain:
+     - *nam-name
+  compute_indicators:
+    to_level: individual_indicator
+
+aggregate:
+  input:
+    clim:
+      processing_level: indicators
+      domain: *nam-name
+    abs-delta:
+      processing_level: climatology
+      domain: *nam-name
+    per-delta:
+      processing_level: climatology
+      variable: prcptot
+      domain: *nam-name
+  climatological_mean:
+    window: 30
+    interval: 10
+    periods: [['1951', '2100']]
+    to_level: climatology
+  compute_deltas:
+    reference_horizon: "1991-2020"
+
+
+ensemble:
+    processing_levels:
+        - indicators
+        - climatology
+        - abs-delta-1991-2020
+        - per-delta-1991-2020
+    domain: *nam-name
+    source: *hausfather-source
+    ensemble_stats_xscen:
+      statistics:
+        ensemble_percentiles:
+          split: True
+      common_attrs_only: True
+      create_kwargs:
+        chunks:
+          horizon: -1
 
 off-diag:
   domains:
@@ -493,15 +498,6 @@ off-diag:
       properties_and_measures:
         period: *ref_period
       unstack: False
-  correlogram:
-    regions: # list of region on which we want to caluclate the correlogram
-     - Haudenosaunee
-     - Ute
-     - Dene
-    args:
-      bins: 100
-
-
 
 scripting:
     measure_time:
@@ -511,7 +507,6 @@ scripting:
         msg_ok: Toutes les étapes demandées ont été complétées.
         msg_err: Une erreur est survenue durant le traitement.
         on_error_only: True
-
 
 dask:
     array.slicing.split_large_chunks: False

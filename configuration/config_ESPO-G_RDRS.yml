@@ -32,18 +32,6 @@ custom:
     delete_in_final_zarr: False
     delete_in_diag: True
     regions:
-#      prob-reg:
-#        name: prob-reg
-#        method: bbox
-#        bbox:
-#            lat_bnds: [45, 47]
-#            lon_bnds: [-75, -70]
-#        QC-rdrs:
-#          name: QC-rdrs
-#          method: bbox
-#          bbox:
-#            lon_bnds: [ -83, -55 ]
-#            lat_bnds: [ 42, 63 ]
         south-rdrs-rot:
             name: south-rdrs-rot
             method: sel
@@ -74,7 +62,7 @@ custom:
         loc: 600
         time: -1
     out_chunks:
-        rlat: 50 #20 for prob-reg.
+        rlat: 50
         rlon: 50
         time: 4year
     ref_period : &ref_period
@@ -396,7 +384,7 @@ health_checks:
       pr:
         negative_accumulation_values:
         very_large_precipitation_events:
-          thresh: '300 mm/d'
+          thresh: '1650 mm/d'
     return_flags: True
     raise_on:
       - structure
@@ -411,7 +399,6 @@ indicators:
     processing_level: final
     domain:
      - *nam-name
-    #source: *hausfather-source
   compute_indicators:
     to_level: individual_indicator
 
@@ -538,7 +525,6 @@ off-diag:
     sim:
       input:
         source: *hausfather-source
-        experiment: ssp370
         processing_level:  regridded
       domain: *domains-off-diag
       dref_for_measure:
@@ -566,9 +552,6 @@ off-diag:
         period: *diag_period
       unstack: False
 
-
-
-
 scripting:
     measure_time:
         cpu: True
@@ -577,7 +560,6 @@ scripting:
         msg_ok: Toutes les étapes demandées ont été complétées.
         msg_err: Une erreur est survenue durant le traitement.
         on_error_only: True
-
 
 dask:
     array.slicing.split_large_chunks: False
@@ -605,9 +587,3 @@ logging:
 tdd:
   xarray_open_kwargs:
     decode_timedelta: False
-
-#utils:
-#  unstack_fill_nan:
-#    coords: ['rlat', 'rlon']
-#  maybe_unstack:
-#    coords: ['rlat', 'rlon']
