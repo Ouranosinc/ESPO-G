@@ -157,11 +157,6 @@ extraction:
             xr_open_kwargs:
               drop_variables:
                 - height
-              chunks:
-                lat: 100
-                lon: 100
-                time: 365
-              #chunks: {'time': 1, 'lon': -1, 'lat': -1} # only for CNRM-ESM2-1
         chunks: {'time': 365, 'lat':-1, 'lon':-1}
     ref_source: *ref_source
 
@@ -176,6 +171,8 @@ regrid:
         extrap_method: inverse_dist
         locstream_out: *stack
         reuse_weights: False
+        output_chunks:
+          loc: -1
       intermediate_grids:
         reg1:
           cf_grid_2d:
@@ -190,6 +187,9 @@ regrid:
             extrap_method: inverse_dist
             locstream_out: False
             reuse_weights: False
+            output_chunks:
+              lat: -1
+              lon: -1
         reg2:
           cf_grid_2d:
             lon0_b: 179.04
@@ -203,6 +203,9 @@ regrid:
             extrap_method: inverse_dist
             locstream_out: False
             reuse_weights: False
+            output_chunks:
+              lat: -1
+              lon: -1
 
 io:
   rechunk:

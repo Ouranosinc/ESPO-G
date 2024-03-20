@@ -447,7 +447,7 @@ if __name__ == '__main__':
                                                        format='zarr')
                     ):
                         with (
-                                Client(n_workers=2, threads_per_worker=3, memory_limit="30GB", **daskkws),
+                                Client(n_workers=4, threads_per_worker=3, memory_limit="6GB", **daskkws),
                                 measure_time(name=f'final zarr rechunk', logger=logger),
                                 timeout(18000, task='final_zarr')
                         ):

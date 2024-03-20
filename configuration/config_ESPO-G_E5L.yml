@@ -140,13 +140,7 @@ extraction:
             xr_open_kwargs:
               drop_variables:
                 - height
-#              chunks:
-#                lat: 100
-#                lon: 100
-#                time: 365
-        #chunks: {'time': 1, 'lon': -1, 'lat': -1} # only for CNRM-ESM2-1
         chunks: {'time': 365, 'lat':-1, 'lon':-1}
-        #chunks: {'time': 365, 'lat':30, 'lon':30}
     ref_source: *ref_source
 
 
