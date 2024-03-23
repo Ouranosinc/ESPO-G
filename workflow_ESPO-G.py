@@ -203,7 +203,7 @@ if __name__ == '__main__':
                 #periods = ['1950','2100'],  # only for CNRM-ESM2-1
     for sim_id, dc_id in cat_sim.items():
         if not pcat.exists_in_cat(domain=CONFIG['custom']['amno_region']['name'],
-                                  id =sim_id, processing_level='final'):
+                                 id =sim_id, processing_level='final'):
             for region_name, region_dict in CONFIG['custom']['regions'].items():
                 # depending on the final tasks, check that the final file doesn't already exists
                 final = {'final_zarr': dict(domain=region_name, processing_level='final', id=sim_id),
@@ -447,9 +447,9 @@ if __name__ == '__main__':
                                                        format='zarr')
                     ):
                         with (
-                                Client(n_workers=4, threads_per_worker=3, memory_limit="6GB", **daskkws),
+                                Client(n_workers=4, threads_per_worker=3, memory_limit="15GB", **daskkws),
                                 measure_time(name=f'final zarr rechunk', logger=logger),
-                                timeout(18000, task='final_zarr')
+                                timeout(30000, task='final_zarr')
                         ):
                             #rechunk and move to final destination
                             fi_path = Path(f"{CONFIG['paths']['output']}".format(**fmtkws))
@@ -601,7 +601,6 @@ if __name__ == '__main__':
                 levels = [
                     'diag-sim-prop', 'diag-scen-prop', 'diag-sim-meas','diag-scen-meas',
                     'final']
-                #levels=['final']
                 for level in levels:
                     logger.info(f'Contenating {sim_id} {level}.')
 
@@ -644,12 +643,13 @@ if __name__ == '__main__':
                 #TODO: verify xscen version ( new env?)
 
             # --- HEALTH CHECKS ---
-            if (
-                    "health_checks" in CONFIG["tasks"]
-                    and not pcat.exists_in_cat(
-                domain=CONFIG['custom']['amno_region']['name'], id=sim_id,
-                processing_level='health_checks')
-            ):
+            # if (
+            #         "health_checks" in CONFIG["tasks"]
+            #         and not pcat.exists_in_cat(
+            #     domain=CONFIG['custom']['amno_region']['name'], id=sim_id,
+            #     processing_level='health_checks')
+            # ):
+            if True:
                 with (
                         Client(n_workers=8, threads_per_worker=5,
                                memory_limit="5GB", **daskkws),
@@ -670,10 +670,11 @@ if __name__ == '__main__':
                         sim_id=sim_id,
                         region_name=CONFIG['custom']['amno_region']['name'])
                     xs.save_and_update(ds=hc, path=path, pcat=pcat)
+
                     send_mail(
                         subject=f"{sim_id} - Succès",
                         msg=f"{sim_id} est terminé. \n Health checks:"+ "".join(
-                            [f"\n{var}: {ds_input[var].values}" for var in ds_input.data_vars]),
+                            [f"\n{var}: {hc[var].values}" for var in hc.data_vars]),
                     )
 
 

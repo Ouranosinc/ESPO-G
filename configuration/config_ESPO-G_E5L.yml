@@ -8,16 +8,16 @@ project:
 
 tasks:
   ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
-  - makeref
-  - extract
-  - regrid
-  - rechunk
-  - train
-  - adjust
-  - clean_up
-  - final_zarr
-  - diagnostics
-  - concat
+#  - makeref
+#  - extract
+#  - regrid
+#  - rechunk
+#  - train
+#  - adjust
+#  - clean_up
+#  - final_zarr
+#  - diagnostics
+#  - concat
   - health_checks
   - official-diag
 #  - indicators
@@ -286,8 +286,10 @@ clean_up:
   problems:
     - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp245_r1i1p1f1_global
     - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp370_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp585_r1i1p1f1_global
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp245_r1i1p1f1_global
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp370_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp585_r1i1p1f1_global
   xscen_clean_up:
       maybe_unstack_dict:
         stack_drop_nans: *stack
@@ -475,10 +477,10 @@ off-diag:
         source: *hausfather-source
         processing_level:  regridded
       domain:
-        Haudenosaunee: middle
+        Haudenosaunee: middle_nodup
         Ute: south
-        Dene: middle
-        Magtogoek: middle
+        Dene: middle_nodup
+        Magtogoek: middle_nodup
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
