@@ -463,6 +463,7 @@ off-diag:
     ref:
       input:
         source: *ref_source
+        processing_level: extracted
         calendar: default
       domain:
         Haudenosaunee: middle_nodup
@@ -474,7 +475,8 @@ off-diag:
       unstack: *stack
     sim:
       input:
-        source: *hausfather-source
+        id: CMIP6_ScenarioMIP_MIROC_MIROC-ES2L_ssp585_r1i1p1f2_global #TODO: remove
+        #source: *hausfather-source
         processing_level:  regridded
       domain:
         Haudenosaunee: middle_nodup
@@ -488,7 +490,8 @@ off-diag:
       unstack: *stack
     scen:
       input:
-        source: *hausfather-source
+        id: CMIP6_ScenarioMIP_MIROC_MIROC-ES2L_ssp585_r1i1p1f2_global #TODO: remove
+        #source: *hausfather-source
         processing_level: final
       domain:
         Haudenosaunee: NAM
