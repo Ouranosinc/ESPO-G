@@ -3,7 +3,7 @@
 project:
     name: ESPO-G6-R2
     version: 1.0.0
-    description: Ensemble de scénarios polyvalents d'Ouranos - Global - CMIP6
+    description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6
     id: eg6
 
 tasks:
@@ -446,63 +446,53 @@ off-diag:
 #    Haudenosaunee-rdrs-rot:
 #        name: Haudenosaunee-rdrs-rot
 #        method: sel
-#        sel:
-#          rlat: [ -14, -8 ]
-#          rlon: [ 370, 375 ]
+#        rlat: [ -14, -8 ]
+#        rlon: [ 370, 375 ]
 #    Ute-rdrs:
 #        name: Ute-rdrs
 #        method: bbox
-#        bbox:
-#          lat_bnds: [ 35.0, 40.0 ]
-#          lon_bnds: [ -111.0, -103.0 ]
+#        lat_bnds: [ 35.0, 40.0 ]
+#        lon_bnds: [ -111.0, -103.0 ]
 #    Dene-rdrs:
 #        name: Dene-rdrs
 #        method: bbox
-#        bbox:
-#          lat_bnds: [ 60.0, 65.0 ]
-#          lon_bnds: [ -124.0, -116.0 ]
+#        lat_bnds: [ 60.0, 65.0 ]
+#        lon_bnds: [ -124.0, -116.0 ]
     Cree-rdrs:
       name: Cree-rdrs
       method: bbox
-      bbox:
-        lat_bnds: [ 46.9, 53.8 ]
-        lon_bnds: [ -115, -97.1 ]
+      lat_bnds: [ 46.9, 53.8 ]
+      lon_bnds: [ -115, -97.1 ]
     UteBig-rdrs:
       name: UteBig-rdrs
       method: bbox
-      bbox:
-        lat_bnds:  [ 35.5, 43]
-        lon_bnds: [ -109.6, -95.5 ]
+      lat_bnds:  [ 35.5, 43]
+      lon_bnds: [ -109.6, -95.5 ]
     Tlicho-rdrs:
       name: Tlicho-rdrs
       method: bbox
-      bbox:
-        lat_bnds:  [ 61.3, 66.75]
-        lon_bnds: [ -130, -103.8 ]
+      lat_bnds:  [ 61.3, 66.75]
+      lon_bnds: [ -130, -103.8 ]
     Magtogoek81-rdrs:
       name: Magtogoek81-rdrs
       method: bbox
-      bbox:
-        lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
-        lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
+      lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
+      lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
 #    meridional-rdrs:
 #      name: meridional-rdrs
 #      method: bbox
-#      bbox:
-#        lon_bnds: [ -83, -55 ]
-#        lat_bnds: [ 42, 52 ]
+#      lon_bnds: [ -83, -55 ]
+#      lat_bnds: [ 42, 52 ]
 #    QC-rdrs:
 #      name: QC-rdrs
 #      method: bbox
-#      bbox:
-#        lon_bnds: [ -83, -55 ]
-#        lat_bnds: [ 42, 63 ]
+#      lon_bnds: [ -83, -55 ]
+#      lat_bnds: [ 42, 63 ]
 #    Haudenosaunee-rdrs:
 #        name: Haudenosaunee-rdrs
 #        method: bbox
-#        bbox:
-#          lat_bnds: [ 42.0, 47.0 ]
-#          lon_bnds: [ -79.0, -71.0 ]
+#        lat_bnds: [ 42.0, 47.0 ]
+#        lon_bnds: [ -79.0, -71.0 ]
   steps:
     ref:
       input:

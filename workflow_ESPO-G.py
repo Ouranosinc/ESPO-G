@@ -243,9 +243,6 @@ if __name__ == '__main__':
 
                             ds_sim = ds_sim.chunk(CONFIG['extraction']['simulation']['chunks'])
 
-                            #TODO: try spatial chunks
-                            #ds_sim = ds_sim.chunk({'time': 365, 'lat': 100, 'lon': 100})
-
                             # save to zarr
                             path_cut_exec = f"{exec_wdir}/{sim_id}_{ds_sim.attrs['cat:domain']}_extracted.zarr"
                             save_and_update(ds=ds_sim,
@@ -640,16 +637,13 @@ if __name__ == '__main__':
 
                 logger.info('Concatenation done.')
 
-                #TODO: verify xscen version ( new env?)
-
             # --- HEALTH CHECKS ---
-            # if (
-            #         "health_checks" in CONFIG["tasks"]
-            #         and not pcat.exists_in_cat(
-            #     domain=CONFIG['custom']['amno_region']['name'], id=sim_id,
-            #     processing_level='health_checks')
-            # ):
-            if True:
+            if (
+                    "health_checks" in CONFIG["tasks"]
+                    and not pcat.exists_in_cat(
+                domain=CONFIG['custom']['amno_region']['name'], id=sim_id,
+                processing_level='health_checks')
+            ):
                 with (
                         Client(n_workers=8, threads_per_worker=5,
                                memory_limit="5GB", **daskkws),

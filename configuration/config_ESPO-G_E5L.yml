@@ -1,23 +1,23 @@
 #Configuration file for ESPO-G6-E5L v1.0.0
 
 project:
-    name: ESPO-G6
+    name: ESPO-G6-E5L
     version: 1.0.0
-    description: Ensemble de scénarios polyvalents d'Ouranos - Global - CMIP6
+    description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6
     id: eg6
 
 tasks:
   ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
-#  - makeref
-#  - extract
-#  - regrid
-#  - rechunk
-#  - train
-#  - adjust
-#  - clean_up
-#  - final_zarr
-#  - diagnostics
-#  - concat
+  - makeref
+  - extract
+  - regrid
+  - rechunk
+  - train
+  - adjust
+  - clean_up
+  - final_zarr
+  - diagnostics
+  - concat
   - health_checks
   - official-diag
 #  - indicators
@@ -438,27 +438,23 @@ off-diag:
 #    Haudenosaunee:
 #        name: Haudenosaunee
 #        method: bbox
-#        bbox:
-#          lat_bnds: [ 42.0, 47.0 ]
-#          lon_bnds: [ -79.0, -71.0 ]
+#        lat_bnds: [ 42.0, 47.0 ]
+#        lon_bnds: [ -79.0, -71.0 ]
 #    Ute:
 #        name: Ute
 #        method: bbox
-#        bbox:
-#          lat_bnds: [ 35.0, 40.0 ]
-#          lon_bnds: [ -111.0, -103.0 ]
+#        lat_bnds: [ 35.0, 40.0 ]
+#        lon_bnds: [ -111.0, -103.0 ]
 #    Dene:
 #        name: Dene
 #        method: bbox
-#        bbox:
-#          lat_bnds: [ 60.0, 65.0 ]
-#          lon_bnds: [ -124.0, -116.0 ]
+#        lat_bnds: [ 60.0, 65.0 ]
+#        lon_bnds: [ -124.0, -116.0 ]
     Magtogoek:
       name: Magtogoek
       method: bbox
-      bbox:
-        lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
-        lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
+      lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
+      lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
   steps:
     ref:
       input:
