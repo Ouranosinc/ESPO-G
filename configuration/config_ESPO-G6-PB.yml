@@ -80,7 +80,7 @@ extraction:
             periods : *ref_period
             other_search_criteria:
                 source: &ref_source
-                    "PCICBlend"
+                    "PCIC-Blend"
         extract_dataset: {}
         properties_and_measures:
           to_level_prop: diag-ref-prop
@@ -97,20 +97,24 @@ extraction:
             restrict_members:
               ordered: 1
             periods: *sim_period
-            exclusions:
-              id:
-                - CMIP6_ScenarioMIP_KIOST_KIOST-ESM_ssp245_r1i1p1f1_global # time axis is broken. but anyway ssp370 doesn't exist for KIOST
             other_search_criteria:
               processing_level: raw
-              experiment:
-                - ssp585
-                - ssp245
-                - ssp370
+              source:
+                - ACCESS-ESM1-5
+                - CanESM5
+                - EC-Earth3
+                - FGOALS-g3
+                - IPSL-CM6A-LR
+                - KACE-1-0-G
+                - MIROC6
+                - MRI-ESM2-0
+              member: r1i1p1f1
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
               combine_attrs: override
             xr_open_kwargs:
+              engine: h5netcdf
               drop_variables:
                 - height
 #              chunks:
@@ -446,7 +450,6 @@ off-diag:
       unstack: *stack
     sim:
       input:
-        source: *hausfather-source
         processing_level:  regridded
       domain:
         Haudenosaunee: middle
@@ -460,7 +463,6 @@ off-diag:
       unstack: *stack
     scen:
       input:
-        source: *hausfather-source
         processing_level: final
       domain:
         Haudenosaunee: NAM
