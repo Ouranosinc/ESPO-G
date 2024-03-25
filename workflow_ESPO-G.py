@@ -677,7 +677,7 @@ if __name__ == '__main__':
                     send_mail(
                         subject=f"{sim_id} - Succès",
                         msg=f"{sim_id} est terminé. \n Health checks:"+ "".join(
-                            [f"\n{var}: {ds_input[var].values}" for var in ds_input.data_vars]),
+                            [f"\n{var}: {hc[var].values}" for var in hc.data_vars]),
                     )
 
 
