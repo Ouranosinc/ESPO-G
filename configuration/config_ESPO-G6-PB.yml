@@ -54,8 +54,8 @@ custom:
         lon: 50
         time: 4year
     ref_period : &ref_period
-        - '1991'
-        - '2020'
+      - '1983'
+      - '2012'
     sim_period: &sim_period
         - '1950'
         - '2100'

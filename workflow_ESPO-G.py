@@ -96,7 +96,7 @@ if __name__ == '__main__':
                     # #chunk
                     # ds_ref = ds_ref.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_ref.dims})
 
-                    ds_ref=xr.open_zarr(CONFIG['paths']['pcicblend'])
+                    ds_ref=xr.open_zarr(CONFIG['paths']['pcicblend']).sel(time=ref_period)
                     ds_ref.attrs['cat:domain'] = region_name
 
 
