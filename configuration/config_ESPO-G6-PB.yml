@@ -7,7 +7,6 @@ project:
     id: eg6
 
 tasks:
-  ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
   - makeref
   - extract
   - regrid
