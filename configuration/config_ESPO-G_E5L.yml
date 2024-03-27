@@ -1,9 +1,9 @@
 #Configuration file for ESPO-G6-E5L v1.0.0
 
 project:
-    name: ESPO-G6
+    name: ESPO-G6-E5L
     version: 1.0.0
-    description: Ensemble de scénarios polyvalents d'Ouranos - Gloabl - CMIP6
+    description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6
     id: eg6
 
 tasks:
@@ -18,12 +18,13 @@ tasks:
   - final_zarr
   - diagnostics
   - concat
+  - health_checks
   - official-diag
-  - indicators
-  - climatological_mean
-  - abs-delta
-  - per-delta
-  - ensemble
+#  - indicators
+#  - climatological_mean
+#  - abs-delta
+#  - per-delta
+#  - ensemble
 
 
 
@@ -34,34 +35,31 @@ custom:
         south_nodup:
             name: south_nodup
             method: bbox
-            bbox:
-                lon_bnds: [ -179.95, -10 ]
-                lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
+            lon_bnds: [ -179.95, -10 ]
+            lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
         middle_nodup:
             name: middle_nodup
             method: bbox
-            bbox:
-                lon_bnds: [ -179.95, -10 ]
-                lat_bnds: [ 40.05, 65.05 ]
+            lon_bnds: [ -179.95, -10 ]
+            lat_bnds: [ 40.05, 65.05 ]
         north_nodup:
             name: north_nodup
             method: bbox
-            bbox:
-                lon_bnds: [-179.95, -10]
-                lat_bnds: [65.05, 83.4]
+            lon_bnds: [-179.95, -10]
+            lat_bnds: [65.05, 83.3] # changed from 83.4 to make it fit with other files
     amno_region:
-      name: NAM
+      name: &nam-name
+        NAM
       method: bbox
-      buffer: 1.5
-      bbox:
-        lon_bnds: [ -179.95, -10 ]
-        lat_bnds: [ 10, 83.4 ]
+      tile_buffer: 1.5
+      lon_bnds: [ -179.95, -10 ]
+      lat_bnds: [ 10, 83.4 ]
     stack_drop_nans: &stack # goal is to drop Nan to make it faster
         True
     chunks:
-        lat: 20 #espo-r
-        lon: 20 #espo-r
-        loc: 600 #espo-r
+        lat: 20
+        lon: 20
+        loc: 600
         time: -1
     out_chunks:
         lat: 50
@@ -101,9 +99,7 @@ extraction:
           period: *ref_period
           unstack: *stack
         chunks:
-          lat: 225
-          lon: 252
-          time: 168
+          time: -1
     simulation:
         search_data_catalogs:
             variables_and_freqs: *var_and_freq
@@ -117,24 +113,27 @@ extraction:
               id:
                 - CMIP6_ScenarioMIP_KIOST_KIOST-ESM_ssp245_r1i1p1f1_global # time axis is broken. but anyway ssp370 doesn't exist for KIOST
             other_search_criteria:
+              processing_level: raw
               experiment:
                 - ssp245
                 - ssp370
-              source: &hausfather-source    # in the TCR likely range (14) #chunking
-                - BCC-CSM2-MR
-                - FGOALS-g3 # None, but 1 file per year
-                - CMCC-ESM2 # [1, 192, 288]
-                - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
-                - ACCESS-CM2 #  [1, 145, 192]
-                - ACCESS-ESM1-5 # [1, 96, 144]
-                - MPI-ESM1-2-HR # [1, 192, 384]
-                - INM-CM5-0 # [1, 120, 180]
-                - MIROC6 # [1, 96, 192]
-                - MPI-ESM1-2-LR #[1, 96, 192]
-                - MRI-ESM2-0 #[1, 160, 320]
-                - NorESM2-LM #[1, 96, 144]
-                - KACE-1-0-G #[1, 144, 192] time out extract
-                - GFDL-ESM4 #[1, 180, 288]
+                - ssp585
+#              source: &hausfather-source    # in the TCR likely range (15) #chunking
+#                - BCC-CSM2-MR
+#                - FGOALS-g3 # None, but 1 file per year
+#                - CMCC-ESM2 # [1, 192, 288]
+#                - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
+#                - ACCESS-CM2 #  [1, 145, 192]
+#                - ACCESS-ESM1-5 # [1, 96, 144]
+#                - MPI-ESM1-2-HR # [1, 192, 384]
+#                - INM-CM5-0 # [1, 120, 180]
+#                - MIROC6 # [1, 96, 192]
+#                - MPI-ESM1-2-LR #[1, 96, 192]
+#                - MRI-ESM2-0 #[1, 160, 320]
+#                - NorESM2-LM #[1, 96, 144]
+#                - KACE-1-0-G #[1, 144, 192] time out extract
+#                - GFDL-ESM4 #[1, 180, 288]
+#                - MIROC-ES2L # new one!
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
@@ -142,11 +141,6 @@ extraction:
             xr_open_kwargs:
               drop_variables:
                 - height
-              chunks:
-                lat: 100
-                lon: 100
-                time: 365
-              #chunks: {'time': 1, 'lon': -1, 'lat': -1} # only for CNRM-ESM2-1
         chunks: {'time': 365, 'lat':-1, 'lon':-1}
     ref_source: *ref_source
 
@@ -161,6 +155,8 @@ regrid:
         extrap_method: inverse_dist
         locstream_out: *stack
         reuse_weights: False
+        output_chunks:
+          loc: -1
       intermediate_grids:
         reg1:
           cf_grid_2d:
@@ -175,6 +171,9 @@ regrid:
             extrap_method: inverse_dist
             locstream_out: False
             reuse_weights: False
+            output_chunks:
+              lat: -1
+              lon: -1
         reg2:
           cf_grid_2d:
             lon0_b: 179.04
@@ -188,6 +187,9 @@ regrid:
             extrap_method: inverse_dist
             locstream_out: False
             reuse_weights: False
+            output_chunks:
+              lat: -1
+              lon: -1
 
 io:
   rechunk:
@@ -198,7 +200,7 @@ biasadjust:
     variables:
         dtr:
             training_args:
-                reference_period: *ref_period
+                period: *ref_period
                 method: DetrendedQuantileMapping
                 group:
                     group: time.dayofyear
@@ -209,7 +211,7 @@ biasadjust:
                     kind: "*"
                     nquantiles: 50
             adjusting_args:
-                simulation_period: *sim_period
+                periods: *sim_period
                 xclim_adjust_args:
                     detrend:
                         LoessDetrend:
@@ -225,7 +227,7 @@ biasadjust:
                   ESPO-G6
         tasmax:
             training_args:
-                reference_period: *ref_period
+                period: *ref_period
                 method: DetrendedQuantileMapping
                 group:
                     group: time.dayofyear
@@ -234,7 +236,7 @@ biasadjust:
                     kind: "+"
                     nquantiles: 50
             adjusting_args:
-                simulation_period: *sim_period
+                periods: *sim_period
                 xclim_adjust_args:
                   detrend:
                     LoessDetrend:
@@ -248,7 +250,7 @@ biasadjust:
                 bias_adjust_project: *b_a_pro
         pr:
             training_args:
-                reference_period: *ref_period
+                period: *ref_period
                 method: DetrendedQuantileMapping
                 group:
                     group: time.dayofyear
@@ -261,7 +263,7 @@ biasadjust:
                     kind: "*"
                     nquantiles: 50
             adjusting_args:
-                simulation_period: *sim_period
+                periods: *sim_period
                 xclim_adjust_args:
                   detrend:
                     LoessDetrend:
@@ -285,14 +287,16 @@ clean_up:
   problems:
     - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp245_r1i1p1f1_global
     - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp370_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp585_r1i1p1f1_global
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp245_r1i1p1f1_global
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp370_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp585_r1i1p1f1_global
   xscen_clean_up:
       maybe_unstack_dict:
         stack_drop_nans: *stack
         rechunk:
-          lat: 20 #espo-r
-          lon: 20 #espo-r
+          lat: 20
+          lon: 20
           time: -1
       round_var:
         pr: 10
@@ -339,10 +343,56 @@ diagnostics:
       period: *ref_period
       unstack: False
 
+health_checks:
+    structure:
+      coords:
+        - lat
+        - lon
+        - time
+      dims:
+        - lat
+        - lon
+        - time
+    start_date: "1950-01-01"
+    end_date: "2100-12-30"
+    variables_and_units:
+      tasmax: "K"
+      tasmin: "K"
+      pr: "kg m-2 s-1"
+    cfchecks:
+      tasmax:
+        cfcheck_from_name: {}
+      tasmin:
+        cfcheck_from_name: {}
+      pr:
+        cfcheck_from_name: {}
+    freq: D
+    flags:
+      tasmax:
+        temperature_extremely_high:
+          thresh: '60 degC'
+        tasmax_below_tasmin:
+      tasmin:
+        temperature_extremely_low:
+          thresh: '-70 degC'
+      pr:
+        negative_accumulation_values:
+        very_large_precipitation_events:
+          thresh: '1650 mm/d'
+    return_flags: True
+    raise_on:
+      - structure
+      - start_date
+      - end_date
+      - variables_and_units
+      - cfchecks
+      - freq
+
 indicators:
   input:
     processing_level: final
-    domain: NAM
+    domain:
+     - *nam-name
   compute_indicators:
     to_level: individual_indicator
 
@@ -350,11 +400,14 @@ aggregate:
   input:
     clim:
       processing_level: indicators
+      domain: *nam-name
     abs-delta:
       processing_level: climatology
+      domain: *nam-name
     per-delta:
       processing_level: climatology
       variable: prcptot
+      domain: *nam-name
   climatological_mean:
     window: 30
     interval: 10
@@ -368,8 +421,10 @@ ensemble:
     processing_levels:
         - indicators
         - climatology
-        - abs-delta
-        - per-delta
+        - abs-delta-1991-2020
+        - per-delta-1991-2020
+    domain: *nam-name
+    #source: *hausfather-source
     ensemble_stats_xscen:
       statistics:
         ensemble_percentiles:
@@ -384,32 +439,29 @@ off-diag:
 #    Haudenosaunee:
 #        name: Haudenosaunee
 #        method: bbox
-#        bbox:
-#          lat_bnds: [ 42.0, 47.0 ]
-#          lon_bnds: [ -79.0, -71.0 ]
+#        lat_bnds: [ 42.0, 47.0 ]
+#        lon_bnds: [ -79.0, -71.0 ]
 #    Ute:
 #        name: Ute
 #        method: bbox
-#        bbox:
-#          lat_bnds: [ 35.0, 40.0 ]
-#          lon_bnds: [ -111.0, -103.0 ]
+#        lat_bnds: [ 35.0, 40.0 ]
+#        lon_bnds: [ -111.0, -103.0 ]
 #    Dene:
 #        name: Dene
 #        method: bbox
-#        bbox:
-#          lat_bnds: [ 60.0, 65.0 ]
-#          lon_bnds: [ -124.0, -116.0 ]
+#        lat_bnds: [ 60.0, 65.0 ]
+#        lon_bnds: [ -124.0, -116.0 ]
     Magtogoek:
       name: Magtogoek
       method: bbox
-      bbox:
-        lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
-        lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
+      lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
+      lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
   steps:
     ref:
       input:
         source: *ref_source
         calendar: default
+        processing_level: extracted
       domain:
         Haudenosaunee: middle_nodup
         Ute: south_nodup
@@ -420,13 +472,13 @@ off-diag:
       unstack: *stack
     sim:
       input:
-        source: *hausfather-source
+        #source: *hausfather-source
         processing_level:  regridded
       domain:
-        Haudenosaunee: middle
+        Haudenosaunee: middle_nodup
         Ute: south
-        Dene: middle
-        Magtogoek: middle
+        Dene: middle_nodup
+        Magtogoek: middle_nodup
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
@@ -434,7 +486,7 @@ off-diag:
       unstack: *stack
     scen:
       input:
-        source: *hausfather-source
+        #source: *hausfather-source
         processing_level: final
       domain:
         Haudenosaunee: NAM
@@ -446,15 +498,6 @@ off-diag:
       properties_and_measures:
         period: *ref_period
       unstack: False
-  correlogram:
-    regions: # list of region on which we want to caluclate the correlogram
-     - Haudenosaunee
-     - Ute
-     - Dene
-    args:
-      bins: 100
-
-
 
 scripting:
     measure_time:
@@ -464,7 +507,6 @@ scripting:
         msg_ok: Toutes les étapes demandées ont été complétées.
         msg_err: Une erreur est survenue durant le traitement.
         on_error_only: True
-
 
 dask:
     array.slicing.split_large_chunks: False
@@ -479,6 +521,7 @@ logging:
             class : logging.StreamHandler
             formatter: default
             level : INFO
+            stream: ext://sys.stdout #needed to have the right color in pycharm
         file:
             class: logging.FileHandler
             formatter: default

@@ -13,6 +13,8 @@ from itertools import product
 from xclim.core.calendar import convert_calendar, get_calendar, date_range_like,doy_to_days_since
 from xclim.sdba import properties
 import xclim as xc
+from xscen.xclim_modules import conversions
+
 
 from xscen.utils import minimum_calendar, translate_time_chunk, stack_drop_nans
 from xscen.io import rechunk
@@ -32,7 +34,7 @@ from xscen import (
 from utils import  save_move_update,move_then_delete, save_and_update, large_move
 
 # Load configuration
-load_config('configuration/paths_ESPO-G_j.yml', 'configuration/config_ESPO-G_RDRS.yml', verbose=(__name__ == '__main__'), reset=True)
+load_config('configuration/paths_ESPO-G_j.yml', 'configuration/config_ESPO-G_E5L.yml', verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
 
 workdir = Path(CONFIG['paths']['workdir'])
@@ -63,6 +65,9 @@ if __name__ == '__main__':
     # load project catalog
     pcat = ProjectCatalog(CONFIG['paths']['project_catalog'])
 
+
+
+
     # ---MAKEREF---
     for region_name, region_dict in CONFIG['custom']['regions'].items():
         if (
@@ -87,7 +92,7 @@ if __name__ == '__main__':
                         var = list(ds_ref.data_vars)[0]
                         ds_ref = stack_drop_nans(
                             ds_ref,
-                            ds_ref[var].isel(time=0, drop=True).notnull(),
+                            ds_ref[var].isel(time=0, drop=True).notnull().compute(),
                         )
                     #chunk
                     ds_ref = ds_ref.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_ref.dims})
@@ -199,7 +204,7 @@ if __name__ == '__main__':
                 #periods = ['1950','2100'],  # only for CNRM-ESM2-1
     for sim_id, dc_id in cat_sim.items():
         if not pcat.exists_in_cat(domain=CONFIG['custom']['amno_region']['name'],
-                                  id =sim_id, processing_level='final'):
+                                 id =sim_id, processing_level='final'):
             for region_name, region_dict in CONFIG['custom']['regions'].items():
                 # depending on the final tasks, check that the final file doesn't already exists
                 final = {'final_zarr': dict(domain=region_name, processing_level='final', id=sim_id),
@@ -237,9 +242,7 @@ if __name__ == '__main__':
                                                      )['D']
                             ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
 
-                            # need lat and lon -1 for the regrid
                             ds_sim = ds_sim.chunk(CONFIG['extraction']['simulation']['chunks'])
-                            #ds_sim = ds_sim.chunk({'time': 1, 'lat': -1, 'lon': -1})# only for CNRM-ESM2-1
 
                             # save to zarr
                             path_cut_exec = f"{exec_wdir}/{sim_id}_{ds_sim.attrs['cat:domain']}_extracted.zarr"
@@ -248,15 +251,17 @@ if __name__ == '__main__':
                                              path=path_cut_exec,
                                              )
                     # ---REGRID---
+                    # only works with xesmf 0.7
                     if (
                             "regrid" in CONFIG["tasks"]
                             and not pcat.exists_in_cat(domain=region_name, processing_level='regridded', id=sim_id)
                     ):
                         with (
-                                #Client(n_workers=5, threads_per_worker=3, memory_limit="10GB", **daskkws),
+                            # Client(n_workers=2, threads_per_worker=5,
+                            #        memory_limit="32GB", **daskkws),
                                 Client(n_workers=3, threads_per_worker=3, memory_limit="16GB", **daskkws),
                                 measure_time(name='regrid', logger=logger),
-                                timeout(18000, task='regrid')
+                               #timeout(18000, task='regrid')
                         ):
 
                             ds_input = pcat.search(id=sim_id,
@@ -271,7 +276,7 @@ if __name__ == '__main__':
                                 ds_grid=ds_target,
                             )
 
-                            # chunk time dim
+                            #chunk time dim
                             ds_regrid = ds_regrid.chunk(
                                 translate_time_chunk({'time': '4year'},
                                                      get_calendar(ds_regrid),
@@ -281,8 +286,8 @@ if __name__ == '__main__':
 
                             # save
                             save_and_update(ds=ds_regrid,
-                                             pcat=pcat,
-                                             path=f"{exec_wdir}/{sim_id}_{region_name}_regridded.zarr",
+                                            pcat=pcat,
+                                            path=f"{exec_wdir}/{sim_id}_{region_name}_regridded.zarr",
                                              )
 
                     #  ---RECHUNK---
@@ -320,7 +325,9 @@ if __name__ == '__main__':
                             while True: # if code bugs forever, it will be stopped by the timeout and then tried again
                                 try:
                                     with (
-                                            Client(n_workers=9, threads_per_worker=3, memory_limit="7GB", **daskkws),
+                                            #Client(n_workers=9, threads_per_worker=3, memory_limit="7GB", **daskkws),
+                                            Client(n_workers=4, threads_per_worker=3,
+                                                   memory_limit="15GB", **daskkws),
                                             measure_time(name=f'train {var}', logger=logger),
                                             timeout(18000, task='train')
                                     ):
@@ -368,9 +375,10 @@ if __name__ == '__main__':
                                                            variable=var)
                         ):
                             with (
-                                    Client(n_workers=5, threads_per_worker=3, memory_limit="12GB", **daskkws),
-                                    measure_time(name=f'adjust {var}', logger=logger),
-                                    timeout(18000, task='adjust')
+                                Client(n_workers=5, threads_per_worker=3,
+                                       memory_limit="12GB", **daskkws),
+                                measure_time(name=f'adjust {var}', logger=logger),
+                                timeout(18000, task='adjust')
                             ):
                                 # load sim ds
                                 ds_sim = pcat.search(id=sim_id,
@@ -437,9 +445,9 @@ if __name__ == '__main__':
                                                        format='zarr')
                     ):
                         with (
-                                Client(n_workers=2, threads_per_worker=3, memory_limit="30GB", **daskkws),
+                                Client(n_workers=4, threads_per_worker=3, memory_limit="15GB", **daskkws),
                                 measure_time(name=f'final zarr rechunk', logger=logger),
-                                timeout(18000, task='final_zarr')
+                                timeout(30000, task='final_zarr')
                         ):
                             #rechunk and move to final destination
                             fi_path = Path(f"{CONFIG['paths']['output']}".format(**fmtkws))
@@ -483,7 +491,7 @@ if __name__ == '__main__':
                                 Client(n_workers=3, threads_per_worker=5,
                                        memory_limit="20GB", **daskkws),
                                 measure_time(name=f'diagnostics', logger=logger),
-                                timeout(18000, task='diagnostics')
+                                timeout(2*18000, task='diagnostics')
                         ):
 
 
@@ -591,7 +599,6 @@ if __name__ == '__main__':
                 levels = [
                     'diag-sim-prop', 'diag-scen-prop', 'diag-sim-meas','diag-scen-meas',
                     'final']
-                #levels=['final']
                 for level in levels:
                     logger.info(f'Contenating {sim_id} {level}.')
 
@@ -631,39 +638,39 @@ if __name__ == '__main__':
 
                 logger.info('Concatenation done.')
 
-                #TODO: verify xscen version ( new env?)
-
-                # --- HEALTH CHECKS ---
-                if (
-                        "health_checks" in CONFIG["tasks"]
-                        and not pcat.exists_in_cat(
-                    domain=CONFIG['custom']['amno_region']['name'], id=sim_id,
-                    processing_level='health_checks')
+            # --- HEALTH CHECKS ---
+            if (
+                    "health_checks" in CONFIG["tasks"]
+                    and not pcat.exists_in_cat(
+                domain=CONFIG['custom']['amno_region']['name'], id=sim_id,
+                processing_level='health_checks')
+            ):
+                with (
+                        Client(n_workers=8, threads_per_worker=5,
+                               memory_limit="5GB", **daskkws),
+                        measure_time(name=f'health_checks', logger=logger)
                 ):
-                    with (
-                            Client(n_workers=8, threads_per_worker=5,
-                                   memory_limit="5GB", **daskkws),
-                            measure_time(name=f'health_checks', logger=logger)
-                    ):
-                        ds_input = pcat.search(
-                            id=sim_id, processing_level='final',
-                            domain=CONFIG['custom']['amno_region']['name']
-                        ).to_dataset(**tdd)
+                    ds_input = pcat.search(
+                        id=sim_id, processing_level='final',
+                        domain=CONFIG['custom']['amno_region']['name']
+                    ).to_dataset(**tdd)
 
-                        hc = xs.diagnostics.health_checks(
-                            ds=ds_input,
-                            **CONFIG['health_checks'])
+                    hc = xs.diagnostics.health_checks(
+                        ds=ds_input,
+                        **CONFIG['health_checks'])
 
-                        hc.attrs.update(ds_input.attrs)
-                        hc.attrs['cat:processing_level'] = 'health_checks'
-                        path = CONFIG['paths']['checks'].format(
-                            sim_id=sim_id,
-                            region_name=CONFIG['custom']['amno_region']['name'])
-                        xs.save_and_update(ds=hc, path=path, pcat=pcat)
-                        send_mail(
-                            subject=f"{sim_id} - Succès",
-                            msg=f"{sim_id} est terminé. \n Health checks:"+ "".join([f"\n{var}: {ds[var].values}" for var in ds.data_vars]),
-                        )
+                    hc.attrs.update(ds_input.attrs)
+                    hc.attrs['cat:processing_level'] = 'health_checks'
+                    path = CONFIG['paths']['checks'].format(
+                        sim_id=sim_id,
+                        region_name=CONFIG['custom']['amno_region']['name'])
+                    xs.save_and_update(ds=hc, path=path, pcat=pcat)
+
+                    send_mail(
+                        subject=f"{sim_id} - Succès",
+                        msg=f"{sim_id} est terminé. \n Health checks:"+ "".join(
+                            [f"\n{var}: {hc[var].values}" for var in hc.data_vars]),
+                    )
 
 
 
@@ -695,7 +702,7 @@ if __name__ == '__main__':
 
                             # cut the domain
                             ds_input = xs.spatial.subset(
-                               ds_input.chunk({'time': -1}), dom_dict)
+                               ds_input.chunk({'time': -1}), **dom_dict)
 
 
                             dref_for_measure = None
@@ -703,6 +710,9 @@ if __name__ == '__main__':
                                 dref_for_measure = pcat.search(
                                     domain=dom_name,
                                     **step_dict['dref_for_measure']).to_dask()
+
+                            if 'dtr' not in ds_input:
+                                ds_input = ds_input.assign(dtr=conversions.dtr(ds_input.tasmin, ds_input.tasmax))
 
                             prop, meas = xs.properties_and_measures(
                                 ds=ds_input,

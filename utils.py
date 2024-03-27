@@ -84,3 +84,4 @@ def move_then_delete(dirs_to_delete, moving_files, pcat):
         if dir_to_delete.exists() and dir_to_delete.is_dir():
             shutil.rmtree(dir_to_delete)
             os.mkdir(dir_to_delete)
+
