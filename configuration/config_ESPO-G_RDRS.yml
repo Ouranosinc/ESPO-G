@@ -54,7 +54,7 @@ custom:
       tile_buffer: 1.5
       lon_bnds: [ -179.95, -10 ]
       lat_bnds: [ 10, 83.4 ]
-    stack_drop_nans: &stack
+    stack_drop_nans: &stack # goal is to drop Nan to make it faster
         True
     chunks:
         rlat: 20
@@ -122,22 +122,22 @@ extraction:
                 - ssp245
                 - ssp370
                 - ssp585
-              source: &hausfather-source    # in the TCR likely range (14) #chunking
-                - BCC-CSM2-MR
-                - FGOALS-g3 # None, but 1 file per year
-                - CMCC-ESM2 # [1, 192, 288]
-                - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
-                - ACCESS-CM2 #  [1, 145, 192]
-                - ACCESS-ESM1-5 # [1, 96, 144]
-                - MPI-ESM1-2-HR # [1, 192, 384]
-                - INM-CM5-0 # [1, 120, 180]
-                - MIROC6 # [1, 96, 192]
-                - MPI-ESM1-2-LR #[1, 96, 192]
-                - MRI-ESM2-0 #[1, 160, 320]
-                - NorESM2-LM #[1, 96, 144]
-                - KACE-1-0-G #[1, 144, 192] time out extract
-                - GFDL-ESM4 #[1, 180, 288]
-                - MIROC-ES2L # new one!
+#              source: &hausfather-source    # in the TCR likely range (15) #chunking
+#                - BCC-CSM2-MR
+#                - FGOALS-g3 # None, but 1 file per year
+#                - CMCC-ESM2 # [1, 192, 288]
+#                - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
+#                - ACCESS-CM2 #  [1, 145, 192]
+#                - ACCESS-ESM1-5 # [1, 96, 144]
+#                - MPI-ESM1-2-HR # [1, 192, 384]
+#                - INM-CM5-0 # [1, 120, 180]
+#                - MIROC6 # [1, 96, 192]
+#                - MPI-ESM1-2-LR #[1, 96, 192]
+#                - MRI-ESM2-0 #[1, 160, 320]
+#                - NorESM2-LM #[1, 96, 144]
+#                - KACE-1-0-G #[1, 144, 192] time out extract
+#                - GFDL-ESM4 #[1, 180, 288]
+#                - MIROC-ES2L # new one!
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
@@ -431,7 +431,7 @@ ensemble:
         - abs-delta-1991-2020
         - per-delta-1991-2020
     domain: *nam-name
-    source: *hausfather-source
+    #source: *hausfather-source
     ensemble_stats_xscen:
       statistics:
         ensemble_percentiles:
@@ -515,7 +515,7 @@ off-diag:
       unstack: *stack
     sim:
       input:
-        source: *hausfather-source
+        #source: *hausfather-source
         processing_level:  regridded
       domain: *domains-off-diag
       dref_for_measure:
@@ -525,9 +525,8 @@ off-diag:
       unstack: *stack
     scen:
       input:
-        source: *hausfather-source
+        #source: *hausfather-source
         processing_level: final
-        experiment: ssp370
       domain:
         Magtogoek-rdrs: *nam-name
         Magtogoek81-rdrs: *nam-name

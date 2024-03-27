@@ -8,7 +8,7 @@ project:
 
 tasks:
   ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
-  #- makeref
+  - makeref
   - extract
   - regrid
   - rechunk
@@ -16,7 +16,7 @@ tasks:
   - adjust
   - clean_up
   - final_zarr
-  #- diagnostics
+  - diagnostics
   - concat
   - health_checks
   - official-diag
@@ -47,8 +47,9 @@ custom:
             method: bbox
             lon_bnds: [-179.95, -10]
             lat_bnds: [65.05, 83.3] # changed from 83.4 to make it fit with other files
-    amno_region: &nam-name
-      name: NAM
+    amno_region:
+      name: &nam-name
+        NAM
       method: bbox
       tile_buffer: 1.5
       lon_bnds: [ -179.95, -10 ]
@@ -114,14 +115,14 @@ extraction:
             other_search_criteria:
               processing_level: raw
               experiment:
+                - ssp245
+                - ssp370
                 - ssp585
-                #- ssp245
-                #- ssp370
-              source: &hausfather-source    # in the TCR likely range (14) #chunking
+#              source: &hausfather-source    # in the TCR likely range (15) #chunking
 #                - BCC-CSM2-MR
 #                - FGOALS-g3 # None, but 1 file per year
 #                - CMCC-ESM2 # [1, 192, 288]
-#                 - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
+#                - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
 #                - ACCESS-CM2 #  [1, 145, 192]
 #                - ACCESS-ESM1-5 # [1, 96, 144]
 #                - MPI-ESM1-2-HR # [1, 192, 384]
@@ -132,7 +133,7 @@ extraction:
 #                - NorESM2-LM #[1, 96, 144]
 #                - KACE-1-0-G #[1, 144, 192] time out extract
 #                - GFDL-ESM4 #[1, 180, 288]
-                - MIROC-ES2L # new one!
+#                - MIROC-ES2L # new one!
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
@@ -423,7 +424,7 @@ ensemble:
         - abs-delta-1991-2020
         - per-delta-1991-2020
     domain: *nam-name
-    source: *hausfather-source
+    #source: *hausfather-source
     ensemble_stats_xscen:
       statistics:
         ensemble_percentiles:
@@ -459,8 +460,8 @@ off-diag:
     ref:
       input:
         source: *ref_source
-        processing_level: extracted
         calendar: default
+        processing_level: extracted
       domain:
         Haudenosaunee: middle_nodup
         Ute: south_nodup
@@ -471,7 +472,6 @@ off-diag:
       unstack: *stack
     sim:
       input:
-        id: CMIP6_ScenarioMIP_MIROC_MIROC-ES2L_ssp585_r1i1p1f2_global #TODO: remove
         #source: *hausfather-source
         processing_level:  regridded
       domain:
@@ -486,7 +486,6 @@ off-diag:
       unstack: *stack
     scen:
       input:
-        id: CMIP6_ScenarioMIP_MIROC_MIROC-ES2L_ssp585_r1i1p1f2_global #TODO: remove
         #source: *hausfather-source
         processing_level: final
       domain:
