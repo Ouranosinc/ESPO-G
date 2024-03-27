@@ -1,9 +1,9 @@
 #Configuration file for ESPO-G6-E5L v1.0.0
 
 project:
-    name: ESPO-G6
+    name: ESPO-G6-PB
     version: 1.0.0
-    description: Ensemble de scénarios polyvalents d'Ouranos - Gloabl - CMIP6
+    description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6
     id: eg6
 
 tasks:
@@ -38,16 +38,17 @@ custom:
           lon_bnds: [ -83, -55 ]
           lat_bnds: [ 42, 63 ]
     amno_region:
-        name: QC-PB
+        name: &nam-name
+         QC-PB
         method: bbox
         lon_bnds: [ -83, -55 ]
         lat_bnds: [ 42, 63 ]
     stack_drop_nans: &stack # goal is to drop Nan to make it faster
         True
     chunks:
-        lat: 20 #espo-r
-        lon: 20 #espo-r
-        loc: 600 #espo-r
+        lat: 20
+        lon: 20
+        loc: 600
         time: -1
     out_chunks:
         lat: 50
@@ -117,13 +118,7 @@ extraction:
               engine: h5netcdf
               drop_variables:
                 - height
-#              chunks:
-#                lat: 100
-#                lon: 100
-#                time: 365
-        #chunks: {'time': 1, 'lon': -1, 'lat': -1} # only for CNRM-ESM2-1
         chunks: {'time': 365, 'lat':-1, 'lon':-1}
-        #chunks: {'time': 365, 'lat':30, 'lon':30}
     ref_source: *ref_source
 
 
@@ -269,14 +264,16 @@ clean_up:
   problems:
     - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp245_r1i1p1f1_global
     - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp370_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp585_r1i1p1f1_global
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp245_r1i1p1f1_global
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp370_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp585_r1i1p1f1_global
   xscen_clean_up:
       maybe_unstack_dict:
         stack_drop_nans: *stack
         rechunk:
-          lat: 20 #espo-r
-          lon: 20 #espo-r
+          lat: 20
+          lon: 20
           time: -1
       round_var:
         pr: 10
@@ -284,10 +281,10 @@ clean_up:
       add_attrs:
         global:
           Notes: |
-            Regridded on the grid of PCICBlend, then bias-adjusted with detrended
+            Regridded on the grid of PCIC-Blend, then bias-adjusted with detrended
             quantile mapping on a day-of-year basis with a window of 31 days, LOESS
-            detrending and 50 quantiles. The reference was PCICBlend over the
-            1991-2020 period. Tasmax, dtr and pr were adjusted, tasmin was computed
+            detrending and 50 quantiles. The reference was PCIC-Blend over the
+            1983-2012 period. Tasmax, dtr and pr were adjusted, tasmin was computed
             from tasmax and dtr after the adjustment.
           redistribution: Redistribution prohibited. For internal use only.
           version: "1.0.0"
@@ -322,47 +319,6 @@ diagnostics:
     properties_and_measures:
       period: *ref_period
       unstack: False
-
-indicators:
-  input:
-    processing_level: final
-    domain: NAM
-  compute_indicators:
-    to_level: individual_indicator
-
-aggregate:
-  input:
-    clim:
-      processing_level: indicators
-    abs-delta:
-      processing_level: climatology
-    per-delta:
-      processing_level: climatology
-      variable: prcptot
-  climatological_mean:
-    window: 30
-    interval: 10
-    periods: [['1951', '2100']]
-    to_level: climatology
-  compute_deltas:
-    reference_horizon: "1991-2020"
-
-
-ensemble:
-    processing_levels:
-        - indicators
-        - climatology
-        - abs-delta
-        - per-delta
-    ensemble_stats_xscen:
-      statistics:
-        ensemble_percentiles:
-          split: True
-      common_attrs_only: True
-      create_kwargs:
-        chunks:
-          horizon: -1
-
 
 health_checks:
     structure:
@@ -409,77 +365,6 @@ health_checks:
       - cfchecks
       - freq
 
-off-diag:
-  domains:
-#    Haudenosaunee:
-#        name: Haudenosaunee
-#        method: bbox
-#        lat_bnds: [ 42.0, 47.0 ]
-#        lon_bnds: [ -79.0, -71.0 ]
-#    Ute:
-#        name: Ute
-#        method: bbox
-#        lat_bnds: [ 35.0, 40.0 ]
-#        lon_bnds: [ -111.0, -103.0 ]
-#    Dene:
-#        name: Dene
-#        method: bbox
-#        lat_bnds: [ 60.0, 65.0 ]
-#        lon_bnds: [ -124.0, -116.0 ]
-    Magtogoek:
-      name: Magtogoek
-      method: bbox
-      lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
-      lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
-  steps:
-    ref:
-      input:
-        source: *ref_source
-        calendar: default
-      domain:
-        Haudenosaunee: middle_nodup
-        Ute: south_nodup
-        Dene: middle_nodup
-        Magtogoek: middle_nodup
-      properties_and_measures:
-        period: *ref_period
-      unstack: *stack
-    sim:
-      input:
-        processing_level:  regridded
-      domain:
-        Haudenosaunee: middle
-        Ute: south
-        Dene: middle
-        Magtogoek: middle
-      dref_for_measure:
-        processing_level: off-diag-ref-prop
-      properties_and_measures:
-        period: *ref_period
-      unstack: *stack
-    scen:
-      input:
-        processing_level: final
-      domain:
-        Haudenosaunee: NAM
-        Ute: NAM
-        Dene: NAM
-        Magtogoek: NAM
-      dref_for_measure:
-        processing_level: off-diag-ref-prop
-      properties_and_measures:
-        period: *ref_period
-      unstack: False
-  correlogram:
-    regions: # list of region on which we want to caluclate the correlogram
-     - Haudenosaunee
-     - Ute
-     - Dene
-    args:
-      bins: 100
-
-
-
 scripting:
     measure_time:
         cpu: True
@@ -488,7 +373,6 @@ scripting:
         msg_ok: Toutes les étapes demandées ont été complétées.
         msg_err: Une erreur est survenue durant le traitement.
         on_error_only: True
-
 
 dask:
     array.slicing.split_large_chunks: False

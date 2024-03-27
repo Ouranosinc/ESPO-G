@@ -63,7 +63,7 @@ if __name__ == '__main__':
         pcat = ProjectCatalog.create(CONFIG['paths']['project_catalog'], project=CONFIG['project'], overwrite=True)
 
     # load project catalog
-    pcat = ProjectCatalog(CONFIG['paths']['project_catalog'])
+    pcat = ProjectCatalog(CONFIG['paths']['project_catalog'], create=True)
 
 
 
@@ -716,7 +716,8 @@ if __name__ == '__main__':
                                     **step_dict['dref_for_measure']).to_dask()
 
                             if 'dtr' not in ds_input:
-                                ds_input = ds_input.assign(dtr=conversions.dtr(ds_input.tasmin, ds_input.tasmax))
+                                ds_input = ds_input.assign(dtr=conversions.dtr(
+                                    ds_input.tasmin, ds_input.tasmax))
 
                             prop, meas = xs.properties_and_measures(
                                 ds=ds_input,
