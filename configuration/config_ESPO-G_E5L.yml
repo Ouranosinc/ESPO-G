@@ -16,7 +16,7 @@ tasks:
   - adjust
   - clean_up
   - final_zarr
-  - diagnostics
+  #- diagnostics
   - concat
   - health_checks
   - official-diag

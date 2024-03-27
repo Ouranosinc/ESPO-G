@@ -13,6 +13,7 @@ from itertools import product
 from xclim.core.calendar import convert_calendar, get_calendar, date_range_like,doy_to_days_since
 from xclim.sdba import properties
 import xclim as xc
+from xscen.xclim_modules import conversions
 
 
 from xscen.utils import minimum_calendar, translate_time_chunk, stack_drop_nans
@@ -490,7 +491,7 @@ if __name__ == '__main__':
                                 Client(n_workers=3, threads_per_worker=5,
                                        memory_limit="20GB", **daskkws),
                                 measure_time(name=f'diagnostics', logger=logger),
-                                timeout(18000, task='diagnostics')
+                                timeout(2*18000, task='diagnostics')
                         ):
 
 
@@ -701,7 +702,7 @@ if __name__ == '__main__':
 
                             # cut the domain
                             ds_input = xs.spatial.subset(
-                               ds_input.chunk({'time': -1}), dom_dict)
+                               ds_input.chunk({'time': -1}), **dom_dict)
 
 
                             dref_for_measure = None
@@ -709,6 +710,9 @@ if __name__ == '__main__':
                                 dref_for_measure = pcat.search(
                                     domain=dom_name,
                                     **step_dict['dref_for_measure']).to_dask()
+
+                            if 'dtr' not in ds_input:
+                                ds_input = ds_input.assign(dtr=conversions.dtr(ds_input.tasmin, ds_input.tasmax))
 
                             prop, meas = xs.properties_and_measures(
                                 ds=ds_input,
