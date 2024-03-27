@@ -13,6 +13,7 @@ from itertools import product
 from xclim.core.calendar import convert_calendar, get_calendar, date_range_like,doy_to_days_since
 from xclim.sdba import properties
 import xclim as xc
+from xscen.xclim_modules import conversions
 
 
 from xscen.utils import minimum_calendar, translate_time_chunk, stack_drop_nans
@@ -207,7 +208,7 @@ if __name__ == '__main__':
                 #periods = ['1950','2100'],  # only for CNRM-ESM2-1
     for sim_id, dc_id in cat_sim.items():
         if not pcat.exists_in_cat(domain=CONFIG['custom']['amno_region']['name'],
-                                  id =sim_id, processing_level='final'):
+                                 id =sim_id, processing_level='final'):
             for region_name, region_dict in CONFIG['custom']['regions'].items():
                 # depending on the final tasks, check that the final file doesn't already exists
                 final = {'final_zarr': dict(domain=region_name, processing_level='final', id=sim_id),
@@ -246,9 +247,6 @@ if __name__ == '__main__':
                             ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
 
                             ds_sim = ds_sim.chunk(CONFIG['extraction']['simulation']['chunks'])
-
-                            #TODO: try spatial chunks
-                            #ds_sim = ds_sim.chunk({'time': 365, 'lat': 100, 'lon': 100})
 
                             # save to zarr
                             path_cut_exec = f"{exec_wdir}/{sim_id}_{ds_sim.attrs['cat:domain']}_extracted.zarr"
@@ -451,9 +449,9 @@ if __name__ == '__main__':
                                                        format='zarr')
                     ):
                         with (
-                                Client(n_workers=2, threads_per_worker=3, memory_limit="30GB", **daskkws),
+                                Client(n_workers=4, threads_per_worker=3, memory_limit="15GB", **daskkws),
                                 measure_time(name=f'final zarr rechunk', logger=logger),
-                                timeout(18000, task='final_zarr')
+                                timeout(30000, task='final_zarr')
                         ):
                             #rechunk and move to final destination
                             fi_path = Path(f"{CONFIG['paths']['output']}".format(**fmtkws))
@@ -497,7 +495,7 @@ if __name__ == '__main__':
                                 Client(n_workers=3, threads_per_worker=5,
                                        memory_limit="20GB", **daskkws),
                                 measure_time(name=f'diagnostics', logger=logger),
-                                timeout(18000, task='diagnostics')
+                                timeout(2*18000, task='diagnostics')
                         ):
 
 
@@ -605,7 +603,6 @@ if __name__ == '__main__':
                 levels = [
                     'diag-sim-prop', 'diag-scen-prop', 'diag-sim-meas','diag-scen-meas',
                     'final']
-                #levels=['final']
                 for level in levels:
                     logger.info(f'Contenating {sim_id} {level}.')
 
@@ -645,8 +642,6 @@ if __name__ == '__main__':
 
                 logger.info('Concatenation done.')
 
-                #TODO: verify xscen version ( new env?)
-
             # --- HEALTH CHECKS ---
             if (
                     "health_checks" in CONFIG["tasks"]
@@ -674,6 +669,7 @@ if __name__ == '__main__':
                         sim_id=sim_id,
                         region_name=CONFIG['custom']['amno_region']['name'])
                     xs.save_and_update(ds=hc, path=path, pcat=pcat)
+
                     send_mail(
                         subject=f"{sim_id} - Succès",
                         msg=f"{sim_id} est terminé. \n Health checks:"+ "".join(
@@ -710,7 +706,7 @@ if __name__ == '__main__':
 
                             # cut the domain
                             ds_input = xs.spatial.subset(
-                               ds_input.chunk({'time': -1}), dom_dict)
+                               ds_input.chunk({'time': -1}), **dom_dict)
 
 
                             dref_for_measure = None
@@ -718,6 +714,9 @@ if __name__ == '__main__':
                                 dref_for_measure = pcat.search(
                                     domain=dom_name,
                                     **step_dict['dref_for_measure']).to_dask()
+
+                            if 'dtr' not in ds_input:
+                                ds_input = ds_input.assign(dtr=conversions.dtr(ds_input.tasmin, ds_input.tasmax))
 
                             prop, meas = xs.properties_and_measures(
                                 ds=ds_input,

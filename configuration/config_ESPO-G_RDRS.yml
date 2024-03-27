@@ -3,7 +3,7 @@
 project:
     name: ESPO-G6-R2
     version: 1.0.0
-    description: Ensemble de scénarios polyvalents d'Ouranos - Global - CMIP6
+    description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6
     id: eg6
 
 tasks:
@@ -32,18 +32,6 @@ custom:
     delete_in_final_zarr: False
     delete_in_diag: True
     regions:
-#      prob-reg:
-#        name: prob-reg
-#        method: bbox
-#        bbox:
-#            lat_bnds: [45, 47]
-#            lon_bnds: [-75, -70]
-#        QC-rdrs:
-#          name: QC-rdrs
-#          method: bbox
-#          bbox:
-#            lon_bnds: [ -83, -55 ]
-#            lat_bnds: [ 42, 63 ]
         south-rdrs-rot:
             name: south-rdrs-rot
             method: sel
@@ -66,7 +54,7 @@ custom:
       tile_buffer: 1.5
       lon_bnds: [ -179.95, -10 ]
       lat_bnds: [ 10, 83.4 ]
-    stack_drop_nans: &stack
+    stack_drop_nans: &stack # goal is to drop Nan to make it faster
         True
     chunks:
         rlat: 20
@@ -74,7 +62,7 @@ custom:
         loc: 600
         time: -1
     out_chunks:
-        rlat: 50 #20 for prob-reg.
+        rlat: 50
         rlon: 50
         time: 4year
     ref_period : &ref_period
@@ -134,22 +122,22 @@ extraction:
                 - ssp245
                 - ssp370
                 - ssp585
-              source: &hausfather-source    # in the TCR likely range (14) #chunking
-                - BCC-CSM2-MR
-                - FGOALS-g3 # None, but 1 file per year
-                - CMCC-ESM2 # [1, 192, 288]
-                - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
-                - ACCESS-CM2 #  [1, 145, 192]
-                - ACCESS-ESM1-5 # [1, 96, 144]
-                - MPI-ESM1-2-HR # [1, 192, 384]
-                - INM-CM5-0 # [1, 120, 180]
-                - MIROC6 # [1, 96, 192]
-                - MPI-ESM1-2-LR #[1, 96, 192]
-                - MRI-ESM2-0 #[1, 160, 320]
-                - NorESM2-LM #[1, 96, 144]
-                - KACE-1-0-G #[1, 144, 192] time out extract
-                - GFDL-ESM4 #[1, 180, 288]
-                - MIROC-ES2L # new one!
+#              source: &hausfather-source    # in the TCR likely range (15) #chunking
+#                - BCC-CSM2-MR
+#                - FGOALS-g3 # None, but 1 file per year
+#                - CMCC-ESM2 # [1, 192, 288]
+#                - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
+#                - ACCESS-CM2 #  [1, 145, 192]
+#                - ACCESS-ESM1-5 # [1, 96, 144]
+#                - MPI-ESM1-2-HR # [1, 192, 384]
+#                - INM-CM5-0 # [1, 120, 180]
+#                - MIROC6 # [1, 96, 192]
+#                - MPI-ESM1-2-LR #[1, 96, 192]
+#                - MRI-ESM2-0 #[1, 160, 320]
+#                - NorESM2-LM #[1, 96, 144]
+#                - KACE-1-0-G #[1, 144, 192] time out extract
+#                - GFDL-ESM4 #[1, 180, 288]
+#                - MIROC-ES2L # new one!
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
@@ -157,11 +145,6 @@ extraction:
             xr_open_kwargs:
               drop_variables:
                 - height
-              chunks:
-                lat: 100
-                lon: 100
-                time: 365
-              #chunks: {'time': 1, 'lon': -1, 'lat': -1} # only for CNRM-ESM2-1
         chunks: {'time': 365, 'lat':-1, 'lon':-1}
     ref_source: *ref_source
 
@@ -176,6 +159,8 @@ regrid:
         extrap_method: inverse_dist
         locstream_out: *stack
         reuse_weights: False
+        output_chunks:
+          loc: -1
       intermediate_grids:
         reg1:
           cf_grid_2d:
@@ -190,6 +175,9 @@ regrid:
             extrap_method: inverse_dist
             locstream_out: False
             reuse_weights: False
+            output_chunks:
+              lat: -1
+              lon: -1
         reg2:
           cf_grid_2d:
             lon0_b: 179.04
@@ -203,6 +191,9 @@ regrid:
             extrap_method: inverse_dist
             locstream_out: False
             reuse_weights: False
+            output_chunks:
+              lat: -1
+              lon: -1
 
 io:
   rechunk:
@@ -303,6 +294,7 @@ clean_up:
     - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp585_r1i1p1f1_global
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp245_r1i1p1f1_global
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp370_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp585_r1i1p1f1_global
   xscen_clean_up:
       maybe_unstack_dict:
         stack_drop_nans: *stack
@@ -393,7 +385,7 @@ health_checks:
       pr:
         negative_accumulation_values:
         very_large_precipitation_events:
-          thresh: '300 mm/d'
+          thresh: '1650 mm/d'
     return_flags: True
     raise_on:
       - structure
@@ -408,7 +400,6 @@ indicators:
     processing_level: final
     domain:
      - *nam-name
-    #source: *hausfather-source
   compute_indicators:
     to_level: individual_indicator
 
@@ -440,7 +431,7 @@ ensemble:
         - abs-delta-1991-2020
         - per-delta-1991-2020
     domain: *nam-name
-    source: *hausfather-source
+    #source: *hausfather-source
     ensemble_stats_xscen:
       statistics:
         ensemble_percentiles:
@@ -455,63 +446,53 @@ off-diag:
 #    Haudenosaunee-rdrs-rot:
 #        name: Haudenosaunee-rdrs-rot
 #        method: sel
-#        sel:
-#          rlat: [ -14, -8 ]
-#          rlon: [ 370, 375 ]
+#        rlat: [ -14, -8 ]
+#        rlon: [ 370, 375 ]
 #    Ute-rdrs:
 #        name: Ute-rdrs
 #        method: bbox
-#        bbox:
-#          lat_bnds: [ 35.0, 40.0 ]
-#          lon_bnds: [ -111.0, -103.0 ]
+#        lat_bnds: [ 35.0, 40.0 ]
+#        lon_bnds: [ -111.0, -103.0 ]
 #    Dene-rdrs:
 #        name: Dene-rdrs
 #        method: bbox
-#        bbox:
-#          lat_bnds: [ 60.0, 65.0 ]
-#          lon_bnds: [ -124.0, -116.0 ]
+#        lat_bnds: [ 60.0, 65.0 ]
+#        lon_bnds: [ -124.0, -116.0 ]
     Cree-rdrs:
       name: Cree-rdrs
       method: bbox
-      bbox:
-        lat_bnds: [ 46.9, 53.8 ]
-        lon_bnds: [ -115, -97.1 ]
+      lat_bnds: [ 46.9, 53.8 ]
+      lon_bnds: [ -115, -97.1 ]
     UteBig-rdrs:
       name: UteBig-rdrs
       method: bbox
-      bbox:
-        lat_bnds:  [ 35.5, 43]
-        lon_bnds: [ -109.6, -95.5 ]
+      lat_bnds:  [ 35.5, 43]
+      lon_bnds: [ -109.6, -95.5 ]
     Tlicho-rdrs:
       name: Tlicho-rdrs
       method: bbox
-      bbox:
-        lat_bnds:  [ 61.3, 66.75]
-        lon_bnds: [ -130, -103.8 ]
+      lat_bnds:  [ 61.3, 66.75]
+      lon_bnds: [ -130, -103.8 ]
     Magtogoek81-rdrs:
       name: Magtogoek81-rdrs
       method: bbox
-      bbox:
-        lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
-        lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
+      lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
+      lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
 #    meridional-rdrs:
 #      name: meridional-rdrs
 #      method: bbox
-#      bbox:
-#        lon_bnds: [ -83, -55 ]
-#        lat_bnds: [ 42, 52 ]
+#      lon_bnds: [ -83, -55 ]
+#      lat_bnds: [ 42, 52 ]
 #    QC-rdrs:
 #      name: QC-rdrs
 #      method: bbox
-#      bbox:
-#        lon_bnds: [ -83, -55 ]
-#        lat_bnds: [ 42, 63 ]
+#      lon_bnds: [ -83, -55 ]
+#      lat_bnds: [ 42, 63 ]
 #    Haudenosaunee-rdrs:
 #        name: Haudenosaunee-rdrs
 #        method: bbox
-#        bbox:
-#          lat_bnds: [ 42.0, 47.0 ]
-#          lon_bnds: [ -79.0, -71.0 ]
+#        lat_bnds: [ 42.0, 47.0 ]
+#        lon_bnds: [ -79.0, -71.0 ]
   steps:
     ref:
       input:
@@ -534,8 +515,7 @@ off-diag:
       unstack: *stack
     sim:
       input:
-        source: *hausfather-source
-        experiment: ssp370
+        #source: *hausfather-source
         processing_level:  regridded
       domain: *domains-off-diag
       dref_for_measure:
@@ -545,9 +525,8 @@ off-diag:
       unstack: *stack
     scen:
       input:
-        source: *hausfather-source
+        #source: *hausfather-source
         processing_level: final
-        experiment: ssp370
       domain:
         Magtogoek-rdrs: *nam-name
         Magtogoek81-rdrs: *nam-name
@@ -563,9 +542,6 @@ off-diag:
         period: *diag_period
       unstack: False
 
-
-
-
 scripting:
     measure_time:
         cpu: True
@@ -574,7 +550,6 @@ scripting:
         msg_ok: Toutes les étapes demandées ont été complétées.
         msg_err: Une erreur est survenue durant le traitement.
         on_error_only: True
-
 
 dask:
     array.slicing.split_large_chunks: False
@@ -602,9 +577,3 @@ logging:
 tdd:
   xarray_open_kwargs:
     decode_timedelta: False
-
-#utils:
-#  unstack_fill_nan:
-#    coords: ['rlat', 'rlon']
-#  maybe_unstack:
-#    coords: ['rlat', 'rlon']

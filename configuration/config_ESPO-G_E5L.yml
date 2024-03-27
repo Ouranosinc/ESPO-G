@@ -1,9 +1,9 @@
 #Configuration file for ESPO-G6-E5L v1.0.0
 
 project:
-    name: ESPO-G6
+    name: ESPO-G6-E5L
     version: 1.0.0
-    description: Ensemble de scénarios polyvalents d'Ouranos - Gloabl - CMIP6
+    description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6
     id: eg6
 
 tasks:
@@ -19,7 +19,7 @@ tasks:
   - diagnostics
   - concat
   - health_checks
-#  - official-diag
+  - official-diag
 #  - indicators
 #  - climatological_mean
 #  - abs-delta
@@ -48,7 +48,8 @@ custom:
             lon_bnds: [-179.95, -10]
             lat_bnds: [65.05, 83.3] # changed from 83.4 to make it fit with other files
     amno_region:
-      name: NAM
+      name: &nam-name
+        NAM
       method: bbox
       tile_buffer: 1.5
       lon_bnds: [ -179.95, -10 ]
@@ -56,9 +57,9 @@ custom:
     stack_drop_nans: &stack # goal is to drop Nan to make it faster
         True
     chunks:
-        lat: 20 #espo-r
-        lon: 20 #espo-r
-        loc: 600 #espo-r
+        lat: 20
+        lon: 20
+        loc: 600
         time: -1
     out_chunks:
         lat: 50
@@ -114,14 +115,14 @@ extraction:
             other_search_criteria:
               processing_level: raw
               experiment:
+                - ssp245
+                - ssp370
                 - ssp585
-                #- ssp245
-                #- ssp370
-              source: &hausfather-source    # in the TCR likely range (14) #chunking
+#              source: &hausfather-source    # in the TCR likely range (15) #chunking
 #                - BCC-CSM2-MR
 #                - FGOALS-g3 # None, but 1 file per year
 #                - CMCC-ESM2 # [1, 192, 288]
-#                 - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
+#                - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
 #                - ACCESS-CM2 #  [1, 145, 192]
 #                - ACCESS-ESM1-5 # [1, 96, 144]
 #                - MPI-ESM1-2-HR # [1, 192, 384]
@@ -132,7 +133,7 @@ extraction:
 #                - NorESM2-LM #[1, 96, 144]
 #                - KACE-1-0-G #[1, 144, 192] time out extract
 #                - GFDL-ESM4 #[1, 180, 288]
-                - MIROC-ES2L # new one!
+#                - MIROC-ES2L # new one!
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
@@ -140,13 +141,7 @@ extraction:
             xr_open_kwargs:
               drop_variables:
                 - height
-#              chunks:
-#                lat: 100
-#                lon: 100
-#                time: 365
-        #chunks: {'time': 1, 'lon': -1, 'lat': -1} # only for CNRM-ESM2-1
         chunks: {'time': 365, 'lat':-1, 'lon':-1}
-        #chunks: {'time': 365, 'lat':30, 'lon':30}
     ref_source: *ref_source
 
 
@@ -292,14 +287,16 @@ clean_up:
   problems:
     - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp245_r1i1p1f1_global
     - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp370_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp585_r1i1p1f1_global
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp245_r1i1p1f1_global
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp370_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp585_r1i1p1f1_global
   xscen_clean_up:
       maybe_unstack_dict:
         stack_drop_nans: *stack
         rechunk:
-          lat: 20 #espo-r
-          lon: 20 #espo-r
+          lat: 20
+          lon: 20
           time: -1
       round_var:
         pr: 10
@@ -346,47 +343,6 @@ diagnostics:
       period: *ref_period
       unstack: False
 
-indicators:
-  input:
-    processing_level: final
-    domain: NAM
-  compute_indicators:
-    to_level: individual_indicator
-
-aggregate:
-  input:
-    clim:
-      processing_level: indicators
-    abs-delta:
-      processing_level: climatology
-    per-delta:
-      processing_level: climatology
-      variable: prcptot
-  climatological_mean:
-    window: 30
-    interval: 10
-    periods: [['1951', '2100']]
-    to_level: climatology
-  compute_deltas:
-    reference_horizon: "1991-2020"
-
-
-ensemble:
-    processing_levels:
-        - indicators
-        - climatology
-        - abs-delta
-        - per-delta
-    ensemble_stats_xscen:
-      statistics:
-        ensemble_percentiles:
-          split: True
-      common_attrs_only: True
-      create_kwargs:
-        chunks:
-          horizon: -1
-
-
 health_checks:
     structure:
       coords:
@@ -422,7 +378,7 @@ health_checks:
       pr:
         negative_accumulation_values:
         very_large_precipitation_events:
-          thresh: '300 mm/d'
+          thresh: '1650 mm/d'
     return_flags: True
     raise_on:
       - structure
@@ -432,37 +388,80 @@ health_checks:
       - cfchecks
       - freq
 
+indicators:
+  input:
+    processing_level: final
+    domain:
+     - *nam-name
+  compute_indicators:
+    to_level: individual_indicator
+
+aggregate:
+  input:
+    clim:
+      processing_level: indicators
+      domain: *nam-name
+    abs-delta:
+      processing_level: climatology
+      domain: *nam-name
+    per-delta:
+      processing_level: climatology
+      variable: prcptot
+      domain: *nam-name
+  climatological_mean:
+    window: 30
+    interval: 10
+    periods: [['1951', '2100']]
+    to_level: climatology
+  compute_deltas:
+    reference_horizon: "1991-2020"
+
+
+ensemble:
+    processing_levels:
+        - indicators
+        - climatology
+        - abs-delta-1991-2020
+        - per-delta-1991-2020
+    domain: *nam-name
+    #source: *hausfather-source
+    ensemble_stats_xscen:
+      statistics:
+        ensemble_percentiles:
+          split: True
+      common_attrs_only: True
+      create_kwargs:
+        chunks:
+          horizon: -1
+
 off-diag:
   domains:
 #    Haudenosaunee:
 #        name: Haudenosaunee
 #        method: bbox
-#        bbox:
-#          lat_bnds: [ 42.0, 47.0 ]
-#          lon_bnds: [ -79.0, -71.0 ]
+#        lat_bnds: [ 42.0, 47.0 ]
+#        lon_bnds: [ -79.0, -71.0 ]
 #    Ute:
 #        name: Ute
 #        method: bbox
-#        bbox:
-#          lat_bnds: [ 35.0, 40.0 ]
-#          lon_bnds: [ -111.0, -103.0 ]
+#        lat_bnds: [ 35.0, 40.0 ]
+#        lon_bnds: [ -111.0, -103.0 ]
 #    Dene:
 #        name: Dene
 #        method: bbox
-#        bbox:
-#          lat_bnds: [ 60.0, 65.0 ]
-#          lon_bnds: [ -124.0, -116.0 ]
+#        lat_bnds: [ 60.0, 65.0 ]
+#        lon_bnds: [ -124.0, -116.0 ]
     Magtogoek:
       name: Magtogoek
       method: bbox
-      bbox:
-        lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
-        lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
+      lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
+      lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
   steps:
     ref:
       input:
         source: *ref_source
         calendar: default
+        processing_level: extracted
       domain:
         Haudenosaunee: middle_nodup
         Ute: south_nodup
@@ -473,13 +472,13 @@ off-diag:
       unstack: *stack
     sim:
       input:
-        source: *hausfather-source
+        #source: *hausfather-source
         processing_level:  regridded
       domain:
-        Haudenosaunee: middle
+        Haudenosaunee: middle_nodup
         Ute: south
-        Dene: middle
-        Magtogoek: middle
+        Dene: middle_nodup
+        Magtogoek: middle_nodup
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
@@ -487,7 +486,7 @@ off-diag:
       unstack: *stack
     scen:
       input:
-        source: *hausfather-source
+        #source: *hausfather-source
         processing_level: final
       domain:
         Haudenosaunee: NAM
@@ -499,15 +498,6 @@ off-diag:
       properties_and_measures:
         period: *ref_period
       unstack: False
-  correlogram:
-    regions: # list of region on which we want to caluclate the correlogram
-     - Haudenosaunee
-     - Ute
-     - Dene
-    args:
-      bins: 100
-
-
 
 scripting:
     measure_time:
@@ -517,7 +507,6 @@ scripting:
         msg_ok: Toutes les étapes demandées ont été complétées.
         msg_err: Une erreur est survenue durant le traitement.
         on_error_only: True
-
 
 dask:
     array.slicing.split_large_chunks: False
