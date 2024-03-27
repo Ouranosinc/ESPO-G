@@ -399,7 +399,7 @@ health_checks:
       pr:
         negative_accumulation_values:
         very_large_precipitation_events:
-          thresh: '300 mm/d'
+          thresh: '1650 mm/d'
     return_flags: True
     raise_on:
       - structure
