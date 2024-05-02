@@ -34,7 +34,7 @@ from xscen import (
 from utils import  save_move_update,move_then_delete, save_and_update, large_move
 
 # Load configuration
-load_config('configuration/paths_ESPO-G_j.yml', 'configuration/config_ESPO-G6-PB.yml', verbose=(__name__ == '__main__'), reset=True)
+load_config('configuration/paths_ESPO-G_j.yml', 'configuration/config_ESPO-G_E5L.yml', verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
 
 workdir = Path(CONFIG['paths']['workdir'])
@@ -73,29 +73,31 @@ if __name__ == '__main__':
             # default
             if not pcat.exists_in_cat(domain=region_name, source=ref_source):
                 with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
-                    # # search
-                    # cat_ref = search_data_catalogs(**CONFIG['extraction']['reference']['search_data_catalogs'])
-                    #
-                    # # extract
-                    # dc = cat_ref.popitem()[1]
-                    # ds_ref = extract_dataset(catalog=dc,
-                    #                          region=region_dict,
-                    #                          **CONFIG['extraction']['reference']['extract_dataset']
-                    #                          )['D']
-                    #
-                    # # stack
-                    # if CONFIG['custom']['stack_drop_nans']:
-                    #     var = list(ds_ref.data_vars)[0]
-                    #     ds_ref = stack_drop_nans(
-                    #         ds_ref,
-                    #         ds_ref[var].isel(time=0, drop=True).notnull().compute(),
-                    #     )
-                    # #chunk
-                    # ds_ref = ds_ref.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_ref.dims})
+                    # search
+                    cat_ref = search_data_catalogs(**CONFIG['extraction']['reference']['search_data_catalogs'])
 
-                    ds_ref=xr.open_zarr(CONFIG['paths']['pcicblend']).sel(time=ref_period)
-                    ds_ref.attrs['cat:domain'] = region_name
+                    # extract
+                    dc = cat_ref.popitem()[1]
+                    ds_ref = extract_dataset(catalog=dc,
+                                             region=region_dict,
+                                             **CONFIG['extraction']['reference']['extract_dataset']
+                                             )['D']
 
+                    # stack
+                    if CONFIG['custom']['stack_drop_nans']:
+                        var = list(ds_ref.data_vars)[0]
+                        ds_ref = stack_drop_nans(
+                            ds_ref,
+                            ds_ref[var].isel(time=0, drop=True).notnull().compute(),
+                        )
+                    #chunk
+                    ds_ref = ds_ref.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_ref.dims})
+
+                    #ds_ref=xr.open_zarr(CONFIG['paths']['pcicblend']).sel(time=ref_period)
+                    #ds_ref.attrs['cat:domain'] = region_name
+
+                    # ds_ref=xr.open_zarr("/crue/jlavoie/info-crue-cmip6/reference/ref_QC_default.zarr").sel(time=ref_period)
+                    # ds_ref.attrs['cat:domain'] = region_name
 
                     save_move_update(ds=ds_ref,
                                      pcat = pcat,
@@ -204,7 +206,9 @@ if __name__ == '__main__':
                 #periods = ['1950','2100'],  # only for CNRM-ESM2-1
     for sim_id, dc_id in cat_sim.items():
         if not pcat.exists_in_cat(domain=CONFIG['custom']['amno_region']['name'],
-                                 id =sim_id, processing_level='final'):
+                                id =sim_id, processing_level='final'): #TODO: change back
+                               #id = sim_id, processing_level = ['final','regridded','regridded_and_rechunked']):
+
             for region_name, region_dict in CONFIG['custom']['regions'].items():
                 # depending on the final tasks, check that the final file doesn't already exists
                 final = {'final_zarr': dict(domain=region_name, processing_level='final', id=sim_id),
@@ -251,17 +255,16 @@ if __name__ == '__main__':
                                              path=path_cut_exec,
                                              )
                     # ---REGRID---
-                    # only works with xesmf 0.7
                     if (
                             "regrid" in CONFIG["tasks"]
                             and not pcat.exists_in_cat(domain=region_name, processing_level='regridded', id=sim_id)
                     ):
                         with (
-                            # Client(n_workers=2, threads_per_worker=5,
-                            #        memory_limit="32GB", **daskkws),
-                                Client(n_workers=3, threads_per_worker=3, memory_limit="16GB", **daskkws),
+                            Client(n_workers=2, threads_per_worker=5,
+                                   memory_limit="32GB", **daskkws),
+                               # Client(n_workers=3, threads_per_worker=3, memory_limit="16GB", **daskkws),
                                 measure_time(name='regrid', logger=logger),
-                               #timeout(18000, task='regrid')
+                               timeout(18000, task='regrid')
                         ):
 
                             ds_input = pcat.search(id=sim_id,
@@ -287,8 +290,12 @@ if __name__ == '__main__':
                             # save
                             save_and_update(ds=ds_regrid,
                                             pcat=pcat,
-                                            path=f"{exec_wdir}/{sim_id}_{region_name}_regridded.zarr",
+                                            path=f"{exec_wdir}/{sim_id}_{region_name}_regridded.zarr", #TODO: put back
+                                            #path=f"/exec/jlavoie/regridded/{sim_id}_{region_name}_regridded.zarr",
                                              )
+                            #shutil.rmtree(CONFIG['regrid']['regrid_dataset']['weights_location'])
+                    #shutil.rmtree('/tmp/dask-scratch-space-7147')
+
 
                     #  ---RECHUNK---
                     if (
@@ -303,8 +310,11 @@ if __name__ == '__main__':
                             #rechunk in exec
                             path_rc = f"{exec_wdir}/{sim_id}_{region_name}_regchunked.zarr"
 
-                            rechunk(path_in=f"{exec_wdir}/{sim_id}_{region_name}_regridded.zarr",
-                                    path_out=path_rc,
+
+
+                            rechunk(path_in=f"{exec_wdir}/{sim_id}_{region_name}_regridded.zarr", #TODO: change back
+                                #path_in=f"/exec/jlavoie/regridded/{sim_id}_{region_name}_regridded.zarr",
+                                path_out=path_rc,
                                     chunks_over_dim=CONFIG['custom']['chunks'],
                                     overwrite=True)
 

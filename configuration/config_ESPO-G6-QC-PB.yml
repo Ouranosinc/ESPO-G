@@ -1,22 +1,22 @@
 #Configuration file for ESPO-G6-E5L v1.0.0
 
 project:
-    name: ESPO-G6-E5L
+    name: ESPO-G6-PB
     version: 1.0.0
     description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6
     id: eg6
 
 tasks:
-  - makeref
-  - extract
-  - regrid
+#  - makeref
+#  - extract
+#  - regrid
   - rechunk
   - train
   - adjust
   - clean_up
   - final_zarr
   - diagnostics
-  - concat
+#  - concat
   - health_checks
 #  - official-diag
 #  - indicators
@@ -31,28 +31,23 @@ custom:
     delete_in_final_zarr: False
     delete_in_diag: True
     regions:
-        south_nodup:
-            name: south_nodup
-            method: bbox
-            lon_bnds: [ -179.95, -10 ]
-            lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
-        middle_nodup:
-            name: middle_nodup
-            method: bbox
-            lon_bnds: [ -179.95, -10 ]
-            lat_bnds: [ 40.05, 65.05 ]
-        north_nodup:
-            name: north_nodup
-            method: bbox
-            lon_bnds: [-179.95, -10]
-            lat_bnds: [65.05, 83.3] # changed from 83.4 to make it fit with other files
+        QC-PB:
+          name: QC-PB
+          method: bbox
+          lon_bnds: [ -83, -55 ]
+          lat_bnds: [ 42, 63 ]
     amno_region:
-      name: &nam-name
-        NAM
-      method: bbox
-      tile_buffer: 1.5
-      lon_bnds: [ -179.95, -10 ]
-      lat_bnds: [ 10, 83.4 ]
+#        name: &nam-name
+#         QC-PB
+#        method: bbox
+#        lon_bnds: [ -83, -55 ]
+#        lat_bnds: [ 42, 63 ]
+        name: &nam-name
+                QC-PB
+        method: bbox
+        tile_buffer: 1.5
+        lon_bnds: [ -179.95, -10 ]
+        lat_bnds: [ 10, 83.4 ]
     stack_drop_nans: &stack # goal is to drop Nan to make it faster
         True
     chunks:
@@ -65,8 +60,8 @@ custom:
         lon: 50
         time: 4year
     ref_period : &ref_period
-        - '1991'
-        - '2020'
+      - '1983'
+      - '2012'
     sim_period: &sim_period
         - '1950'
         - '2100'
@@ -91,7 +86,7 @@ extraction:
             periods : *ref_period
             other_search_criteria:
                 source: &ref_source
-                    "ERA5-Land"
+                    "PCIC-Blend"
         extract_dataset: {}
         properties_and_measures:
           to_level_prop: diag-ref-prop
@@ -108,40 +103,29 @@ extraction:
             restrict_members:
               ordered: 1
             periods: *sim_period
-            exclusions:
-              id:
-                - CMIP6_ScenarioMIP_KIOST_KIOST-ESM_ssp245_r1i1p1f1_global # time axis is broken. but anyway ssp370 doesn't exist for KIOST
             other_search_criteria:
-              processing_level: raw
               experiment:
+                - ssp126
                 - ssp245
                 - ssp370
-                #- ssp585
+                - ssp585
+              processing_level: raw
               source:
-                - EC-Earth3-Veg
-                - INM-CM4-8
-                - MIROC-ES2L
-#              source: &hausfather-source    # in the TCR likely range (15) #chunking
-#                - BCC-CSM2-MR
-#                - FGOALS-g3 # None, but 1 file per year
-#                - CMCC-ESM2 # [1, 192, 288]
-#                - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
-#                - ACCESS-CM2 #  [1, 145, 192]
-#                - ACCESS-ESM1-5 # [1, 96, 144]
-#                - MPI-ESM1-2-HR # [1, 192, 384]
-#                - INM-CM5-0 # [1, 120, 180]
-#                - MIROC6 # [1, 96, 192]
-#                - MPI-ESM1-2-LR #[1, 96, 192]
-#                - MRI-ESM2-0 #[1, 160, 320]
-#                - NorESM2-LM #[1, 96, 144]
-#                - KACE-1-0-G #[1, 144, 192] time out extract
-#                - GFDL-ESM4 #[1, 180, 288]
-#                - MIROC-ES2L # new one!
+                - ACCESS-ESM1-5
+                - CanESM5
+                - EC-Earth3
+                - FGOALS-g3
+                - IPSL-CM6A-LR
+                - KACE-1-0-G
+                - MIROC6
+                - MRI-ESM2-0
+              member: r1i1p1f1
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
               combine_attrs: override
             xr_open_kwargs:
+              engine: h5netcdf
               drop_variables:
                 - height
         chunks: {'time': 365, 'lat':-1, 'lon':-1}
@@ -158,8 +142,8 @@ regrid:
         extrap_method: inverse_dist
         locstream_out: *stack
         reuse_weights: False
-#        output_chunks: # no need with xesmf 0.8.5
-#          loc: -1
+        output_chunks:
+          loc: -1
       intermediate_grids:
         reg1:
           cf_grid_2d:
@@ -174,9 +158,9 @@ regrid:
             extrap_method: inverse_dist
             locstream_out: False
             reuse_weights: False
-#            output_chunks: # no need with xesmf 0.8.5
-#              lat: -1
-#              lon: -1
+            output_chunks:
+              lat: -1
+              lon: -1
         reg2:
           cf_grid_2d:
             lon0_b: 179.04
@@ -190,9 +174,9 @@ regrid:
             extrap_method: inverse_dist
             locstream_out: False
             reuse_weights: False
-#            output_chunks: # no need with xesmf 0.8.5
-#              lat: -1
-#              lon: -1
+            output_chunks:
+              lat: -1
+              lon: -1
 
 io:
   rechunk:
@@ -307,10 +291,10 @@ clean_up:
       add_attrs:
         global:
           Notes: |
-            Regridded on the grid of ERA5-Land, then bias-adjusted with detrended
+            Regridded on the grid of PCIC-Blend, then bias-adjusted with detrended
             quantile mapping on a day-of-year basis with a window of 31 days, LOESS
-            detrending and 50 quantiles. The reference was ERA5-Land over the
-            1991-2020 period. Tasmax, dtr and pr were adjusted, tasmin was computed
+            detrending and 50 quantiles. The reference was PCIC-Blend over the
+            1983-2012 period. Tasmax, dtr and pr were adjusted, tasmin was computed
             from tasmax and dtr after the adjustment.
           redistribution: Redistribution prohibited. For internal use only.
           version: "1.0.0"
@@ -390,117 +374,6 @@ health_checks:
       - variables_and_units
       - cfchecks
       - freq
-
-indicators:
-  input:
-    processing_level: final
-    domain:
-     - *nam-name
-  compute_indicators:
-    to_level: individual_indicator
-
-aggregate:
-  input:
-    clim:
-      processing_level: indicators
-      domain: *nam-name
-    abs-delta:
-      processing_level: climatology
-      domain: *nam-name
-    per-delta:
-      processing_level: climatology
-      variable: prcptot
-      domain: *nam-name
-  climatological_mean:
-    window: 30
-    interval: 10
-    periods: [['1951', '2100']]
-    to_level: climatology
-  compute_deltas:
-    reference_horizon: "1991-2020"
-
-
-ensemble:
-    processing_levels:
-        - indicators
-        - climatology
-        - abs-delta-1991-2020
-        - per-delta-1991-2020
-    domain: *nam-name
-    #source: *hausfather-source
-    ensemble_stats_xscen:
-      statistics:
-        ensemble_percentiles:
-          split: True
-      common_attrs_only: True
-      create_kwargs:
-        chunks:
-          horizon: -1
-
-off-diag:
-  domains:
-#    Haudenosaunee:
-#        name: Haudenosaunee
-#        method: bbox
-#        lat_bnds: [ 42.0, 47.0 ]
-#        lon_bnds: [ -79.0, -71.0 ]
-#    Ute:
-#        name: Ute
-#        method: bbox
-#        lat_bnds: [ 35.0, 40.0 ]
-#        lon_bnds: [ -111.0, -103.0 ]
-#    Dene:
-#        name: Dene
-#        method: bbox
-#        lat_bnds: [ 60.0, 65.0 ]
-#        lon_bnds: [ -124.0, -116.0 ]
-    Magtogoek:
-      name: Magtogoek
-      method: bbox
-      lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
-      lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
-  steps:
-    ref:
-      input:
-        source: *ref_source
-        calendar: default
-        processing_level: extracted
-      domain:
-        Haudenosaunee: middle_nodup
-        Ute: south_nodup
-        Dene: middle_nodup
-        Magtogoek: middle_nodup
-      properties_and_measures:
-        period: *ref_period
-      unstack: *stack
-    sim:
-      input:
-        #source: *hausfather-source
-        processing_level:  regridded
-      domain:
-        Haudenosaunee: middle_nodup
-        Ute: south
-        Dene: middle_nodup
-        Magtogoek: middle_nodup
-      dref_for_measure:
-        processing_level: off-diag-ref-prop
-      properties_and_measures:
-        period: *ref_period
-      unstack: *stack
-    scen:
-      input:
-        #source: *hausfather-source
-        processing_level: final
-      domain:
-        Haudenosaunee: NAM
-        Ute: NAM
-        Dene: NAM
-        Magtogoek: NAM
-      dref_for_measure:
-        processing_level: off-diag-ref-prop
-      properties_and_measures:
-        period: *ref_period
-      unstack: False
 
 scripting:
     measure_time:
