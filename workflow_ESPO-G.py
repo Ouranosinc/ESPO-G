@@ -58,12 +58,8 @@ if __name__ == '__main__':
 
     tdd = CONFIG['tdd']
 
-    # initialize Project Catalog
-    if "initialize_pcat" in CONFIG["tasks"]:
-        pcat = ProjectCatalog.create(CONFIG['paths']['project_catalog'], project=CONFIG['project'], overwrite=True)
-
     # load project catalog
-    pcat = ProjectCatalog(CONFIG['paths']['project_catalog'])
+    pcat = ProjectCatalog(CONFIG['paths']['project_catalog'], create=True)
 
 
 

@@ -115,25 +115,19 @@ extraction:
             other_search_criteria:
               processing_level: raw
               experiment:
-                - ssp245
-                - ssp370
                 - ssp585
-#              source: &hausfather-source    # in the TCR likely range (15) #chunking
-#                - BCC-CSM2-MR
-#                - FGOALS-g3 # None, but 1 file per year
-#                - CMCC-ESM2 # [1, 192, 288]
-#                - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
-#                - ACCESS-CM2 #  [1, 145, 192]
-#                - ACCESS-ESM1-5 # [1, 96, 144]
-#                - MPI-ESM1-2-HR # [1, 192, 384]
-#                - INM-CM5-0 # [1, 120, 180]
-#                - MIROC6 # [1, 96, 192]
-#                - MPI-ESM1-2-LR #[1, 96, 192]
-#                - MRI-ESM2-0 #[1, 160, 320]
-#                - NorESM2-LM #[1, 96, 144]
-#                - KACE-1-0-G #[1, 144, 192] time out extract
-#                - GFDL-ESM4 #[1, 180, 288]
-#                - MIROC-ES2L # new one!
+              source:
+                - TaiESM1
+                - CanESM5
+                - CNRM-CM6-1
+                - EC-Earth3-CC
+                - EC-Earth3
+                - EC-Earth3-Veg
+                - INM-CM4-8
+                - IPSL-CM6A-LR
+                - UKESM1-0-LL
+                - NorESM2-MM
+                - NESM3
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
@@ -155,8 +149,8 @@ regrid:
         extrap_method: inverse_dist
         locstream_out: *stack
         reuse_weights: False
-        output_chunks:
-          loc: -1
+#        output_chunks: # no need with xesmf 0.8.5
+#          loc: -1
       intermediate_grids:
         reg1:
           cf_grid_2d:
@@ -171,9 +165,9 @@ regrid:
             extrap_method: inverse_dist
             locstream_out: False
             reuse_weights: False
-            output_chunks:
-              lat: -1
-              lon: -1
+#            output_chunks: # no need with xesmf 0.8.5
+#              lat: -1
+#              lon: -1
         reg2:
           cf_grid_2d:
             lon0_b: 179.04
@@ -187,9 +181,9 @@ regrid:
             extrap_method: inverse_dist
             locstream_out: False
             reuse_weights: False
-            output_chunks:
-              lat: -1
-              lon: -1
+#            output_chunks: # no need with xesmf 0.8.5
+#              lat: -1
+#              lon: -1
 
 io:
   rechunk:
