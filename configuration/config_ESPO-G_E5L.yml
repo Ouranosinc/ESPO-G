@@ -110,8 +110,6 @@ extraction:
               ordered: 1
             periods: *sim_period
             exclusions:
-              id:
-                - CMIP6_ScenarioMIP_KIOST_KIOST-ESM_ssp245_r1i1p1f1_global # time axis is broken. but anyway ssp370 doesn't exist for KIOST
             other_search_criteria:
               processing_level: raw
               experiment:

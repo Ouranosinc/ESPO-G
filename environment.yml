@@ -203,7 +203,7 @@ dependencies:
   - numpy=1.26.4=py312heda63a1_0
   - numpy_groupies=0.10.2=pyhd8ed1ab_0
   - openjpeg=2.5.2=h488ebb8_0
-  - openssl=3.2.1=hd590300_0
+  - openssl=3.3.0=hd590300_0
   - orc=1.9.2=h00e871a_2
   - packaging=23.2=pyhd8ed1ab_0
   - pandas=2.2.1=py312hfb8ada1_0
@@ -275,7 +275,7 @@ dependencies:
   - xarray=2024.2.0=pyhd8ed1ab_0
   - xclim=0.48.2=pyhd8ed1ab_0
   - xerces-c=3.2.5=hac6953d_0
-  - xesmf=0.8.4=pyhd8ed1ab_1
+  - xesmf=0.8.5=pyhd8ed1ab_0
   - xorg-kbproto=1.0.7=h7f98852_1002
   - xorg-libice=1.1.1=hd590300_0
   - xorg-libsm=1.2.4=h7391055_0
@@ -312,3 +312,4 @@ dependencies:
       - tifffile==2024.2.12
       - tinycss2==1.2.1
       - webencodings==0.5.1
+prefix: /exec/jlavoie/.conda/espo2024
