@@ -289,6 +289,16 @@ clean_up:
             from tasmax and dtr after the adjustment.
           redistribution: Redistribution prohibited. For internal use only.
           version: "1.0.0"
+        lat:
+            standard_name: latitude
+            units: degrees_north
+            axis: Y
+            long_name: latitude
+        lon:
+          standard_name: longitude
+          units: degrees_east
+          axis: X
+          long_name: longitude
         tasmax:
             standard_name: air_temperature
             long_name: Maximal daily temperature
