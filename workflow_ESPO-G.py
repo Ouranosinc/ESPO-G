@@ -13,43 +13,46 @@ from itertools import product
 from xclim.core.calendar import convert_calendar, get_calendar, date_range_like,doy_to_days_since
 from xclim.sdba import properties
 import xclim as xc
-from xscen.xclim_modules import conversions
+#from xscen.xclim_modules import conversions
 
 
-from xscen.utils import minimum_calendar, translate_time_chunk, stack_drop_nans
-from xscen.io import rechunk
-from xscen import (
-    ProjectCatalog,
-    search_data_catalogs,
-    extract_dataset,
-    save_to_zarr,
-    load_config,
-    CONFIG,
-    regrid_dataset,
-    train, adjust,
-    measure_time, send_mail, send_mail_on_exit, timeout, TimeoutException,
-    clean_up
-)
+# from xscen.utils import minimum_calendar, translate_time_chunk, stack_drop_nans
+# from xscen.io import rechunk
+# from xscen import (
+#     ProjectCatalog,
+#     search_data_catalogs,
+#     extract_dataset,
+#     save_to_zarr,
+#     load_config,
+#     CONFIG,
+#     regrid_dataset,
+#     train, adjust,
+#     measure_time, send_mail, send_mail_on_exit, timeout, TimeoutException,
+#     clean_up
+# )
+from xscen import CONFIG
 
 from utils import  save_move_update,move_then_delete, save_and_update, large_move
 
+
+
 # Load configuration
-load_config('configuration/paths_ESPO-G_j.yml', 'configuration/config_ESPO-G_E5L.yml', verbose=(__name__ == '__main__'), reset=True)
+xs.load_config('configuration/paths_ESPO-G_stage.yml', 'configuration/config_ESPO-G_E5L.yml', verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
 
-workdir = Path(CONFIG['paths']['workdir'])
+# paths
 exec_wdir = Path(CONFIG['paths']['exec_workdir'])
 regriddir = Path(CONFIG['paths']['regriddir'])
 refdir = Path(CONFIG['paths']['refdir'])
 
-mode = 'o'
+
 
 
 
 if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
-    atexit.register(send_mail_on_exit, subject=CONFIG['scripting']['subject'])
+    atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
 
     # defining variables
     ref_period = slice(*map(str, CONFIG['custom']['ref_period']))
@@ -59,7 +62,7 @@ if __name__ == '__main__':
     tdd = CONFIG['tdd']
 
     # load project catalog
-    pcat = ProjectCatalog(CONFIG['paths']['project_catalog'], create=True)
+    pcat = xs.ProjectCatalog(CONFIG['paths']['project_catalog'], create=True)
 
 
 
@@ -74,11 +77,11 @@ if __name__ == '__main__':
             if not pcat.exists_in_cat(domain=region_name, source=ref_source):
                 with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
                     # search
-                    cat_ref = search_data_catalogs(**CONFIG['extraction']['reference']['search_data_catalogs'])
+                    cat_ref = xs.search_data_catalogs(**CONFIG['extraction']['reference']['search_data_catalogs'])
 
                     # extract
                     dc = cat_ref.popitem()[1]
-                    ds_ref = extract_dataset(catalog=dc,
+                    ds_ref = xs.extract_dataset(catalog=dc,
                                              region=region_dict,
                                              **CONFIG['extraction']['reference']['extract_dataset']
                                              )['D']
@@ -86,7 +89,7 @@ if __name__ == '__main__':
                     # stack
                     if CONFIG['custom']['stack_drop_nans']:
                         var = list(ds_ref.data_vars)[0]
-                        ds_ref = stack_drop_nans(
+                        ds_ref = xs.utils.stack_drop_nans(
                             ds_ref,
                             ds_ref[var].isel(time=0, drop=True).notnull().compute(),
                         )
@@ -150,7 +153,7 @@ if __name__ == '__main__':
                     path_diag = Path(CONFIG['paths']['diagnostics'].format(region_name=region_name,
                                                                            sim_id=prop.attrs['cat:id'],
                                                                            level= prop.attrs['cat:processing_level']))
-                    path_diag_exec = f"{workdir}/{path_diag.name}"
+                    path_diag_exec = f"{exec_wdir}/{path_diag.name}"
 
                     save_move_update(ds=prop,
                                      pcat=pcat,
@@ -189,13 +192,13 @@ if __name__ == '__main__':
             dsC[var].encoding.pop('chunks',None)
         dsC = dsC.chunk(CONFIG['custom']['rechunk'])
 
-        save_to_zarr(ds=dsC,
+        xs.save_to_zarr(ds=dsC,
                      filename=dsC_path,
                      mode='o')
         pcat.update_from_ds(ds=dsC,
                             path=str(dsC_path))
 
-    cat_sim = search_data_catalogs(
+    cat_sim = xs.search_data_catalogs(
         **CONFIG['extraction']['simulation']['search_data_catalogs'])
                 #periods = ['1950','2100'],  # only for CNRM-ESM2-1
     for sim_id, dc_id in cat_sim.items():
@@ -212,7 +215,7 @@ if __name__ == '__main__':
                     logger.info(fmtkws)
 
                     # reload project catalog
-                    pcat = ProjectCatalog(CONFIG['paths']['project_catalog'])
+                    pcat = xs.ProjectCatalog(CONFIG['paths']['project_catalog'])
                     # ---EXTRACT---
                     if (
                             "extract" in CONFIG["tasks"]
@@ -222,8 +225,8 @@ if __name__ == '__main__':
                         with (
                                 Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws),
                                 #Client(n_workers=1, threads_per_worker=5,memory_limit="50GB", **daskkws), # only for CNRM-ESM2-1
-                                measure_time(name='extract', logger=logger),
-                                timeout(18000, task='extract')
+                                xs.measure_time(name='extract', logger=logger),
+                                xs.timeout(18000, task='extract')
                         ):
                             logger.info('Adding config to log file')
                             f1 = open(CONFIG['logging']['handlers']['file']['filename'],'a+')
@@ -232,7 +235,7 @@ if __name__ == '__main__':
                             f1.close()
                             f2.close()
 
-                            ds_sim = extract_dataset(catalog=dc_id,
+                            ds_sim = xs.extract_dataset(catalog=dc_id,
                                                      region= CONFIG['custom']['amno_region'],
                                                      **CONFIG['extraction']['simulation']['extract_dataset'],
                                                      )['D']
@@ -253,11 +256,11 @@ if __name__ == '__main__':
                             and not pcat.exists_in_cat(domain=region_name, processing_level='regridded', id=sim_id)
                     ):
                         with (
-                            # Client(n_workers=2, threads_per_worker=5,
-                            #        memory_limit="32GB", **daskkws),
-                                Client(n_workers=3, threads_per_worker=3, memory_limit="16GB", **daskkws),
-                                measure_time(name='regrid', logger=logger),
-                               #timeout(18000, task='regrid')
+                            Client(n_workers=2, threads_per_worker=5,
+                                   memory_limit="32GB", **daskkws),
+                                # Client(n_workers=3, threads_per_worker=3, memory_limit="16GB", **daskkws),
+                                # xs.measure_time(name='regrid', logger=logger),
+                               xs.timeout(18000, task='regrid')
                         ):
 
                             ds_input = pcat.search(id=sim_id,
@@ -267,14 +270,14 @@ if __name__ == '__main__':
                             ds_target = pcat.search(**CONFIG['regrid']['target'],
                                                     domain=region_name).to_dask()
 
-                            ds_regrid = regrid_dataset(
+                            ds_regrid = xs.regrid_dataset(
                                 ds=ds_input,
                                 ds_grid=ds_target,
                             )
 
                             #chunk time dim
                             ds_regrid = ds_regrid.chunk(
-                                translate_time_chunk({'time': '4year'},
+                                xs.utils.translate_time_chunk({'time': '4year'},
                                                      get_calendar(ds_regrid),
                                                      ds_regrid.time.size
                                                     )
@@ -293,13 +296,13 @@ if __name__ == '__main__':
                     ):
                         with (
                                 Client(n_workers=2, threads_per_worker=5, memory_limit="18GB", **daskkws),
-                                measure_time(name=f'rechunk', logger=logger),
-                                timeout(18000, task='rechunk')
+                                xs.measure_time(name=f'rechunk', logger=logger),
+                                xs.timeout(18000, task='rechunk')
                         ):
                             #rechunk in exec
                             path_rc = f"{exec_wdir}/{sim_id}_{region_name}_regchunked.zarr"
 
-                            rechunk(path_in=f"{exec_wdir}/{sim_id}_{region_name}_regridded.zarr",
+                            xs.rechunk(path_in=f"{exec_wdir}/{sim_id}_{region_name}_regridded.zarr",
                                     path_out=path_rc,
                                     chunks_over_dim=CONFIG['custom']['chunks'],
                                     overwrite=True)
@@ -324,8 +327,8 @@ if __name__ == '__main__':
                                             #Client(n_workers=9, threads_per_worker=3, memory_limit="7GB", **daskkws),
                                             Client(n_workers=4, threads_per_worker=3,
                                                    memory_limit="15GB", **daskkws),
-                                            measure_time(name=f'train {var}', logger=logger),
-                                            timeout(18000, task='train')
+                                            xs.measure_time(name=f'train {var}', logger=logger),
+                                            xs.timeout(18000, task='train')
                                     ):
                                         # load hist ds (simulation)
                                         ds_hist = pcat.search(id=sim_id,
@@ -335,18 +338,18 @@ if __name__ == '__main__':
                                         # load ref ds
                                         # choose right calendar
                                         simcal = get_calendar(ds_hist)
-                                        refcal = minimum_calendar(simcal, CONFIG['custom']['maximal_calendar'])
+                                        refcal = xs.utils.minimum_calendar(simcal, CONFIG['custom']['maximal_calendar'])
                                         ds_ref = pcat.search(source = ref_source,
                                                              calendar=refcal,
                                                              domain=region_name).to_dask()
 
 
                                         # move to exec and reopen to help dask
-                                        save_to_zarr(ds_ref, f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr", mode='o')
-                                        ds_ref=xr.open_zarr(f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr", decode_timedelta=False)
+                                        xs.save_to_zarr(ds_ref, f"{exec_wdir}ds_ref.zarr", mode='o')
+                                        ds_ref=xr.open_zarr(f"{exec_wdir}ds_ref.zarr", decode_timedelta=False)
 
                                         # training
-                                        ds_tr = train(dref=ds_ref,
+                                        ds_tr = xs.train(dref=ds_ref,
                                                       dhist=ds_hist,
                                                       var=[var],
                                                       **conf['training_args'])
@@ -358,8 +361,8 @@ if __name__ == '__main__':
                                                          pcat=pcat,
                                                          path=f"{exec_wdir}/{sim_id}_{region_name}_{var}_training.zarr"
                                                         )
-                                        shutil.rmtree(f"{CONFIG['paths']['exec_workdir']}ds_ref.zarr")
-                                except TimeoutException:
+                                        shutil.rmtree(f"{exec_wdir}ds_ref.zarr")
+                                except xs.TimeoutException:
                                     pass
                                 else:
                                     break
@@ -373,8 +376,8 @@ if __name__ == '__main__':
                             with (
                                 Client(n_workers=5, threads_per_worker=3,
                                        memory_limit="12GB", **daskkws),
-                                measure_time(name=f'adjust {var}', logger=logger),
-                                timeout(18000, task='adjust')
+                                xs.measure_time(name=f'adjust {var}', logger=logger),
+                                xs.timeout(18000, task='adjust')
                             ):
                                 # load sim ds
                                 ds_sim = pcat.search(id=sim_id,
@@ -388,7 +391,7 @@ if __name__ == '__main__':
                                 ds_sim['dtr'] = xc.sdba.processing.jitter_under_thresh(ds_sim.dtr, "1e-4 K")
 
                                 # adjust
-                                ds_scen = adjust(dsim=ds_sim,
+                                ds_scen = xs.adjust(dsim=ds_sim,
                                                  dtrain=ds_tr,
                                                  **conf['adjusting_args'])
 
@@ -405,21 +408,21 @@ if __name__ == '__main__':
                     ):
                         with (
                                 Client(n_workers=2, threads_per_worker=3, memory_limit="30GB", **daskkws),
-                                measure_time(name=f'cleanup', logger=logger),
-                                timeout(18000, task='clean_up')
+                                xs.measure_time(name=f'cleanup', logger=logger),
+                                xs.timeout(18000, task='clean_up')
                         ):
                             # get all adjusted data
-                            cat = search_data_catalogs(**CONFIG['clean_up']['search_data_catalogs'],
+                            cat = xs.search_data_catalogs(**CONFIG['clean_up']['search_data_catalogs'],
                                                        other_search_criteria= { 'id': [sim_id],
                                                                                 'processing_level':["biasadjusted"],
                                                                                 'domain': region_name}
                                                        )
                             dc = cat.popitem()[1]
-                            ds = extract_dataset(catalog=dc,
+                            ds = xs.extract_dataset(catalog=dc,
                                                  periods=CONFIG['custom']['sim_period']
                                                  )['D']
 
-                            ds = clean_up(ds=ds,
+                            ds = xs.clean_up(ds=ds,
                                           **CONFIG['clean_up']['xscen_clean_up']
                                           )
 
@@ -442,8 +445,8 @@ if __name__ == '__main__':
                     ):
                         with (
                                 Client(n_workers=4, threads_per_worker=3, memory_limit="15GB", **daskkws),
-                                measure_time(name=f'final zarr rechunk', logger=logger),
-                                timeout(30000, task='final_zarr')
+                                xs.measure_time(name=f'final zarr rechunk', logger=logger),
+                                xs.timeout(30000, task='final_zarr')
                         ):
                             #rechunk and move to final destination
                             fi_path = Path(f"{CONFIG['paths']['output']}".format(**fmtkws))
@@ -452,7 +455,7 @@ if __name__ == '__main__':
 
 
                             #rechunk in exec and move to final path after
-                            rechunk(path_in=f"{exec_wdir}/{sim_id}_{region_name}_cleaned_up.zarr",
+                            xs.rechunk(path_in=f"{exec_wdir}/{sim_id}_{region_name}_cleaned_up.zarr",
                                     path_out=fi_path_exec,
                                     chunks_over_dim=CONFIG['custom']['out_chunks'],
                                     overwrite=True)
@@ -486,8 +489,8 @@ if __name__ == '__main__':
                         with (
                                 Client(n_workers=3, threads_per_worker=5,
                                        memory_limit="20GB", **daskkws),
-                                measure_time(name=f'diagnostics', logger=logger),
-                                timeout(2*18000, task='diagnostics')
+                                xs.measure_time(name=f'diagnostics', logger=logger),
+                                xs.timeout(2*18000, task='diagnostics')
                         ):
 
 
@@ -578,7 +581,7 @@ if __name__ == '__main__':
                                      ]+paths_diag_move,
                                     pcat=pcat)
 
-                            send_mail(
+                            xs.send_mail(
                                 subject=f"{sim_id}/{region_name} - Succès",
                                 msg=f"Toutes les étapes demandées pour la simulation {sim_id}/{region_name} ont été accomplies.",
                             )
@@ -626,7 +629,7 @@ if __name__ == '__main__':
                         dsC = dsC.chunk({'time':1440}|CONFIG['custom']['rechunk'])
                     else:
                         dsC = dsC.chunk({'time':1460}|CONFIG['custom']['rechunk'])
-                    save_to_zarr(ds=dsC,
+                    xs.save_to_zarr(ds=dsC,
                                  filename=dsC_path,
                                  mode='o')
                     pcat.update_from_ds(ds=dsC,
@@ -644,7 +647,7 @@ if __name__ == '__main__':
                 with (
                         Client(n_workers=8, threads_per_worker=5,
                                memory_limit="5GB", **daskkws),
-                        measure_time(name=f'health_checks', logger=logger)
+                        xs.measure_time(name=f'health_checks', logger=logger)
                 ):
                     ds_input = pcat.search(
                         id=sim_id, processing_level='final',
@@ -662,7 +665,7 @@ if __name__ == '__main__':
                         region_name=CONFIG['custom']['amno_region']['name'])
                     xs.save_and_update(ds=hc, path=path, pcat=pcat)
 
-                    send_mail(
+                    xs.send_mail(
                         subject=f"{sim_id} - Succès",
                         msg=f"{sim_id} est terminé. \n Health checks:"+ "".join(
                             [f"\n{var}: {hc[var].values}" for var in hc.data_vars]),
@@ -687,9 +690,9 @@ if __name__ == '__main__':
                         with (
                                 Client(n_workers=3, threads_per_worker=5,
                                        memory_limit="20GB", **daskkws),
-                                measure_time(name=f'off-diag {dom_name} {step} {id}',
+                                xs.measure_time(name=f'off-diag {dom_name} {step} {id}',
                                              logger=logger),
-                                timeout(18000, task='off-diag')
+                                xs.timeout(18000, task='off-diag')
                         ):
 
                             # unstack
@@ -708,7 +711,7 @@ if __name__ == '__main__':
                                     **step_dict['dref_for_measure']).to_dask()
 
                             if 'dtr' not in ds_input:
-                                ds_input = ds_input.assign(dtr=conversions.dtr(ds_input.tasmin, ds_input.tasmax))
+                                ds_input = ds_input.assign(dtr=xs.conversions.dtr(ds_input.tasmin, ds_input.tasmax))
 
                             prop, meas = xs.properties_and_measures(
                                 ds=ds_input,
@@ -742,7 +745,7 @@ if __name__ == '__main__':
                     with (
                             Client(n_workers=3, threads_per_worker=5,
                                    memory_limit="20GB", **daskkws),
-                            measure_time(name=f'off-diag-meas {dom_name} {sim_id}',
+                            xs.measure_time(name=f'off-diag-meas {dom_name} {sim_id}',
                                          logger=logger),
                     ):
                         # get scen meas
@@ -790,9 +793,9 @@ if __name__ == '__main__':
                         with (
                                 Client(n_workers=2, threads_per_worker=3,
                                      memory_limit="30GB", **daskkws),
-                                measure_time(name=f'indicators {sim_id}',
+                                xs.measure_time(name=f'indicators {sim_id}',
                                              logger=logger),
-                                timeout(20000, indname)
+                                xs.timeout(20000, indname)
                         ):
                             if freq == '2QS-OCT':
                                 iAPR = np.where(ds_input.time.dt.month == 4)[0][0]
@@ -810,7 +813,7 @@ if __name__ == '__main__':
                                         dsc,
                                         indicators=[ind]).popitem()
                                     kwargs = {} if i == 0 else {'append_dim': 'time'}
-                                    save_to_zarr(out,
+                                    xs.save_to_zarr(out,
                                                  temppath,
                                                  rechunk={'time': -1},
                                                  mode='a',
@@ -873,7 +876,7 @@ if __name__ == '__main__':
                                   xrfreq=xrfreq_input, domain=domain):
                 with (
                         Client(n_workers=5, threads_per_worker=4,memory_limit="6GB", **daskkws),
-                        measure_time(name=f'clim {id_input}',logger=logger),
+                        xs.measure_time(name=f'clim {id_input}',logger=logger),
 
 
                 ):
@@ -903,7 +906,7 @@ if __name__ == '__main__':
                                       xrfreq=xrfreq_input, domain=domain):
                      with (
                              Client(n_workers=4, threads_per_worker=4,memory_limit="6GB", **daskkws),
-                             measure_time(name=f'{delta_task} {ref_horizon} {id_input}',logger=logger),
+                             xs.measure_time(name=f'{delta_task} {ref_horizon} {id_input}',logger=logger),
                      ):
                         ds_delta = xs.aggregate.compute_deltas(ds=ds_input,
                                                                kind=kind,
@@ -947,7 +950,7 @@ if __name__ == '__main__':
                     ) and len(ind_dict)==14:
                         with (
                                 ProgressBar(),
-                                measure_time(name=f'ensemble- {domain} {experiment}'
+                                xs.measure_time(name=f'ensemble- {domain} {experiment}'
                                                   f' {processing_level}  {xrfreq} {variable}',logger=logger),
                         ):
                             ens = xs.ensembles.ensemble_stats(
