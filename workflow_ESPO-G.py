@@ -569,8 +569,7 @@ if __name__ == '__main__':
                                             processing_level=level)
                                     paths_diag_move.append([path_diag_exec, path_diag])
 
-
-
+                                Path(CONFIG['paths']['logging'].format(**fmtkws)).parent.mkdir(parents=True, exist_ok=True)
                                 move_then_delete(
                                     dirs_to_delete=[ exec_wdir],
                                     moving_files=[
