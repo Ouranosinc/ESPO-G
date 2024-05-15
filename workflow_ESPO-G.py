@@ -455,7 +455,7 @@ if __name__ == '__main__':
 
 
                             #rechunk in exec and move to final path after
-                            xs.rechunk(path_in=f"{exec_wdir}/{sim_id}_{region_name}_cleaned_up.zarr",
+                            xs.io.rechunk(path_in=f"{exec_wdir}/{sim_id}_{region_name}_cleaned_up.zarr",
                                     path_out=fi_path_exec,
                                     chunks_over_dim=CONFIG['custom']['out_chunks'],
                                     overwrite=True)
