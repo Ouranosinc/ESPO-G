@@ -302,7 +302,7 @@ if __name__ == '__main__':
                             #rechunk in exec
                             path_rc = f"{exec_wdir}/{sim_id}_{region_name}_regchunked.zarr"
 
-                            xs.rechunk(path_in=f"{exec_wdir}/{sim_id}_{region_name}_regridded.zarr",
+                            xs.io.rechunk(path_in=f"{exec_wdir}/{sim_id}_{region_name}_regridded.zarr",
                                     path_out=path_rc,
                                     chunks_over_dim=CONFIG['custom']['chunks'],
                                     overwrite=True)
