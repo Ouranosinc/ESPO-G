@@ -33,27 +33,36 @@ custom:
     delete_in_diag: True
     regions:
         south_nodup:
+
             name: south_nodup
             method: bbox
-            lon_bnds: [ -179.95, -10 ]
-            lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
+            lon_bnds: [ -70,-60] # fake smaller region for testing
+            lat_bnds: [ 45, 47.05 ]
+#            lon_bnds: [ -179.95, -10 ]
+#            lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
         middle_nodup:
             name: middle_nodup
             method: bbox
-            lon_bnds: [ -179.95, -10 ]
-            lat_bnds: [ 40.05, 65.05 ]
+            lon_bnds: [ -70,-60 ] # fake smaller region for testing
+            lat_bnds: [41.05, 49.05]
+            #lon_bnds: [ -179.95, -10 ]
+            #lat_bnds: [ 40.05, 65.05 ]
         north_nodup:
             name: north_nodup
             method: bbox
-            lon_bnds: [-179.95, -10]
-            lat_bnds: [65.05, 83.3] # changed from 83.4 to make it fit with other files
+            lon_bnds: [ -70,-60 ] # fake smaller region for testing
+            lat_bnds: [ 49.05, 53 ]
+#            lon_bnds: [-179.95, -10]
+#            lat_bnds: [65.05, 83.3] # changed from 83.4 to make it fit with other files
     amno_region:
       name: &nam-name
         NAM
       method: bbox
       tile_buffer: 1.5
-      lon_bnds: [ -179.95, -10 ]
-      lat_bnds: [ 10, 83.4 ]
+      lon_bnds: [ -70,-60 ] # fake smaller region for testing
+      lat_bnds: [ 45, 47.05 ]
+      #lon_bnds: [ -179.95, -10 ]
+      #lat_bnds: [ 10, 83.4 ]
     stack_drop_nans: &stack # goal is to drop Nan to make it faster
         True
     chunks:
@@ -115,17 +124,17 @@ extraction:
               experiment:
                 - ssp585
               source:
-                - TaiESM1
-                - CanESM5
-                - CNRM-CM6-1
-                - EC-Earth3-CC
-                - EC-Earth3
-                - EC-Earth3-Veg
-                - INM-CM4-8
-                - IPSL-CM6A-LR
-                - UKESM1-0-LL
-                - NorESM2-MM
-                - NESM3
+                - TaiESM1 # only do one model for testing
+#                - CanESM5
+#                - CNRM-CM6-1
+#                - EC-Earth3-CC
+#                - EC-Earth3
+#                - EC-Earth3-Veg
+#                - INM-CM4-8
+#                - IPSL-CM6A-LR
+#                - UKESM1-0-LL
+#                - NorESM2-MM
+#                - NESM3
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:

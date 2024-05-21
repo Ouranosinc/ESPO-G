@@ -16,6 +16,7 @@ paths:
   ensemble: OUTPUT_DIR/ensemble/{processing_level}/{processing_level}_{id}_{xrfreq}_{var}.zarr
   figures: OUTPUT_DIR/figures/
   data: LOCATION_OF_REPO/data/
+  exec_diag: EXEC_DIR/ESPO-G_workdir/{processing_level}_{id}_{domain}.zarr
 
 dask:
   client:
