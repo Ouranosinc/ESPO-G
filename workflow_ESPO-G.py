@@ -13,7 +13,7 @@ from itertools import product
 from xclim.core.calendar import convert_calendar, get_calendar, date_range_like,doy_to_days_since
 from xclim.sdba import properties
 import xclim as xc
-#from xscen.xclim_modules import conversions
+from xscen.xclim_modules import conversions
 
 
 # from xscen.utils import minimum_calendar, translate_time_chunk, stack_drop_nans
@@ -710,7 +710,7 @@ if __name__ == '__main__':
                                     **step_dict['dref_for_measure']).to_dask()
 
                             if 'dtr' not in ds_input:
-                                ds_input = ds_input.assign(dtr=xs.conversions.dtr(ds_input.tasmin, ds_input.tasmax))
+                                ds_input = ds_input.assign(dtr=conversions.dtr(ds_input.tasmin, ds_input.tasmax))
 
                             prop, meas = xs.properties_and_measures(
                                 ds=ds_input,
