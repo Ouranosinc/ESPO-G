@@ -85,8 +85,10 @@ custom:
     maximal_calendar:
         noleap
     rechunk:
-      lat: 50
-      lon: 50
+      lat: 10 # for fake regions
+      lon: 10 # for fake regions
+      #lat: 50
+      #lon: 50
 
 
 
