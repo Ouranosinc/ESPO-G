@@ -17,6 +17,8 @@ paths:
   figures: OUTPUT_DIR/figures/
   data: LOCATION_OF_REPO/data/
   exec_diag: EXEC_DIR/ESPO-G_workdir/{processing_level}_{id}_{domain}.zarr
+  final_diag: OUTPUT_DIR/diagnostics/{domain}/{id}/{processing_level}_{id}_{domain}.zarr
+
 
 dask:
   client:
