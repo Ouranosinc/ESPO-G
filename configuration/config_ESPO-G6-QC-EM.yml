@@ -1,0 +1,527 @@
+#Configuration file for ESPO-G6-EM v1.0.0
+
+project:
+    name: ESPO-G6-EM
+    version: 1.0.0
+    description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6
+    id: eg6
+
+tasks:
+  - makeref
+  - extract
+  - regrid
+  - rechunk
+  - train
+  - adjust
+  - clean_up
+  - final_zarr
+  - diagnostics
+#  - concat
+  - health_checks
+  - official-diag
+#  - indicators
+#  - climatological_mean
+#  - abs-delta
+#  - per-delta
+#  - ensemble
+
+
+
+custom:
+    delete_in_final_zarr: False
+    delete_in_diag: True
+    regions:
+      QC-EM:
+        name: QC-EM
+        method: bbox
+        lon_bnds: [ -83, -55 ]
+        lat_bnds: [ 42, 63 ]
+    amno_region:
+      name: &nam-name
+        QC-EM
+      method: bbox
+      tile_buffer: 1.5
+      lon_bnds: [ -179.95, -10 ]
+      lat_bnds: [ 10, 83.4 ]
+    stack_drop_nans: &stack # goal is to drop Nan to make it faster
+        True
+    chunks:
+        lat: 20
+        lon: 20
+        loc: 600
+        time: -1
+    out_chunks:
+        lat: 50
+        lon: 50
+        time: 4year
+    ref_period : &ref_period
+      - '1989'
+      - '2018'
+    sim_period: &sim_period
+        - '1950'
+        - '2100'
+    maximal_calendar:
+        noleap
+    rechunk:
+      lat: 50
+      lon: 50
+
+extraction:
+    reference:
+        search_data_catalogs:
+            variables_and_freqs: &var_and_freq
+                tasmax: D
+                tasmin: D
+                pr: D
+                dtr: D
+            allow_resampling: False
+            allow_conversion: True
+            periods : *ref_period
+            other_search_criteria:
+              source: &ref_source
+                        EMDNA
+              member: OI
+        extract_dataset: {}
+        properties_and_measures:
+          to_level_prop: diag-ref-prop
+          period: *ref_period
+          unstack: *stack
+        chunks:
+          time: -1
+    simulation:
+        search_data_catalogs:
+            variables_and_freqs: *var_and_freq
+            match_hist_and_fut: True
+            allow_conversion: True
+            allow_resampling: False
+            restrict_members:
+              ordered: 1
+            periods: *sim_period
+            other_search_criteria:
+              experiment:
+                - ssp126
+                - ssp245
+                - ssp370
+                - ssp585
+              processing_level: raw
+              source:
+                - ACCESS-ESM1-5
+                - CanESM5
+                - EC-Earth3
+                - FGOALS-g3
+                - IPSL-CM6A-LR
+                - KACE-1-0-G
+                - MIROC6
+                - MRI-ESM2-0
+              member: r1i1p1f1
+        extract_dataset:
+            periods : *sim_period
+            xr_combine_kwargs:
+              combine_attrs: override
+            xr_open_kwargs:
+              engine: h5netcdf
+              drop_variables:
+                - height
+        chunks: {'time': 365, 'lat':-1, 'lon':-1}
+    ref_source: *ref_source
+
+
+regrid:
+  target:
+    source: *ref_source
+    calendar: noleap
+  regrid_dataset:
+      regridder_kwargs:
+        method: bilinear
+        extrap_method: inverse_dist
+        locstream_out: *stack
+        reuse_weights: False
+        output_chunks:
+          loc: -1
+      intermediate_grids:
+        reg1:
+          cf_grid_2d:
+            lon0_b: 179.05
+            lon1_b: 351.2
+            d_lon: 1
+            lat0_b: 9
+            lat1_b: 84
+            d_lat: 1
+          regridder_kwargs:
+            method: bilinear
+            extrap_method: inverse_dist
+            locstream_out: False
+            reuse_weights: False
+            output_chunks:
+              lat: -1
+              lon: -1
+        reg2:
+          cf_grid_2d:
+            lon0_b: 179.04
+            lon1_b: 351.2
+            d_lon: 0.5
+            lat0_b: 8.9
+            lat1_b: 84
+            d_lat: 0.5
+          regridder_kwargs:
+            method: bilinear
+            extrap_method: inverse_dist
+            locstream_out: False
+            reuse_weights: False
+            output_chunks:
+              lat: -1
+              lon: -1
+
+io:
+  rechunk:
+    worker_mem: 2GB
+
+
+biasadjust:
+    variables:
+        dtr:
+            training_args:
+                period: *ref_period
+                method: DetrendedQuantileMapping
+                group:
+                    group: time.dayofyear
+                    window: 31
+                jitter_under: # to avoid negative dtr (when temperature inversion GFDL)
+                   thresh: 1e-4 K
+                xclim_train_args:
+                    kind: "*"
+                    nquantiles: 50
+            adjusting_args:
+                periods: *sim_period
+                xclim_adjust_args:
+                    detrend:
+                        LoessDetrend:
+                          f: 0.2
+                          niter: 1
+                          d: 0
+                          weights: tricube
+                    interp: nearest
+                    extrapolation: constant
+                bias_adjust_institution: &b_a_inst
+                  Ouranos
+                bias_adjust_project: &b_a_pro
+                  ESPO-G6
+        tasmax:
+            training_args:
+                period: *ref_period
+                method: DetrendedQuantileMapping
+                group:
+                    group: time.dayofyear
+                    window: 31
+                xclim_train_args:
+                    kind: "+"
+                    nquantiles: 50
+            adjusting_args:
+                periods: *sim_period
+                xclim_adjust_args:
+                  detrend:
+                    LoessDetrend:
+                      f: 0.2
+                      niter: 1
+                      d: 0
+                      weights: tricube
+                  interp: nearest
+                  extrapolation: constant
+                bias_adjust_institution: *b_a_inst
+                bias_adjust_project: *b_a_pro
+        pr:
+            training_args:
+                period: *ref_period
+                method: DetrendedQuantileMapping
+                group:
+                    group: time.dayofyear
+                    window: 31
+                adapt_freq:
+                    thresh: 1 mm d-1
+                jitter_under:
+                    thresh: 0.01 mm d-1
+                xclim_train_args:
+                    kind: "*"
+                    nquantiles: 50
+            adjusting_args:
+                periods: *sim_period
+                xclim_adjust_args:
+                  detrend:
+                    LoessDetrend:
+                      f: 0.2
+                      niter: 1
+                      d: 0
+                      weights: tricube
+                  interp: nearest
+                  extrapolation: constant
+                bias_adjust_institution: *b_a_inst
+                bias_adjust_project: *b_a_pro
+
+clean_up:
+  search_data_catalogs:
+    variables_and_freqs:
+      tasmax: D
+      tasmin: D
+      pr: D
+    allow_conversion: True
+    allow_resampling: False
+  problems:
+    - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp245_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp370_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp585_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp245_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp370_r1i1p1f1_global
+    - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp585_r1i1p1f1_global
+  xscen_clean_up:
+      maybe_unstack_dict:
+        stack_drop_nans: *stack
+        rechunk:
+          lat: 20
+          lon: 20
+          time: -1
+      round_var:
+        pr: 10
+      to_level: cleaned_up
+      add_attrs:
+        global:
+          Notes: |
+            Regridded on the grid of EMDNA, then bias-adjusted with detrended
+            quantile mapping on a day-of-year basis with a window of 31 days, LOESS
+            detrending and 50 quantiles. The reference was EMDNA over the
+            1991-2020 period. Tasmax, dtr and pr were adjusted, tasmin was computed
+            from tasmax and dtr after the adjustment.
+          redistribution: Redistribution prohibited. For internal use only.
+          version: "1.0.0"
+        lat:
+            standard_name: latitude
+            units: degrees_north
+            axis: Y
+            long_name: latitude
+        lon:
+          standard_name: longitude
+          units: degrees_east
+          axis: X
+          long_name: longitude
+        tasmax:
+            standard_name: air_temperature
+            long_name: Maximal daily temperature
+            cell_methods: "time: maximum within days"
+        tasmin:
+            standard_name: air_temperature
+            long_name: Minimal daily temperature
+            cell_methods: "time: minimum within days"
+        pr:
+            standard_name: precipitation_flux
+            long_name: Mean daily precipitation flux
+            cell_methods: "time: mean within days"
+
+
+diagnostics:
+  sim:
+    input:
+      processing_level:  regridded_and_rechunked
+    dref_for_measure:
+      processing_level: diag-ref-prop
+    properties_and_measures:
+      period: *ref_period
+      unstack: *stack
+  scen:
+    input:
+      processing_level: final
+    dref_for_measure:
+      processing_level: diag-ref-prop
+    properties_and_measures:
+      period: *ref_period
+      unstack: False
+
+health_checks:
+    structure:
+      coords:
+        - lat
+        - lon
+        - time
+      dims:
+        - lat
+        - lon
+        - time
+    start_date: "1950-01-01"
+    end_date: "2100-12-30"
+    variables_and_units:
+      tasmax: "K"
+      tasmin: "K"
+      pr: "kg m-2 s-1"
+    cfchecks:
+      tasmax:
+        cfcheck_from_name: {}
+      tasmin:
+        cfcheck_from_name: {}
+      pr:
+        cfcheck_from_name: {}
+    freq: D
+    flags:
+      tasmax:
+        temperature_extremely_high:
+          thresh: '60 degC'
+        tasmax_below_tasmin:
+      tasmin:
+        temperature_extremely_low:
+          thresh: '-70 degC'
+      pr:
+        negative_accumulation_values:
+        very_large_precipitation_events:
+          thresh: '1650 mm/d'
+    return_flags: True
+    raise_on:
+      - structure
+      - start_date
+      - end_date
+      - variables_and_units
+      - cfchecks
+      - freq
+
+indicators:
+  input:
+    processing_level: final
+    domain:
+     - *nam-name
+  compute_indicators:
+    to_level: individual_indicator
+
+aggregate:
+  input:
+    clim:
+      processing_level: indicators
+      domain: *nam-name
+    abs-delta:
+      processing_level: climatology
+      domain: *nam-name
+    per-delta:
+      processing_level: climatology
+      variable: prcptot
+      domain: *nam-name
+  climatological_mean:
+    window: 30
+    interval: 10
+    periods: [['1951', '2100']]
+    to_level: climatology
+  compute_deltas:
+    reference_horizon: "1991-2020"
+
+
+ensemble:
+    processing_levels:
+        - indicators
+        - climatology
+        - abs-delta-1991-2020
+        - per-delta-1991-2020
+    domain: *nam-name
+    #source: *hausfather-source
+    ensemble_stats_xscen:
+      statistics:
+        ensemble_percentiles:
+          split: True
+      common_attrs_only: True
+      create_kwargs:
+        chunks:
+          horizon: -1
+
+off-diag:
+  domains:
+#    Haudenosaunee:
+#        name: Haudenosaunee
+#        method: bbox
+#        lat_bnds: [ 42.0, 47.0 ]
+#        lon_bnds: [ -79.0, -71.0 ]
+#    Ute:
+#        name: Ute
+#        method: bbox
+#        lat_bnds: [ 35.0, 40.0 ]
+#        lon_bnds: [ -111.0, -103.0 ]
+#    Dene:
+#        name: Dene
+#        method: bbox
+#        lat_bnds: [ 60.0, 65.0 ]
+#        lon_bnds: [ -124.0, -116.0 ]
+    Magtogoek:
+      name: Magtogoek
+      method: bbox
+      lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
+      lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
+  steps:
+    ref:
+      input:
+        source: *ref_source
+        calendar: default
+        processing_level: extracted
+      domain:
+        Haudenosaunee: middle_nodup
+        Ute: south_nodup
+        Dene: middle_nodup
+        Magtogoek: middle_nodup
+      properties_and_measures:
+        period: *ref_period
+      unstack: *stack
+    sim:
+      input:
+        #source: *hausfather-source
+        processing_level:  regridded
+      domain:
+        Haudenosaunee: middle_nodup
+        Ute: south
+        Dene: middle_nodup
+        Magtogoek: middle_nodup
+      dref_for_measure:
+        processing_level: off-diag-ref-prop
+      properties_and_measures:
+        period: *ref_period
+      unstack: *stack
+    scen:
+      input:
+        #source: *hausfather-source
+        processing_level: final
+      domain:
+        Haudenosaunee: NAM
+        Ute: NAM
+        Dene: NAM
+        Magtogoek: NAM
+      dref_for_measure:
+        processing_level: off-diag-ref-prop
+      properties_and_measures:
+        period: *ref_period
+      unstack: False
+
+scripting:
+    measure_time:
+        cpu: True
+    subject: ESPO-G6
+    send_mail_on_exit:
+        msg_ok: Toutes les étapes demandées ont été complétées.
+        msg_err: Une erreur est survenue durant le traitement.
+        on_error_only: True
+
+dask:
+    array.slicing.split_large_chunks: False
+
+logging:
+    formatters:
+        default:
+            format: '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
+            datefmt: '%Y-%m-%d %H:%M:%S'
+    handlers:
+        console:
+            class : logging.StreamHandler
+            formatter: default
+            level : INFO
+            stream: ext://sys.stdout #needed to have the right color in pycharm
+        file:
+            class: logging.FileHandler
+            formatter: default
+            level : DEBUG
+    loggers:
+        xscen:
+            level: INFO
+            handlers: [file]
+
+tdd:
+  xarray_open_kwargs:
+    decode_timedelta: False
