@@ -8,8 +8,8 @@ configfile: "config/config.yaml"
 report: "report/workflow.rst"
 
 ##### load rules #####
-include: "rules/common.smk"
-include: "rules/Makeref.smk"
+include: "workflow/rules/common.smk"
+include: "workflow/rules/Makeref.smk"
 
 ##### target rules #####
 rule all:

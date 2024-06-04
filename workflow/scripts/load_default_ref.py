@@ -4,6 +4,7 @@ from xscen import CONFIG
 from utils import save_and_update, save_move_update
 from pathlib import Path
 
+
 exec_wdir = Path(CONFIG['paths']['exec_workdir'])
 regriddir = Path(CONFIG['paths']['regriddir'])
 refdir = Path(CONFIG['paths']['refdir'])

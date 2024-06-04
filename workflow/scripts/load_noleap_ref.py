@@ -13,6 +13,8 @@ ref_source = CONFIG['extraction']['ref_source']
 
 pcat = xs.ProjectCatalog(CONFIG['paths']['project_catalog'], create=True)
 
+
+
 for region_name, region_dict in CONFIG['custom']['regions'].items():
     if (
             "makeref" in CONFIG["tasks"]
@@ -26,6 +28,6 @@ for region_name, region_dict in CONFIG['custom']['regions'].items():
                 ds_refnl = convert_calendar(ds_ref, "noleap")
                 save_move_update(ds=ds_refnl,
                                  pcat=pcat,
-                                 init_path=f"{exec_wdir}/ref_{region_name}_noleap.zarr",
+                                 init_path=,
                                  final_path=snakemake.output[0],
                                  info_dict={'calendar': 'noleap'})

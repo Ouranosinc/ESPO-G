@@ -1,17 +1,15 @@
 from pathlib import Path
 
+ruleorder: reference_DEFAULT > reference_NOLEAP > reference_360_DAY
 configfile: "config/config.yaml"
 region=config["custom"]["regions"].keys()
 
 rule reference_DEFAULT:
-    input:
-        lambda wildcards: [
-           Path(config['paths']['refdir'])/f"ref_{wildcards.region_name}_default.zarr"
-            for region_name in region]
     params:
-        ref=config['paths']['refdir']
+        ref=config['paths']['refdir'],
+        exec=config['paths']['exec_workdir']
     output:
-        zarr_file=f"ref/ref_{{region_name}}_default.zarr"
+        zarr_file= Path(config['paths']['refdir'])/"ref_{region_name}_noleap.zarr"
     resources:
         n_workers=2,
         threads_per_worker=5,
@@ -20,14 +18,10 @@ rule reference_DEFAULT:
         "scripts/load_default_ref.py"
 
 rule reference_NOLEAP:
-    input:
-        lambda wildcards: [
-           Path(config['paths']['refdir'])/f"ref_{wildcards.region_name}_noleap.zarr"
-            for region_name in region]
     params:
         ref=config['paths']['refdir']
     output:
-        zarr_file=f"ref/ref_{{region_name}}_noleap.zarr"
+        zarr_file=f"{{ref}}/ref_{{region_name}}_noleap.zarr"
     resources:
         n_workers=2,
         threads_per_worker=5,
@@ -36,14 +30,10 @@ rule reference_NOLEAP:
         "scripts/load_noleap_ref.py"
 
 rule reference_360_DAY:
-    input:
-        lambda wildcards: [
-           Path(config['paths']['refdir'])/f"ref_{wildcards.region_name}_360_day.zarr"
-            for region_name in region]
     params:
         ref=config['paths']['refdir']
     output:
-        zarr_file=f"ref/ref_{{region_name}}_360_day.zarr"
+        zarr_file=f"{{ref}}/ref_{{region_name}}_360_day.zarr"
     resources:
         n_workers=2,
         threads_per_worker=5,
