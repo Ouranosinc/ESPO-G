@@ -14,8 +14,9 @@ from xscen.config import CONFIG, load_config
 import glob
 #load_config('paths_ESPO-G.yml', 'config_ESPO-G.yml', verbose=(__name__ == '__main__'), reset=True)
 
-
 logger = logging.getLogger('xscen')
+
+
 
 def large_move(init_dir,end, final_dir, pcat):
     # move to final destination

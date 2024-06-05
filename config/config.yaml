@@ -1,4 +1,9 @@
 #Configuration file for ESPO-G6-E5L v1.0.0
+regions:
+  A: south_nodup
+  B: middle_nodup
+  C: north_nodup
+
 paths:
   project_catalog: &pcat
    /jarre/scenario/ocisse/ESPO-G6-stage/cat_ESPO-G6.json

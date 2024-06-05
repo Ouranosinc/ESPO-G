@@ -14,4 +14,5 @@ include: "workflow/rules/Makeref.smk"
 ##### target rules #####
 rule all:
     input:
-        inter_region()
+        inter_region(),
+        path_diag,_=rule_drop_to_make_faster
