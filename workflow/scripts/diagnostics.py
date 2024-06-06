@@ -1,8 +1,7 @@
 from dask.distributed import Client
 from dask import config as dskconf
 import atexit
-from xarray import open_dataset
-import snakemake
+import xarray as xr
 import xscen as xs
 import logging
 from utils import save_move_update
@@ -15,7 +14,7 @@ import sys
 
 
 # Load configuration
-xs.load_config('ESPO-G/configuration/config_ESPO-G_E5L.yml', 'ESPO-G/configuration/template_paths.yml', verbose=(__name__ == '__main__'), reset=True)
+xs.load_config('/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/template_paths.yml', '/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/config_ESPO-G_E5L.yml', verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
 
 # logging
@@ -25,22 +24,30 @@ ref_source = CONFIG['extraction']['ref_source']
 workdir = Path(CONFIG['paths']['workdir'])
 
 
+
 if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
     atexit.register(send_mail_on_exit, subject=CONFIG['scripting']['subject'])
 
-    path_diag, prop = rule_drop_to_make_faster()
-    for outputfile in path_diag:
-        with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
-                if (not pcat.exists_in_cat(domain=path_diag.values(), processing_level='diag-ref-prop',
-                                          source=ref_source)) and ('diagnostics' in CONFIG['tasks']):
-                    with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
-                        path_diag_exec = f"{workdir}/{path_diag.name}"
 
-                        save_move_update(ds=prop,
-                                         pcat=pcat,
-                                         init_path=path_diag_exec,
-                                         final_path=path_diag.keys(),)
+    with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
+        logger.info("debut open_dataset")
+        ds_ref = xr.open_dataset(snakemake.input[0])
+        logger.info("fin open_dataset")
+        # drop to make faster
+        dref_ref = ds_ref.drop_vars('dtr')
+        dref_ref = dref_ref.chunk(CONFIG['extraction']['reference']['chunks'])
+        prop, _ = xs.properties_and_measures(
+            ds=dref_ref,
+            **CONFIG['extraction']['reference']['properties_and_measures'])
+        prop = prop.chunk(CONFIG['custom']['rechunk'])
+        path_diag = Path(CONFIG['paths']['diagnostics'].format(region_name={snakemake.wildcards.region},
+                                                               sim_id=prop.attrs['cat:id'],
+                                                               level=prop.attrs['cat:processing_level']))
+        path_diag_exec = f"{workdir}/{path_diag.name}"
+
+
+        xs.save_to_zarr(prop, snakemake.output[0])
 
 

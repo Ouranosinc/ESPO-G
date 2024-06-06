@@ -3,6 +3,7 @@ from pathlib import Path
 
 region=config["custom"]["regions"].keys()
 
+
 rule reference_DEFAULT:
     params:
         ref=config['paths']['refdir'],
@@ -12,7 +13,7 @@ rule reference_DEFAULT:
     log:
         "logs/reference_DEFAULT"
     script:
-        "scripts/load_default_ref.py"
+        "/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/scripts/load_default_ref.py"
 
 rule reference_NOLEAP:
     params:
@@ -22,25 +23,27 @@ rule reference_NOLEAP:
     log:
         "logs/reference_NOLEAP"
     script:
-        "scripts/load_noleap_ref.py"
+        "/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/scripts/load_noleap_ref.py"
 
 rule reference_360_DAY:
+    input:
+        config['paths']['project_catalog']
     params:
         ref=config['paths']['refdir']
     output:
-        zarr_file=expand(Path(config['paths']['refdir'])/"ref_{region_name}_360_day.zarr", region_name=region)
+        Path(config['paths']['refdir'])/"ref_{region}_360_day.zarr"
     log:
-        "logs/reference_360_DAY"
+        "logs/reference_360_DAY_{region}"
     script:
-        "scripts/load_360_day_ref.py"
+        "/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/scripts/load_360_day_ref.py"
 
-rule drop_to_make_faster:
+rule diagnostics:
     input:
         config['paths']['project_catalog']
     output:
-        rule_drop_to_make_faster_outfile
+        "/jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_{region}.zarr"
     log:
-        "logs/drop_to_make_faster"
+        "logs/diagnostics_{region}"
     script:
-        "scripts/diagnostics.py"
+        "/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/scripts/diagnostics.py"
 

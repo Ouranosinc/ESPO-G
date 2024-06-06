@@ -1,7 +1,6 @@
 from dask.distributed import Client
 from dask import config as dskconf
 import atexit
-import snakemake
 import xscen as xs
 import logging
 from xscen import CONFIG
@@ -9,11 +8,12 @@ from utils import save_and_update, save_move_update
 from pathlib import Path
 from xclim.core.calendar import convert_calendar
 import sys
+import xarray as xr
 
 # logging
 sys.stderr = open(snakemake.log[0], "w")
 
-xs.load_config('configuration/paths_ESPO-G_j.yml', 'configuration/config_ESPO-G6-QC-EM.yml', verbose=(__name__ == '__main__'), reset=True)
+xs.load_config('/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/template_paths.yml', '/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/config_ESPO-G_E5L.yml', verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
 
 exec_wdir = Path(CONFIG['paths']['exec_workdir'])
@@ -22,26 +22,18 @@ refdir = Path(CONFIG['paths']['refdir'])
 
 ref_source = CONFIG['extraction']['ref_source']
 
-pcat = xs.ProjectCatalog(CONFIG['paths']['project_catalog'], create=True)
+pcat = xs.ProjectCatalog(CONFIG['paths']['project_catalog'])
 
 if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
     atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
     for region_name, region_dict in CONFIG['custom']['regions'].items():
-        if (
-                "makeref" in CONFIG["tasks"]
-                and not pcat.exists_in_cat(domain=region_name, processing_level='nancount', source=ref_source)
-        ):
-            # 360_day
-            if not pcat.exists_in_cat(domain=region_name, calendar='360_day', source=ref_source):
-                with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
+        with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
 
-                    ds_ref = pcat.search(source=ref_source, calendar='default', domain=region_name).to_dask()
+            ds_ref = pcat.search(source=ref_source, calendar='default', domain=region_name).to_dask()
+            # ds_ref = xr.open_dataset(snakemake.input[0])
+            ds_ref360 = convert_calendar(ds_ref, "360_day", align_on="year")
 
-                    ds_ref360 = convert_calendar(ds_ref, "360_day", align_on="year")
-                    save_move_update(ds=ds_ref360,
-                                     pcat=pcat,
-                                     init_path=f"{exec_wdir}/ref_{region_name}_360_day.zarr",
-                                     final_path=snakemake.output[0],
-                                     info_dict={'calendar': '360_day'})
+
+            xs.save_to_zarr(ds_ref360, snakemake.output[0])

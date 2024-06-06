@@ -1,7 +1,6 @@
 from dask.distributed import Client
 from dask import config as dskconf
 import atexit
-import snakemake
 import xscen as xs
 import logging
 from xscen import CONFIG
@@ -13,7 +12,7 @@ import sys
 # logging
 sys.stderr = open(snakemake.log[0], "w")
 
-xs.load_config('configuration/paths_ESPO-G_j.yml', 'configuration/config_ESPO-G6-QC-EM.yml', verbose=(__name__ == '__main__'), reset=True)
+xs.load_config('/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/template_paths.yml', '/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/config_ESPO-G_E5L.yml', verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
 
 exec_wdir = Path(CONFIG['paths']['exec_workdir'])
@@ -34,15 +33,11 @@ if __name__ == '__main__':
                 "makeref" in CONFIG["tasks"]
                 and not pcat.exists_in_cat(domain=region_name, processing_level='nancount', source=ref_source)
         ):
-            if not pcat.exists_in_cat(domain=region_name, calendar='noleap', source=ref_source):
-                with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
 
-                    ds_ref = pcat.search(source=ref_source, calendar='default', domain=region_name).to_dask()
+            with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
+                # ds_ref = xr.open_dataset(snakemake.input[0])
+                ds_ref = pcat.search(source=ref_source, calendar='default', domain=region_name).to_dask()
 
-                    # convert calendars
-                    ds_refnl = convert_calendar(ds_ref, "noleap")
-                    save_move_update(ds=ds_refnl,
-                                     pcat=pcat,
-                                     init_path=f"{exec_wdir}/ref_{region_name}_noleap.zarr",
-                                     final_path=snakemake.output[0],
-                                     info_dict={'calendar': 'noleap'})
+                # convert calendars
+                ds_refnl = convert_calendar(ds_ref, "noleap")
+                save_move_update(ds_refnl, snakemake.output[0])

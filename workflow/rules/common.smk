@@ -40,23 +40,3 @@ def inter_region():
             file_ref.append(Path(config['paths']['refdir'])/f"ref_{region_name}{cal}")
     return file_ref
 
-def rule_drop_to_make_faster():
-    path_diag = {}
-    for region_name in CONFIG['custom']['regions'].keys():
-        ds_ref = xr.open_dataset(snakemake.input[0]).to_dask()
-        dref_ref = ds_ref.drop_vars('dtr')
-        dref_ref = dref_ref.chunk(CONFIG['extraction']['reference']['chunks'])
-        prop, _ = xs.properties_and_measures(
-            ds=dref_ref,
-            **CONFIG['extraction']['reference']['properties_and_measures'])
-        prop = prop.chunk(CONFIG['custom']['rechunk'])
-        path_diag[Path(CONFIG['paths']['diagnostics'].format(region_name=region_name,
-            sim_id=prop.attrs['cat:id'],
-            level=prop.attrs['cat:processing_level']))] = region_name
-
-    return path_diag, prop
-
-def rule_drop_to_make_faster_outfile():
-    path_diag,_=rule_drop_to_make_faster()
-
-    return path_diag
