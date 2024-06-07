@@ -5,31 +5,26 @@ region=config["custom"]["regions"].keys()
 
 
 rule reference_DEFAULT:
-    params:
-        ref=config['paths']['refdir'],
-        exec=config['paths']['exec_workdir']
     output:
-        zarr_file= expand(Path(config['paths']['refdir'])/"ref_{region_name}_default.zarr", region_name=region)
+        Path(config['paths']['refdir'])/"ref_{region}_default.zarr"
     log:
-        "logs/reference_DEFAULT"
+        "logs/reference_DEFAULT_{region}"
     script:
         "/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/scripts/load_default_ref.py"
 
 rule reference_NOLEAP:
-    params:
-        ref=config['paths']['refdir']
+    input:
+        Path(config['paths']['refdir'])/"ref_{region}_default.zarr"
     output:
-        zarr_file=expand(Path(config['paths']['refdir'])/"ref_{region_name}_noleap.zarr", region_name=region)
+        Path(config['paths']['refdir'])/"ref_{region}_noleap.zarr"
     log:
-        "logs/reference_NOLEAP"
+        "logs/reference_NOLEAP_{region}"
     script:
         "/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/scripts/load_noleap_ref.py"
 
 rule reference_360_DAY:
     input:
-        config['paths']['project_catalog']
-    params:
-        ref=config['paths']['refdir']
+        Path(config['paths']['refdir'])/"ref_{region}_default.zarr"
     output:
         Path(config['paths']['refdir'])/"ref_{region}_360_day.zarr"
     log:
@@ -39,7 +34,7 @@ rule reference_360_DAY:
 
 rule diagnostics:
     input:
-        config['paths']['project_catalog']
+        Path(config['paths']['refdir'])/"ref_{region}_default.zarr"
     output:
         "/jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_{region}.zarr"
     log:

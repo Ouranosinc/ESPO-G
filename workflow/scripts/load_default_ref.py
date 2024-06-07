@@ -4,8 +4,6 @@ import atexit
 import xscen as xs
 import logging
 from xscen import CONFIG
-from utils import save_and_update, save_move_update
-from pathlib import Path
 import sys
 
 # logging
@@ -13,12 +11,6 @@ sys.stderr = open(snakemake.log[0], "w")
 
 xs.load_config('/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/template_paths.yml', '/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/config_ESPO-G_E5L.yml', verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
-
-exec_wdir = Path(CONFIG['paths']['exec_workdir'])
-regriddir = Path(CONFIG['paths']['regriddir'])
-refdir = Path(CONFIG['paths']['refdir'])
-
-ref_source = CONFIG['extraction']['ref_source']
 
 
 if __name__ == '__main__':
@@ -49,5 +41,4 @@ if __name__ == '__main__':
         # chunk
         ds_ref = ds_ref.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_ref.dims})
 
-
-        xs.save_to_zarr(ds_ref, snakemake.output[0])
+        xs.save_to_zarr(ds_ref, str(snakemake.output[0]))

@@ -4,25 +4,19 @@ import atexit
 import xarray as xr
 import xscen as xs
 import logging
-from utils import save_move_update
 from pathlib import Path
 from xscen import (
     CONFIG,
     send_mail_on_exit)
 import sys
 
-
-
+exec_wdir = Path(CONFIG['paths']['exec_workdir'])
 # Load configuration
 xs.load_config('/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/template_paths.yml', '/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/config_ESPO-G_E5L.yml', verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
 
 # logging
 sys.stderr = open(snakemake.log[0], "w")
-
-ref_source = CONFIG['extraction']['ref_source']
-workdir = Path(CONFIG['paths']['workdir'])
-
 
 
 if __name__ == '__main__':
@@ -33,7 +27,7 @@ if __name__ == '__main__':
 
     with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
         logger.info("debut open_dataset")
-        ds_ref = xr.open_dataset(snakemake.input[0])
+        ds_ref = xr.open_dataset(snakemake.input[0]).to_dask()
         logger.info("fin open_dataset")
         # drop to make faster
         dref_ref = ds_ref.drop_vars('dtr')
@@ -42,10 +36,8 @@ if __name__ == '__main__':
             ds=dref_ref,
             **CONFIG['extraction']['reference']['properties_and_measures'])
         prop = prop.chunk(CONFIG['custom']['rechunk'])
-        path_diag = Path(CONFIG['paths']['diagnostics'].format(region_name={snakemake.wildcards.region},
-                                                               sim_id=prop.attrs['cat:id'],
-                                                               level=prop.attrs['cat:processing_level']))
-        path_diag_exec = f"{workdir}/{path_diag.name}"
+        path_diag = snakemake.output[0]
+        path_diag_exec = f"{exec_wdir}/{path_diag.name}"
 
 
         xs.save_to_zarr(prop, snakemake.output[0])
