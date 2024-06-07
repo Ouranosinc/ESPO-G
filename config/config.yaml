@@ -26,10 +26,10 @@ paths:
   tmp: /jarre/scenario/ocisse/ESPO-G6-stage/tmp/{id}_{domain}_pre-remove.zarr
   cat_ref: /tank/scenario/catalogues/reconstruction.json
   cat_sim: /tank/scenario/catalogues/simulation.json
-  #home: /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/
-  #final: /jarre/scenario/ocisse/ESPO-G6-stage/
-  home: /home/jlavoie/Projets/ESPO-G-snakemake/
-  final: /jarre/scenario/jlavoie/ESPO-G6-snakemake/
+  home: /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/
+  final: /jarre/scenario/ocisse/ESPO-G6-stage/
+  #home: /home/jlavoie/Projets/ESPO-G-snakemake/
+  #final: /jarre/scenario/jlavoie/ESPO-G6-snakemake/
 
 
 
@@ -78,8 +78,8 @@ indicator: # don't write the real name of the module or you will break extract.
 utils:
     stack_drop_nans:
         to_file: &coords
-          #/jarre/scenario/ocisse/ESPO-G6-stage/coords/coords_{domain}_{shape}.nc
-          /jarre/scenario/jlavoie/ESPO-G6-snakemake/coords/coords_{domain}_{shape}.nc
+          /jarre/scenario/ocisse/ESPO-G6-stage/coords/coords_{domain}_{shape}.nc
+          #/jarre/scenario/jlavoie/ESPO-G6-snakemake/coords/coords_{domain}_{shape}.nc
     unstack_fill_nan:
       coords: *coords
     maybe_unstack:
@@ -623,8 +623,8 @@ scripting:
 dask:
     array.slicing.split_large_chunks: False
     client:
-        #local_directory: /exec/ocisse/ESPO-G6-stage/tmp_eg6/
-        local_directory: /exec/jlavoie/tmp_eg6/
+        local_directory: /exec/ocisse/ESPO-G6-stage/tmp_eg6/
+        #local_directory: /exec/jlavoie/tmp_eg6/
         dashboard_address: 7896
 
 logging:
