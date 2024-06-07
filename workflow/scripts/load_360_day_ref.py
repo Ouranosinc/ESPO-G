@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
         # ds_ref = pcat.search(source=ref_source, calendar='default', domain=region_name).to_dask()
 
-        ds_ref = xr.open_dataset(snakemake.input[0]).to_dask()
+        ds_ref = xr.open_zarr(snakemake.input[0]).to_dask()
         ds_ref360 = convert_calendar(ds_ref, "360_day", align_on="year")
 
 

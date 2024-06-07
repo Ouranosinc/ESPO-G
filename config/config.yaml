@@ -33,29 +33,14 @@ paths:
 
 
 
-dask_PATH:
-  client:
-    #local_directory: /exec/ocisse/ESPO-G6-stage/tmp_eg6/
-    local_directory: /exec/jlavoie/tmp_eg6/
-    dashboard_address: 7896
+
 
 logging_PATH:
     handlers:
         file:
             filename: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/logger.log
 
-extraction_PATH:
-  reference:
-    search_data_catalogs:
-      data_catalogs:
-         - /tank/scenario/catalogues/reconstruction.json
-    properties_and_measures:
-        properties: &properties
-          configuration/properties_ESPO-G.yml
-  simulation:
-    search_data_catalogs:
-      data_catalogs:
-        - /tank/scenario/catalogues/simulation.json
+
 
 regrid_PATH:
     regrid_dataset:
@@ -71,13 +56,7 @@ clean_up_PATH:
     data_catalogs:
       - *pcat
 
-diagnostics_PATH:
-  sim:
-    properties_and_measures:
-          properties: *properties
-  scen:
-    properties_and_measures:
-      properties: *properties
+
 
 off-diag_PATH:
   steps:
@@ -199,8 +178,6 @@ custom:
       #lat: 50
       #lon: 50
 
-
-
 extraction:
     reference:
         search_data_catalogs:
@@ -223,10 +200,14 @@ extraction:
           to_level_prop: diag-ref-prop
           period: *ref_period
           unstack: *stack
+          properties: &properties
+            config/properties_ESPO-G.yml
         chunks:
           time: -1
     simulation:
         search_data_catalogs:
+            data_catalogs:
+              - /tank/scenario/catalogues/simulation.json
             variables_and_freqs: *var_and_freq
             match_hist_and_fut: True
             allow_conversion: True
@@ -461,6 +442,7 @@ diagnostics:
     properties_and_measures:
       period: *ref_period
       unstack: *stack
+      properties: *properties
   scen:
     input:
       processing_level: final
@@ -469,6 +451,7 @@ diagnostics:
     properties_and_measures:
       period: *ref_period
       unstack: False
+      properties: *properties
 
 health_checks:
     structure:
@@ -639,6 +622,10 @@ scripting:
 
 dask:
     array.slicing.split_large_chunks: False
+    client:
+        #local_directory: /exec/ocisse/ESPO-G6-stage/tmp_eg6/
+        local_directory: /exec/jlavoie/tmp_eg6/
+        dashboard_address: 7896
 
 logging:
     formatters:

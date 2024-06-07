@@ -37,8 +37,9 @@ rule diagnostics:
     input:
         Path(config['paths']['final'])/"reference/ref_{region}_default.zarr"
     output:
-        directory(Path(config['paths']['final'])/"diagnostics/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_{region}.zarr")
+        directory(Path(config['paths']['final'])/"diagnostics/{region}/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_{region}.zarr")
     log:
         "logs/diagnostics_{region}"
     script:
         f"{home}workflow/scripts/diagnostics.py"
+

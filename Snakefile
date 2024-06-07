@@ -18,4 +18,4 @@ region=list(config["custom"]["regions"].keys())
 rule all:
     input:
         #inter_region(), # pas besoin
-        expand(Path(config['paths']['final'])/"diagnostics/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_{region_name}.zarr", region_name=region)
+        expand(Path(config['paths']['final'])/"diagnostics/{region_name}/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_{region_name}.zarr", region_name=region)

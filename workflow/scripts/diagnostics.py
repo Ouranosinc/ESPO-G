@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
         logger.info("debut open_dataset")
-        ds_ref = xr.open_dataset(snakemake.input[0]).to_dask()
+        ds_ref = xr.open_zarr(snakemake.input[0])
         logger.info("fin open_dataset")
         # drop to make faster
         dref_ref = ds_ref.drop_vars('dtr')

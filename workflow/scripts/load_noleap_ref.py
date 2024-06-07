@@ -21,7 +21,7 @@ if __name__ == '__main__':
     #atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
 
     with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
-        ds_ref = xr.open_dataset(snakemake.input[0]).to_dask()
+        ds_ref = xr.open_zarr(snakemake.input[0]).to_dask()
         # ds_ref = pcat.search(source=ref_source, calendar='default', domain=region_name).to_dask()
 
         # convert calendars
