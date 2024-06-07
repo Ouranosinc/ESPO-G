@@ -7,17 +7,19 @@ from xscen import CONFIG
 from xclim.core.calendar import convert_calendar
 import sys
 import xarray as xr
+import snakemake
 
 # logging
-sys.stderr = open(snakemake.log[0], "w")
+#sys.stderr = open(snakemake.log[0], "w")
 
-xs.load_config('/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/template_paths.yml', '/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/config_ESPO-G_E5L.yml', verbose=(__name__ == '__main__'), reset=True)
+#xs.load_config('/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/template_paths.yml', '/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/config_ESPO-G_E5L.yml', verbose=(__name__ == '__main__'), reset=True)
+xs.load_config("config/config.yaml")
 logger = logging.getLogger('xscen')
 
 if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
-    atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
+    #atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
     with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
 
         # ds_ref = pcat.search(source=ref_source, calendar='default', domain=region_name).to_dask()

@@ -9,10 +9,8 @@ paths:
    /jarre/scenario/ocisse/ESPO-G6-stage/cat_ESPO-G6.json
   workdir: /jarre/scenario/ocisse/ESPO-G6-stage/workdir/
   exec_workdir: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/ # EXEC_DIR should be a directory where it is easy to read and write
-  refdir: /jarre/scenario/ocisse/ESPO-G6-stage/reference/
   regriddir: /jarre/scenario/ocisse/ESPO-G6-stage/regridded/
   output: /jarre/scenario/ocisse/ESPO-G6-stage/NAM_SPLIT/{region_name}/day_{sim_id}_{region_name}_1950-2100.zarr
-  diagnostics: /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/{sim_id}/{level}_{sim_id}_{region_name}.zarr
   concat_output_final: /jarre/scenario/ocisse/ESPO-G6-stage/FINAL/{domain}/day_{sim_id}_{domain}_1950-2100.zarr
   concat_output_diag: /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/{domain}/{sim_id}/{level}_{sim_id}_{domain}.zar
   logging: /jarre/scenario/ocisse/ESPO-G6-stage/logging/log_{sim_id}_{region_name}.log
@@ -28,10 +26,17 @@ paths:
   tmp: /jarre/scenario/ocisse/ESPO-G6-stage/tmp/{id}_{domain}_pre-remove.zarr
   cat_ref: /tank/scenario/catalogues/reconstruction.json
   cat_sim: /tank/scenario/catalogues/simulation.json
+  #home: /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/
+  #final: /jarre/scenario/ocisse/ESPO-G6-stage/
+  home: /home/jlavoie/Projets/ESPO-G-snakemake/
+  final: /jarre/scenario/jlavoie/ESPO-G6-snakemake/
+
+
 
 dask_PATH:
   client:
-    local_directory: /exec/ocisse/ESPO-G6-stage/tmp_eg6/
+    #local_directory: /exec/ocisse/ESPO-G6-stage/tmp_eg6/
+    local_directory: /exec/jlavoie/tmp_eg6/
     dashboard_address: 7896
 
 logging_PATH:
@@ -94,7 +99,8 @@ indicator: # don't write the real name of the module or you will break extract.
 utils:
     stack_drop_nans:
         to_file: &coords
-          /jarre/scenario/ocisse/ESPO-G6-stage/coords/coords_{domain}_{shape}.nc
+          #/jarre/scenario/ocisse/ESPO-G6-stage/coords/coords_{domain}_{shape}.nc
+          /jarre/scenario/jlavoie/ESPO-G6-snakemake/coords/coords_{domain}_{shape}.nc
     unstack_fill_nan:
       coords: *coords
     maybe_unstack:
@@ -198,6 +204,8 @@ custom:
 extraction:
     reference:
         search_data_catalogs:
+            data_catalogs:
+              - /tank/scenario/catalogues/reconstruction.json
             variables_and_freqs: &var_and_freq
                 tasmax: D
                 tasmin: D
@@ -643,14 +651,12 @@ logging:
             formatter: default
             level : INFO
             stream: ext://sys.stdout #needed to have the right color in pycharm
-        file:
-            class: logging.FileHandler
-            formatter: default
-            level : DEBUG
-    loggers:
-        xscen:
-            level: INFO
-            handlers: [file]
+#        file:
+#            class: logging.FileHandler
+#            formatter: default
+#            level : DEBUG
+
+
 
 tdd:
   xarray_open_kwargs:
