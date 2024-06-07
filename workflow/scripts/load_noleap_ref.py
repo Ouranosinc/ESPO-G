@@ -7,7 +7,6 @@ from xscen import CONFIG
 from xclim.core.calendar import convert_calendar
 import sys
 import xarray as xr
-import snakemake
 
 # logging
 #sys.stderr = open(snakemake.log[0], "w")

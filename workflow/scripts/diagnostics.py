@@ -9,7 +9,6 @@ from xscen import (
     CONFIG,
     send_mail_on_exit)
 import sys
-import snakemake
 
 #pas besoin
 #exec_wdir = Path(CONFIG['paths']['exec_workdir'])

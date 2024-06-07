@@ -5,7 +5,6 @@ import xscen as xs
 import logging
 from xscen import CONFIG
 import sys
-#import snakemake
 
 # logging
 # pas sur pourquoi tu mets ça et ça me donne une erreur alors je l'enleve temporairement
