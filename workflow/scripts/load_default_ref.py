@@ -19,26 +19,27 @@ if __name__ == '__main__':
     atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
 
     # default
+    for region_name, region_dict in CONFIG['custom']['regions'].items():
+        if region_name == snakemake.wildcards.region:
+            with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
+                # search
+                cat_ref = xs.search_data_catalogs(**CONFIG['extraction']['reference']['search_data_catalogs'])
 
-    with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
-        # search
-        cat_ref = xs.search_data_catalogs(**CONFIG['extraction']['reference']['search_data_catalogs'])
+                # extract
+                dc = cat_ref.popitem()[1]
+                ds_ref = xs.extract_dataset(catalog=dc,
+                                            region=region_dict,
+                                            **CONFIG['extraction']['reference']['extract_dataset']
+                                            )['D']
 
-        # extract
-        dc = cat_ref.popitem()[1]
-        ds_ref = xs.extract_dataset(catalog=dc,
-                                    region=CONFIG['custom']['regions'][{snakemake.wildcards.region}],
-                                    **CONFIG['extraction']['reference']['extract_dataset']
-                                    )['D']
+                # stack
+                if CONFIG['custom']['stack_drop_nans']:
+                    var = list(ds_ref.data_vars)[0]
+                    ds_ref = xs.utils.stack_drop_nans(
+                        ds_ref,
+                        ds_ref[var].isel(time=0, drop=True).notnull().compute(),
+                    )
+                # chunk
+                ds_ref = ds_ref.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_ref.dims})
 
-        # stack
-        if CONFIG['custom']['stack_drop_nans']:
-            var = list(ds_ref.data_vars)[0]
-            ds_ref = xs.utils.stack_drop_nans(
-                ds_ref,
-                ds_ref[var].isel(time=0, drop=True).notnull().compute(),
-            )
-        # chunk
-        ds_ref = ds_ref.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_ref.dims})
-
-        xs.save_to_zarr(ds_ref, str(snakemake.output[0]))
+                xs.save_to_zarr(ds_ref, str(snakemake.output[0]))
