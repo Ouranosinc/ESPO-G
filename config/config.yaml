@@ -1,4 +1,6 @@
 #Configuration file for ESPO-G6-E5L v1.0.0
+
+#Configuration file for ESPO-G6-E5L v1.0.0
 regions:
   A: south_nodup
   B: middle_nodup
@@ -9,10 +11,8 @@ paths:
    /jarre/scenario/ocisse/ESPO-G6-stage/cat_ESPO-G6.json
   workdir: /jarre/scenario/ocisse/ESPO-G6-stage/workdir/
   exec_workdir: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/ # EXEC_DIR should be a directory where it is easy to read and write
-  refdir: /jarre/scenario/ocisse/ESPO-G6-stage/reference/
   regriddir: /jarre/scenario/ocisse/ESPO-G6-stage/regridded/
   output: /jarre/scenario/ocisse/ESPO-G6-stage/NAM_SPLIT/{region_name}/day_{sim_id}_{region_name}_1950-2100.zarr
-  diagnostics: /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/{sim_id}/{level}_{sim_id}_{region_name}.zarr
   concat_output_final: /jarre/scenario/ocisse/ESPO-G6-stage/FINAL/{domain}/day_{sim_id}_{domain}_1950-2100.zarr
   concat_output_diag: /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/{domain}/{sim_id}/{level}_{sim_id}_{domain}.zar
   logging: /jarre/scenario/ocisse/ESPO-G6-stage/logging/log_{sim_id}_{region_name}.log
@@ -28,64 +28,12 @@ paths:
   tmp: /jarre/scenario/ocisse/ESPO-G6-stage/tmp/{id}_{domain}_pre-remove.zarr
   cat_ref: /tank/scenario/catalogues/reconstruction.json
   cat_sim: /tank/scenario/catalogues/simulation.json
-
-dask_PATH:
-  client:
-    local_directory: /exec/ocisse/ESPO-G6-stage/tmp_eg6/
-    dashboard_address: 7896
-
-logging_PATH:
-    handlers:
-        file:
-            filename: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/logger.log
-
-extraction_PATH:
-  reference:
-    search_data_catalogs:
-      data_catalogs:
-         - /tank/scenario/catalogues/reconstruction.json
-    properties_and_measures:
-        properties: &properties
-          configuration/properties_ESPO-G.yml
-  simulation:
-    search_data_catalogs:
-      data_catalogs:
-        - /tank/scenario/catalogues/simulation.json
-
-regrid_PATH:
-    regrid_dataset:
-      weights_location:
-        /jarre/scenario/ocisse/ESPO-G6-stage/workdir/weights/
+  home: /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/
+  final: /jarre/scenario/ocisse/ESPO-G6-stage/
 
 io_PATH:
   rechunk:
     temp_store: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/tmp/
-
-clean_up_PATH:
-  search_data_catalogs:
-    data_catalogs:
-      - *pcat
-
-diagnostics_PATH:
-  sim:
-    properties_and_measures:
-          properties: *properties
-  scen:
-    properties_and_measures:
-      properties: *properties
-
-off-diag_PATH:
-  steps:
-    ref:
-      properties_and_measures:
-        properties: &off-properties
-          configuration/off-properties_ESPO-G.yml
-    sim:
-      properties_and_measures:
-        properties: *off-properties
-    scen:
-      properties_and_measures:
-        properties: *off-properties
 
 indicator: # don't write the real name of the module or you will break extract.
   load_xclim_module:
@@ -99,10 +47,6 @@ utils:
       coords: *coords
     maybe_unstack:
       coords: *coords
-
-scripting_PATH:
-    send_mail:
-        to: oumcis1@ouranos.ca
 
 project:
     name: ESPO-G6-E5L
@@ -209,16 +153,22 @@ extraction:
             other_search_criteria:
                 source: &ref_source
                     "ERA5-Land"
+            data_catalogs:
+              - /tank/scenario/catalogues/reconstruction.json
         extract_dataset:
             xr_combine_kwargs: {}
         properties_and_measures:
           to_level_prop: diag-ref-prop
           period: *ref_period
           unstack: *stack
+          properties: &properties
+              configuration/properties_ESPO-G.yml
         chunks:
           time: -1
     simulation:
         search_data_catalogs:
+            data_catalogs:
+                - /tank/scenario/catalogues/simulation.json
             variables_and_freqs: *var_and_freq
             match_hist_and_fut: True
             allow_conversion: True
@@ -243,6 +193,7 @@ extraction:
 #                - UKESM1-0-LL
 #                - NorESM2-MM
 #                - NESM3
+
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
@@ -259,6 +210,8 @@ regrid:
     source: *ref_source
     calendar: noleap
   regrid_dataset:
+      weights_location:
+        /jarre/scenario/ocisse/ESPO-G6-stage/workdir/weights/
       regridder_kwargs:
         method: bilinear
         extrap_method: inverse_dist
@@ -387,6 +340,8 @@ biasadjust:
 
 clean_up:
   search_data_catalogs:
+    data_catalogs:
+          - *pcat
     variables_and_freqs:
       tasmax: D
       tasmin: D
@@ -443,7 +398,6 @@ clean_up:
             long_name: Mean daily precipitation flux
             cell_methods: "time: mean within days"
 
-
 diagnostics:
   sim:
     input:
@@ -453,6 +407,7 @@ diagnostics:
     properties_and_measures:
       period: *ref_period
       unstack: *stack
+      properties: *properties
   scen:
     input:
       processing_level: final
@@ -461,6 +416,7 @@ diagnostics:
     properties_and_measures:
       period: *ref_period
       unstack: False
+      properties: *properties
 
 health_checks:
     structure:
@@ -590,6 +546,8 @@ off-diag:
         Magtogoek: middle_nodup
       properties_and_measures:
         period: *ref_period
+        properties: &off-properties
+           configuration/off-properties_ESPO-G.yml
       unstack: *stack
     sim:
       input:
@@ -604,6 +562,7 @@ off-diag:
         processing_level: off-diag-ref-prop
       properties_and_measures:
         period: *ref_period
+        properties: *off-properties
       unstack: *stack
     scen:
       input:
@@ -618,6 +577,7 @@ off-diag:
         processing_level: off-diag-ref-prop
       properties_and_measures:
         period: *ref_period
+        properties: *off-properties
       unstack: False
 
 scripting:
@@ -628,9 +588,14 @@ scripting:
         msg_ok: Toutes les étapes demandées ont été complétées.
         msg_err: Une erreur est survenue durant le traitement.
         on_error_only: True
+    send_mail:
+      to: oumcis1@ouranos.ca
 
 dask:
     array.slicing.split_large_chunks: False
+    client:
+      local_directory: /exec/ocisse/ESPO-G6-stage/tmp_eg6/
+      dashboard_address: 7896
 
 logging:
     formatters:
@@ -647,6 +612,7 @@ logging:
             class: logging.FileHandler
             formatter: default
             level : DEBUG
+            filename: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/logger.log
     loggers:
         xscen:
             level: INFO

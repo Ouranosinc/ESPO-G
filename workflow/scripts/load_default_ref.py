@@ -7,16 +7,21 @@ from xscen import CONFIG
 import sys
 
 # logging
-sys.stderr = open(snakemake.log[0], "w")
+# pas sur pourquoi tu mets ça et ça me donne une erreur alors je l'enleve temporairement
+#sys.stderr = open(snakemake.log[0], "w")
 
-xs.load_config('/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/template_paths.yml', '/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/config_ESPO-G_E5L.yml', verbose=(__name__ == '__main__'), reset=True)
+# you've put all everything in config, so you can just call that
+#xs.load_config('/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/template_paths.yml', '/home/ocisse/ESPO-G-stage-snakemake/ESPO-G-stage-snakemake/configuration/config_ESPO-G_E5L.yml', verbose=(__name__ == '__main__'), reset=True)
+import os
+xs.load_config("config/config.yaml")
 logger = logging.getLogger('xscen')
 
 
 if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
-    atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
+    # not necessary for each task
+    #atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
 
     # default
     for region_name, region_dict in CONFIG['custom']['regions'].items():
