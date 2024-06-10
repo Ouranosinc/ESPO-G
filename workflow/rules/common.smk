@@ -26,6 +26,7 @@ from snakemake.utils import validate
 # exec_wdir = Path(config['paths']['exec_workdir'])
 # regriddir = Path(config['paths']['regriddir'])
 # refdir = Path(config['paths']['refdir'])
+#
 # ref_period = slice(*map(str,config['custom']['ref_period']))
 # sim_period = slice(*map(str,config['custom']['sim_period']))
 # ref_source = config['extraction']['ref_source']
@@ -38,4 +39,3 @@ from snakemake.utils import validate
 #         for cal in calandar:
 #             file_ref.append(Path(config['paths']['refdir'])/f"ref_{region_name}{cal}")
 #     return file_ref
-

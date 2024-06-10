@@ -1,6 +1,4 @@
 #Configuration file for ESPO-G6-E5L v1.0.0
-
-#Configuration file for ESPO-G6-E5L v1.0.0
 regions:
   A: south_nodup
   B: middle_nodup
@@ -10,7 +8,7 @@ paths:
   project_catalog: &pcat
    /jarre/scenario/ocisse/ESPO-G6-stage/cat_ESPO-G6.json
   workdir: /jarre/scenario/ocisse/ESPO-G6-stage/workdir/
-  exec_workdir: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/ # EXEC_DIR should be a directory where it is easy to read and write
+  exec_workdir: /exec/ocisse/ESPO-G6-stage/ # EXEC_DIR should be a directory where it is easy to read and write
   regriddir: /jarre/scenario/ocisse/ESPO-G6-stage/regridded/
   output: /jarre/scenario/ocisse/ESPO-G6-stage/NAM_SPLIT/{region_name}/day_{sim_id}_{region_name}_1950-2100.zarr
   concat_output_final: /jarre/scenario/ocisse/ESPO-G6-stage/FINAL/{domain}/day_{sim_id}_{domain}_1950-2100.zarr
@@ -30,10 +28,48 @@ paths:
   cat_sim: /tank/scenario/catalogues/simulation.json
   home: /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/
   final: /jarre/scenario/ocisse/ESPO-G6-stage/
+  #home: /home/jlavoie/Projets/ESPO-G-snakemake/
+  #final: /jarre/scenario/jlavoie/ESPO-G6-snakemake/
+
+
+
+
+
+logging_PATH:
+    handlers:
+        file:
+            filename: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/logger.log
+
+
+
+regrid_PATH:
+    regrid_dataset:
+      weights_location:
+        /jarre/scenario/ocisse/ESPO-G6-stage/workdir/weights/
 
 io_PATH:
   rechunk:
     temp_store: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/tmp/
+
+clean_up_PATH:
+  search_data_catalogs:
+    data_catalogs:
+      - *pcat
+
+
+
+off-diag_PATH:
+  steps:
+    ref:
+      properties_and_measures:
+        properties: &off-properties
+          configuration/off-properties_ESPO-G.yml
+    sim:
+      properties_and_measures:
+        properties: *off-properties
+    scen:
+      properties_and_measures:
+        properties: *off-properties
 
 indicator: # don't write the real name of the module or you will break extract.
   load_xclim_module:
@@ -43,10 +79,15 @@ utils:
     stack_drop_nans:
         to_file: &coords
           /jarre/scenario/ocisse/ESPO-G6-stage/coords/coords_{domain}_{shape}.nc
+          #/jarre/scenario/jlavoie/ESPO-G6-snakemake/coords/coords_{domain}_{shape}.nc
     unstack_fill_nan:
       coords: *coords
     maybe_unstack:
       coords: *coords
+
+scripting_PATH:
+    send_mail:
+        to: oumcis1@ouranos.ca
 
 project:
     name: ESPO-G6-E5L
@@ -137,11 +178,11 @@ custom:
       #lat: 50
       #lon: 50
 
-
-
 extraction:
     reference:
         search_data_catalogs:
+            data_catalogs:
+              - /tank/scenario/catalogues/reconstruction.json
             variables_and_freqs: &var_and_freq
                 tasmax: D
                 tasmin: D
@@ -153,8 +194,6 @@ extraction:
             other_search_criteria:
                 source: &ref_source
                     "ERA5-Land"
-            data_catalogs:
-              - /tank/scenario/catalogues/reconstruction.json
         extract_dataset:
             xr_combine_kwargs: {}
         properties_and_measures:
@@ -162,13 +201,13 @@ extraction:
           period: *ref_period
           unstack: *stack
           properties: &properties
-              configuration/properties_ESPO-G.yml
+            config/properties_ESPO-G.yml
         chunks:
           time: -1
     simulation:
         search_data_catalogs:
             data_catalogs:
-                - /tank/scenario/catalogues/simulation.json
+              - /tank/scenario/catalogues/simulation.json
             variables_and_freqs: *var_and_freq
             match_hist_and_fut: True
             allow_conversion: True
@@ -193,7 +232,6 @@ extraction:
 #                - UKESM1-0-LL
 #                - NorESM2-MM
 #                - NESM3
-
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
@@ -210,8 +248,6 @@ regrid:
     source: *ref_source
     calendar: noleap
   regrid_dataset:
-      weights_location:
-        /jarre/scenario/ocisse/ESPO-G6-stage/workdir/weights/
       regridder_kwargs:
         method: bilinear
         extrap_method: inverse_dist
@@ -340,8 +376,6 @@ biasadjust:
 
 clean_up:
   search_data_catalogs:
-    data_catalogs:
-          - *pcat
     variables_and_freqs:
       tasmax: D
       tasmin: D
@@ -397,6 +431,7 @@ clean_up:
             standard_name: precipitation_flux
             long_name: Mean daily precipitation flux
             cell_methods: "time: mean within days"
+
 
 diagnostics:
   sim:
@@ -546,8 +581,6 @@ off-diag:
         Magtogoek: middle_nodup
       properties_and_measures:
         period: *ref_period
-        properties: &off-properties
-           configuration/off-properties_ESPO-G.yml
       unstack: *stack
     sim:
       input:
@@ -562,7 +595,6 @@ off-diag:
         processing_level: off-diag-ref-prop
       properties_and_measures:
         period: *ref_period
-        properties: *off-properties
       unstack: *stack
     scen:
       input:
@@ -577,7 +609,6 @@ off-diag:
         processing_level: off-diag-ref-prop
       properties_and_measures:
         period: *ref_period
-        properties: *off-properties
       unstack: False
 
 scripting:
@@ -588,14 +619,13 @@ scripting:
         msg_ok: Toutes les étapes demandées ont été complétées.
         msg_err: Une erreur est survenue durant le traitement.
         on_error_only: True
-    send_mail:
-      to: oumcis1@ouranos.ca
 
 dask:
     array.slicing.split_large_chunks: False
     client:
-      local_directory: /exec/ocisse/ESPO-G6-stage/tmp_eg6/
-      dashboard_address: 7896
+        local_directory: /exec/ocisse/ESPO-G6-stage/tmp_eg6/
+        #local_directory: /exec/jlavoie/tmp_eg6/
+        dashboard_address: 7896
 
 logging:
     formatters:
@@ -608,15 +638,12 @@ logging:
             formatter: default
             level : INFO
             stream: ext://sys.stdout #needed to have the right color in pycharm
-        file:
-            class: logging.FileHandler
-            formatter: default
-            level : DEBUG
-            filename: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/logger.log
-    loggers:
-        xscen:
-            level: INFO
-            handlers: [file]
+#        file:
+#            class: logging.FileHandler
+#            formatter: default
+#            level : DEBUG
+
+
 
 tdd:
   xarray_open_kwargs:

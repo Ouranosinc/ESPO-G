@@ -8,15 +8,13 @@ from xclim.core.calendar import convert_calendar
 import sys
 import xarray as xr
 
-# logging
-# sys.stderr = open(snakemake.log[0], "w")
 xs.load_config("config/config.yaml")
 logger = logging.getLogger('xscen')
 
 if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
-
+    #atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
     with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
 
         # ds_ref = pcat.search(source=ref_source, calendar='default', domain=region_name).to_dask()
