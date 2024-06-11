@@ -17,11 +17,6 @@ if __name__ == '__main__':
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
     #atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
 
-    cat_sim = xs.search_data_catalogs(
-            **CONFIG['extraction']['simulation']['search_data_catalogs'])
-    sim_id = list(cat_sim.keys())
-
-
 
     while True:  # if code bugs forever, it will be stopped by the timeout and then tried again
         try:
@@ -33,8 +28,7 @@ if __name__ == '__main__':
                 xs.timeout(18000, task='train')
             ):
                 # load hist ds (simulation)
-                ds_hist = xr.open_zarr(sim_id,
-                                      snakemake.input.rechunk)
+                ds_hist = xr.open_zarr(snakemake.input.rechunk)
 
                 # load ref ds
                 # choose right calendar
@@ -56,7 +50,7 @@ if __name__ == '__main__':
                 ds_tr = xs.train(dref=ds_ref,
                                  dhist=ds_hist,
                                  var=[snakemake.wildcards.var],
-                                 **conf['training_args'])
+                                 **CONFIG['biasadjust']['variables'][snakemake.wildcards.var]['training_args'])
 
                 ds_tr = ds_tr.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_tr.dims
                                      if d in CONFIG['custom']['chunks'].keys()})

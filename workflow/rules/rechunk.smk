@@ -1,14 +1,15 @@
 from pathlib import Path
 
-region=config["custom"]["regions"].keys()
 home=config["paths"]["home"]
 
 rule rechunk:
    input:
-        Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/NAM_{region}_extracted.zarr"
+        Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_extracted.zarr"
    output:
-        Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/NAM_{region}_regchunked.zarr"
+        directory(Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_regchunked.zarr")
+   wildcard_constraints:
+       region = r"[a-zA-Z]+_[a-zA-Z]+"
    log:
-        "logs/regchunked_NAM_{region}"
+        "logs/regchunked_{sim_id}_{region}"
    script:
         f"{home}workflow/scripts/rechunk.py"

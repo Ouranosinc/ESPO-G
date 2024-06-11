@@ -16,11 +16,10 @@ include: "workflow/rules/regrid.smk"
 include: "workflow/rules/train.smk"
 include: "workflow/rules/adjust.smk"
 
-region=list(config["custom"]["regions"].keys())
+region_name = list(config["custom"]["regions"].keys())
+sim_id_name = wildcards_sim_id()
 
 ##### target rules #####
 rule all:
     input:
-       "/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_south_nodup_regridded.zarr"
-       "/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_middle_nodup_regridded.zarr"
-       "/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_north_nodup_regridded.zarr"
+       expand(Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_regridded.zarr", sim_id=sim_id_name, region=region_name)

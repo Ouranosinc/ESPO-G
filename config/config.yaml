@@ -207,7 +207,7 @@ extraction:
     simulation:
         search_data_catalogs:
             data_catalogs:
-              - /tank/scenario/catalogues/simulation.json
+              - /exec/pbourg/catalogues/simulation.json
             variables_and_freqs: *var_and_freq
             match_hist_and_fut: True
             allow_conversion: True

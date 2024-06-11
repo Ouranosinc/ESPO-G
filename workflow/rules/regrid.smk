@@ -1,16 +1,17 @@
 from pathlib import Path
 
-region=config["custom"]["regions"].keys()
 home=config["paths"]["home"]
 
 rule regrid:
    input:
         noleap = Path(config['paths']['final'])/"reference/ref_{region}_noleap.zarr",
-        extract = Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/NAM_{region}_extracted.zarr"
+        extract = Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_extracted.zarr"
    output:
-        Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/NAM_{region}_regridded.zarr"
+        directory(Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_regridded.zarr")
+   wildcard_constraints:
+       region = r"[a-zA-Z]+_[a-zA-Z]+"
    log:
-        "logs/regrid_NAM_{region}"
+        "logs/regrid_{sim_id}_{region}"
    script:
         f"{home}workflow/scripts/regrid.py"
 

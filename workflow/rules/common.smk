@@ -39,3 +39,9 @@ from snakemake.utils import validate
 #         for cal in calandar:
 #             file_ref.append(Path(config['paths']['refdir'])/f"ref_{region_name}{cal}")
 #     return file_ref
+
+def wildcards_sim_id():
+    cat_sim = xs.search_data_catalogs(
+        **config['extraction']['simulation']['search_data_catalogs'])
+    sim_id = list(cat_sim.keys())
+    return sim_id

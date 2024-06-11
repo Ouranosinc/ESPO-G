@@ -12,7 +12,6 @@ from xscen import (
 )
 
 
-
 xs.load_config("config/config.yaml")
 logger = logging.getLogger('xscen')
 
@@ -20,11 +19,6 @@ if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
     #atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
-
-    cat_sim = xs.search_data_catalogs(
-            **CONFIG['extraction']['simulation']['search_data_catalogs'])
-    sim_id = list(cat_sim.keys())
-
 
 
 
