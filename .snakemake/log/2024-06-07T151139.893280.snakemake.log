@@ -1,0 +1,36 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 10
+Rules claiming more threads will be scaled down.
+Job stats:
+job                  count
+-----------------  -------
+reference_DEFAULT        1
+total                    1
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Fri Jun  7 15:11:40 2024]
+localrule reference_DEFAULT:
+    output: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_north_nodup_default.zarr
+    log: logs/reference_DEFAULT_north_nodup
+    jobid: 0
+    reason: Code has changed since last execution
+    wildcards: region=north_nodup
+    resources: tmpdir=/tmp
+
+RuleException:
+CalledProcessError in file /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/rules/Makeref.smk, line 14:
+Command 'set -euo pipefail;  /exec/ocisse/.conda/envs/premierenv/bin/python3.12 /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/.snakemake/scripts/tmp_5xev9tl.load_default_ref.py' returned non-zero exit status 1.
+[Fri Jun  7 15:11:55 2024]
+Error in rule reference_DEFAULT:
+    jobid: 0
+    output: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_north_nodup_default.zarr
+    log: logs/reference_DEFAULT_north_nodup (check log file(s) for error details)
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2024-06-07T151139.893280.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

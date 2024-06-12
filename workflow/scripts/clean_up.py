@@ -2,10 +2,12 @@ from dask.distributed import Client
 from dask import config as dskconf
 import logging
 import xscen as xs
+import xarray as xr
 from xscen import (search_data_catalogs,
     extract_dataset,
     CONFIG,measure_time, timeout, clean_up)
 
+xr.set_options(keep_attrs=True)
 
 xs.load_config("config/config.yaml")
 logger = logging.getLogger('xscen')
@@ -26,15 +28,8 @@ if __name__ == '__main__':
         timeout(18000, task='clean_up')
     ):
         # get all adjusted data
-        cat = search_data_catalogs(**CONFIG['clean_up']['search_data_catalogs'],
-                                   other_search_criteria={'id': [snakemake.wildcards.sim_id],
-                                                          'processing_level': ["biasadjusted"],
-                                                          'domain': snakemake.wildcards.region}
-                                   )
-        dc = cat.popitem()[1]
-        ds = extract_dataset(catalog=dc,
-                             periods=CONFIG['custom']['sim_period']
-                             )['D']
+        ds = xr.open_mfdataset(str(snakemake.input[0]), engine='zarr')
+        ds = ds.assign(tasmin=(ds.tasmax - ds.dtr))
 
         ds = clean_up(ds=ds,
                       **CONFIG['clean_up']['xscen_clean_up']

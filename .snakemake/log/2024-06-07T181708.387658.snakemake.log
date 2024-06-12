@@ -1,0 +1,120 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 10
+Rules claiming more threads will be scaled down.
+Job stats:
+job                     count
+--------------------  -------
+concat_diag_ref_prop        1
+reference_360_DAY           3
+reference_NOLEAP            3
+total                       7
+
+Select jobs to execute...
+Execute 6 jobs...
+
+[Fri Jun  7 18:17:08 2024]
+localrule reference_NOLEAP:
+    input: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_south_nodup_default.zarr
+    output: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_south_nodup_noleap.zarr
+    log: logs/reference_NOLEAP_south_nodup
+    jobid: 4
+    reason: Missing output files: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_south_nodup_noleap.zarr
+    wildcards: region=south_nodup
+    resources: tmpdir=/tmp
+
+[Fri Jun  7 18:17:08 2024]
+localrule reference_360_DAY:
+    input: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_middle_nodup_default.zarr
+    output: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_middle_nodup_360_day.zarr
+    log: logs/reference_360_DAY_middle_nodup
+    jobid: 8
+    reason: Missing output files: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_middle_nodup_360_day.zarr
+    wildcards: region=middle_nodup
+    resources: tmpdir=/tmp
+
+[Fri Jun  7 18:17:08 2024]
+localrule reference_NOLEAP:
+    input: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_middle_nodup_default.zarr
+    output: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_middle_nodup_noleap.zarr
+    log: logs/reference_NOLEAP_middle_nodup
+    jobid: 5
+    reason: Missing output files: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_middle_nodup_noleap.zarr
+    wildcards: region=middle_nodup
+    resources: tmpdir=/tmp
+
+[Fri Jun  7 18:17:08 2024]
+localrule reference_360_DAY:
+    input: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_north_nodup_default.zarr
+    output: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_north_nodup_360_day.zarr
+    log: logs/reference_360_DAY_north_nodup
+    jobid: 9
+    reason: Missing output files: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_north_nodup_360_day.zarr
+    wildcards: region=north_nodup
+    resources: tmpdir=/tmp
+
+[Fri Jun  7 18:17:08 2024]
+localrule reference_NOLEAP:
+    input: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_north_nodup_default.zarr
+    output: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_north_nodup_noleap.zarr
+    log: logs/reference_NOLEAP_north_nodup
+    jobid: 6
+    reason: Missing output files: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_north_nodup_noleap.zarr
+    wildcards: region=north_nodup
+    resources: tmpdir=/tmp
+
+[Fri Jun  7 18:17:08 2024]
+localrule reference_360_DAY:
+    input: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_south_nodup_default.zarr
+    output: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_south_nodup_360_day.zarr
+    log: logs/reference_360_DAY_south_nodup
+    jobid: 7
+    reason: Missing output files: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_south_nodup_360_day.zarr
+    wildcards: region=south_nodup
+    resources: tmpdir=/tmp
+
+[Fri Jun  7 18:17:36 2024]
+Finished job 5.
+1 of 7 steps (14%) done
+[Fri Jun  7 18:18:08 2024]
+Finished job 4.
+2 of 7 steps (29%) done
+[Fri Jun  7 18:18:22 2024]
+Finished job 6.
+3 of 7 steps (43%) done
+[Fri Jun  7 18:18:42 2024]
+Finished job 8.
+4 of 7 steps (57%) done
+[Fri Jun  7 18:18:49 2024]
+Finished job 7.
+5 of 7 steps (71%) done
+[Fri Jun  7 18:18:53 2024]
+Finished job 9.
+6 of 7 steps (86%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Fri Jun  7 18:18:53 2024]
+localrule concat_diag_ref_prop:
+    input: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_south_nodup_default.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_middle_nodup_default.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_north_nodup_default.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_south_nodup_noleap.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_middle_nodup_noleap.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_north_nodup_noleap.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_south_nodup_360_day.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_middle_nodup_360_day.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_north_nodup_360_day.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/south_nodup/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_south_nodup.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/middle_nodup/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_middle_nodup.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/north_nodup/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_north_nodup.zarr
+    output: /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/NAM/ECMWF-ERA5-Land_NAM/diag-ref-prop_ECMWF-ERA5-Land_NAM.zar
+    log: logs/concat_NAM
+    jobid: 0
+    reason: Missing output files: /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/NAM/ECMWF-ERA5-Land_NAM/diag-ref-prop_ECMWF-ERA5-Land_NAM.zar; Input files updated by another job: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_north_nodup_360_day.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_middle_nodup_noleap.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_north_nodup_noleap.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_south_nodup_noleap.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_middle_nodup_360_day.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_south_nodup_360_day.zarr
+    resources: tmpdir=/tmp
+
+RuleException:
+CalledProcessError in file /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/rules/Makeref.smk, line 57:
+Command 'set -euo pipefail;  /exec/ocisse/.conda/envs/premierenv/bin/python3.12 /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/.snakemake/scripts/tmpdxp5fglc.concat.py' returned non-zero exit status 1.
+[Fri Jun  7 18:19:10 2024]
+Error in rule concat_diag_ref_prop:
+    jobid: 0
+    input: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_south_nodup_default.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_middle_nodup_default.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_north_nodup_default.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_south_nodup_noleap.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_middle_nodup_noleap.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_north_nodup_noleap.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_south_nodup_360_day.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_middle_nodup_360_day.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_north_nodup_360_day.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/south_nodup/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_south_nodup.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/middle_nodup/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_middle_nodup.zarr, /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/north_nodup/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_north_nodup.zarr
+    output: /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/NAM/ECMWF-ERA5-Land_NAM/diag-ref-prop_ECMWF-ERA5-Land_NAM.zar
+    log: logs/concat_NAM (check log file(s) for error details)
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2024-06-07T181708.387658.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

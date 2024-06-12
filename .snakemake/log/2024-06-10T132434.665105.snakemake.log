@@ -1,0 +1,26 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 10
+Rules claiming more threads will be scaled down.
+Job stats:
+job                  count
+-----------------  -------
+reference_DEFAULT        1
+total                    1
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Mon Jun 10 13:24:34 2024]
+localrule reference_DEFAULT:
+    output: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_north_nodup_default.zarr
+    log: logs/reference_DEFAULT_north_nodup
+    jobid: 0
+    reason: Code has changed since last execution
+    wildcards: region=north_nodup
+    resources: tmpdir=/tmp
+
+[Mon Jun 10 13:25:26 2024]
+Finished job 0.
+1 of 1 steps (100%) done
+Complete log: .snakemake/log/2024-06-10T132434.665105.snakemake.log

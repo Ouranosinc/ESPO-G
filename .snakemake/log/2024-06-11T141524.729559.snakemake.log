@@ -1,0 +1,7 @@
+Building DAG of jobs...
+MissingInputException in rule reference_NOLEAP in file /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/rules/Makeref.smk, line 16:
+Missing input files for rule reference_NOLEAP:
+    output: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_nodup_noleap.zarr
+    wildcards: region=nodup
+    affected files:
+        /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_nodup_default.zarr

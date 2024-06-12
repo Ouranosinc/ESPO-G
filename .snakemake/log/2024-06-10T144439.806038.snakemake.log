@@ -1,0 +1,58 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 10
+Rules claiming more threads will be scaled down.
+Job stats:
+job                  count
+-----------------  -------
+all                      1
+extract                  1
+reference_DEFAULT        1
+reference_NOLEAP         1
+regrid                   1
+total                    5
+
+Select jobs to execute...
+Execute 2 jobs...
+
+[Mon Jun 10 14:44:39 2024]
+localrule extract:
+    output: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_south_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_middle_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_north_nodup_extracted.zarr
+    log: logs/extract_NAM_south_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_middle_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_north_nodup
+    jobid: 4
+    reason: Forced execution
+    wildcards: region=south_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_middle_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_north_nodup
+    resources: tmpdir=/tmp
+
+Skipped removing non-empty directory /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_south_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_middle_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_north_nodup_extracted.zarr
+
+[Mon Jun 10 14:44:39 2024]
+localrule reference_DEFAULT:
+    output: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_south_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_middle_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_north_nodup_default.zarr
+    log: logs/reference_DEFAULT_south_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_middle_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_north_nodup
+    jobid: 3
+    reason: Forced execution
+    wildcards: region=south_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_middle_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_north_nodup
+    resources: tmpdir=/tmp
+
+Waiting at most 5 seconds for missing files.
+MissingOutputException in rule reference_DEFAULT in file /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/rules/Makeref.smk, line 8:
+Job 3  completed successfully, but some output files are missing. Missing files after 5 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+/jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_south_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_middle_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_north_nodup_default.zarr (missing locally, parent dir contents: )
+RuleException:
+CalledProcessError in file /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/rules/extract.smk, line 12:
+Command 'set -euo pipefail;  /exec/ocisse/.conda/envs/premierenv/bin/python3.12 /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/.snakemake/scripts/tmpawxruev_.extract.py' returned non-zero exit status 1.
+[Mon Jun 10 14:50:55 2024]
+Error in rule extract:
+    jobid: 4
+    output: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_south_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_middle_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_north_nodup_extracted.zarr
+    log: logs/extract_NAM_south_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_middle_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_north_nodup (check log file(s) for error details)
+
+Removing output files of failed job extract since they might be corrupted:
+/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_south_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_middle_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_north_nodup_extracted.zarr
+Skipped removing non-empty directory /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_south_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_middle_nodup_regridded.zarr/exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/NAM_north_nodup_extracted.zarr
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2024-06-10T144439.806038.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

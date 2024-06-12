@@ -1,0 +1,94 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 10
+Rules claiming more threads will be scaled down.
+Job stats:
+job                  count
+-----------------  -------
+all                      1
+extract                  3
+reference_DEFAULT        1
+reference_NOLEAP         1
+regrid                   3
+total                    9
+
+Select jobs to execute...
+Execute 4 jobs...
+
+[Tue Jun 11 13:54:24 2024]
+localrule extract:
+    output: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south_nodup_extracted.zarr
+    log: logs/extract_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south_nodup
+    jobid: 4
+    reason: Missing output files: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south_nodup_extracted.zarr
+    wildcards: sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south, region=nodup
+    resources: tmpdir=/tmp
+
+[Tue Jun 11 13:54:24 2024]
+localrule extract:
+    output: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup_extracted.zarr
+    log: logs/extract_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup
+    jobid: 6
+    reason: Missing output files: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup_extracted.zarr
+    wildcards: sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle, region=nodup
+    resources: tmpdir=/tmp
+
+[Tue Jun 11 13:54:24 2024]
+localrule extract:
+    output: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup_extracted.zarr
+    log: logs/extract_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup
+    jobid: 8
+    reason: Missing output files: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup_extracted.zarr
+    wildcards: sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north, region=nodup
+    resources: tmpdir=/tmp
+
+[Tue Jun 11 13:54:24 2024]
+localrule reference_DEFAULT:
+    output: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_nodup_default.zarr
+    log: logs/reference_DEFAULT_nodup
+    jobid: 3
+    reason: Missing output files: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_nodup_default.zarr
+    wildcards: region=nodup
+    resources: tmpdir=/tmp
+
+RuleException:
+AttributeError in file /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/rules/extract.smk, line 12:
+Can't pickle local object '_derived_func.<locals>.func'
+RuleException:
+AttributeError in file /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/rules/extract.smk, line 12:
+Can't pickle local object '_derived_func.<locals>.func'
+[Tue Jun 11 13:54:25 2024]
+[Tue Jun 11 13:54:25 2024]
+Error in rule extract:
+    jobid: 4
+    output: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south_nodup_extracted.zarr
+    log: logs/extract_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south_nodup (check log file(s) for error details)
+
+Error in rule extract:
+    jobid: 6
+    output: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup_extracted.zarr
+    log: logs/extract_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup (check log file(s) for error details)
+
+RuleException:
+AttributeError in file /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/rules/Makeref.smk, line 12:
+Can't pickle local object '_derived_func.<locals>.func'
+[Tue Jun 11 13:54:25 2024]
+Error in rule reference_DEFAULT:
+    jobid: 3
+    output: /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_nodup_default.zarr
+    log: logs/reference_DEFAULT_nodup (check log file(s) for error details)
+
+RuleException:
+AttributeError in file /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/rules/extract.smk, line 12:
+Can't pickle local object '_derived_func.<locals>.func'
+[Tue Jun 11 13:54:25 2024]
+Error in rule extract:
+    jobid: 8
+    output: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup_extracted.zarr
+    log: logs/extract_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup (check log file(s) for error details)
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2024-06-11T135424.122746.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.
