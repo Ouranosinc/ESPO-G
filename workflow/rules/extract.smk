@@ -1,5 +1,4 @@
 from pathlib import Path
-import xscen as xs
 
 home=config["paths"]["home"]
 
