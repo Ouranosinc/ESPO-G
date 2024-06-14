@@ -28,7 +28,7 @@ if __name__ == '__main__':
         timeout(2 * 18000, task='diagnostics')
     ):
 
-        meas_datasets = xr.open_zarr(snakemake.input[0])
+        meas_datasets = xr.open_zarr(snakemake.input)
 
         # make sur sim is first (for improved)
         order_keys = [f'{snakemake.wildcards.sim_id}.{snakemake.wildcards.region}.diag-sim-meas.fx',

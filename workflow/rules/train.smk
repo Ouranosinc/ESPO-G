@@ -4,7 +4,6 @@ home=config["paths"]["home"]
 
 rule train:
    input:
-        default = Path(config['paths']['final'])/"reference/ref_{region}_default.zarr",
         noleap = Path(config['paths']['final'])/"reference/ref_{region}_noleap.zarr",
         day360 = Path(config['paths']['final'])/"reference/ref_{region}_360_day.zarr",
         rechunk = Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_regchunked.zarr",

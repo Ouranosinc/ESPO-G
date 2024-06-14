@@ -6,7 +6,7 @@ rule rechunk:
    input:
         Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_regridded.zarr"
    output:
-        Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_regchunked.zarr"
+        directory(Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_regchunked.zarr")
    wildcard_constraints:
        region = r"[a-zA-Z]+_[a-zA-Z]+"
    log:

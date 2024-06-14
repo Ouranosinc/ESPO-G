@@ -4,6 +4,8 @@ from pathlib import Path
 import xarray as xr
 import shutil
 import logging
+import tempfile
+import os
 import xscen as xs
 from xscen.io import rechunk
 from xscen import (CONFIG, measure_time, timeout)
@@ -31,10 +33,16 @@ if __name__ == '__main__':
         fi_path.parent.mkdir(exist_ok=True, parents=True)
         fi_path_exec = f"{CONFIG['paths']['exec_workdir']}/ESPO-G_workdir/{fi_path.name}"
 
+        specific_temp_dir = CONFIG["io"]["rechunk"]["temp_store"]
+        os.makedirs(specific_temp_dir, exist_ok=True)
+        temp_dir = tempfile.mkdtemp(dir=specific_temp_dir,
+                                    prefix=f"{snakemake.wildcards.sim_id}_{snakemake.wildcards.region}_")
+
         # rechunk in exec and move to final path after
         rechunk(path_in=str(snakemake.input[0]),
                 path_out=fi_path_exec,
                 chunks_over_dim=CONFIG['custom']['out_chunks'],
+                temp_store=temp_dir,
                 overwrite=True)
 
         shutil.move(fi_path_exec, str(snakemake.output[0]))

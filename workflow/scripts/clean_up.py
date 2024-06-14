@@ -28,7 +28,7 @@ if __name__ == '__main__':
         timeout(18000, task='clean_up')
     ):
         # get all adjusted data
-        ds = xr.open_mfdataset(str(snakemake.input[0]), engine='zarr')
+        ds = xr.open_mfdataset(snakemake.input, engine='zarr')
         ds = ds.assign(tasmin=(ds.tasmax - ds.dtr))
 
         ds = clean_up(ds=ds,
@@ -36,8 +36,7 @@ if __name__ == '__main__':
                       )
 
         # fix the problematic data
-        if snakemake.wildcards.sim_id in CONFIG['clean_up']['problems']:
-            logger.info('Mask grid cells where tasmin < 100 K.')
-            ds = ds.where(ds.tasmin > 100)
+        logger.info('Mask grid cells where tasmin < 100 K.')
+        ds = ds.where(ds.tasmin > 100)
 
         xs.save_to_zarr(ds, str(snakemake.output[0]), itervar=True)

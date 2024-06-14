@@ -1,8 +1,11 @@
+import os
+
 from dask.distributed import Client
 from dask import config as dskconf
 import xarray as xr
 import logging
 import tempfile
+import shutil
 import xscen as xs
 from xscen.io import rechunk
 from xscen import (CONFIG, measure_time, timeout)
@@ -24,12 +27,12 @@ if __name__ == '__main__':
             timeout(18000, task='rechunk')
     ):
         #rechunk in exec
-        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8") as temp_file:
-            rechunk(path_in=str(snakemake.input[0]),
-                    path_out=str(snakemake.output[0]),
-                    chunks_over_dim=CONFIG['custom']['chunks'],
-                    overwrite=True)
+        specific_temp_dir = CONFIG["io"]["rechunk"]["temp_store"]
+        os.makedirs(specific_temp_dir, exist_ok=True)
+        temp_dir = tempfile.mkdtemp(dir=specific_temp_dir, prefix=f"{snakemake.wildcards.sim_id}_{snakemake.wildcards.region}_")
 
-            ds_sim_rechunked = xr.open_zarr(str(snakemake.output[0]), decode_timedelta=False)
-
-            xs.save_to_zarr(ds_sim_rechunked, str(snakemake.output[0]))
+        rechunk(path_in=str(snakemake.input[0]),
+                path_out=str(snakemake.output[0]),
+                chunks_over_dim=CONFIG['custom']['chunks'],
+                temp_store=temp_dir,
+                overwrite=True)
