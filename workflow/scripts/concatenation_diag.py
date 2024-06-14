@@ -3,7 +3,6 @@ import xarray as xr
 import logging
 from dask.diagnostics import ProgressBar
 import xscen as xs
-from xclim.core.calendar import get_calendar
 from xscen import (save_to_zarr, CONFIG)
 
 
@@ -13,7 +12,6 @@ logger = logging.getLogger('xscen')
 if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
-    #atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
 
 
     fmtkws = {'region_name': snakemake.wildcards.region, 'sim_id': snakemake.wildcards.sim_id}

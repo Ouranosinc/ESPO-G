@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
         ds_regrid = regrid_dataset(
             ds=ds_input,
-            ds_grid=ds_target,
+            ds_grid=ds_target, weights_location=CONFIG["regrid_PATH"]["regrid_dataset"]["weights_location"]
         )
 
         #chunk time dim

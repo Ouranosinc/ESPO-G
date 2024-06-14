@@ -1,9 +1,4 @@
 #Configuration file for ESPO-G6-E5L v1.0.0
-regions:
-  A: south_nodup
-  B: middle_nodup
-  C: north_nodup
-
 paths:
   project_catalog: &pcat
    /jarre/scenario/ocisse/ESPO-G6-stage/cat_ESPO-G6.json
@@ -32,46 +27,6 @@ paths:
   final: /jarre/scenario/ocisse/ESPO-G6-stage/
   #home: /home/jlavoie/Projets/ESPO-G-snakemake/
   #final: /jarre/scenario/jlavoie/ESPO-G6-snakemake/
-
-
-
-
-
-logging_PATH:
-    handlers:
-        file:
-            filename: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/logger.log
-
-
-
-regrid_PATH:
-    regrid_dataset:
-      weights_location:
-        /jarre/scenario/ocisse/ESPO-G6-stage/workdir/weights/
-
-io_PATH:
-  rechunk:
-    temp_store: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/tmp/
-
-clean_up_PATH:
-  search_data_catalogs:
-    data_catalogs:
-      - *pcat
-
-
-
-off-diag_PATH:
-  steps:
-    ref:
-      properties_and_measures:
-        properties: &off-properties
-          configuration/off-properties_ESPO-G.yml
-    sim:
-      properties_and_measures:
-        properties: *off-properties
-    scen:
-      properties_and_measures:
-        properties: *off-properties
 
 indicator: # don't write the real name of the module or you will break extract.
   load_xclim_module:
@@ -251,6 +206,8 @@ regrid:
     source: *ref_source
     calendar: noleap
   regrid_dataset:
+      weights_location:
+        /jarre/scenario/ocisse/ESPO-G6-stage/workdir/weights/
       regridder_kwargs:
         method: bilinear
         extrap_method: inverse_dist
@@ -295,6 +252,7 @@ regrid:
 io:
   rechunk:
     worker_mem: 2GB
+    temp_store: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/tmp/
 
 
 biasadjust:
@@ -379,6 +337,8 @@ biasadjust:
 
 clean_up:
   search_data_catalogs:
+    data_catalogs:
+      - *pcat
     variables_and_freqs:
       tasmax: D
       tasmin: D
@@ -584,6 +544,8 @@ off-diag:
         Magtogoek: middle_nodup
       properties_and_measures:
         period: *ref_period
+        properties: &off-properties
+          configuration/off-properties_ESPO-G.yml
       unstack: *stack
     sim:
       input:
@@ -598,6 +560,7 @@ off-diag:
         processing_level: off-diag-ref-prop
       properties_and_measures:
         period: *ref_period
+        properties: *off-properties
       unstack: *stack
     scen:
       input:
@@ -612,6 +575,7 @@ off-diag:
         processing_level: off-diag-ref-prop
       properties_and_measures:
         period: *ref_period
+        properties: *off-properties
       unstack: False
 
 scripting:
@@ -641,11 +605,11 @@ logging:
             formatter: default
             level : INFO
             stream: ext://sys.stdout #needed to have the right color in pycharm
-#        file:
-#            class: logging.FileHandler
-#            formatter: default
-#            level : DEBUG
-
+        file:
+            class: logging.FileHandler
+            formatter: default
+            level : DEBUG
+            filename: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/logger.log
 
 
 tdd:

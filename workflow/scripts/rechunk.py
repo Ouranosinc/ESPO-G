@@ -2,6 +2,7 @@ from dask.distributed import Client
 from dask import config as dskconf
 import xarray as xr
 import logging
+import tempfile
 import xscen as xs
 from xscen.io import rechunk
 from xscen import (CONFIG, measure_time, timeout)
@@ -13,11 +14,8 @@ if __name__ == '__main__':
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
     #atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
 
-
-
     fmtkws = {'region_name': snakemake.wildcards.region, 'sim_id': snakemake.wildcards.sim_id}
     logger.info(fmtkws)
-
 
 #  ---RECHUNK---
     with (
@@ -26,11 +24,12 @@ if __name__ == '__main__':
             timeout(18000, task='rechunk')
     ):
         #rechunk in exec
-        rechunk(path_in=snakemake.input[0],
-                path_out=snakemake.output[0],
-                chunks_over_dim=CONFIG['custom']['chunks'],
-                overwrite=True)
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8") as temp_file:
+            rechunk(path_in=str(snakemake.input[0]),
+                    path_out=str(snakemake.output[0]),
+                    chunks_over_dim=CONFIG['custom']['chunks'],
+                    overwrite=True)
 
+            ds_sim_rechunked = xr.open_zarr(str(snakemake.output[0]), decode_timedelta=False)
 
-        ds_sim_rechunked = xr.open_zarr(str(snakemake.output[0]), decode_timedelta=False)
-        xs.save_to_zarr(ds_sim_rechunked, str(snakemake.output[0]))
+            xs.save_to_zarr(ds_sim_rechunked, str(snakemake.output[0]))

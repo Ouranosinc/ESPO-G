@@ -1,6 +1,5 @@
 from pathlib import Path
 
-var=config['biasadjust']['variables'].keys()
 home=config["paths"]["home"]
 
 rule train:
