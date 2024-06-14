@@ -42,9 +42,6 @@ utils:
     maybe_unstack:
       coords: *coords
 
-scripting_PATH:
-    send_mail:
-        to: oumcis1@ouranos.ca
 
 project:
     name: ESPO-G6-E5L
@@ -586,6 +583,8 @@ scripting:
         msg_ok: Toutes les étapes demandées ont été complétées.
         msg_err: Une erreur est survenue durant le traitement.
         on_error_only: True
+    send_mail:
+        to: oumcis1@ouranos.ca
 
 dask:
     array.slicing.split_large_chunks: False
