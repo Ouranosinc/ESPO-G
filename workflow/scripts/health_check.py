@@ -18,7 +18,7 @@ if __name__ == '__main__':
     atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
 
 
-    fmtkws = {'region_name': snakemake.wildcards.region, 'sim_id': snakemake.wildcards.sim_id}
+    fmtkws = {'sim_id': snakemake.wildcards.sim_id}
     logger.info(fmtkws)
 
     with (
@@ -26,7 +26,7 @@ if __name__ == '__main__':
                memory_limit="5GB", **daskkws),
         measure_time(name=f'health_checks', logger=logger)
     ):
-        ds_input = xr.open_zarr()
+        ds_input = xr.open_zarr(snakemake.input[0])
 
         hc = xs.diagnostics.health_checks(
             ds=ds_input,
@@ -35,7 +35,7 @@ if __name__ == '__main__':
         hc.attrs.update(ds_input.attrs)
         hc.attrs['cat:processing_level'] = 'health_checks'
 
-        xs.save_and_update(hc, str(snakemake.output[0]))
+        xs.save_to_zarr(hc, str(snakemake.output[0]))
 
         send_mail(
             subject=f"{snakemake.wildcards.sim_id} - Succès",

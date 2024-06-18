@@ -13,7 +13,6 @@ logger = logging.getLogger('xscen')
 if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
-    #atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
 
 
     fmtkws = {'region_name': snakemake.wildcards.region, 'sim_id': snakemake.wildcards.sim_id}
@@ -42,8 +41,9 @@ if __name__ == '__main__':
                 )
 
                 for ds in [prop, meas]:
-                    xs.save_to_zarr(ds, str(snakemake.output[0]),
+                    xs.save_to_zarr(ds=ds, filename=str(snakemake.output[0]),
                                     rechunk=CONFIG['custom']['rechunk'],
+                                    mode="o",
                                     itervar=True
                                     )
             else:
@@ -64,6 +64,7 @@ if __name__ == '__main__':
                 for ds in [prop, meas]:
                     xs.save_to_zarr(ds, str(snakemake.output[0]),
                                     rechunk=CONFIG['custom']['rechunk'],
+                                    mode="o",
                                     itervar=True
                                     )
 

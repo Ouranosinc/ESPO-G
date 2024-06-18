@@ -28,13 +28,13 @@ if __name__ == '__main__':
         timeout(2 * 18000, task='diagnostics')
     ):
 
-        meas_datasets = xr.open_zarr(snakemake.input)
 
         # make sur sim is first (for improved)
-        order_keys = [f'{snakemake.wildcards.sim_id}.{snakemake.wildcards.region}.diag-sim-meas.fx',
-                      f'{snakemake.wildcards.sim_id}.{snakemake.wildcards.region}.diag-scen-meas.fx']
-        meas_datasets = {k: meas_datasets[k] for k in order_keys}
+        # order_keys = [f'{snakemake.wildcards.sim_id}.{snakemake.wildcards.region}.diag-sim-meas.fx',
+        #               f'{snakemake.wildcards.sim_id}.{snakemake.wildcards.region}.diag-scen-meas.fx']
+        # meas_datasets = {k: meas_datasets[k] for k in order_keys}
 
+        meas_datasets = {"sim": xr.open_zarr(snakemake.input.sim), "scen": xr.open_zarr(snakemake.input.scen)}
         hm = xs.diagnostics.measures_heatmap(meas_datasets)
 
         ip = xs.diagnostics.measures_improvement(meas_datasets)
@@ -44,6 +44,5 @@ if __name__ == '__main__':
                             rechunk=CONFIG['custom']['rechunk'])
 
         xs.send_mail(
-            subject=f"{snakemake.wildcards.sim_id}/{snakemake.wildcards.region} - Succès",
-            msg=f"Toutes les étapes demandées pour la simulation {snakemake.wildcards.sim_id}/{snakemake.wildcards.region} ont été accomplies.",
-        )
+                subject=f"{snakemake.wildcards.sim_id}/{snakemake.wildcards.region} - Succès",
+                msg=f"Toutes les étapes demandées pour la simulation {snakemake.wildcards.sim_id}/{snakemake.wildcards.region} ont été accomplies.")

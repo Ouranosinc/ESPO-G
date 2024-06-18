@@ -5,7 +5,6 @@ paths:
   workdir: /jarre/scenario/ocisse/ESPO-G6-stage/workdir/
   exec_workdir: /exec/ocisse/ESPO-G6-stage/ # EXEC_DIR should be a directory where it is easy to read and write
   regriddir: /jarre/scenario/ocisse/ESPO-G6-stage/
-  output_snakemake: /jarre/scenario/ocisse/ESPO-G6-stage/
   output: /jarre/scenario/ocisse/ESPO-G6-stage/NAM_SPLIT/{region_name}/day_{sim_id}_{region_name}_1950-2100.zarr
   concat_output_final: /jarre/scenario/ocisse/ESPO-G6-stage/FINAL/{domain}/day_{sim_id}_{domain}_1950-2100.zarr
   concat_output_diag: /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/{domain}/{sim_id}/{level}_{sim_id}_{domain}.zar
@@ -16,7 +15,6 @@ paths:
   ensemble: /jarre/scenario/ocisse/ESPO-G6-stage/ensemble/{processing_level}/{processing_level}_{id}_{xrfreq}_{var}.zarr
   figures: /jarre/scenario/ocisse/ESPO-G6-stage/figures/
   data: /jarre/scenario/ocisse/ESPO-G6-stage/data/
-  exec_diag_snakemake: /exec/ocisse/ESPO-G6-stage/
   exec_diag: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/{processing_level}_{id}_{domain}.zarr
   final_diag: /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/{domain}/{id}/{processing_level}_{id}_{domain}.zarr
   checks: jarre/scenario/ocisse/ESPO-G6-stage/checks/{region_name}/{sim_id}_{region_name}_checks.zarr
@@ -203,8 +201,6 @@ regrid:
     source: *ref_source
     calendar: noleap
   regrid_dataset:
-      weights_location:
-        /jarre/scenario/ocisse/ESPO-G6-stage/workdir/weights/
       regridder_kwargs:
         method: bilinear
         extrap_method: inverse_dist

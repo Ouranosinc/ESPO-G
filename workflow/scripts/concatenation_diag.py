@@ -14,13 +14,13 @@ if __name__ == '__main__':
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
 
-    fmtkws = {'region_name': snakemake.wildcards.region, 'sim_id': snakemake.wildcards.sim_id}
+    fmtkws = {'level': snakemake.wildcards.level, 'sim_id': snakemake.wildcards.sim_id}
     logger.info(fmtkws)
 
     dskconf.set(num_workers=12)
     ProgressBar().register()
 
-    logger.info(f'Contenating {snakemake.wildcards.sim_id} {level}.')
+    logger.info(f'Contenating {snakemake.wildcards.sim_id} {snakemake.wildcards.level}.')
 
     list_dsR = []
     for files in range(len(snakemake.input.diag_meas_prop)):

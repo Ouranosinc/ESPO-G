@@ -36,25 +36,28 @@ def wildcards_sim_id():
     return sim_id
 
 def official_diags_inputfiles_REF(wildcards):
+    ref=[]
     for dom_name, dom_dict in config['off-diag']['domains'].items():
         # iter over step (ref, sim, scen)
         for step, step_dict in config['off-diag']['steps'].items():
             if step == "ref":
-                ref = Path(config['paths']['final'])/f"reference/ref_{step_dict['domain'][dom_name]}_default.zarr"
-                return ref
+                ref.append(Path(config['paths']['final'])/f"reference/ref_{step_dict['domain'][dom_name]}_default.zarr")
+    return ref
 
 def official_diags_inputfiles_sim(wildcards):
+    sim = []
     for dom_name, dom_dict in config['off-diag']['domains'].items():
         # iter over step (ref, sim, scen)
         for step, step_dict in config['off-diag']['steps'].items():
             if step == "sim":
-                sim=Path(config['paths']['exec_workdir'])/f"ESPO-G_workdir/{wildcards.sim_id}_{step_dict['domain'][dom_name]}_regridded.zarr"
-                return sim
+                sim.append(Path(config['paths']['exec_workdir'])/f"ESPO-G_workdir/{wildcards.sim_id}_{step_dict['domain'][dom_name]}_regridded.zarr")
+    return sim
 
 def official_diags_inputfiles_scen(wildcards):
+    scen = []
     for dom_name, dom_dict in config['off-diag']['domains'].items():
         # iter over step (ref, sim, scen)
         for step, step_dict in config['off-diag']['steps'].items():
            if step == "scen":
-                scen=Path(config['paths']['output_snakemake'])/f"NAM_SPLIT/{step_dict['domain'][dom_name]}/day_{wildcards.sim_id}_{step_dict['domain'][dom_name]}_1950-2100.zarr"
-                return scen
+                scen.append(Path(config['paths']['output_snakemake'])/f"NAM_SPLIT/{step_dict['domain'][dom_name]}/day_{wildcards.sim_id}_{step_dict['domain'][dom_name]}_1950-2100.zarr")
+    return scen

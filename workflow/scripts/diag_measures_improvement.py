@@ -41,7 +41,7 @@ if __name__ == '__main__':
     atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
 
 
-    fmtkws = {'region_name': snakemake.wildcards.region, 'sim_id': snakemake.wildcards.sim_id}
+    fmtkws = {'sim_id': snakemake.wildcards.sim_id}
     logger.info(fmtkws)
 
 

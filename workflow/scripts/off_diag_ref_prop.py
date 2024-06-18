@@ -32,7 +32,6 @@ from xscen import (
 
 from utils import  save_move_update,move_then_delete, save_and_update, large_move
 
-exec_wdir = Path(CONFIG['paths']['exec_workdir'])
 xs.load_config("config/config.yaml")
 logger = logging.getLogger('xscen')
 
@@ -40,33 +39,25 @@ if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
-
-    fmtkws = {'step': snakemake.wildcards.step, 'dom_name': snakemake.wildcards.dom_name, 'sim_id': snakemake.wildcards.sim_id}
+    fmtkws = {'step': 'ref', 'dom_name': snakemake.wildcards.dom_name, 'sim_id': snakemake.wildcards.sim_id}
     logger.info(fmtkws)
 
-
-    # iter over step (ref, sim, scen)
-    if snakemake.wildcards.step == "sim":
-        dict_input = xr.open_zarr(snakemake.input.sim)
-    elif snakemake.wildcards.step == "scen":
-        dict_input = xr.open_zarr(snakemake.input.scen)
-
-    for files in dict_input:
-        dict_input = files
+    for files in snakemake.input:
+        dict_input = xr.open_zarr(files)
         # iter over datasets in that setp
         for name_input, ds_input in dict_input.items():
-            id = ds_input.attrs['cat:id']
 
             with (
                 Client(n_workers=3, threads_per_worker=5,
                        memory_limit="20GB", **daskkws),
-                measure_time(name=f'off-diag {snakemake.wildcards.dom_name} {step} {id}',
+                measure_time(name=f'off-diag {snakemake.wildcards.dom_name} ref {snakemake.wildcards.sim_id}',
                              logger=logger),
                 timeout(18000, task='off-diag')
             ):
 
                 # unstack
-                step_dict = CONFIG['off-diag']['steps'][snakemake.wildcards.step]
+                coordonnees = CONFIG['utils']['unstack_fill_nan']["coords"]
+                step_dict = CONFIG['off-diag']['steps']["ref"]
                 if step_dict['unstack']:
                     ds_input = xs.utils.unstack_fill_nan(ds_input)
 
@@ -75,8 +66,6 @@ if __name__ == '__main__':
                     ds_input.chunk({'time': -1}), **CONFIG['off-diag']['domains'][snakemake.wildcards.dom_name])
 
                 dref_for_measure = None
-                if 'dref_for_measure' in step_dict.keys():
-                    dref_for_measure = xr.open_zarr(snakemake.input.off_diag_ref_prop)
 
                 if 'dtr' not in ds_input:
                     ds_input = ds_input.assign(dtr=conversions.dtr(ds_input.tasmin, ds_input.tasmax))
@@ -84,8 +73,8 @@ if __name__ == '__main__':
                 prop, meas = xs.properties_and_measures(
                     ds=ds_input,
                     dref_for_measure=dref_for_measure,
-                    to_level_prop=f'off-diag-{snakemake.wildcards.step}-prop',
-                    to_level_meas=f'off-diag-{snakemake.wildcards.step}-meas',
+                    to_level_prop=f'off-diag-ref-prop',
+                    to_level_meas=f'off-diag-ref-meas',
                     **step_dict['properties_and_measures']
                 )
                 if prop:
@@ -98,7 +87,6 @@ if __name__ == '__main__':
                         itervar=True,
                         rechunk=CONFIG['custom']['rechunk']
                     )
-            shutil.rmtree(f'{exec_wdir}/{snakemake.wildcards.step}_{snakemake.wildcards.sim_id}_{snakemake.wildcards.dom_name}_dtr.zarr',
+            shutil.rmtree(f'{exec_wdir}/ref_{snakemake.wildcards.sim_id}_{snakemake.wildcards.dom_name}_dtr.zarr',
                           ignore_errors=True)
-
 

@@ -10,7 +10,8 @@ rule train:
    output:
        directory(Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_{var}_training.zarr")
    wildcard_constraints:
-       region = r"[a-zA-Z]+_[a-zA-Z]+"
+       region = r"[a-zA-Z]+_[a-zA-Z]+",
+       sim_id="([^_]*_){6}[^_]*"
    log:
         "logs/train_{sim_id}_{region}_{var}"
    script:

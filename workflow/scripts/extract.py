@@ -29,7 +29,7 @@ if __name__ == '__main__':
         timeout(18000, task='extract')
     ):
         logger.info('Adding config to log file')
-        f1 = open(CONFIG['logging_PATH']['handlers']['file']['filename'], 'a+')
+        f1 = open(CONFIG['logging']['handlers']['file']['filename'], 'a+')
         f2 = open('config/config.yaml', 'r')
         f1.write(f2.read())
         f1.close()

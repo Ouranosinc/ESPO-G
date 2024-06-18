@@ -13,16 +13,15 @@ logger = logging.getLogger('xscen')
 if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
-    #atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
 
 
-    fmtkws = {'region_name': snakemake.wildcards.region, 'sim_id': snakemake.wildcards.sim_id}
+    fmtkws = {'sim_id': snakemake.wildcards.sim_id}
     logger.info(fmtkws)
 
     dskconf.set(num_workers=12)
     ProgressBar().register()
 
-    logger.info(f'Contenating {snakemake.wildcards.sim_id} {level}.')
+    logger.info(f'Contenating {snakemake.wildcards.sim_id} final.')
 
     list_dsR = []
     for files in range(len(snakemake.input.final)):

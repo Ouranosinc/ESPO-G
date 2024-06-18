@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
         ds_regrid = regrid_dataset(
             ds=ds_input,
-            ds_grid=ds_target, weights_location=CONFIG["regrid_PATH"]["regrid_dataset"]["weights_location"]
+            ds_grid=ds_target, weights_location=f"/jarre/scenario/ocisse/ESPO-G6-stage/workdir/weights/{snakemake.wildcards.region}"
         )
 
         #chunk time dim
