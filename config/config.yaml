@@ -26,10 +26,6 @@ paths:
   #home: /home/jlavoie/Projets/ESPO-G-snakemake/
   #final: /jarre/scenario/jlavoie/ESPO-G6-snakemake/
 
-indicator: # don't write the real name of the module or you will break extract.
-  load_xclim_module:
-    filename: configuration/portraits.yml
-
 utils:
     stack_drop_nans:
         to_file: &coords
@@ -461,6 +457,8 @@ indicators:
      - *nam-name
   compute_indicators:
     to_level: individual_indicator
+  load_xclim_module:
+    filename: config/portraits.yml
 
 aggregate:
   input:
@@ -538,7 +536,7 @@ off-diag:
       properties_and_measures:
         period: *ref_period
         properties: &off-properties
-          configuration/off-properties_ESPO-G.yml
+          config/off-properties_ESPO-G.yml
       unstack: *stack
     sim:
       input:

@@ -1,7 +1,6 @@
-logs/
 .snakemake/
 __init__.py
 Mambaforge-Linux-x86_64.sh
 ESPO-G/
-
+logs/
 
