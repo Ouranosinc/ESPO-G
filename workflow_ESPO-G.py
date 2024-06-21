@@ -1,3 +1,5 @@
+import packaging
+import xscen as xs
 from dask.distributed import Client
 from dask import config as dskconf
 import atexit
@@ -7,7 +9,7 @@ import shutil
 import logging
 import numpy as np
 from dask.diagnostics import ProgressBar
-import xscen as xs
+
 import glob
 from itertools import product
 from xclim.core.calendar import convert_calendar, get_calendar, date_range_like,doy_to_days_since
@@ -37,7 +39,9 @@ from utils import  save_move_update,move_then_delete, save_and_update, large_mov
 
 
 # Load configuration
-xs.load_config('configuration/paths_ESPO-G_stage.yml', 'configuration/config_ESPO-G_E5L.yml', verbose=(__name__ == '__main__'), reset=True)
+conf_path = 'configuration/paths_ESPO-G_n.yml'
+conf_gen = 'configuration/config_ESPO-G_E5L.yml'
+xs.load_config(conf_path, conf_gen, verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
 
 # paths
@@ -52,7 +56,7 @@ refdir = Path(CONFIG['paths']['refdir'])
 if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
-    atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
+    #atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
 
     # defining variables
     ref_period = slice(*map(str, CONFIG['custom']['ref_period']))
@@ -81,6 +85,7 @@ if __name__ == '__main__':
 
                     # extract
                     dc = cat_ref.popitem()[1]
+                    print(dc.df)
                     ds_ref = xs.extract_dataset(catalog=dc,
                                              region=region_dict,
                                              **CONFIG['extraction']['reference']['extract_dataset']
@@ -230,13 +235,13 @@ if __name__ == '__main__':
                         ):
                             logger.info('Adding config to log file')
                             f1 = open(CONFIG['logging']['handlers']['file']['filename'],'a+')
-                            f2 = open('configuration/config_ESPO-G.yml', 'r')
+                            f2 = open(conf_gen, 'r')
                             f1.write(f2.read())
                             f1.close()
                             f2.close()
 
                             ds_sim = xs.extract_dataset(catalog=dc_id,
-                                                     region= CONFIG['custom']['amno_region'],
+                                                     region = CONFIG['custom']['amno_region'],
                                                      **CONFIG['extraction']['simulation']['extract_dataset'],
                                                      )['D']
                             ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
@@ -419,7 +424,8 @@ if __name__ == '__main__':
                                                        )
                             dc = cat.popitem()[1]
                             ds = xs.extract_dataset(catalog=dc,
-                                                 periods=CONFIG['custom']['sim_period']
+                                                 periods=CONFIG['custom']['sim_period'],
+                                                 xr_combine_kwargs={}, # bug xscen 0.9.0
                                                  )['D']
 
                             ds = xs.clean_up(ds=ds,
@@ -580,10 +586,10 @@ if __name__ == '__main__':
                                      ]+paths_diag_move,
                                     pcat=pcat)
 
-                            xs.send_mail(
-                                subject=f"{sim_id}/{region_name} - Succès",
-                                msg=f"Toutes les étapes demandées pour la simulation {sim_id}/{region_name} ont été accomplies.",
-                            )
+                           # xs.send_mail(
+                            #    subject=f"{sim_id}/{region_name} - Succès",
+                            #    msg=f"Toutes les étapes demandées pour la simulation {sim_id}/{region_name} ont été accomplies.",
+                            #)
 
             if (
                     "concat" in CONFIG["tasks"]
@@ -664,11 +670,11 @@ if __name__ == '__main__':
                         region_name=CONFIG['custom']['amno_region']['name'])
                     xs.save_and_update(ds=hc, path=path, pcat=pcat)
 
-                    xs.send_mail(
-                        subject=f"{sim_id} - Succès",
-                        msg=f"{sim_id} est terminé. \n Health checks:"+ "".join(
-                            [f"\n{var}: {hc[var].values}" for var in hc.data_vars]),
-                    )
+                    # xs.send_mail(
+                    #    subject=f"{sim_id} - Succès",
+                    #    msg=f"{sim_id} est terminé. \n Health checks:"+ "".join(
+                    #        [f"\n{var}: {hc[var].values}" for var in hc.data_vars]),
+                    # )
 
 
 
@@ -710,7 +716,9 @@ if __name__ == '__main__':
                                     **step_dict['dref_for_measure']).to_dask()
 
                             if 'dtr' not in ds_input:
-                                ds_input = ds_input.assign(dtr=conversions.dtr(ds_input.tasmin, ds_input.tasmax))
+                                ds_input = ds_input.assign(
+                                    dtr=conversions.dtr_from_minmax(
+                                        ds_input.tasmin, ds_input.tasmax))
 
                             prop, meas = xs.properties_and_measures(
                                 ds=ds_input,

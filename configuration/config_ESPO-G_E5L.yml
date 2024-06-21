@@ -105,7 +105,8 @@ extraction:
             other_search_criteria:
                 source: &ref_source
                     "ERA5-Land"
-        extract_dataset: {}
+        extract_dataset:
+          xr_combine_kwargs: {}
         properties_and_measures:
           to_level_prop: diag-ref-prop
           period: *ref_period
@@ -143,6 +144,7 @@ extraction:
             xr_combine_kwargs:
               combine_attrs: override
             xr_open_kwargs:
+              engine: h5netcdf
               drop_variables:
                 - height
         chunks: {'time': 365, 'lat':-1, 'lon':-1}
