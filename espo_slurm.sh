@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --time=00:30:00 #modifier pour vos besoins
+#SBATCH --time=01:00:00 #modifier pour vos besoins
 #SBATCH --account=ctb-frigon
 #SBATCH --constraint=genoa # pour accéder à bébé narval
 #SBATCH --partition=c-frigon # pour avoir la priorité Ouranos

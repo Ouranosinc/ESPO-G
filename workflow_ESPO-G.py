@@ -85,7 +85,6 @@ if __name__ == '__main__':
 
                     # extract
                     dc = cat_ref.popitem()[1]
-                    print(dc.df)
                     ds_ref = xs.extract_dataset(catalog=dc,
                                              region=region_dict,
                                              **CONFIG['extraction']['reference']['extract_dataset']
