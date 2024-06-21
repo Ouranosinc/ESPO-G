@@ -17,18 +17,20 @@ if __name__ == '__main__':
 
     for delta_task, kind in zip(["abs-delta","per-delta"], ['+','%']):
         ref_horizon=CONFIG['aggregate']['compute_deltas']['reference_horizon']
-        ind_dict = xr.open_zarr(snakemake.input[0])
-        for id_input, ds_input in ind_dict.items():
+        ind_dict = xr.open_zarr(snakemake.input[0], decode_timedelta=False)
 
-            with (
-                 Client(n_workers=4, threads_per_worker=4,memory_limit="6GB", **daskkws),
-                 xs.measure_time(name=f'{snakemake.wildcards.delta_task} {ref_horizon} {snakemake.wildcards.sim_id}',logger=logger),
-            ):
-                 ds_delta = xs.aggregate.compute_deltas(ds=ds_input,
-                                                       kind=kind,
-                                                       to_level=f"{delta_task}-{ref_horizon}")
-
-                 xs.save_to_zarr(ds_delta, str(snakemake.output[0]), rechunk={'time': 4} | CONFIG['custom']['rechunk'])
+        with (
+             Client(n_workers=4, threads_per_worker=4,memory_limit="6GB", **daskkws),
+             xs.measure_time(name=f'{snakemake.wildcards.delta_task} {ref_horizon} {snakemake.wildcards.sim_id}',logger=logger),
+        ):
+             ds_delta = xs.aggregate.compute_deltas(ds=ind_dict,
+                                                   kind=kind,
+                                                   to_level=f"{delta_task}-{ref_horizon}")
+             if delta_task=="abs-delta":
+                xs.save_to_zarr(ds_delta, str(snakemake.output.abs_delta), rechunk={'time': 4} | CONFIG['custom']['rechunk'])
+             elif delta_task == "per-delta":
+                 xs.save_to_zarr(ds_delta, str(snakemake.output.per_delta),
+                                 rechunk={'time': 4} | CONFIG['custom']['rechunk'])
 
         # move to final destination
         # large_move(exec_wdir,"delta", CONFIG['paths']['delta'], pcat)

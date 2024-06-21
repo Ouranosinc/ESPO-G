@@ -2,24 +2,6 @@ import xscen as xs
 import xarray as xr
 from pathlib import Path
 
-
-# exec_wdir = Path(config['paths']['exec_workdir'])
-# regriddir = Path(config['paths']['regriddir'])
-# refdir = Path(config['paths']['refdir'])
-#
-# ref_period = slice(*map(str,config['custom']['ref_period']))
-# sim_period = slice(*map(str,config['custom']['sim_period']))
-# ref_source = config['extraction']['ref_source']
-
-# pcat = xs.ProjectCatalog(config['paths']['project_catalog'], create=True)
-# def inter_region():
-#     file_ref = []
-#     calandar = ["_default.zarr", "_noleap.zarr", "_360_day.zarr"]
-#     for region_name in config['custom']['regions'].keys():
-#         for cal in calandar:
-#             file_ref.append(Path(config['paths']['refdir'])/f"ref_{region_name}{cal}")
-#     return file_ref
-
 # def wildcards_sim_id():
 #     cat_sim = xs.search_data_catalogs(
 #         **config['extraction']['simulation']['search_data_catalogs'])
@@ -76,3 +58,30 @@ def iter_freq():
         freqs.append(ds.attrs['cat:xrfreq'])
     freqs = list(set(freqs))
     return freqs
+
+def experiment_name():
+    experiment=[]
+    input = [expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_indicators.zarr",sim_id=wildcards_sim_id(),xrfreq=iter_freq()),
+            expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_climatology.zarr",sim_id=wildcards_sim_id(),xrfreq=iter_freq()),
+            expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_abs_delta.zarr",sim_id=wildcards_sim_id(),xrfreq=iter_freq()),
+            expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_per_delta.zarr",sim_id=wildcards_sim_id(),xrfreq=iter_freq())]
+    for files in input:
+        for f in files:
+            ind_df = xr.open_zarr(f)
+            # iterate through available xrfreq, exp and variables
+            experiment.append(ind_df.attrs['cat:experiment'])
+            experiment = list(set(experiment))
+    return experiment
+
+def varible_name():
+    variable = []
+    input = [expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_indicators.zarr",sim_id=wildcards_sim_id(),xrfreq=iter_freq()),
+            expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_climatology.zarr",sim_id=wildcards_sim_id(),xrfreq=iter_freq()),
+            expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_abs_delta.zarr",sim_id=wildcards_sim_id(),xrfreq=iter_freq()),
+            expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_per_delta.zarr",sim_id=wildcards_sim_id(),xrfreq=iter_freq())]
+    for files in input:
+        for f in files:
+            ind_df = xr.open_zarr(f)
+            variable.append(ind_df.attrs['cat:variable'])
+            variable = list(set(variable))
+    return variable

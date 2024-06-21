@@ -16,13 +16,13 @@ if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
-    fmtkws = {'indicator': snakemake.wildcards.indname, 'sim_id': snakemake.wildcards.sim_id}
+    fmtkws = {'indicator': snakemake.wildcards.indname, 'sim_id': snakemake.wildcards.sim_id, 'region':  'NAM'}
     logger.info(fmtkws)
 
     ds_input = xr.open_zarr(snakemake.input.final)
 
-
     ds_input = ds_input.assign(tas=xc.atmos.tg(ds=ds_input))
+
     mod = xs.indicators.load_xclim_module(**CONFIG['indicators']['load_xclim_module'])
     dict_indname = dict(mod.iter_indicators())
     ind = dict_indname[snakemake.wildcards.indname]

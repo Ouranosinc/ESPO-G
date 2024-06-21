@@ -26,7 +26,7 @@ if __name__ == '__main__':
                memory_limit="5GB", **daskkws),
         measure_time(name=f'health_checks', logger=logger)
     ):
-        ds_input = xr.open_zarr(snakemake.input[0])
+        ds_input = xr.open_zarr(snakemake.input[0], decode_timedelta=False)
 
         hc = xs.diagnostics.health_checks(
             ds=ds_input,

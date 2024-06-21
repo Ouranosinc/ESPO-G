@@ -1,14 +1,16 @@
 from pathlib import Path
 
 home=config["paths"]["home"]
+sim_id_name = wildcards_sim_id()
 
-rule climatological_mean:
+rule delta:
     input:
-        Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_{region}_{xrfreq}_climatology.zarr"
+        Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_climatology.zarr"
     output:
-        directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_{region}_{xrfreq}_delta.zarr")
+        abs_delta=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_abs_delta.zarr"),
+        per_delta=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_per_delta.zarr")
     log:
-        "logs/climatological_mean_{sim_id}_{region}_{xrfreq}"
+        "logs/climatological_mean_{sim_id}_NAM_{xrfreq}"
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*",
         region= r"[a-zA-Z]+_[a-zA-Z]+"
@@ -17,14 +19,14 @@ rule climatological_mean:
 
 rule ensemble:
     input:
-        indicators = Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_{region}_{xrfreq}_indicators.zarr",
-        climatology = Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_{region}_{xrfreq}_climatology.zarr",
-        abs_delta_1991_2020 = ,
-        per_delta_1991_2020 =
+        indicators = expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{{xrfreq}}_indicators.zarr",sim_id=sim_id_name),
+        climatology = expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{{xrfreq}}_climatology.zarr",sim_id=sim_id_name),
+        abs_delta_1991_2020 = expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{{xrfreq}}_abs_delta.zarr",sim_id=sim_id_name),
+        per_delta_1991_2020 = expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{{xrfreq}}_per_delta.zarr",sim_id=sim_id_name)
     output:
-        directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/NAM_{processing_level}_{variable}_{xrfreq}_{experiment}_ensemble.zarr")
+        directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/NAM_{process_level}_{variable}_{xrfreq}_{experiment}_ensemble.zarr")
     log:
-        "logs/ensemble_NAM_{processing_level}_{variable}_{xrfreq}_{experiment}"
+        "logs/ensemble_NAM_{process_level}_{variable}_{xrfreq}_{experiment}"
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*",
         region= r"[a-zA-Z]+_[a-zA-Z]+"

@@ -20,6 +20,7 @@ include: "workflow/rules/health_check.smk"
 include: "workflow/rules/official_diagnostics.smk"
 include: "workflow/rules/indicators.smk"
 include: "workflow/rules/climatological_mean.smk"
+include: "workflow/rules/deltas.smk"
 
 region_name = list(config["custom"]["regions"].keys())
 sim_id_name = wildcards_sim_id()
@@ -30,9 +31,13 @@ processing_level = ['diag-sim-meas', 'diag-scen-meas']
 indname_name = indname_name_func()
 freqs = iter_freq()
 delta_task = ["abs-delta","per-delta"]
+process_level_name = config['ensemble']['processing_levels']
+variable_name = varible_name()
+experiment_name = experiment_name()
 
 ##### target rules #####
 
 rule all:
     input:
-        expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_{region}_{xrfreq}_climatology.zarr",sim_id=sim_id_name,region=region_name,xrfreq=freqs)
+        expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/NAM_{process_level}_{variable}_{xrfreq}_{experiment}_ensemble.zarr",
+                process_level=process_level_name,xrfreq=freqs,variable=variable_name,experiment=experiment_name)
