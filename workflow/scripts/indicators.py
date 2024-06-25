@@ -7,7 +7,6 @@ import xscen as xs
 from xclim.core.calendar import convert_calendar
 import xclim as xc
 from xscen import CONFIG
-from pathlib import Path
 
 xs.load_config("config/config.yaml")
 logger = logging.getLogger('xscen')

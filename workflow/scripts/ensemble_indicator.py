@@ -1,34 +1,9 @@
-from dask.distributed import Client
 from dask import config as dskconf
-import atexit
-from pathlib import Path
 import xarray as xr
-import shutil
 import logging
-import numpy as np
 from dask.diagnostics import ProgressBar
 import xscen as xs
-import glob
-from itertools import product
-from xclim.core.calendar import convert_calendar, get_calendar, date_range_like,doy_to_days_since
-from xclim.sdba import properties
-import xclim as xc
-from xscen.xclim_modules import conversions
-from xscen.utils import minimum_calendar, translate_time_chunk, stack_drop_nans
-from xscen.io import rechunk
-from xscen import (
-    ProjectCatalog,
-    search_data_catalogs,
-    extract_dataset,
-    save_to_zarr,
-    load_config,
-    CONFIG,
-    regrid_dataset,
-    train, adjust,
-    measure_time, send_mail, send_mail_on_exit, timeout, TimeoutException,
-    clean_up)
-
-from utils import  save_move_update,move_then_delete, save_and_update, large_move
+from xscen import CONFIG
 
 xs.load_config("config/config.yaml")
 logger = logging.getLogger('xscen')
@@ -42,17 +17,17 @@ if __name__ == '__main__':
 
 
     # one ensemble (file) per level, per xrfreq, per variable, per experiment
-    for input in snakemake.input:
+    for input in snakemake.input.indicator:
         for file in input:
             ind_dict = xr.open_zarr(file, decode_timedelta=False)
             with (
                     ProgressBar(),
                     xs.measure_time(name=f'ensemble- NAM {snakemake.wildcards.experiment}'
-                                      f' {snakemake.wildcards.process_level}  {snakemake.wildcards.xrfreq} {snakemake.wildcards.variable}',logger=logger),
+                                      f' indicators  {snakemake.wildcards.xrfreq} {snakemake.wildcards.variable}',logger=logger),
             ):
                 ens = xs.ensembles.ensemble_stats(
                     datasets=ind_dict,
-                    to_level= f'ensemble-{snakemake.wildcards.process_level}',
+                    to_level= f'ensemble-indicators',
                     **CONFIG['ensemble']['ensemble_stats_xscen']
                 )
 

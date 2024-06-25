@@ -2,6 +2,9 @@ import xscen as xs
 import xarray as xr
 from pathlib import Path
 
+import zarr
+
+
 # def wildcards_sim_id():
 #     cat_sim = xs.search_data_catalogs(
 #         **config['extraction']['simulation']['search_data_catalogs'])
@@ -73,15 +76,42 @@ def experiment_name():
             experiment = list(set(experiment))
     return experiment
 
-def varible_name():
+def varible_indicator():
     variable = []
-    input = [expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_indicators.zarr",sim_id=wildcards_sim_id(),xrfreq=iter_freq()),
-            expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_climatology.zarr",sim_id=wildcards_sim_id(),xrfreq=iter_freq()),
-            expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_abs_delta.zarr",sim_id=wildcards_sim_id(),xrfreq=iter_freq()),
-            expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_per_delta.zarr",sim_id=wildcards_sim_id(),xrfreq=iter_freq())]
-    for files in input:
-        for f in files:
-            ind_df = xr.open_zarr(f)
-            variable.append(ind_df.attrs['cat:variable'])
-            variable = list(set(variable))
+    input = expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_indicators.zarr",sim_id=wildcards_sim_id(),xrfreq=iter_freq())
+    for file in input:
+        ind_df = xr.open_zarr(file)
+        groupe = zarr.open_group(ind_df, mode='r')
+        for name, group in groupe.groups():
+            variable.append(name)
+    return variable
+
+def varible_climatology():
+    variable = []
+    input = expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_climatology.zarr",sim_id=wildcards_sim_id(),xrfreq=iter_freq())
+    for file in input:
+        ind_df = xr.open_zarr(file)
+        groupe = zarr.open_group(ind_df, mode='r')
+        for name, group in groupe.groups():
+            variable.append(name)
+    return variable
+
+def varible_abs_delta():
+    variable = []
+    input = expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_abs_delta.zarr",sim_id=wildcards_sim_id(),xrfreq=iter_freq())
+    for file in input:
+        ind_df = xr.open_zarr(file)
+        groupe = zarr.open_group(ind_df, mode='r')
+        for name, group in groupe.groups():
+            variable.append(name)
+    return variable
+
+def varible_per_delta():
+    variable = []
+    input = expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_per_delta.zarr",sim_id=wildcards_sim_id(),xrfreq=iter_freq())
+    for file in input:
+        ind_df = xr.open_zarr(file)
+        groupe = zarr.open_group(ind_df, mode='r')
+        for name, group in groupe.groups():
+            variable.append(name)
     return variable
