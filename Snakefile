@@ -29,17 +29,9 @@ level_name=['diag-sim-meas', 'diag-scen-meas', 'diag-sim-prop', 'diag-scen-prop'
 dom = config['off-diag']['domains'].keys()
 processing_level = ['diag-sim-meas', 'diag-scen-meas']
 indname_name = indname_name_func()
-freqs = iter_freq()
-delta_task = ["abs-delta","per-delta"]
-# process_level_name = config['ensemble']['processing_levels']
-# variable_name = varible_name()
-# experiment_name = experiment_name()
 
 ##### target rules #####
 
 rule all:
     input:
-        expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/NAM_{process_level}_{variable}_{xrfreq}_{experiment}_ensemble.zarr",
-                process_level=process_level_name,xrfreq=freqs,variable=variable_name,experiment=experiment_name)
-        # expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_abs_delta.zarr", sim_id=sim_id_name,xrfreq=freqs),
-        # expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/{sim_id}_NAM_{xrfreq}_per_delta.zarr",sim_id=sim_id_name, xrfreq=freqs)
+        expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_{sim_id}_{dom_name}.zarr", sim_id=sim_id_name,dom_name=dom)

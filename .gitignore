@@ -3,4 +3,15 @@ __init__.py
 Mambaforge-Linux-x86_64.sh
 ESPO-G/
 logs/
-
+workflow/rules/climatological_mean.smk
+/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/scripts/climatological_mean.py
+/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/rules/indicators.smk
+/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/scripts/indicators.py
+/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/scripts/iter_freq.py
+/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/rules/deltas.smk
+/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/scripts/deltas.py
+/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/scripts/ensemble_indicator.py
+/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/logs/concat_NAM_south_nodup_extracted.zarr
+/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/logs/extract_NAM_south_nodup_regridded.zarr
+/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/logs/reference_DEFAULT_south_nodup.zarr
+/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/logs/reference_DEFAULT_south_nodup_regridded.zarr

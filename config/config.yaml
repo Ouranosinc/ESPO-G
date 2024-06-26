@@ -1,35 +1,35 @@
 #Configuration file for ESPO-G6-E5L v1.0.0
 paths:
   project_catalog: &pcat
-   /jarre/scenario/ocisse/ESPO-G6-stage/cat_ESPO-G6.json
-  workdir: /jarre/scenario/ocisse/ESPO-G6-stage/workdir/
-  exec_workdir: /exec/ocisse/ESPO-G6-stage/ # EXEC_DIR should be a directory where it is easy to read and write
-  regriddir: /jarre/scenario/ocisse/ESPO-G6-stage/
-  output: /jarre/scenario/ocisse/ESPO-G6-stage/NAM_SPLIT/{region_name}/day_{sim_id}_{region_name}_1950-2100.zarr
-  concat_output_final: /jarre/scenario/ocisse/ESPO-G6-stage/FINAL/{domain}/day_{sim_id}_{domain}_1950-2100.zarr
-  concat_output_diag: /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/{domain}/{sim_id}/{level}_{sim_id}_{domain}.zar
-  logging: /jarre/scenario/ocisse/ESPO-G6-stage/logging/log_{sim_id}_{region_name}.log
-  indicators: /jarre/scenario/ocisse/ESPO-G6-stage/{id}/{id}_{xrfreq}_{processing_level}.zarr
-  climatology: /jarre/scenario/ocisse/ESPO-G6-stage/climatology/{id}/{id}_{xrfreq}_{processing_level}.zarr
-  delta: /jarre/scenario/ocisse/ESPO-G6-stage/delta/{id}/{id}_{xrfreq}_{processing_level}.zarr
-  ensemble: /jarre/scenario/ocisse/ESPO-G6-stage/ensemble/{processing_level}/{processing_level}_{id}_{xrfreq}_{var}.zarr
-  figures: /jarre/scenario/ocisse/ESPO-G6-stage/figures/
-  data: /jarre/scenario/ocisse/ESPO-G6-stage/data/
-  exec_diag: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/{processing_level}_{id}_{domain}.zarr
-  final_diag: /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/{domain}/{id}/{processing_level}_{id}_{domain}.zarr
-  checks: jarre/scenario/ocisse/ESPO-G6-stage/checks/{region_name}/{sim_id}_{region_name}_checks.zarr
-  tmp: /jarre/scenario/ocisse/ESPO-G6-stage/tmp/{id}_{domain}_pre-remove.zarr
+   /jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/cat_ESPO-G6.json
+  workdir: /jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/workdir/
+  exec_workdir: /exec/ocisse/ESPO-G6-SNAKEMAKE/ # EXEC_DIR should be a directory where it is easy to read and write
+  regriddir: /jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/
+  output: /jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/NAM_SPLIT/{region_name}/day_{sim_id}_{region_name}_1950-2100.zarr
+  concat_output_final: /jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/FINAL/{domain}/day_{sim_id}_{domain}_1950-2100.zarr
+  concat_output_diag: /jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/diagnostics/{domain}/{sim_id}/{level}_{sim_id}_{domain}.zar
+  logging: /jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/logging/log_{sim_id}_{region_name}.log
+  indicators: /jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/{id}/{id}_{xrfreq}_{processing_level}.zarr
+  climatology: /jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/climatology/{id}/{id}_{xrfreq}_{processing_level}.zarr
+  delta: /jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/delta/{id}/{id}_{xrfreq}_{processing_level}.zarr
+  ensemble: /jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/ensemble/{processing_level}/{processing_level}_{id}_{xrfreq}_{var}.zarr
+  figures: /jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/figures/
+  data: /jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/data/
+  exec_diag: /exec/ocisse/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/{processing_level}_{id}_{domain}.zarr
+  final_diag: /jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/diagnostics/{domain}/{id}/{processing_level}_{id}_{domain}.zarr
+  checks: jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/checks/{region_name}/{sim_id}_{region_name}_checks.zarr
+  tmp: /jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/tmp/{id}_{domain}_pre-remove.zarr
   cat_ref: /tank/scenario/catalogues/reconstruction.json
   cat_sim: /tank/scenario/catalogues/simulation.json
   home: /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/
-  final: /jarre/scenario/ocisse/ESPO-G6-stage/
+  final: /jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/
   #home: /home/jlavoie/Projets/ESPO-G-snakemake/
   #final: /jarre/scenario/jlavoie/ESPO-G6-snakemake/
 
 utils:
     stack_drop_nans:
         to_file: &coords
-          /jarre/scenario/ocisse/ESPO-G6-stage/coords/coords_{domain}_{shape}.nc
+          /jarre/scenario/ocisse/ESPO-G6-SNAKEMAKE/coords/coords_{domain}_{shape}.nc
           #/jarre/scenario/jlavoie/ESPO-G6-snakemake/coords/coords_{domain}_{shape}.nc
     unstack_fill_nan:
       coords: *coords
@@ -241,7 +241,7 @@ regrid:
 io:
   rechunk:
     worker_mem: 2GB
-    temp_store: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/tmp/
+    temp_store: /exec/ocisse/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/tmp/
 
 
 biasadjust:
@@ -583,7 +583,7 @@ scripting:
 dask:
     array.slicing.split_large_chunks: False
     client:
-        local_directory: /exec/ocisse/ESPO-G6-stage/tmp_eg6/
+        local_directory: /exec/ocisse/ESPO-G6-SNAKEMAKE/tmp_eg6/
         #local_directory: /exec/jlavoie/tmp_eg6/
         dashboard_address: 7896
 
@@ -602,7 +602,7 @@ logging:
             class: logging.FileHandler
             formatter: default
             level : DEBUG
-            filename: /exec/ocisse/ESPO-G6-stage/ESPO-G_workdir/logger.log
+            filename: /exec/ocisse/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/logger.log
 
 
 tdd:
