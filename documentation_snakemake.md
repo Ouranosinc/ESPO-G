@@ -14,8 +14,8 @@
 input:<br>
 Path(config[‘paths’][‘final’])/“reference/ref_middle_nodup_default.zarr”<br>
 Path(config[‘paths’][‘final’])/“reference/ref_ north_nodup_default.zarr”<br>
-Path(config[‘paths’][‘final’])/“reference/ref_south_nodup_default.zarr”<br>
-Pour chaque fichier input, le script associé à <code>reference_DEFAULT</code> est exécuté et toutes les variables snakemake.wildcards.region sont sont remplacées par leur valeur. Pour générer un fichier en particulier, exemple, Path(config[‘paths’[‘final’])/“reference/ref_{region}_default.zarr” pour middle_nodup, on exécute la commande: <code>snakemake --cores 10 /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_middle_nodup_default.zarr/</code></p>
+Path(config[‘paths’][‘final’])/“reference/ref_south_nodup_default.zarr”</p>
+<p>Pour chaque fichier input, le script associé à <code>reference_DEFAULT</code> est exécuté et toutes les variables snakemake.wildcards.region sont sont remplacées par leur valeur. Pour générer un fichier en particulier, exemple, Path(config[‘paths’[‘final’])/“reference/ref_{region}_default.zarr” pour middle_nodup, on exécute la commande: <code>snakemake --cores 10 /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_middle_nodup_default.zarr/</code></p>
 <p>plusieurs wildcards dans un même nom de fichier peuvent provoquer une ambiguïté. Considérez le modèle <em>Path(config[‘paths’][‘exec_workdir’])/“ESPO-G_workdir/{sim_id}_{region}_extracted.zarr”</em> dans le fichier <em>extract.smk</em> et supposez qu’un fichier <em>CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup_extracted.zarr</em> est disponible. Il n’est pas clair si sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1 et region=ssp585_r1i1p1f1_global_middle_nodup ou sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global et region=middle_nodup dans ce cas.<br>
 C’est pourquoi une contrainte a été ajoutée à la wildcards region pour qu’il soit composé de deux chaînes de caractères séparées par un tiret du bas. Le wildcards sim_id est aussi contraint à avoir minimum 6 underscords.</p>
 <h1 id="workflow-espo-g">Workflow ESPO-G</h1>
