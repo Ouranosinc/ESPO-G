@@ -4,8 +4,8 @@ Mambaforge-Linux-x86_64.sh
 ESPO-G/
 logs/
 workflow/rules/climatological_mean.smk
-/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/scripts/climatological_mean.py
-/home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/rules/indicators.smk
+workflow/scripts/climatological_mean.py
+espo_snakemake/workflow/rules/indicators.smk
 /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/scripts/indicators.py
 /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/scripts/iter_freq.py
 /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/workflow/rules/deltas.smk

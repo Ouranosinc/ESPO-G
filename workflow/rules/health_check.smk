@@ -2,7 +2,7 @@ from pathlib import Path
 
 home=config["paths"]["home"]
 
-rule concat_FINAL:
+rule health_checks:
     input:
         Path(config['paths']['final']) / "FINAL/NAM/day_{sim_id}_NAM_1950-2100.zarr"
     output:

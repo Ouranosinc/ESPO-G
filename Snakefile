@@ -35,3 +35,4 @@ indname_name = indname_name_func()
 rule all:
     input:
         expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_{sim_id}_{dom_name}.zarr", sim_id=sim_id_name,dom_name=dom)
+        # expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/GRAPH_{processing_level}_{sim_id}_{region}.zarr", sim_id=sim_id_name, processing_level = ['diag-sim-meas', 'diag-scen-meas'],region=region_name)

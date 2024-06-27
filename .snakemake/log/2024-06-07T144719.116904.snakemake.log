@@ -1,7 +1,0 @@
-Building DAG of jobs...
-MissingInputException in rule all in file /home/ocisse/ESPO-G-stage-snakemake/espo_snakemake/Snakefile, line 20:
-Missing input files for rule all:
-    affected files:
-        /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/middle_nodup/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_middle_nodup.zarr
-        /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/south_nodup/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_south_nodup.zarr
-        /jarre/scenario/ocisse/ESPO-G6-stage/diagnostics/north_nodup/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_north_nodup.zarr
