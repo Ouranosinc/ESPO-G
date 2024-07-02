@@ -22,5 +22,5 @@ C’est pourquoi une contrainte a été ajoutée à la wildcards region pour qu�
 <p><img src="%5BImgur%5D(https://imgur.com/Bl5QVUe)" alt="Graphe acyclique dirigé"><br>
 L’image au-dessus montre les dépendances des différents fichiers générés par le workflow pour atteindre son objectif (la règle all) qui est la création du des fichiers:<code>expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_{sim_id}_{dom_name}.zarr", sim_id=sim_id_name,dom_name=dom)</code>.<br>
 Tous les fichiers output du workflow ne sont pas présents. En effet certaines règles génèrent des  fichiers qui ne sont le input d’aucune autre règle. C’est le cas de la <code>diag_improved_et_heatmap</code> dans <em>DIAGNOSTICS.SMK</em>. Le graphe acyclique dirigé peut être obtenu avec la commande <code>snakemake --dag --all | dot -Tpng &gt; nom_du_fichier.png</code>, on peut aussi remplacer l’extension .png, par .svg ou .pdf.</p>
-<p><img src="https://1drv.ms/i/c/92521c06258a78c6/EUNN8VGLukxKnwAA3dgTGtcBpeQHSOqU8Yd8XhJz2mKl8A?e=D70EAP" alt="Graphe acyclique dirigé de la règle diag_improved_et_heatmap"></p>
+<p><img src="https://1drv.ms/i/c/92521c06258a78c6/EUNN8VGLukxKnwAA3dgTGtcBgqk0eQRcwb9Rc-nrN-bErA?e=wVTvXx" alt="Graphe acyclique dirigé de la règle diag_improved_et_heatmap"></p>
 
