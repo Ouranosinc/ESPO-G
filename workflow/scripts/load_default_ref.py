@@ -1,4 +1,5 @@
 from dask.distributed import Client, LocalCluster
+from dask_jobqueue import SLURMCluster
 from dask import config as dskconf
 import atexit
 import xscen as xs
@@ -10,14 +11,14 @@ import os
 xs.load_config("config/config.yaml")
 logger = logging.getLogger('xscen')
 
-
 if __name__ == '__main__':
-    daskkws = CONFIG['dask'].get('client', {})
+    daskkws = CONFIG['dask']['client']
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
-    cluster = LocalCluster(n_workers=2, threads_per_worker=5, memory_limit="25GB",
-                           **daskkws)
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=int(snakemake.params.threads)/int(snakemake.params.n_workers),
+               memory_limit="25GB", **daskkws)
     client = Client(cluster)
+
 
     # default
     for region_name, region_dict in CONFIG['custom']['regions'].items():

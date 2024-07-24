@@ -21,17 +21,18 @@ if __name__ == '__main__':
     #atexit.register(send_mail_on_exit, subject=CONFIG['scripting']['subject'])
 
 
-    with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
-        logger.info("debut open_dataset")
-        ds_ref = xr.open_zarr(snakemake.input[0])
-        logger.info("fin open_dataset")
-        # drop to make faster
-        dref_ref = ds_ref.drop_vars('dtr')
-        dref_ref = dref_ref.chunk(CONFIG['extraction']['reference']['chunks'])
-        prop, _ = xs.properties_and_measures(
-            ds=dref_ref,
-            **CONFIG['extraction']['reference']['properties_and_measures'])
-        prop = prop.chunk(CONFIG['custom']['rechunk'])
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=int(snakemake.params.threads)/int(snakemake.params.n_workers),
+               memory_limit="25GB", **daskkws)
+    logger.info("debut open_dataset")
+    ds_ref = xr.open_zarr(snakemake.input[0])
+    logger.info("fin open_dataset")
+    # drop to make faster
+    dref_ref = ds_ref.drop_vars('dtr')
+    dref_ref = dref_ref.chunk(CONFIG['extraction']['reference']['chunks'])
+    prop, _ = xs.properties_and_measures(
+        ds=dref_ref,
+        **CONFIG['extraction']['reference']['properties_and_measures'])
+    prop = prop.chunk(CONFIG['custom']['rechunk'])
 
 
-        xs.save_to_zarr(prop, snakemake.output[0])
+    xs.save_to_zarr(prop, snakemake.output[0])

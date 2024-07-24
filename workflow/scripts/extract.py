@@ -8,6 +8,10 @@ from xscen import (
     measure_time, timeout
 )
 
+
+import subprocess
+subprocess.call(['sh', 'espo_snakemake.sh'])
+
 xs.load_config("config/config.yaml")
 logger = logging.getLogger('xscen')
 
@@ -15,7 +19,7 @@ if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
-    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=int(snakemake.threads)/int(snakemake.params.n_workers),
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=int(snakemake.params.threads)/int(snakemake.params.n_workers),
                memory_limit=int(snakemake.resources.mem_mb)/int(snakemake.params.n_workers), **daskkws)
     client = Client(cluster)
 

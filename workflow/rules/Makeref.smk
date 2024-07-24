@@ -10,6 +10,12 @@ rule reference_DEFAULT:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     log:
         "logs/reference_DEFAULT_{region}"
+    params:
+        n_workers=2,
+        threads=30
+    resources:
+        mem_mb=50000
+    threads: 10
     script:
         f"{home}workflow/scripts/load_default_ref.py"
 
@@ -22,6 +28,12 @@ rule reference_NOLEAP:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     log:
         "logs/reference_NOLEAP_{region}"
+    params:
+        n_workers=2,
+        threads=30
+    resources:
+        mem_mb=50000
+    threads: 10
     script:
         f"{home}workflow/scripts/load_noleap_ref.py"
 
@@ -34,6 +46,12 @@ rule reference_360_DAY:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     log:
         "logs/reference_360_DAY_{region}"
+    params:
+        n_workers=2,
+        threads=30
+    resources:
+        mem_mb=50000
+    threads: 10
     script:
         f"{home}workflow/scripts/load_360_day_ref.py"
 
@@ -46,6 +64,12 @@ rule diagnostics:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     log:
         "logs/diagnostics_{region}"
+    params:
+        n_workers=2,
+        threads=30
+    resources:
+        mem_mb=50000
+    threads: 10
     script:
         f"{home}workflow/scripts/diagnostics.py"
 

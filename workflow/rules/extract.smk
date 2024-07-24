@@ -3,6 +3,8 @@ from pathlib import Path
 home=config["paths"]["home"]
 
 rule extract:
+   input:
+       script=f"{home}workflow/scripts/extract.py"
    output:
        directory(Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_extracted.zarr")
    wildcard_constraints:
@@ -11,11 +13,9 @@ rule extract:
    log:
         "logs/extract_{sim_id}_{region}"
    params:
-        n_workers=2
-   envmodules:
-       "/project/ctb-frigon/oumou/ouranos_commun/config_xscen0.9.0_env_slurm_with_snakemake.sh"
+        n_workers=2,
+        threads=10
    resources:
         mem_mb=50000
-   threads: 10
    script:
-        f"{home}workflow/scripts/extract.py"
+       f"{home}workflow/scripts/extract.py"
