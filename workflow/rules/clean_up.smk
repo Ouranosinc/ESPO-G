@@ -13,8 +13,12 @@ rule clean_up:
    wildcard_constraints:
        region = r"[a-zA-Z]+_[a-zA-Z]+",
        sim_id="([^_]*_){6}[^_]*"
-   log:
-        "logs/clean_up_{sim_id}_{region}"
+   params:
+       n_workers=2,
+       threads=3
+   resources:
+       mem_mb=60000
+   threads: 6
    script:
         f"{home}workflow/scripts/clean_up.py"
 

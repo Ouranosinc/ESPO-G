@@ -13,7 +13,6 @@ if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
-
     fmtkws = {'level': snakemake.wildcards.level, 'sim_id': snakemake.wildcards.sim_id}
     logger.info(fmtkws)
 

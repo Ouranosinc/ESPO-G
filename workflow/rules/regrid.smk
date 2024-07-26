@@ -11,8 +11,12 @@ rule regrid:
    wildcard_constraints:
        region = r"[a-zA-Z]+_[a-zA-Z]+",
        sim_id="([^_]*_){6}[^_]*"
-   log:
-        "logs/regrid_{sim_id}_{region}"
+   params:
+        n_workers=3,
+        threads=3
+   resources:
+        mem_mb=48000
+   threads: 9
    script:
         f"{home}workflow/scripts/regrid.py"
 

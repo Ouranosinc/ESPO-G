@@ -11,7 +11,12 @@ rule adjust:
    wildcard_constraints:
        region = r"[a-zA-Z]+_[a-zA-Z]+",
        sim_id="([^_]*_){6}[^_]*"
-   log:
-        "logs/adjust_{sim_id}_{region}_{var}"
+   params:
+       n_workers=5,
+       threads=3
+   resources:
+       mem_mb=60000
+   threads: 15
    script:
         f"{home}workflow/scripts/adjust.py"
+

@@ -1,4 +1,4 @@
-from dask.distributed import Client
+from dask.distributed import Client, LocalCluster
 from dask import config as dskconf
 from pathlib import Path
 import xarray as xr
@@ -17,14 +17,16 @@ logger = logging.getLogger('xscen')
 if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
-    #atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
 
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads,
+                           memory_limit="15GB", **daskkws)
+    client = Client(cluster)
 
     fmtkws = {'region_name': snakemake.wildcards.region, 'sim_id': snakemake.wildcards.sim_id}
     logger.info(fmtkws)
 
     with (
-        Client(n_workers=4, threads_per_worker=3, memory_limit="15GB", **daskkws),
+        client,
         measure_time(name=f'final zarr rechunk', logger=logger),
         timeout(30000, task='final_zarr')
     ):

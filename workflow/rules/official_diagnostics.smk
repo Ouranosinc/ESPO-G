@@ -7,8 +7,12 @@ rule off_diag_ref_prop:
         ref=official_diags_inputfiles_ref
     output:
         prop=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-ref-prop_{sim_id}_{dom_name}.zarr")
-    log:
-        "logs/off_diag_ref_prop_ref_{sim_id}_{dom_name}"
+    params:
+        n_workers=3,
+        threads=5
+    threads: 15
+    resources:
+        mem_mb=60000
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
     script:
@@ -21,8 +25,12 @@ rule off_diag_sim_prop_meas:
     output:
         prop=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-sim-prop_{sim_id}_{dom_name}.zarr"),
         meas=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-sim-meas_{sim_id}_{dom_name}.zarr")
-    log:
-        "logs/off_diag_sim_prop_meas_sim_{sim_id}_{dom_name}"
+    params:
+        n_workers=3,
+        threads=5
+    threads: 15
+    resources:
+        mem_mb=60000
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
     script:
@@ -35,8 +43,12 @@ rule off_diag_scen_prop_meas:
     output:
         prop=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-scen-prop_{sim_id}_{dom_name}.zarr"),
         meas=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-scen-meas_{sim_id}_{dom_name}.zarr")
-    log:
-        "logs/off_diag_scen_prop_meas_scen_{sim_id}_{dom_name}"
+    params:
+        n_workers=3,
+        threads=5
+    threads: 15
+    resources:
+        mem_mb=60000
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
     script:
@@ -48,8 +60,12 @@ rule diag_measures_improvement:
         scen=Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-scen-meas_{sim_id}_{dom_name}.zarr"
     output:
         directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_{sim_id}_{dom_name}.zarr")
-    log:
-        "logs/diag_measures_improvement_sim_{sim_id}_{dom_name}"
+    params:
+        n_workers=3,
+        threads=5
+    threads: 15
+    resources:
+        mem_mb=60000
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
     script:

@@ -2,23 +2,24 @@ executor: cluster-generic
 cluster-generic-submit-cmd:
   mkdir -p slurm_logs/{rule} &&
   sbatch
-    --partition={resources.partition}
+    --partition=c-frigon
     --account=ctb-frigon
     --constraint=genoa
-    --qos={resources.qos}
     --cpus-per-task={threads}
+    --qos={resources.qos}
     --mem={resources.mem_mb}
-    --job-name=smk-{rule}-{wildcards}
+    --job-name={rule}-{wildcards}
     --output=slurm_logs/{rule}/{rule}-{wildcards}-%j.out
+    --time={resources.time}
     --parsable
 default-resources:
-  - partition=c-frigon
   - qos=high_priority
-  - mem_mb=1000
+  - mem_mb=60000
   - time=5
+cluster-generic-status-cmd: status-sacct.py
 #restart-times: 3
 max-jobs-per-second: 10
-max-status-checks-per-second: 1
+max-status-checks-per-second: 10
 local-cores: 1
 latency-wait: 60
 jobs: 500

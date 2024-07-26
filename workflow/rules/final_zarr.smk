@@ -10,7 +10,12 @@ rule final_zarr:
     wildcard_constraints:
         region=r"[a-zA-Z]+_[a-zA-Z]+",
         sim_id= "([^_]*_){6}[^_]*"
-    log:
-        "logs/final_zarr_{sim_id}_{region}"
+    params:
+        n_workers=4,
+        threads=3
+    resources:
+        mem_mb=60000,
+        time=30
+    threads: 12
     script:
         f"{home}workflow/scripts/final_zarr.py"

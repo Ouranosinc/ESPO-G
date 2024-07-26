@@ -10,11 +10,10 @@ rule extract:
    wildcard_constraints:
        region = r"[a-zA-Z]+_[a-zA-Z]+",
        sim_id="([^_]*_){6}[^_]*"
-   log:
-        "logs/extract_{sim_id}_{region}"
    params:
         n_workers=2,
-        threads=10
+        threads=5
+   threads: 10
    resources:
         mem_mb=50000
    script:

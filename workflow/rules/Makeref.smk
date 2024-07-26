@@ -8,11 +8,9 @@ rule reference_DEFAULT:
         directory(Path(config['paths']['final'])/"reference/ref_{region}_default.zarr")
     wildcard_constraints:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
-    log:
-        "logs/reference_DEFAULT_{region}"
     params:
         n_workers=2,
-        threads=30
+        threads=5
     resources:
         mem_mb=50000
     threads: 10
@@ -26,11 +24,9 @@ rule reference_NOLEAP:
         directory(Path(config['paths']['final'])/"reference/ref_{region}_noleap.zarr")
     wildcard_constraints:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
-    log:
-        "logs/reference_NOLEAP_{region}"
     params:
         n_workers=2,
-        threads=30
+        threads=5
     resources:
         mem_mb=50000
     threads: 10
@@ -44,11 +40,9 @@ rule reference_360_DAY:
         directory(Path(config['paths']['final'])/"reference/ref_{region}_360_day.zarr")
     wildcard_constraints:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
-    log:
-        "logs/reference_360_DAY_{region}"
     params:
         n_workers=2,
-        threads=30
+        threads=5
     resources:
         mem_mb=50000
     threads: 10
@@ -62,11 +56,9 @@ rule diagnostics:
         directory(Path(config['paths']['final'])/"diagnostics/{region}/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_{region}.zarr")
     wildcard_constraints:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
-    log:
-        "logs/diagnostics_{region}"
     params:
         n_workers=2,
-        threads=30
+        threads=5
     resources:
         mem_mb=50000
     threads: 10
@@ -80,7 +72,6 @@ rule concat_diag_ref_prop:
        directory(Path(config['paths']['final'])/"diagnostics/NAM/ECMWF-ERA5-Land_NAM/diag-ref-prop_ECMWF-ERA5-Land_NAM.zar")
    wildcard_constraints:
        region = r"[a-zA-Z]+_[a-zA-Z]+"
-   log:
-        "logs/concat_NAM"
+   threads: 15
    script:
         f"{home}workflow/scripts/concat.py"

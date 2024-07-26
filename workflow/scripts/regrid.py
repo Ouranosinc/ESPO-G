@@ -1,4 +1,4 @@
-from dask.distributed import Client
+from dask.distributed import Client, LocalCluster
 from dask import config as dskconf
 import xarray as xr
 import logging
@@ -25,14 +25,11 @@ if __name__ == '__main__':
 # ---REGRID---
     # only works with xesmf 0.7
 
-    with (
-        # Client(n_workers=2, threads_per_worker=5,
-        #        memory_limit="32GB", **daskkws),
-            Client(n_workers=3, threads_per_worker=3, memory_limit="16GB", **daskkws),
-            measure_time(name='regrid', logger=logger),
-           #timeout(18000, task='regrid')
-    ):
-
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads,
+               memory_limit="16GB", **daskkws)
+    client = Client(cluster)
+    
+    with (client):
         ds_input = xr.open_zarr(snakemake.input.extract)
 
         ds_target = xr.open_zarr(snakemake.input.noleap)

@@ -1,4 +1,4 @@
-from dask.distributed import Client
+from dask.distributed import Client, LocalCluster
 from dask import config as dskconf
 import xarray as xr
 import shutil
@@ -15,15 +15,15 @@ logger = logging.getLogger('xscen')
 if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
-    #atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
 
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads,
+               memory_limit="15GB", **daskkws)
+    client = Client(cluster)
 
     while True:  # if code bugs forever, it will be stopped by the timeout and then tried again
         try:
             with (
-                # Client(n_workers=9, threads_per_worker=3, memory_limit="7GB", **daskkws),
-                Client(n_workers=4, threads_per_worker=3,
-                       memory_limit="15GB", **daskkws),
+                client,
                 xs.measure_time(name=f'train {snakemake.wildcards.var}', logger=logger),
                 xs.timeout(18000, task='train')
             ):

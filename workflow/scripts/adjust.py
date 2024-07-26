@@ -1,4 +1,4 @@
-from dask.distributed import Client
+from dask.distributed import Client, LocalCluster
 from dask import config as dskconf
 import xarray as xr
 import logging
@@ -13,13 +13,15 @@ logger = logging.getLogger('xscen')
 if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
-    #atexit.register(xs.send_mail_on_exit, subject=CONFIG['scripting']['subject'])
+
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads,
+               memory_limit="12GB", **daskkws)
+    client = Client(cluster)
 
     with (
-        Client(n_workers=5, threads_per_worker=3,
-               memory_limit="12GB", **daskkws),
-        measure_time(name=f'adjust {snakemake.wildcards.var}', logger=logger),
-        timeout(18000, task='adjust')
+            client,
+            measure_time(name=f'adjust {snakemake.wildcards.var}', logger=logger),
+            timeout(18000, task='adjust')
     ):
         # load sim ds
         ds_sim = xr.open_zarr(snakemake.input.rechunk)

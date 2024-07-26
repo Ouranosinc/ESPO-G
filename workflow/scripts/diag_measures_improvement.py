@@ -1,4 +1,4 @@
-from dask.distributed import Client
+from dask.distributed import Client, LocalCluster
 from dask import config as dskconf
 import xarray as xr
 import logging
@@ -13,6 +13,10 @@ if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads,
+                           memory_limit="5GB", **daskkws)
+    client = Client(cluster)
+
     fmtkws = {'sim_id': snakemake.wildcards.sim_id}
     logger.info(fmtkws)
 
@@ -20,8 +24,7 @@ if __name__ == '__main__':
     meas_dict = xr.open_zarr(snakemake.input.sim)
 
     with (
-        Client(n_workers=3, threads_per_worker=5,
-               memory_limit="20GB", **daskkws),
+        client,
         measure_time(name=f'off-diag-meas {snakemake.wildcards.dom_name} {snakemake.wildcards.sim_id}',
                      logger=logger),
     ):

@@ -15,8 +15,12 @@ rule DIAGNOSTICS:
     wildcard_constraints:
         region=r"[a-zA-Z]+_[a-zA-Z]+",
         sim_id="([^_]*_){6}[^_]*"
-    log:
-        "logs/DIAGNOSTICS_{sim_id}_{region}"
+    params:
+        n_workers=3,
+        threads=5
+    resources:
+        mem_mb=60000
+    threads: 15
     script:
         f"{home}workflow/scripts/DIAGNOSTICS.py"
 
@@ -27,8 +31,7 @@ rule concatenation_final:
         directory(Path(config['paths']['final'])/"FINAL/NAM/day_{sim_id}_NAM_1950-2100.zarr")
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
-    log:
-        "logs/concatenation_final_{sim_id}_NAM"
+    threads: 15
     script:
         f"{home}workflow/scripts/concatenation_final.py"
 
@@ -39,8 +42,7 @@ rule concatenation_diag:
         directory(Path(config['paths']['final'])/"diagnostics/NAM/{sim_id}/{level}_{sim_id}_NAM.zar")
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
-    log:
-        "logs/concatenation_diag_{level}_{sim_id}_NAM"
+    threads: 15
     script:
         f"{home}workflow/scripts/concatenation_diag.py"
 
@@ -54,8 +56,12 @@ rule diag_improved_et_heatmap:
     wildcard_constraints:
         region=r"[a-zA-Z]+_[a-zA-Z]+",
         sim_id= "([^_]*_){6}[^_]*"
-    log:
-        "logs/diag_improved_et_heatmap_{sim_id}_{region}"
+    params:
+        n_workers=3,
+        threads=5
+    resources:
+        mem_mb=60000
+    threads: 15
     script:
         f"{home}workflow/scripts/diag_improved_et_heatmap.py"
 

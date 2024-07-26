@@ -8,7 +8,6 @@ from xscen import (
     measure_time, timeout
 )
 
-
 import subprocess
 subprocess.call(['sh', 'espo_snakemake.sh'])
 
@@ -19,19 +18,18 @@ if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
-    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=int(snakemake.params.threads)/int(snakemake.params.n_workers),
-               memory_limit=int(snakemake.resources.mem_mb)/int(snakemake.params.n_workers), **daskkws)
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads,
+                           memory_limit="25GB", **daskkws)
     client = Client(cluster)
-
 
     fmtkws = {'region_name': snakemake.wildcards.region, 'sim_id': snakemake.wildcards.sim_id}
     logger.info(fmtkws)
 
     # ---EXTRACT---
 
-    with (
-        measure_time(name='extract', logger=logger),
-        timeout(18000, task='extract')
+    with (client,
+         measure_time(name='extract', logger=logger),
+         timeout(18000, task='extract')
     ):
         logger.info('Adding config to log file')
         f1 = open(CONFIG['logging']['handlers']['file']['filename'], 'a+')

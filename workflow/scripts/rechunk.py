@@ -1,6 +1,5 @@
 import os
-
-from dask.distributed import Client
+from dask.distributed import Client, LocalCluster
 from dask import config as dskconf
 import xarray as xr
 import logging
@@ -21,8 +20,11 @@ if __name__ == '__main__':
     logger.info(fmtkws)
 
 #  ---RECHUNK---
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads,
+               memory_limit="18GB", **daskkws)
+    client = Client(cluster)
     with (
-            Client(n_workers=2, threads_per_worker=5, memory_limit="18GB", **daskkws),
+            client,
             measure_time(name=f'rechunk', logger=logger),
             timeout(18000, task='rechunk')
     ):

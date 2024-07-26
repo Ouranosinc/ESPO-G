@@ -1,4 +1,4 @@
-from dask.distributed import Client
+from dask.distributed import Client, LocalCluster
 from dask import config as dskconf
 from pathlib import Path
 import xarray as xr
@@ -15,19 +15,19 @@ if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads,
+                           memory_limit="5GB", **daskkws)
+    client = Client(cluster)
 
     fmtkws = {'step': 'scen', 'dom_name': snakemake.wildcards.dom_name, 'sim_id': snakemake.wildcards.sim_id}
     logger.info(fmtkws)
-
-
 
     dict_input = xr.open_zarr(snakemake.input.scen)
     step_dict = CONFIG['off-diag']['steps']['scen']
     # iter over datasets in that setp
 
     with (
-        Client(n_workers=3, threads_per_worker=5,
-               memory_limit="20GB", **daskkws),
+        client,
         measure_time(name=f'off-diag {snakemake.wildcards.dom_name} scen {snakemake.wildcards.sim_id}',
                      logger=logger),
         timeout(18000, task='off-diag')
