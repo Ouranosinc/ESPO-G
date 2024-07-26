@@ -1,0 +1,25 @@
+Building DAG of jobs...
+Using shell: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/bash
+Provided cores: 9
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=48000, mem_mib=45777, disk_mb=1000, disk_mib=954, time=5
+Select jobs to execute...
+Execute 1 jobs...
+
+[Fri Jul 26 13:48:16 2024]
+localrule regrid:
+    input: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/reference/ref_south_nodup_noleap.zarr, /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south_nodup_extracted.zarr
+    output: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south_nodup_regridded.zarr
+    jobid: 0
+    reason: Forced execution
+    wildcards: sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global, region=south_nodup
+    threads: 9
+    resources: mem_mb=48000, mem_mib=45777, disk_mb=1000, disk_mib=954, tmpdir=/tmp, qos=high_priority, time=5
+
+/home/oumou/.local/lib/python3.11/site-packages/distributed/node.py:182: UserWarning: Port 2051 is already in use.
+Perhaps you already have a cluster running?
+Hosting the HTTP server on port 37609 instead
+[Fri Jul 26 13:49:10 2024]
+Finished job 0.
+1 of 1 steps (100%) done
+Storing output in storage.

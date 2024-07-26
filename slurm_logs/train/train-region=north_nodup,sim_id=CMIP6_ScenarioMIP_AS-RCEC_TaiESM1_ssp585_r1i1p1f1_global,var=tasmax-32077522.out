@@ -1,0 +1,29 @@
+Building DAG of jobs...
+Using shell: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/bash
+Provided cores: 12
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=60000, mem_mib=57221, disk_mb=1000, disk_mib=954, time=5
+Select jobs to execute...
+Execute 1 jobs...
+
+[Fri Jul 26 13:05:02 2024]
+localrule train:
+    input: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/reference/ref_north_nodup_noleap.zarr, /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/reference/ref_north_nodup_360_day.zarr, /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup_regchunked.zarr
+    output: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup_tasmax_training.zarr
+    log: logs/train_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup_tasmax
+    jobid: 0
+    reason: Forced execution
+    wildcards: sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global, region=north_nodup, var=tasmax
+    threads: 12
+    resources: mem_mb=60000, mem_mib=57221, disk_mb=1000, disk_mib=954, tmpdir=/tmp, qos=high_priority, time=5
+
+/home/oumou/.local/lib/python3.11/site-packages/distributed/node.py:182: UserWarning: Port 2051 is already in use.
+Perhaps you already have a cluster running?
+Hosting the HTTP server on port 34547 instead
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python/3.11.5/lib/python3.11/contextlib.py:144: UserWarning: Creating scratch directories is taking a surprisingly long time. (1.02s) This is often due to running workers on a network file system. Consider specifying a local-directory to point workers to write scratch data to a local disk.
+2024-07-26 13:05:12 INFO     xscen           Started process train tasmax.
+2024-07-26 13:07:01 INFO     xscen           Process train tasmax done in 108.85 s
+[Fri Jul 26 13:07:02 2024]
+Finished job 0.
+1 of 1 steps (100%) done
+Storing output in storage.

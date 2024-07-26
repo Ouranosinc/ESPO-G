@@ -1,0 +1,30 @@
+Building DAG of jobs...
+Using shell: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/bash
+Provided cores: 12
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=60000, mem_mib=57221, disk_mb=1000, disk_mib=954, time=30
+Select jobs to execute...
+Execute 1 jobs...
+
+[Fri Jul 26 13:53:28 2024]
+localrule final_zarr:
+    input: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup_cleaned_up.zarr
+    output: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/NAM_SPLIT/middle_nodup/day_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup_1950-2100.zarr
+    jobid: 0
+    reason: Forced execution
+    wildcards: region=middle_nodup, sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global
+    threads: 12
+    resources: mem_mb=60000, mem_mib=57221, disk_mb=1000, disk_mib=954, tmpdir=/tmp, qos=high_priority, time=30
+
+/home/oumou/.local/lib/python3.11/site-packages/distributed/node.py:182: UserWarning: Port 2051 is already in use.
+Perhaps you already have a cluster running?
+Hosting the HTTP server on port 41561 instead
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python/3.11.5/lib/python3.11/contextlib.py:144: UserWarning: Creating scratch directories is taking a surprisingly long time. (1.05s) This is often due to running workers on a network file system. Consider specifying a local-directory to point workers to write scratch data to a local disk.
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python/3.11.5/lib/python3.11/contextlib.py:144: UserWarning: Creating scratch directories is taking a surprisingly long time. (1.40s) This is often due to running workers on a network file system. Consider specifying a local-directory to point workers to write scratch data to a local disk.
+2024-07-26 13:53:39 INFO     xscen           {'region_name': 'middle_nodup', 'sim_id': 'CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global'}
+2024-07-26 13:53:39 INFO     xscen           Started process final zarr rechunk.
+2024-07-26 13:55:15 INFO     xscen           Process final zarr rechunk done in 96.04 s
+[Fri Jul 26 13:55:16 2024]
+Finished job 0.
+1 of 1 steps (100%) done
+Storing output in storage.

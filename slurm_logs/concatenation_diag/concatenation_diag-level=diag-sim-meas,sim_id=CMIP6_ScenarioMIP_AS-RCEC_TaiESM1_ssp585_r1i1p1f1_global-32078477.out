@@ -1,0 +1,26 @@
+Building DAG of jobs...
+Using shell: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/bash
+Provided cores: 15
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=60000, mem_mib=57221, disk_mb=1000, disk_mib=954, time=5
+Select jobs to execute...
+Execute 1 jobs...
+
+[Fri Jul 26 14:04:26 2024]
+localrule concatenation_diag:
+    input: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/DIAGNOSTICS_diag-sim-meas_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south_nodup.zarr, /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/DIAGNOSTICS_diag-sim-meas_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup.zarr, /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/DIAGNOSTICS_diag-sim-meas_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup.zarr
+    output: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/diagnostics/NAM/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global/diag-sim-meas_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_NAM.zar
+    jobid: 0
+    reason: Forced execution
+    wildcards: sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global, level=diag-sim-meas
+    threads: 15
+    resources: mem_mb=60000, mem_mib=57221, disk_mb=1000, disk_mib=954, tmpdir=/tmp, qos=high_priority, time=5
+
+2024-07-26 14:04:30 INFO     xscen           {'level': 'diag-sim-meas', 'sim_id': 'CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global'}
+2024-07-26 14:04:30 INFO     xscen           Contenating CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global diag-sim-meas.
+[                                        ] | 0% Completed | 234.69 us[                                        ] | 1% Completed | 105.52 ms[                                        ] | 2% Completed | 205.64 ms[#                                       ] | 2% Completed | 305.77 ms[#                                       ] | 3% Completed | 405.89 ms[##                                      ] | 5% Completed | 506.02 ms[##                                      ] | 7% Completed | 606.13 ms[###                                     ] | 8% Completed | 706.26 ms[###                                     ] | 9% Completed | 806.39 ms[####                                    ] | 10% Completed | 906.51 ms[####                                    ] | 12% Completed | 1.01 s[#####                                   ] | 13% Completed | 1.11 s[#####                                   ] | 14% Completed | 1.21 s[#######                                 ] | 17% Completed | 1.31 s[#######                                 ] | 19% Completed | 1.41 s[#########                               ] | 24% Completed | 1.51 s[###########                             ] | 27% Completed | 1.61 s[#############                           ] | 34% Completed | 1.71 s[###############                         ] | 38% Completed | 1.81 s[################                        ] | 42% Completed | 1.91 s[#################                       ] | 42% Completed | 2.01 s[##################                      ] | 45% Completed | 2.11 s[###################                     ] | 47% Completed | 2.21 s[####################                    ] | 51% Completed | 2.31 s[#####################                   ] | 53% Completed | 2.41 s[#####################                   ] | 54% Completed | 2.51 s[#######################                 ] | 59% Completed | 2.61 s[#########################               ] | 63% Completed | 2.71 s[##########################              ] | 67% Completed | 2.81 s[############################            ] | 71% Completed | 2.91 s[############################            ] | 72% Completed | 3.01 s[#############################           ] | 74% Completed | 3.11 s[##############################          ] | 76% Completed | 3.21 s[###############################         ] | 79% Completed | 3.31 s[#################################       ] | 83% Completed | 3.41 s[###################################     ] | 89% Completed | 3.51 s[######################################  ] | 97% Completed | 3.61 s[####################################### ] | 98% Completed | 3.71 s[########################################] | 100% Completed | 3.81 s
+2024-07-26 14:04:36 INFO     xscen           Concatenation done.
+[Fri Jul 26 14:04:37 2024]
+Finished job 0.
+1 of 1 steps (100%) done
+Storing output in storage.

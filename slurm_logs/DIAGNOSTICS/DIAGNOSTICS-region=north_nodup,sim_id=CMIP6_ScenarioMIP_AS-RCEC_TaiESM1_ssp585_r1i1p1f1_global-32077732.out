@@ -1,0 +1,37 @@
+Building DAG of jobs...
+Using shell: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/bash
+Provided cores: 15
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=60000, mem_mib=57221, disk_mb=1000, disk_mib=954, time=5
+Select jobs to execute...
+Execute 1 jobs...
+
+[Fri Jul 26 13:12:49 2024]
+localrule DIAGNOSTICS:
+    input: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup_regchunked.zarr, /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/NAM_SPLIT/north_nodup/day_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup_1950-2100.zarr, /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/diagnostics/north_nodup/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_north_nodup.zarr
+    output: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/DIAGNOSTICS_diag-sim-meas_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup.zarr, /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/DIAGNOSTICS_diag-scen-meas_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup.zarr, /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/DIAGNOSTICS_diag-sim-prop_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup.zarr, /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/DIAGNOSTICS_diag-scen-prop_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup.zarr
+    log: logs/DIAGNOSTICS_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup
+    jobid: 0
+    reason: Forced execution
+    wildcards: sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global, region=north_nodup
+    threads: 15
+    resources: mem_mb=60000, mem_mib=57221, disk_mb=1000, disk_mib=954, tmpdir=/tmp, qos=high_priority, time=5
+
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python/3.11.5/lib/python3.11/contextlib.py:144: UserWarning: Creating scratch directories is taking a surprisingly long time. (1.71s) This is often due to running workers on a network file system. Consider specifying a local-directory to point workers to write scratch data to a local disk.
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python/3.11.5/lib/python3.11/contextlib.py:144: UserWarning: Creating scratch directories is taking a surprisingly long time. (1.99s) This is often due to running workers on a network file system. Consider specifying a local-directory to point workers to write scratch data to a local disk.
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python/3.11.5/lib/python3.11/contextlib.py:144: UserWarning: Creating scratch directories is taking a surprisingly long time. (2.44s) This is often due to running workers on a network file system. Consider specifying a local-directory to point workers to write scratch data to a local disk.
+2024-07-26 13:13:01 INFO     xscen           {'region_name': 'north_nodup', 'sim_id': 'CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global'}
+2024-07-26 13:13:01 INFO     xscen           Started process diagnostics.
+2024-07-26 13:13:01 INFO     xscen.utils     Dataset unstacked using /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/coords/coords_north_nodup_40x101.nc.
+/home/oumou/.local/lib/python3.11/site-packages/xscen/utils.py:451: FutureWarning: the `pandas.MultiIndex` object(s) passed as 'loc' coordinate(s) or data variable(s) will no longer be implicitly promoted and wrapped into multiple indexed coordinates in the future (i.e., one coordinate for each multi-index level + one dimension coordinate). If you want to keep this behavior, you need to first wrap it explicitly using `mindex_coords = xarray.Coordinates.from_pandas_multiindex(mindex_obj, 'dim')` and pass it as coordinates, e.g., `xarray.Dataset(coords=mindex_coords)`, `dataset.assign_coords(mindex_coords)` or `dataarray.assign_coords(mindex_coords)`.
+2024-07-26 13:13:01 INFO     xscen.diagnostics 1 - Computing mean-tasmax.
+2024-07-26 13:13:01 INFO     xscen.diagnostics 2 - Computing mean-tasmin.
+2024-07-26 13:13:01 INFO     xscen.diagnostics 3 - Computing mean-pr.
+2024-07-26 13:13:09 INFO     xscen.diagnostics 1 - Computing mean-tasmax.
+2024-07-26 13:13:09 INFO     xscen.diagnostics 2 - Computing mean-tasmin.
+2024-07-26 13:13:09 INFO     xscen.diagnostics 3 - Computing mean-pr.
+2024-07-26 13:13:22 INFO     xscen           Process diagnostics done in 21.29 s
+[Fri Jul 26 13:13:24 2024]
+Finished job 0.
+1 of 1 steps (100%) done
+Storing output in storage.

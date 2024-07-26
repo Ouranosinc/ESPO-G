@@ -1,0 +1,26 @@
+Building DAG of jobs...
+Using shell: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/bash
+Provided cores: 15
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=60000, mem_mib=57221, disk_mb=1000, disk_mib=954, time=5
+Select jobs to execute...
+Execute 1 jobs...
+
+[Fri Jul 26 14:04:23 2024]
+localrule concatenation_diag:
+    input: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/DIAGNOSTICS_diag-scen-prop_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south_nodup.zarr, /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/DIAGNOSTICS_diag-scen-prop_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup.zarr, /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/DIAGNOSTICS_diag-scen-prop_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup.zarr
+    output: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/diagnostics/NAM/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global/diag-scen-prop_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_NAM.zar
+    jobid: 0
+    reason: Forced execution
+    wildcards: sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global, level=diag-scen-prop
+    threads: 15
+    resources: mem_mb=60000, mem_mib=57221, disk_mb=1000, disk_mib=954, tmpdir=/tmp, qos=high_priority, time=5
+
+2024-07-26 14:04:29 INFO     xscen           {'level': 'diag-scen-prop', 'sim_id': 'CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global'}
+2024-07-26 14:04:29 INFO     xscen           Contenating CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global diag-scen-prop.
+[                                        ] | 0% Completed | 230.59 us[######                                  ] | 15% Completed | 105.51 ms[#################                       ] | 43% Completed | 205.63 ms[##################                      ] | 45% Completed | 305.79 ms[###################                     ] | 49% Completed | 405.91 ms[########################                ] | 61% Completed | 506.04 ms[##############################          ] | 75% Completed | 606.16 ms[################################        ] | 80% Completed | 706.28 ms[#####################################   ] | 94% Completed | 806.41 ms[####################################### ] | 98% Completed | 906.53 ms[####################################### ] | 98% Completed | 1.01 s[####################################### ] | 99% Completed | 1.11 s[####################################### ] | 99% Completed | 1.21 s[########################################] | 100% Completed | 1.31 s
+2024-07-26 14:04:31 INFO     xscen           Concatenation done.
+[Fri Jul 26 14:04:32 2024]
+Finished job 0.
+1 of 1 steps (100%) done
+Storing output in storage.

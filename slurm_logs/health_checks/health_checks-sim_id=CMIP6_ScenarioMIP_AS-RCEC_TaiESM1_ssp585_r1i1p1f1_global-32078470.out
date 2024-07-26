@@ -1,0 +1,30 @@
+Building DAG of jobs...
+Using shell: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/bash
+Provided cores: 40
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=40000, mem_mib=38147, disk_mb=1000, disk_mib=954, time=5
+Select jobs to execute...
+Execute 1 jobs...
+
+[Fri Jul 26 14:04:17 2024]
+localrule health_checks:
+    input: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/FINAL/NAM/day_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_NAM_1950-2100.zarr
+    output: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/checks/NAM/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_NAM_checks.zarr
+    jobid: 0
+    reason: Forced execution
+    wildcards: sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global
+    threads: 40
+    resources: mem_mb=40000, mem_mib=38147, disk_mb=1000, disk_mib=954, tmpdir=/tmp, qos=high_priority, time=5
+
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python/3.11.5/lib/python3.11/contextlib.py:144: UserWarning: Creating scratch directories is taking a surprisingly long time. (1.09s) This is often due to running workers on a network file system. Consider specifying a local-directory to point workers to write scratch data to a local disk.
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python/3.11.5/lib/python3.11/contextlib.py:144: UserWarning: Creating scratch directories is taking a surprisingly long time. (1.39s) This is often due to running workers on a network file system. Consider specifying a local-directory to point workers to write scratch data to a local disk.
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python/3.11.5/lib/python3.11/contextlib.py:144: UserWarning: Creating scratch directories is taking a surprisingly long time. (1.44s) This is often due to running workers on a network file system. Consider specifying a local-directory to point workers to write scratch data to a local disk.
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python/3.11.5/lib/python3.11/contextlib.py:144: UserWarning: Creating scratch directories is taking a surprisingly long time. (1.50s) This is often due to running workers on a network file system. Consider specifying a local-directory to point workers to write scratch data to a local disk.
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python/3.11.5/lib/python3.11/contextlib.py:144: UserWarning: Creating scratch directories is taking a surprisingly long time. (1.70s) This is often due to running workers on a network file system. Consider specifying a local-directory to point workers to write scratch data to a local disk.
+2024-07-26 14:04:29 INFO     xscen           {'sim_id': 'CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global'}
+2024-07-26 14:04:29 INFO     xscen           Started process health_checks.
+2024-07-26 14:04:57 INFO     xscen           Process health_checks done in 27.70 s
+[Fri Jul 26 14:04:59 2024]
+Finished job 0.
+1 of 1 steps (100%) done
+Storing output in storage.

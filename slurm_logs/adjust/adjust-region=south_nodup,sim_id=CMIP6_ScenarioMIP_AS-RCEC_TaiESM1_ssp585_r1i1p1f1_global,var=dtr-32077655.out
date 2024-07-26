@@ -1,0 +1,32 @@
+Building DAG of jobs...
+Using shell: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/bash
+Provided cores: 15
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=60000, mem_mib=57221, disk_mb=1000, disk_mib=954, time=5
+Select jobs to execute...
+Execute 1 jobs...
+
+[Fri Jul 26 13:07:29 2024]
+localrule adjust:
+    input: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south_nodup_dtr_training.zarr, /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south_nodup_regchunked.zarr
+    output: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south_nodup_dtr_adjusted.zarr
+    log: logs/adjust_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south_nodup_dtr
+    jobid: 0
+    reason: Forced execution
+    wildcards: sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global, region=south_nodup, var=dtr
+    threads: 15
+    resources: mem_mb=60000, mem_mib=57221, disk_mb=1000, disk_mib=954, tmpdir=/tmp, qos=high_priority, time=5
+
+/home/oumou/.local/lib/python3.11/site-packages/distributed/node.py:182: UserWarning: Port 2051 is already in use.
+Perhaps you already have a cluster running?
+Hosting the HTTP server on port 43829 instead
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python/3.11.5/lib/python3.11/contextlib.py:144: UserWarning: Creating scratch directories is taking a surprisingly long time. (1.54s) This is often due to running workers on a network file system. Consider specifying a local-directory to point workers to write scratch data to a local disk.
+2024-07-26 13:07:39 INFO     xscen           Started process adjust dtr.
+/home/oumou/.local/lib/python3.11/site-packages/distributed/client.py:3161: UserWarning: Sending large graph of size 633.58 MiB.
+This may cause some slowdown.
+Consider scattering data ahead of time and using futures.
+2024-07-26 13:08:31 INFO     xscen           Process adjust dtr done in 52.24 s
+[Fri Jul 26 13:08:33 2024]
+Finished job 0.
+1 of 1 steps (100%) done
+Storing output in storage.

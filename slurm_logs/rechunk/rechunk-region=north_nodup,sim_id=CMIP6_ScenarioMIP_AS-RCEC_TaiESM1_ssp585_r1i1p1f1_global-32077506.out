@@ -1,0 +1,29 @@
+Building DAG of jobs...
+Using shell: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/bash
+Provided cores: 10
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=36000, mem_mib=34333, disk_mb=1000, disk_mib=954, time=5
+Select jobs to execute...
+Execute 1 jobs...
+
+[Fri Jul 26 13:04:31 2024]
+localrule rechunk:
+    input: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup_regridded.zarr
+    output: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup_regchunked.zarr
+    log: logs/regchunked_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup
+    jobid: 0
+    reason: Forced execution
+    wildcards: sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global, region=north_nodup
+    threads: 10
+    resources: mem_mb=36000, mem_mib=34333, disk_mb=1000, disk_mib=954, tmpdir=/tmp, qos=high_priority, time=5
+
+2024-07-26 13:04:36 INFO     xscen           {'region_name': 'north_nodup', 'sim_id': 'CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global'}
+/home/oumou/.local/lib/python3.11/site-packages/distributed/node.py:182: UserWarning: Port 2051 is already in use.
+Perhaps you already have a cluster running?
+Hosting the HTTP server on port 38535 instead
+2024-07-26 13:04:42 INFO     xscen           Started process rechunk.
+2024-07-26 13:04:48 INFO     xscen           Process rechunk done in 6.17 s
+[Fri Jul 26 13:04:50 2024]
+Finished job 0.
+1 of 1 steps (100%) done
+Storing output in storage.
