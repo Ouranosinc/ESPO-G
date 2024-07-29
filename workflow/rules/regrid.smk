@@ -13,7 +13,8 @@ rule regrid:
        sim_id="([^_]*_){6}[^_]*"
    params:
         n_workers=3,
-        threads=3
+        threads_per_worker=3,
+        memory_limit=48000
    resources:
         mem_mb=48000
    threads: 9

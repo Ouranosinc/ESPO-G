@@ -17,9 +17,8 @@ rule DIAGNOSTICS:
         sim_id="([^_]*_){6}[^_]*"
     params:
         n_workers=3,
-        threads=5
-    resources:
-        mem_mb=60000
+        threads_per_worker=5,
+        memory_limit=60000
     threads: 15
     script:
         f"{home}workflow/scripts/DIAGNOSTICS.py"
@@ -58,9 +57,8 @@ rule diag_improved_et_heatmap:
         sim_id= "([^_]*_){6}[^_]*"
     params:
         n_workers=3,
-        threads=5
-    resources:
-        mem_mb=60000
+        threads_per_worker=5,
+        memory_limit=60000
     threads: 15
     script:
         f"{home}workflow/scripts/diag_improved_et_heatmap.py"

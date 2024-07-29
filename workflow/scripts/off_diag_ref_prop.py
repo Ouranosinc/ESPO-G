@@ -20,8 +20,8 @@ if __name__ == '__main__':
     step_dict = CONFIG['off-diag']['steps']["ref"]
     # iter over datasets in that setp
 
-    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads,
-                           memory_limit="20GB", **daskkws)
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
+                           memory_limit=f"{snakemake.params. memory_limit}MB", **daskkws)
     client = Client(cluster)
 
     with (
@@ -35,7 +35,7 @@ if __name__ == '__main__':
         if step_dict['unstack']:
             ds_input = xs.utils.unstack_fill_nan(dict_input)
         else:
-            ds_input=dict_input
+            ds_input = dict_input
 
         # cut the domain
         ds_input = xs.spatial.subset(

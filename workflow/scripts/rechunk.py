@@ -20,8 +20,8 @@ if __name__ == '__main__':
     logger.info(fmtkws)
 
 #  ---RECHUNK---
-    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads,
-               memory_limit="18GB", **daskkws)
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
+               memory_limit=f"{snakemake.params. memory_limit}MB", **daskkws)
     client = Client(cluster)
     with (
             client,

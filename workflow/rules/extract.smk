@@ -12,7 +12,8 @@ rule extract:
        sim_id="([^_]*_){6}[^_]*"
    params:
         n_workers=2,
-        threads=5
+        threads_per_worker=5,
+        memory_limit=50000
    threads: 10
    resources:
         mem_mb=50000

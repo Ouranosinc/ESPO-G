@@ -11,7 +11,8 @@ rule health_checks:
         sim_id = "([^_]*_){6}[^_]*"
     params:
         n_workers=8,
-        threads=5
+        threads_per_worker=5,
+        memory_limit=40000
     threads: 40
     resources:
         mem_mb=40000

@@ -12,7 +12,8 @@ rule rechunk:
        sim_id="([^_]*_){6}[^_]*"
    params:
        n_workers=2,
-       threads=5
+       threads_per_worker=5,
+        memory_limit=36000
    resources:
        mem_mb=36000
    threads: 10

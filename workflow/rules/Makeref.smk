@@ -10,7 +10,8 @@ rule reference_DEFAULT:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     params:
         n_workers=2,
-        threads=5
+        threads_per_worker=5,
+        memory_limit=50000
     resources:
         mem_mb=50000
     threads: 10
@@ -26,7 +27,8 @@ rule reference_NOLEAP:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     params:
         n_workers=2,
-        threads=5
+        threads_per_worker=5,
+        memory_limit=50000
     resources:
         mem_mb=50000
     threads: 10
@@ -42,7 +44,8 @@ rule reference_360_DAY:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     params:
         n_workers=2,
-        threads=5
+        threads_per_worker=5,
+        memory_limit=50000
     resources:
         mem_mb=50000
     threads: 10
@@ -58,7 +61,8 @@ rule diagnostics:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     params:
         n_workers=2,
-        threads=5
+        threads_per_worker=5,
+        memory_limit=50000
     resources:
         mem_mb=50000
     threads: 10
