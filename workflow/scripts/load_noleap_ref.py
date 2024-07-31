@@ -17,12 +17,11 @@ if __name__ == '__main__':
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
     cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=f"{snakemake.params. memory_limit}MB", **daskkws)
+                           memory_limit=f"{snakemake.params.memory_limit}MB", **daskkws)
     client = Client(cluster)
-    with (client):
-        ds_ref = xr.open_zarr(snakemake.input[0])
-        # ds_ref = pcat.search(source=ref_source, calendar='default', domain=region_name).to_dask()
+    ds_ref = xr.open_zarr(snakemake.input[0])
+    # ds_ref = pcat.search(source=ref_source, calendar='default', domain=region_name).to_dask()
 
-        # convert calendars
-        ds_refnl = convert_calendar(ds_ref, "noleap")
-        xs.save_to_zarr(ds_refnl, str(snakemake.output[0]))
+    # convert calendars
+    ds_refnl = convert_calendar(ds_ref, "noleap")
+    xs.save_to_zarr(ds_refnl, str(snakemake.output[0]))

@@ -15,11 +15,10 @@ if __name__ == '__main__':
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
     cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-               memory_limit=f"{snakemake.params. memory_limit}MB", **daskkws)
+               memory_limit=f"{snakemake.params.memory_limit}MB", **daskkws)
     client = Client(cluster)
 
     with (
-            client,
             measure_time(name=f'adjust {snakemake.wildcards.var}', logger=logger),
             timeout(18000, task='adjust')
     ):

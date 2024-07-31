@@ -23,26 +23,25 @@ if __name__ == '__main__':
     # only works with xesmf 0.7
 
     cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=f"{snakemake.params. memory_limit}MB", **daskkws)
+                           memory_limit=f"{snakemake.params.memory_limit}MB", **daskkws)
     client = Client(cluster)
-    
-    with (client):
-        ds_input = xr.open_zarr(snakemake.input.extract)
 
-        ds_target = xr.open_zarr(snakemake.input.noleap)
+    ds_input = xr.open_zarr(snakemake.input.extract)
 
-        ds_regrid = regrid_dataset(
-            ds=ds_input,
-            ds_grid=ds_target, weights_location=f"{CONFIG['paths']['final']}workdir/weights/{snakemake.wildcards.region}"
-        )
+    ds_target = xr.open_zarr(snakemake.input.noleap)
 
-        #chunk time dim
-        ds_regrid = ds_regrid.chunk(
-            translate_time_chunk({'time': '4year'},
-                                 get_calendar(ds_regrid),
-                                 ds_regrid.time.size
+    ds_regrid = regrid_dataset(
+        ds=ds_input,
+        ds_grid=ds_target, weights_location=f"{CONFIG['paths']['final']}workdir/weights/{snakemake.wildcards.region}"
+    )
+
+    #chunk time dim
+    ds_regrid = ds_regrid.chunk(
+        translate_time_chunk({'time': '4year'},
+                             get_calendar(ds_regrid),
+                             ds_regrid.time.size
+                            )
                                 )
-                                    )
 
-        # save
-        xs.save_to_zarr(ds_regrid, str(snakemake.output[0]))
+    # save
+    xs.save_to_zarr(ds_regrid, str(snakemake.output[0]))

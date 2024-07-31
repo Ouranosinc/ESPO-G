@@ -17,13 +17,12 @@ if __name__ == '__main__':
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
     cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=f"{snakemake.params. memory_limit}MB", **daskkws)
+                           memory_limit=f"{snakemake.params.memory_limit}MB", **daskkws)
     client = Client(cluster)
 
     while True:  # if code bugs forever, it will be stopped by the timeout and then tried again
         try:
             with (
-                client,
                 xs.measure_time(name=f'train {snakemake.wildcards.var}', logger=logger),
                 xs.timeout(18000, task='train')
             ):

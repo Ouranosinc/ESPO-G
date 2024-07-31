@@ -21,11 +21,10 @@ if __name__ == '__main__':
     # iter over datasets in that setp
 
     cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=f"{snakemake.params. memory_limit}MB", **daskkws)
+                           memory_limit=f"{snakemake.params.memory_limit}MB", **daskkws)
     client = Client(cluster)
 
     with (
-        client,
         measure_time(name=f'off-diag {snakemake.wildcards.dom_name} ref {snakemake.wildcards.sim_id}',
                      logger=logger),
         timeout(18000, task='off-diag')
