@@ -27,7 +27,7 @@ dom = config['off-diag']['domains'].keys()
 processing_level = ['diag-sim-meas', 'diag-scen-meas']
 
 ##### target rules #####
-
+print(sim_id_name)
 rule all:
     input:
         expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_{sim_id}_{dom_name}.zarr", sim_id=sim_id_name,dom_name=dom),

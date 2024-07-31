@@ -1,27 +1,0 @@
-Building DAG of jobs...
-Using shell: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/bash
-Provided cores: 15
-Rules claiming more threads will be scaled down.
-Provided resources: mem_mb=60000, mem_mib=57221, disk_mb=1000, disk_mib=954, time=5
-Select jobs to execute...
-Execute 1 jobs...
-
-[Fri Jul 26 12:41:47 2024]
-localrule concatenation_diag:
-    input: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/DIAGNOSTICS_diag-sim-meas_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south_nodup.zarr, /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/DIAGNOSTICS_diag-sim-meas_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup.zarr, /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/DIAGNOSTICS_diag-sim-meas_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup.zarr
-    output: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/diagnostics/NAM/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global/diag-sim-meas_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_NAM.zar
-    log: logs/concatenation_diag_diag-sim-meas_CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_NAM
-    jobid: 0
-    reason: Forced execution
-    wildcards: sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global, level=diag-sim-meas
-    threads: 15
-    resources: mem_mb=60000, mem_mib=57221, disk_mb=1000, disk_mib=954, tmpdir=/tmp, qos=high_priority, time=5
-
-2024-07-26 12:41:51 INFO     xscen           {'level': 'diag-sim-meas', 'sim_id': 'CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global'}
-2024-07-26 12:41:51 INFO     xscen           Contenating CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global diag-sim-meas.
-[                                        ] | 0% Completed | 226.31 us[####                                    ] | 11% Completed | 105.50 ms[###############                         ] | 38% Completed | 205.68 ms[#########################               ] | 64% Completed | 305.84 ms[####################################    ] | 90% Completed | 405.99 ms[########################################] | 100% Completed | 506.15 ms
-2024-07-26 12:41:52 INFO     xscen           Concatenation done.
-[Fri Jul 26 12:41:52 2024]
-Finished job 0.
-1 of 1 steps (100%) done
-Storing output in storage.

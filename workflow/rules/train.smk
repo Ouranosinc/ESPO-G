@@ -14,8 +14,8 @@ rule train:
        sim_id="([^_]*_){6}[^_]*"
    params:
        n_workers=4,
-       threads_per_worker=3,
-        memory_limit=60000
-   threads: 12
+       threads_per_worker=5,
+       memory_limit=20000
+   threads: 20
    script:
         f"{home}workflow/scripts/train.py"

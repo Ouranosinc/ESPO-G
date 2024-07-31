@@ -13,11 +13,11 @@ rule regrid:
        sim_id="([^_]*_){6}[^_]*"
    params:
         n_workers=3,
-        threads_per_worker=3,
-        memory_limit=48000
+        threads_per_worker=5,
+        memory_limit=20000
    resources:
-        mem_mb=48000
-   threads: 9
+        mem_mb=60000
+   threads: 15
    script:
         f"{home}workflow/scripts/regrid.py"
 

@@ -13,9 +13,9 @@ rule final_zarr:
     params:
         n_workers=4,
         threads_per_worker=3,
-        memory_limit=60000
+        memory_limit=20000
     resources:
-        time=30
+        time=60
     threads: 12
     script:
         f"{home}workflow/scripts/final_zarr.py"

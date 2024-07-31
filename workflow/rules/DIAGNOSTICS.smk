@@ -18,7 +18,7 @@ rule DIAGNOSTICS:
     params:
         n_workers=3,
         threads_per_worker=5,
-        memory_limit=60000
+        memory_limit=20000
     threads: 15
     script:
         f"{home}workflow/scripts/DIAGNOSTICS.py"
@@ -58,7 +58,7 @@ rule diag_improved_et_heatmap:
     params:
         n_workers=3,
         threads_per_worker=5,
-        memory_limit=60000
+        memory_limit=20000
     threads: 15
     script:
         f"{home}workflow/scripts/diag_improved_et_heatmap.py"

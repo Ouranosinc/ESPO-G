@@ -16,7 +16,7 @@ rule clean_up:
    params:
        n_workers=2,
        threads_per_worker=3,
-       memory_limit=60000
+       memory_limit=30000
    threads: 6
    script:
         f"{home}workflow/scripts/clean_up.py"

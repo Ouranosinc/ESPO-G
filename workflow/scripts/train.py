@@ -34,16 +34,12 @@ if __name__ == '__main__':
                 # choose right calendar
                 simcal = get_calendar(ds_hist)
                 refcal = xs.utils.minimum_calendar(simcal, CONFIG['custom']['maximal_calendar'])
-                if refcal== "noleap":
+                if refcal == "noleap":
                     ds_ref = xr.open_zarr(snakemake.input.noleap)
                 elif refcal == "360_day":
                     ds_ref = xr.open_zarr(snakemake.input.day360)
 
                 path_exec = Path(CONFIG['paths']['exec_workdir'])/"ESPO-G_workdir/ds_ref.zarr"
-                # move to exec and reopen to help dask
-                # xs.save_to_zarr(ds_ref, str(path_exec), mode='o')
-                # ds_ref = xr.open_zarr(str(path_exec), decode_timedelta=False)
-
                 # training
                 ds_tr = xs.train(dref=ds_ref,
                                  dhist=ds_hist,

@@ -13,7 +13,7 @@ rule extract:
    params:
         n_workers=2,
         threads_per_worker=5,
-        memory_limit=50000
+        memory_limit=25000
    threads: 10
    resources:
         mem_mb=50000

@@ -12,7 +12,7 @@ rule health_checks:
     params:
         n_workers=8,
         threads_per_worker=5,
-        memory_limit=40000
+        memory_limit=5000
     threads: 40
     resources:
         mem_mb=40000

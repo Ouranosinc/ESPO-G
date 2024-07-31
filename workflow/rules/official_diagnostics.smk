@@ -9,9 +9,9 @@ rule off_diag_ref_prop:
         prop=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-ref-prop_{sim_id}_{dom_name}.zarr")
     params:
         n_workers=3,
-        threads_per_worker=5,
-        memory_limit=60000
-    threads: 15
+        threads_per_worker=10,
+        memory_limit=30000
+    threads: 30
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
     script:
@@ -25,10 +25,12 @@ rule off_diag_sim_prop_meas:
         prop=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-sim-prop_{sim_id}_{dom_name}.zarr"),
         meas=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-sim-meas_{sim_id}_{dom_name}.zarr")
     params:
-        n_workers=3,
-        threads_per_worker=5,
-        memory_limit=60000
-    threads: 15
+        n_workers=5,
+        threads_per_worker=10,
+        memory_limit=30000
+    resources:
+        mem_mb=150000
+    threads: 50
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
     script:
@@ -44,8 +46,8 @@ rule off_diag_scen_prop_meas:
     params:
         n_workers=3,
         threads_per_worker=5,
-        memory_limit=60000
-    threads: 15
+        memory_limit=30000
+    threads: 20
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
     script:
@@ -60,7 +62,7 @@ rule diag_measures_improvement:
     params:
         n_workers=3,
         threads_per_worker=5,
-        memory_limit=60000
+        memory_limit=20000
     threads: 15
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"

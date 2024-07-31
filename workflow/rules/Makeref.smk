@@ -11,9 +11,9 @@ rule reference_DEFAULT:
     params:
         n_workers=2,
         threads_per_worker=5,
-        memory_limit=50000
+        memory_limit=30000
     resources:
-        mem_mb=50000
+        mem_mb=60000
     threads: 10
     script:
         f"{home}workflow/scripts/load_default_ref.py"
@@ -28,9 +28,9 @@ rule reference_NOLEAP:
     params:
         n_workers=2,
         threads_per_worker=5,
-        memory_limit=50000
+        memory_limit=30000
     resources:
-        mem_mb=50000
+        mem_mb=60000
     threads: 10
     script:
         f"{home}workflow/scripts/load_noleap_ref.py"
@@ -44,11 +44,11 @@ rule reference_360_DAY:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     params:
         n_workers=2,
-        threads_per_worker=5,
-        memory_limit=50000
+        threads_per_worker=10,
+        memory_limit=30000
     resources:
-        mem_mb=50000
-    threads: 10
+        mem_mb=60000
+    threads: 20
     script:
         f"{home}workflow/scripts/load_360_day_ref.py"
 
@@ -61,11 +61,11 @@ rule diagnostics:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     params:
         n_workers=2,
-        threads_per_worker=5,
-        memory_limit=50000
+        threads_per_worker=10,
+        memory_limit=30000
     resources:
-        mem_mb=50000
-    threads: 10
+        mem_mb=60000
+    threads: 20
     script:
         f"{home}workflow/scripts/diagnostics.py"
 
@@ -76,6 +76,6 @@ rule concat_diag_ref_prop:
        directory(Path(config['paths']['final'])/"diagnostics/NAM/ECMWF-ERA5-Land_NAM/diag-ref-prop_ECMWF-ERA5-Land_NAM.zar")
    wildcard_constraints:
        region = r"[a-zA-Z]+_[a-zA-Z]+"
-   threads: 15
+   threads: 20
    script:
         f"{home}workflow/scripts/concat.py"
