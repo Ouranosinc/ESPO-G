@@ -11,9 +11,9 @@ rule reference_DEFAULT:
     params:
         n_workers=2,
         threads_per_worker=5,
-        memory_limit=30000
+        memory_limit='30GB'
     resources:
-        mem_mb=60000
+        mem_mb='60GB'
     threads: 10
     script:
         f"{home}workflow/scripts/load_default_ref.py"
@@ -28,10 +28,10 @@ rule reference_NOLEAP:
     params:
         n_workers=2,
         threads_per_worker=5,
-        memory_limit=30000
+        memory_limit='30GB'
     resources:
-        mem_mb=60000
-    threads: 10
+        mem_mb='65GB'
+    threads: 15
     script:
         f"{home}workflow/scripts/load_noleap_ref.py"
 
@@ -45,10 +45,10 @@ rule reference_360_DAY:
     params:
         n_workers=2,
         threads_per_worker=10,
-        memory_limit=30000
+        memory_limit='30GB'
     resources:
-        mem_mb=60000
-    threads: 20
+        mem_mb='65GB'
+    threads: 25
     script:
         f"{home}workflow/scripts/load_360_day_ref.py"
 
@@ -62,10 +62,10 @@ rule diagnostics:
     params:
         n_workers=2,
         threads_per_worker=10,
-        memory_limit=30000
+        memory_limit='30GB'
     resources:
-        mem_mb=60000
-    threads: 20
+        mem_mb='80GB'
+    threads: 25
     script:
         f"{home}workflow/scripts/diagnostics.py"
 

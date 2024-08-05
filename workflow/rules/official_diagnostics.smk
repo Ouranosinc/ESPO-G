@@ -6,12 +6,12 @@ rule off_diag_ref_prop:
     input:
         ref=official_diags_inputfiles_ref
     output:
-        prop=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-ref-prop_{sim_id}_{dom_name}.zarr")
+        prop=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-ref-prop_{sim_id}_{dom_name}.zarr"))
     params:
         n_workers=3,
         threads_per_worker=10,
-        memory_limit=30000
-    threads: 30
+        memory_limit='30GB'
+    threads: 40
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
     script:
@@ -22,15 +22,16 @@ rule off_diag_sim_prop_meas:
         off_diag_ref_prop = Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-ref-prop_{sim_id}_{dom_name}.zarr",
         sim = official_diags_inputfiles_sim
     output:
-        prop=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-sim-prop_{sim_id}_{dom_name}.zarr"),
-        meas=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-sim-meas_{sim_id}_{dom_name}.zarr")
+        prop=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-sim-prop_{sim_id}_{dom_name}.zarr")),
+        meas=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-sim-meas_{sim_id}_{dom_name}.zarr"))
     params:
-        n_workers=5,
-        threads_per_worker=10,
-        memory_limit=30000
+        n_workers=6,
+        threads_per_worker=8,
+        memory_limit="300GB"
     resources:
-        mem_mb=150000
-    threads: 50
+        mem_mb="400GB",
+        time=65
+    threads: 48
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
     script:
@@ -41,12 +42,12 @@ rule off_diag_scen_prop_meas:
         off_diag_ref_prop = Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-ref-prop_{sim_id}_{dom_name}.zarr",
         scen = Path(config['paths']['final'])/"FINAL/NAM/day_{sim_id}_NAM_1950-2100.zarr"
     output:
-        prop=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-scen-prop_{sim_id}_{dom_name}.zarr"),
-        meas=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-scen-meas_{sim_id}_{dom_name}.zarr")
+        prop=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-scen-prop_{sim_id}_{dom_name}.zarr")),
+        meas=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-scen-meas_{sim_id}_{dom_name}.zarr"))
     params:
         n_workers=3,
         threads_per_worker=5,
-        memory_limit=30000
+        memory_limit='30GB'
     threads: 20
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
@@ -58,11 +59,11 @@ rule diag_measures_improvement:
         sim=Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-sim-meas_{sim_id}_{dom_name}.zarr",
         scen=Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-scen-meas_{sim_id}_{dom_name}.zarr"
     output:
-        directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_{sim_id}_{dom_name}.zarr")
+        temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_{sim_id}_{dom_name}.zarr"))
     params:
         n_workers=3,
         threads_per_worker=5,
-        memory_limit=20000
+        memory_limit='20GB'
     threads: 15
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"

@@ -8,17 +8,17 @@ rule DIAGNOSTICS:
         final = Path(config['paths']['final'])/"NAM_SPLIT/{region}/day_{sim_id}_{region}_1950-2100.zarr",
         diag_ref_prop = Path(config['paths']['final'])/"diagnostics/{region}/ECMW-ERA5-Land_NAM/diag-ref-prop_ECMW-ERA5-Land_NAM_{region}.zarr"
     output:
-        diag_sim_meas=directory(Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/DIAGNOSTICS_diag-sim-meas_{sim_id}_{region}.zarr"),
-        diag_scen_meas=directory(Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/DIAGNOSTICS_diag-scen-meas_{sim_id}_{region}.zarr"),
-        diag_sim_prop=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/DIAGNOSTICS_diag-sim-prop_{sim_id}_{region}.zarr"),
-        diag_scen_prop=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/DIAGNOSTICS_diag-scen-prop_{sim_id}_{region}.zarr")
+        diag_sim_meas=temp(directory(Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/DIAGNOSTICS_diag-sim-meas_{sim_id}_{region}.zarr")),
+        diag_scen_meas=temp(directory(Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/DIAGNOSTICS_diag-scen-meas_{sim_id}_{region}.zarr")),
+        diag_sim_prop=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/DIAGNOSTICS_diag-sim-prop_{sim_id}_{region}.zarr")),
+        diag_scen_prop=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/DIAGNOSTICS_diag-scen-prop_{sim_id}_{region}.zarr"))
     wildcard_constraints:
         region=r"[a-zA-Z]+_[a-zA-Z]+",
         sim_id="([^_]*_){6}[^_]*"
     params:
         n_workers=3,
         threads_per_worker=5,
-        memory_limit=20000
+        memory_limit='20GB'
     threads: 15
     script:
         f"{home}workflow/scripts/DIAGNOSTICS.py"
@@ -50,15 +50,15 @@ rule diag_improved_et_heatmap:
        sim=Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/DIAGNOSTICS_diag-sim-meas_{sim_id}_{region}.zarr",
        scen=Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/DIAGNOSTICS_diag-scen-meas_{sim_id}_{region}.zarr"
     output:
-        diag_heatmap=directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/DIAGNOCTICS_diag-heatmap_{sim_id}_{region}.zarr"),
-        diag_improved= directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/DIAGNOCTICS_diag-improved_{sim_id}_{region}.zarr")
+        diag_heatmap=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/DIAGNOCTICS_diag-heatmap_{sim_id}_{region}.zarr")),
+        diag_improved= temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/DIAGNOCTICS_diag-improved_{sim_id}_{region}.zarr"))
     wildcard_constraints:
         region=r"[a-zA-Z]+_[a-zA-Z]+",
         sim_id= "([^_]*_){6}[^_]*"
     params:
         n_workers=3,
         threads_per_worker=5,
-        memory_limit=20000
+        memory_limit='20GB'
     threads: 15
     script:
         f"{home}workflow/scripts/diag_improved_et_heatmap.py"

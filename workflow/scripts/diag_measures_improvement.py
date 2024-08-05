@@ -14,7 +14,7 @@ if __name__ == '__main__':
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
     cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=f"{snakemake.params. memory_limit}MB", **daskkws)
+                           memory_limit=snakemake.params.memory_limit, **daskkws)
     client = Client(cluster)
 
     fmtkws = {'sim_id': snakemake.wildcards.sim_id}
@@ -24,7 +24,6 @@ if __name__ == '__main__':
     meas_dict = xr.open_zarr(snakemake.input.sim)
 
     with (
-        client,
         measure_time(name=f'off-diag-meas {snakemake.wildcards.dom_name} {snakemake.wildcards.sim_id}',
                      logger=logger),
     ):

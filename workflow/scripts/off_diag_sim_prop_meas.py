@@ -1,7 +1,9 @@
 from dask.distributed import Client, LocalCluster
+from dask.distributed import performance_report
 from dask import config as dskconf
 from pathlib import Path
 import xarray as xr
+from time import sleep
 import logging
 import xscen as xs
 from xscen.xclim_modules import conversions
@@ -15,7 +17,7 @@ if __name__ == '__main__':
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
     cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=f"{snakemake.params.memory_limit}MB", **daskkws)
+                           memory_limit=snakemake.params.memory_limit, **daskkws)
     client = Client(cluster)
 
     fmtkws = {'step': 'sim', 'dom_name': snakemake.wildcards.dom_name, 'sim_id': snakemake.wildcards.sim_id}
@@ -28,7 +30,7 @@ if __name__ == '__main__':
     with (
         measure_time(name=f'off-diag {snakemake.wildcards.dom_name} sim {snakemake.wildcards.sim_id}',
                      logger=logger),
-        timeout(18000, task='off-diag')
+        timeout(18000, task='off-diag'), performance_report(f"off-diag_{snakemake.wildcards.sim_id}.html")
     ):
 
         # unstack
@@ -55,6 +57,7 @@ if __name__ == '__main__':
             to_level_meas=f'off-diag-sim-meas',
             **step_dict['properties_and_measures']
         )
+        sleep(120)
         if prop:
             xs.save_to_zarr(prop, str(snakemake.output.prop),
                             itervar=True,

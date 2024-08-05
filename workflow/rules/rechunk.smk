@@ -13,7 +13,7 @@ rule rechunk:
    params:
        n_workers=2,
        threads_per_worker=5,
-        memory_limit=30000
+        memory_limit='30GB'
    threads: 15
    script:
         f"{home}workflow/scripts/rechunk.py"

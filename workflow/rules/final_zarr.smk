@@ -4,7 +4,8 @@ home=config["paths"]["home"]
 
 rule final_zarr:
     input:
-        Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_cleaned_up.zarr"
+        clean_up=Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_cleaned_up.zarr",
+        regridded=Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_regridded.zarr"
     output:
         directory(Path(config['paths']['final'])/"NAM_SPLIT/{region}/day_{sim_id}_{region}_1950-2100.zarr")
     wildcard_constraints:
@@ -13,7 +14,7 @@ rule final_zarr:
     params:
         n_workers=4,
         threads_per_worker=3,
-        memory_limit=20000
+        memory_limit='20GB'
     resources:
         time=60
     threads: 12

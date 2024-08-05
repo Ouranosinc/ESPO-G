@@ -19,7 +19,7 @@ if __name__ == '__main__':
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
     cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=f"{snakemake.params.memory_limit}MB", **daskkws)
+                           memory_limit=snakemake.params.memory_limit, **daskkws)
     client = Client(cluster)
 
     fmtkws = {'region_name': snakemake.wildcards.region, 'sim_id': snakemake.wildcards.sim_id}
@@ -40,12 +40,13 @@ if __name__ == '__main__':
                                     prefix=f"{snakemake.wildcards.sim_id}_{snakemake.wildcards.region}_")
 
         # rechunk in exec and move to final path after
-        rechunk(path_in=str(snakemake.input[0]),
+        rechunk(path_in=str(snakemake.input.clean_up),
                 path_out=fi_path_exec,
                 chunks_over_dim=CONFIG['custom']['out_chunks'],
                 temp_store=temp_dir,
                 overwrite=True)
 
         shutil.move(fi_path_exec, str(snakemake.output[0]))
+        shutil.move(snakemake.input.regridded, CONFIG['paths']['regriddir'])
 
 

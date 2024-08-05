@@ -27,7 +27,6 @@ dom = config['off-diag']['domains'].keys()
 processing_level = ['diag-sim-meas', 'diag-scen-meas']
 
 ##### target rules #####
-print(sim_id_name)
 rule all:
     input:
         expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_{sim_id}_{dom_name}.zarr", sim_id=sim_id_name,dom_name=dom),
@@ -36,6 +35,4 @@ rule all:
         expand(Path(config['paths']['final'])/"diagnostics/NAM/{sim_id}/{level}_{sim_id}_NAM.zar", sim_id=sim_id_name,level=level_name),
         expand(Path(config['paths']['final']) / "checks/NAM/{sim_id}_NAM_checks.zarr", sim_id=sim_id_name),
         Path(config['paths']['final']) / "diagnostics/NAM/ECMWF-ERA5-Land_NAM/diag-ref-prop_ECMWF-ERA5-Land_NAM.zar"
-        # expand(Path(config['paths']['final'])/"reference/ref_{region}_noleap.zarr", region=region_name),
-        # expand(Path(config['paths']['final'])/"diagnostics/NAM/ECMWF-ERA5-Land_NAM/diag-ref-prop_ECMWF-ERA5-Land_NAM.zar"),
-        # expand(Path(config['paths']['final']) / "reference/ref_{region}_360_day.zarr", region=region_name)
+

@@ -12,9 +12,9 @@ rule health_checks:
     params:
         n_workers=8,
         threads_per_worker=5,
-        memory_limit=5000
+        memory_limit='5GB'
     threads: 40
     resources:
-        mem_mb=40000
+        mem_mb='40GB'
     script:
         f"{home}workflow/scripts/health_check.py"

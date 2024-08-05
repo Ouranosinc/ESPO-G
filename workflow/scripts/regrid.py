@@ -23,7 +23,7 @@ if __name__ == '__main__':
     # only works with xesmf 0.7
 
     cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=f"{snakemake.params.memory_limit}MB", **daskkws)
+                           memory_limit=snakemake.params.memory_limit, **daskkws)
     client = Client(cluster)
 
     ds_input = xr.open_zarr(snakemake.input.extract)
