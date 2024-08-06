@@ -4,7 +4,7 @@ Pour éxecuter un workflow snakemake dans un cluster, on utilise la commande
 
 > $ snakemake --profile simple/
 
- avec simple/ étant le nom du répertoire où se situe le fichier *config.v8+.yaml*. Ce nom du fichier est recommandé pour les versions de snakemake supérieures à 8.0.0. Pour générer un fichier en particulier, on écrit le nom du fichier après simple/. Exemple:
+ avec *simple/* étant le nom du répertoire où se situe le fichier *config.v8+.yaml*. Ce nom du fichier est recommandé pour les versions de snakemake supérieures à 8.0.0. Pour générer un fichier en particulier, on écrit le nom du fichier après simple/. Exemple:
  
 
 > $ snakemake --profile simple/ /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/reference/ref_south_nodup_noleap.zarr/
@@ -152,5 +152,5 @@ et sera affecté à cpus-per-task dans le profile:
 
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTk3NzUxMjUxMl19
+eyJoaXN0b3J5IjpbLTE5MDg2OTI2MDIsMTk3NzUxMjUxMl19
 -->
