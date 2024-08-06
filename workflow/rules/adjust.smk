@@ -13,9 +13,11 @@ rule adjust:
        sim_id="([^_]*_){6}[^_]*"
    params:
        n_workers=5,
-       threads_per_worker=9,
-       memory_limit='25GB'
-   threads: 45
+       threads_per_worker=3,
+       memory_limit='12GB'
+   threads: 20
+   resources:
+        mem_mb='65GB'
    script:
         f"{home}workflow/scripts/adjust.py"
 

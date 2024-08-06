@@ -25,13 +25,13 @@ rule off_diag_sim_prop_meas:
         prop=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-sim-prop_{sim_id}_{dom_name}.zarr")),
         meas=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-sim-meas_{sim_id}_{dom_name}.zarr"))
     params:
-        n_workers=6,
-        threads_per_worker=8,
-        memory_limit="300GB"
+        n_workers=3,
+        threads_per_worker=10,
+        memory_limit="20GB"
     resources:
-        mem_mb="400GB",
+        mem_mb="70GB",
         time=65
-    threads: 48
+    threads: 35
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
     script:

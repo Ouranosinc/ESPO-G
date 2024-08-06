@@ -591,7 +591,7 @@ logging:
         console:
             class : logging.StreamHandler
             formatter: default
-            level : INFO
+            level : DEBUG
             stream: ext://sys.stdout #needed to have the right color in pycharm
         file:
             class: logging.FileHandler
@@ -600,7 +600,7 @@ logging:
             filename: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/logger.log
     loggers:
         xscen:
-            level: INFO
+            level: DEBUG
             handlers: [file, console]
 
 tdd:
