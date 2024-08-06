@@ -16,7 +16,7 @@ Dans le fichier *config.v8+.yaml* se trouvent les paramètres que l'on veut pass
 > $ pip install snakemake-executor-plugin-cluster-generic
 
     
-`cluster-generic`est un plugin générique qui donne accés à plusieurs types de plugin.  Ainsi `sbatch` est utilisé pour soumettre une tâche au système de gestion de tâches Slurm avec les options de notre choix:
+`Cluster-generic`est un plugin générique qui donne accés à plusieurs types de plugin.  Ainsi `sbatch` est utilisé pour soumettre une tâche au système de gestion de tâches Slurm avec les options de notre choix:
 
     executor: cluster-generic  
     cluster-generic-submit-cmd:  
@@ -152,5 +152,6 @@ et sera affecté à cpus-per-task dans le profile:
 
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE5MDg2OTI2MDIsMTk3NzUxMjUxMl19
+eyJoaXN0b3J5IjpbODc3NjcxODQ2LC0xOTA4NjkyNjAyLDE5Nz
+c1MTI1MTJdfQ==
 -->
