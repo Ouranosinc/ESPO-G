@@ -77,7 +77,7 @@ On peut utiliser les paramètres de snakemake comme {wildcards} et {rule} dans l
 
 > $ chmod +x status-sacct.sh
 
- et ajouter `cluster-generic-status-cmd: status-sacct.sh` dans *config.v8+.yaml* et l'option `--parsable` sous `sbatch`. Il faut aussi bien choisir la valeur de `max-status-checks-per-second` qui correspond au nombre de fois maximum qu'on peut surveiller l'état de tous les jobs et non par job. C'est à dire que si --max-status-checks-per-second est défini à 10, alors il n’y aura pas plus de 10 requêtes envoyées par seconde, donc pour 500 tâches, cela signifie qu’il faudra environ 50 secondes pour vérifier toutes les tâches.
+ et ajouter `cluster-generic-status-cmd: status-sacct.sh` dans *config.v8+.yaml* et l'option `--parsable` sous `sbatch`. Il faut aussi bien choisir la valeur de `max-status-checks-per-second` qui correspond au nombre de fois maximum qu'on peut surveiller l'état de tous les jobs et non par job. C'est à dire que si `--max-status-checks-per-second` est défini à 10, alors il n’y aura pas plus de 10 requêtes envoyées par seconde, donc pour 500 jobs, cela signifie qu’il faudra environ 50 secondes pour vérifier toutes les tâches.
  Les job s sont bien soumis au cluster si les informations de snakemake ecrites à la console sont suivies de `Submitted job 28 with external jobid '32636155'.`
  Exemple:
  
@@ -207,7 +207,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNDM1NzA0OTEyLC05ODk0NDA0NzksNDkzNj
-k1NDEsLTIxNDAxMDM1OCw4Nzc2NzE4NDYsLTE5MDg2OTI2MDIs
-MTk3NzUxMjUxMl19
+eyJoaXN0b3J5IjpbNjE4MDAwMDMsLTk4OTQ0MDQ3OSw0OTM2OT
+U0MSwtMjE0MDEwMzU4LDg3NzY3MTg0NiwtMTkwODY5MjYwMiwx
+OTc3NTEyNTEyXX0=
 -->
