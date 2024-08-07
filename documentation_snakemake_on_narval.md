@@ -82,7 +82,45 @@ On peut utiliser les paramètres de snakemake comme {wildcards} et {rule} dans l
  Exemple:
  
 
-> Blockquote
+    > Using profile simple/ for setting default command line arguments.
+    Building DAG of jobs...
+    Using shell: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/bash
+    Provided remote nodes: 10
+    Job stats:
+    job                          count
+    -------------------------  -------
+    DIAGNOSTICS                      3
+    adjust                           9
+    all                              1
+    clean_up                         3
+    concatenation_diag               4
+    concatenation_final              1
+    diag_improved_et_heatmap         3
+    diag_measures_improvement        4
+    final_zarr                       3
+    health_checks                    1
+    off_diag_scen_prop_meas          4
+    train                            9
+    total                           45
+    
+    Select jobs to execute...
+    Execute 9 jobs...
+    
+    [Wed Aug  7 11:10:41 2024]
+    rule train:
+        input: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/reference/ref_middle_nodup_noleap.zarr, /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/reference/ref_middle_nodup_360_day.zarr, /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup_regchunked.zarr
+        output: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup_dtr_training.zarr
+        jobid: 31
+        reason: Missing output files: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup_dtr_training.zarr
+        wildcards: sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global, region=middle_nodup, var=dtr
+        threads: 15
+        resources: mem_mb=61989, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, qos=high_priority, mem=65GB, time=60
+    
+    Submitted job 31 with external jobid '32636148'.
+
+
+
+
 
 # Erreurs fréquentes 
 Lorsque `dask` utilise plus de `threads` que `slurm` , l'erreur ci dessous peut interrompre  l'exécution d'un ou plusieurs jobs sans pour autant faire appel à  `scancel`. Ce qui fait que le job reste dans l'état `R` jusqu'à la fin de `--time`.
@@ -158,6 +196,6 @@ et sera affecté à cpus-per-task dans le profile:
 
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMjAxOTY2NzQ5LDg3NzY3MTg0NiwtMTkwOD
+eyJoaXN0b3J5IjpbMjM1MTQ1NzY4LDg3NzY3MTg0NiwtMTkwOD
 Y5MjYwMiwxOTc3NTEyNTEyXX0=
 -->
