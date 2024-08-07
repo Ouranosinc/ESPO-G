@@ -117,11 +117,10 @@ On peut utiliser les paramètres de snakemake comme {wildcards} et {rule} dans l
         resources: mem_mb=61989, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, qos=high_priority, mem=65GB, time=60
     
     Submitted job 31 with external jobid '32636148'.
+Et on peut voir l'etat des jobs avec la commande d slurm:
 
-
-
-
-
+    $ sq
+Lorsqu
 # Erreurs fréquentes 
 Lorsque `dask` utilise plus de `threads` que `slurm` , l'erreur ci dessous peut interrompre  l'exécution d'un ou plusieurs jobs sans pour autant faire appel à  `scancel`. Ce qui fait que le job reste dans l'état `R` jusqu'à la fin de `--time`.
 
@@ -196,6 +195,6 @@ et sera affecté à cpus-per-task dans le profile:
 
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMjM1MTQ1NzY4LDg3NzY3MTg0NiwtMTkwOD
-Y5MjYwMiwxOTc3NTEyNTEyXX0=
+eyJoaXN0b3J5IjpbLTkzMzc5MzM1Niw4Nzc2NzE4NDYsLTE5MD
+g2OTI2MDIsMTk3NzUxMjUxMl19
 -->
