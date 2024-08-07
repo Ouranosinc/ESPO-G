@@ -205,8 +205,8 @@ et sera affecté à cpus-per-task dans le profile:
 
 > Written with [StackEdit](https://stackedit.io/).
 
-Il faut demander aussi au mois autant de memoire à slurm via `sbatch --mem` que `memory_limit*n_workers` pour eviter les 
+Il faut demander aussi au mois autant de memoire à slurm via `sbatch --mem` que `memory_limit*n_workers` pour eviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE1OTgxMjUyNDAsLTIxNDAxMDM1OCw4Nz
-c2NzE4NDYsLTE5MDg2OTI2MDIsMTk3NzUxMjUxMl19
+eyJoaXN0b3J5IjpbMjYyNzI0NzgsLTIxNDAxMDM1OCw4Nzc2Nz
+E4NDYsLTE5MDg2OTI2MDIsMTk3NzUxMjUxMl19
 -->
