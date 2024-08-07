@@ -77,7 +77,7 @@ On peut utiliser les paramètres de snakemake comme {wildcards} et {rule} dans l
 
 > $ chmod +x status-sacct.sh
 
- et ajouter `cluster-generic-status-cmd: status-sacct.sh` dans *config.v8+.yaml* et l'option `--parsable` sous `sbatch`. Il faut aussi bien choisir la valeur de `max-status-checks-per-second` qui correspond au nombre total de fois qu'
+ et ajouter `cluster-generic-status-cmd: status-sacct.sh` dans *config.v8+.yaml* et l'option `--parsable` sous `sbatch`. Il faut aussi bien choisir la valeur de `max-status-checks-per-second` qui correspond au nombre de fois maximum qu'on peut surveiller l'état de tous les jobs et non par job0. C'est à dire que pour 500 jobs qui roulent en parallèle il 
  Les job s sont bien soumis au cluster si les informations de snakemake ecrites à la console sont suivies de `Submitted job 28 with external jobid '32636155'.`
  Exemple:
  
@@ -207,7 +207,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTY5MzEwMzY3NSw0OTM2OTU0MSwtMjE0MD
-EwMzU4LDg3NzY3MTg0NiwtMTkwODY5MjYwMiwxOTc3NTEyNTEy
-XX0=
+eyJoaXN0b3J5IjpbMzQ4MDkzNTQzLDQ5MzY5NTQxLC0yMTQwMT
+AzNTgsODc3NjcxODQ2LC0xOTA4NjkyNjAyLDE5Nzc1MTI1MTJd
+fQ==
 -->
