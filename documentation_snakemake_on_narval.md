@@ -78,7 +78,12 @@ On peut utiliser les paramètres de snakemake comme {wildcards} et {rule} dans l
 > $ chmod +x status-sacct.sh
 
  et ajouter `cluster-generic-status-cmd: status-sacct.sh` dans *config.v8+.yaml* et l'option `--parsable` sous `sbatch`.
- Les job s sont bien soumis au cluster si 
+ Les job s sont bien soumis au cluster si les informations de snakemake ecrites à la console sont suivies de `Submitted job 28 with external jobid '32636155'.`
+ Exemple:
+ 
+
+> Blockquote
+
 # Erreurs fréquentes 
 Lorsque `dask` utilise plus de `threads` que `slurm` , l'erreur ci dessous peut interrompre  l'exécution d'un ou plusieurs jobs sans pour autant faire appel à  `scancel`. Ce qui fait que le job reste dans l'état `R` jusqu'à la fin de `--time`.
 
@@ -153,6 +158,6 @@ et sera affecté à cpus-per-task dans le profile:
 
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbOTQ2NzgzMjc0LDg3NzY3MTg0NiwtMTkwOD
+eyJoaXN0b3J5IjpbMjAxOTY2NzQ5LDg3NzY3MTg0NiwtMTkwOD
 Y5MjYwMiwxOTc3NTEyNTEyXX0=
 -->
