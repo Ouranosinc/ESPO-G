@@ -127,9 +127,9 @@ Lorsqu'on annule une job slurm associée à une règle snakemake, la règle éch
 ou
     
 
-> $ scancel -u <user>
+    $ scancel -u <USERNAME>
 
-pour annuler tous les jobs soumis par l'utilisateur <USERNAME>
+pour annuler tous les jobs soumis par l'utilisateur USERNAME.
 
 # Erreurs fréquentes 
 Lorsque `dask` utilise plus de `threads` que `slurm` , l'erreur ci dessous peut interrompre  l'exécution d'un ou plusieurs jobs sans pour autant faire appel à  `scancel`. Ce qui fait que le job reste dans l'état `R` jusqu'à la fin de `--time`.
@@ -205,6 +205,6 @@ et sera affecté à cpus-per-task dans le profile:
 
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE4Njk3Mzg1MDUsODc3NjcxODQ2LC0xOT
-A4NjkyNjAyLDE5Nzc1MTI1MTJdfQ==
+eyJoaXN0b3J5IjpbLTIxNDAxMDM1OCw4Nzc2NzE4NDYsLTE5MD
+g2OTI2MDIsMTk3NzUxMjUxMl19
 -->
