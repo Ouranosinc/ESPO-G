@@ -14,8 +14,8 @@ rule extract:
         n_workers=2,
         threads_per_worker=5,
         memory_limit='25GB'
-   threads: 10
+   threads: 15
    resources:
-        mem_mb='50GB'
+        mem='55GB'
    script:
        f"{home}workflow/scripts/extract.py"

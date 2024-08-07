@@ -19,7 +19,9 @@ rule DIAGNOSTICS:
         n_workers=3,
         threads_per_worker=5,
         memory_limit='20GB'
-    threads: 15
+    threads: 20
+    resources:
+        mem='65GB'
     script:
         f"{home}workflow/scripts/DIAGNOSTICS.py"
 
@@ -30,7 +32,6 @@ rule concatenation_final:
         directory(Path(config['paths']['final'])/"FINAL/NAM/day_{sim_id}_NAM_1950-2100.zarr")
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
-    threads: 15
     script:
         f"{home}workflow/scripts/concatenation_final.py"
 
@@ -41,7 +42,6 @@ rule concatenation_diag:
         directory(Path(config['paths']['final'])/"diagnostics/NAM/{sim_id}/{level}_{sim_id}_NAM.zar")
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
-    threads: 15
     script:
         f"{home}workflow/scripts/concatenation_diag.py"
 
@@ -59,7 +59,9 @@ rule diag_improved_et_heatmap:
         n_workers=3,
         threads_per_worker=5,
         memory_limit='20GB'
-    threads: 15
+    threads: 20
+    resources:
+        mem='65GB'
     script:
         f"{home}workflow/scripts/diag_improved_et_heatmap.py"
 

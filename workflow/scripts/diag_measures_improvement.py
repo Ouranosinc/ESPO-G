@@ -4,7 +4,7 @@ import xarray as xr
 import logging
 import xscen as xs
 from xscen import (CONFIG,
-    measure_time)
+                   measure_time)
 
 xs.load_config("config/config.yaml")
 logger = logging.getLogger('xscen')
@@ -36,6 +36,3 @@ if __name__ == '__main__':
 
         # save and update
         xs.save_to_zarr(ip, str(snakemake.output[0]))
-
-    # move to final destination
-# large_move(exec_wdir, "", CONFIG['paths']['final_diag'], pcat)

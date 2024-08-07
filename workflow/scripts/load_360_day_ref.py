@@ -1,11 +1,9 @@
 from dask.distributed import Client, LocalCluster
 from dask import config as dskconf
-import atexit
 import xscen as xs
 import logging
 from xscen import CONFIG
 from xclim.core.calendar import convert_calendar
-import sys
 import xarray as xr
 
 xs.load_config("config/config.yaml")
@@ -21,6 +19,5 @@ if __name__ == '__main__':
 
     ds_ref = xr.open_zarr(snakemake.input[0])
     ds_ref360 = convert_calendar(ds_ref, "360_day", align_on="year")
-
 
     xs.save_to_zarr(ds_ref360, str(snakemake.output[0]))

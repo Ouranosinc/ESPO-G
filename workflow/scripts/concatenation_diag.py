@@ -28,7 +28,6 @@ if __name__ == '__main__':
         dsR.lon.encoding.pop('chunks', None)
         list_dsR.append(dsR)
 
-
     if 'rlat' in dsR:
         dsC = xr.concat(list_dsR, 'rlat')
     else:
@@ -36,7 +35,6 @@ if __name__ == '__main__':
 
     dsC.attrs['cat:domain'] = CONFIG['custom']['amno_region']['name']
     dsC.attrs.pop('intake_esm_dataset_key')
-
 
     dsC.attrs.pop('cat:path')
 

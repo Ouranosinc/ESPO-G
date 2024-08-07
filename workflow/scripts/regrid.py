@@ -35,13 +35,12 @@ if __name__ == '__main__':
         ds_grid=ds_target, weights_location=f"{CONFIG['paths']['final']}workdir/weights/{snakemake.wildcards.region}"
     )
 
-    #chunk time dim
+    # chunk time dim
     ds_regrid = ds_regrid.chunk(
         translate_time_chunk({'time': '4year'},
                              get_calendar(ds_regrid),
-                             ds_regrid.time.size
-                            )
-                                )
+                             ds_regrid.time.size)
+                               )
 
     # save
     xs.save_to_zarr(ds_regrid, str(snakemake.output[0]))

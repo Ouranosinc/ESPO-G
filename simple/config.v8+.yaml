@@ -1,3 +1,32 @@
+# Ce fichier configure les paramètres par défaut pour Snakemake
+#
+# executor: cluster-generic
+# cluster-generic-submit-cmd:
+#  mkdir -p slurm_logs/{rule} &&    # crée un repertoire pour sauvegarder les fichiers output de slurm
+#  sbatch    # donner les options sbatch de slurm
+#    --partition=c-frigon
+#    --account=ctb-frigon
+#    --constraint=genoa
+#    --cpus-per-task={threads}   # nombre de workers de dasks
+#    --qos={resources.qos}
+#    --mem={resources.mem}
+#    --job-name={rule}-{wildcards}    # renommer le nom de la job en fonction de du nom de la règle et des ses wildcards
+#    --output=slurm_logs/{rule}/{rule}-{wildcards}-%j.out    # renommer le nom du fichier output en fonction de du nom de la règle et des ses wildcards
+#    --time={resources.time}
+#    --parsable    # pour que sbatch renvoie uniquement le job ID sans aucun texte supplémentaire. Est obligatoire si on utilise cluster-generic-status-cmd
+# non-slurm profile defaults
+#cluster-generic-status-cmd: status-sacct.sh    # permet a snakemake de connaître le status des job slurm
+#restart-times: 3    # permet de ressoumettre les jobs qui ont échoués
+#max-jobs-per-second: 10     # Cela peut être utile pour éviter de surcharger le cluster avec trop de soumissions simultanées.
+#max-status-checks-per-second: 30    #  limiter le nombre total de vérification d'état de tous les jobs
+#local-cores: 1    #  pour les règle qui s'exécutent localement. Exemple: localrules: nom_de_la_regle
+#latency-wait: 60    # attendre un certain temps pour que les fichiers soient visibles en cas de MissingFileExeption error
+#jobs: 10     # le maximum de jobs qui peuvent être roulés en parallèle
+#keep-going: True    # pour continuer à exécuter les règles qui sont independantes d'une règle qui a échoué
+#rerun-incomplete: True
+#printshellcmds: True
+
+
 executor: cluster-generic
 cluster-generic-submit-cmd:
   mkdir -p slurm_logs/{rule} &&
@@ -7,22 +36,23 @@ cluster-generic-submit-cmd:
     --constraint=genoa
     --cpus-per-task={threads}
     --qos={resources.qos}
-    --mem={resources.mem_mb}
+    --mem={resources.mem}
     --job-name={rule}-{wildcards}
     --output=slurm_logs/{rule}/{rule}-{wildcards}-%j.out
     --time={resources.time}
     --parsable
 default-resources:
   - qos=high_priority
-  - mem_mb=100GB
+  - mem=80GB
   - time=30
 cluster-generic-status-cmd: status-sacct.sh
 restart-times: 3
 max-jobs-per-second: 10
-max-status-checks-per-second: 10
+max-status-checks-per-second: 30
 local-cores: 1
 latency-wait: 60
 jobs: 10
 keep-going: True
 rerun-incomplete: True
 printshellcmds: True
+

@@ -3,7 +3,6 @@ from dask import config as dskconf
 import xarray as xr
 import logging
 import xscen as xs
-from xclim.sdba import properties
 import xclim as xc
 from xscen import (CONFIG,adjust, measure_time, timeout)
 

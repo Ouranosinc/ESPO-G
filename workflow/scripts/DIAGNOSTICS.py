@@ -42,18 +42,15 @@ if __name__ == '__main__':
                     **step_dict['properties_and_measures']
                 )
 
-
                 xs.save_to_zarr(ds=prop, filename=str(snakemake.output.diag_sim_prop),
-                                    rechunk=CONFIG['custom']['rechunk'],
-                                    mode="o",
-                                    itervar=True
-                                    )
+                                rechunk=CONFIG['custom']['rechunk'],
+                                mode="o",
+                                itervar=True)
 
                 xs.save_to_zarr(ds=meas, filename=str(snakemake.output.diag_sim_meas),
-                                    rechunk=CONFIG['custom']['rechunk'],
-                                    mode="o",
-                                    itervar=True
-                                    )
+                                rechunk=CONFIG['custom']['rechunk'],
+                                mode="o",
+                                itervar=True)
             else:
                 ds_input = xr.open_zarr(snakemake.input.final).chunk({'time': -1})
 
@@ -66,17 +63,14 @@ if __name__ == '__main__':
                     dref_for_measure=dref_for_measure,
                     to_level_prop=f'diag-{step}-prop',
                     to_level_meas=f'diag-{step}-meas',
-                    **step_dict['properties_and_measures']
-                )
+                    **step_dict['properties_and_measures'])
 
                 xs.save_to_zarr(prop, str(snakemake.output.diag_scen_prop),
-                                    rechunk=CONFIG['custom']['rechunk'],
-                                    mode="o",
-                                    itervar=True
-                                    )
+                                rechunk=CONFIG['custom']['rechunk'],
+                                mode="o",
+                                itervar=True)
 
                 xs.save_to_zarr(meas, str(snakemake.output.diag_scen_meas),
-                                    rechunk=CONFIG['custom']['rechunk'],
-                                    mode="o",
-                                    itervar=True
-                                    )
+                                rechunk=CONFIG['custom']['rechunk'],
+                                mode="o",
+                                itervar=True)

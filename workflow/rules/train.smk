@@ -14,10 +14,11 @@ rule train:
        sim_id="([^_]*_){6}[^_]*"
    params:
        n_workers=4,
-       threads_per_worker=5,
-       memory_limit='25GB'
-   threads: 20
+       threads_per_worker=3,
+       memory_limit='15GB'
+   threads: 15
    resources:
-        time=60
+        time=60,
+        mem='65GB'
    script:
         f"{home}workflow/scripts/train.py"

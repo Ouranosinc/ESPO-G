@@ -1,7 +1,6 @@
 from dask.distributed import Client, LocalCluster
 from dask import config as dskconf
 from pathlib import Path
-import xarray as xr
 import shutil
 import logging
 import tempfile
@@ -9,7 +8,6 @@ import os
 import xscen as xs
 from xscen.io import rechunk
 from xscen import (CONFIG, measure_time, timeout)
-from utils import move_then_delete
 
 xs.load_config("config/config.yaml")
 logger = logging.getLogger('xscen')

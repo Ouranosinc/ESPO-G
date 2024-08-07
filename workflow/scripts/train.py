@@ -2,7 +2,6 @@ from dask.distributed import Client, LocalCluster
 from dask.distributed import performance_report
 from dask import config as dskconf
 import xarray as xr
-import shutil
 import logging
 from time import sleep
 import xscen as xs

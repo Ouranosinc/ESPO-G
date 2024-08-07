@@ -1,12 +1,9 @@
 from dask.distributed import Client, LocalCluster
-from dask_jobqueue import SLURMCluster
 from dask import config as dskconf
-import atexit
 import xscen as xs
 import logging
 from xscen import CONFIG
-import sys
-import os
+
 
 xs.load_config("config/config.yaml")
 logger = logging.getLogger('xscen')

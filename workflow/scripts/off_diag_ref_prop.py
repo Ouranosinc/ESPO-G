@@ -54,10 +54,7 @@ if __name__ == '__main__':
         )
         if prop:
             xs.save_to_zarr(prop, str(snakemake.output.prop),
-                itervar=True,
-                rechunk=CONFIG['custom']['rechunk']
-            )
+                            itervar=True,
+                            rechunk=CONFIG['custom']['rechunk'])
 
-    # shutil.rmtree(Path(CONFIG['paths']['exec_workdir'])/f'ref_{snakemake.wildcards.sim_id}_{snakemake.wildcards.dom_name}_dtr.zarr',
-    #               ignore_errors=True)
 

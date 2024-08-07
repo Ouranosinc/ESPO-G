@@ -1,11 +1,9 @@
 from dask.distributed import Client, LocalCluster
 from dask import config as dskconf
-import atexit
 import xscen as xs
 import logging
 from xscen import CONFIG
 from xclim.core.calendar import convert_calendar
-import sys
 import xarray as xr
 
 
@@ -20,7 +18,6 @@ if __name__ == '__main__':
                            memory_limit=snakemake.params.memory_limit, **daskkws)
     client = Client(cluster)
     ds_ref = xr.open_zarr(snakemake.input[0])
-    # ds_ref = pcat.search(source=ref_source, calendar='default', domain=region_name).to_dask()
 
     # convert calendars
     ds_refnl = convert_calendar(ds_ref, "noleap")

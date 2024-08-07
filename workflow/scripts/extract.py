@@ -40,13 +40,12 @@ if __name__ == '__main__':
         cat_sim_id = xs.search_data_catalogs(data_catalogs=CONFIG['paths']['cat_sim'],
                                              variables_and_freqs={'tasmax': 'D', 'tasmin': 'D', 'pr': 'D',
                                                                   'dtr': 'D'},
-        match_hist_and_fut = True,
-        allow_conversion = True,
-        allow_resampling = False,
-        restrict_members =
-        {'ordered': 1},
-        periods = ['1950', '2100'],
-        other_search_criteria = {'id': snakemake.wildcards.sim_id})
+                                             match_hist_and_fut=True,
+                                             allow_conversion=True,
+                                             allow_resampling=False,
+                                             restrict_members={'ordered': 1},
+                                             periods=['1950', '2100'],
+                                             other_search_criteria={'id': snakemake.wildcards.sim_id})
 
         # extract
         dc_id = cat_sim_id.popitem()[1]

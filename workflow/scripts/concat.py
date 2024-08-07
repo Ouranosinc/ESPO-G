@@ -1,8 +1,6 @@
 import xscen as xs
 import logging
 from xscen import CONFIG
-from xclim.core.calendar import convert_calendar
-import sys
 import xarray as xr
 
 xs.load_config("config/config.yaml")

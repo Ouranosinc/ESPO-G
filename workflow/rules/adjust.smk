@@ -17,7 +17,7 @@ rule adjust:
        memory_limit='12GB'
    threads: 20
    resources:
-        mem_mb='65GB'
+        mem='65GB'
    script:
         f"{home}workflow/scripts/adjust.py"
 

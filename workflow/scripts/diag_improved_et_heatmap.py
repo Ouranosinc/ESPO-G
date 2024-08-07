@@ -1,6 +1,5 @@
 from dask.distributed import Client, LocalCluster
 from dask import config as dskconf
-import atexit
 import xarray as xr
 import logging
 import xscen as xs
