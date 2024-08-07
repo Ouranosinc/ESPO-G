@@ -204,7 +204,9 @@ et sera affecté à cpus-per-task dans le profile:
     --cpus-per-task={threads}
 
 > Written with [StackEdit](https://stackedit.io/).
+
+Il faut demander aussi au mois autant de memoire à slurm via `sbatch --mem` que 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTIxNDAxMDM1OCw4Nzc2NzE4NDYsLTE5MD
-g2OTI2MDIsMTk3NzUxMjUxMl19
+eyJoaXN0b3J5IjpbLTQ5ODQ0OTQxMiwtMjE0MDEwMzU4LDg3Nz
+Y3MTg0NiwtMTkwODY5MjYwMiwxOTc3NTEyNTEyXX0=
 -->
