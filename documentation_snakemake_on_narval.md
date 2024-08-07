@@ -122,7 +122,12 @@ Et on peut voir l'etat des jobs avec la commande d slurm:
     $ sq
 Lorsqu'on annule une job slurm associée à une règle snakemake, la règle échoue aussi. Par contre, si c'est le workflow de snakemake qui est annuler avec `ctrl + c` les jobs slurm associés doivent être annulées séparement avec la commande:
 
-    $ scancel 
+    $ scancel <JOBID>
+    ou 
+    
+
+> $ scancel -u <USERNAME>
+pour annuler l
 
 # Erreurs fréquentes 
 Lorsque `dask` utilise plus de `threads` que `slurm` , l'erreur ci dessous peut interrompre  l'exécution d'un ou plusieurs jobs sans pour autant faire appel à  `scancel`. Ce qui fait que le job reste dans l'état `R` jusqu'à la fin de `--time`.
@@ -198,6 +203,6 @@ et sera affecté à cpus-per-task dans le profile:
 
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTExODI1Mzk3NjIsODc3NjcxODQ2LC0xOT
-A4NjkyNjAyLDE5Nzc1MTI1MTJdfQ==
+eyJoaXN0b3J5IjpbMTU4ODMxOTAwLDg3NzY3MTg0NiwtMTkwOD
+Y5MjYwMiwxOTc3NTEyNTEyXX0=
 -->
