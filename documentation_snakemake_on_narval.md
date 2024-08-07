@@ -120,7 +120,7 @@ On peut utiliser les paramètres de snakemake comme {wildcards} et {rule} dans l
 Et on peut voir l'etat des jobs avec la commande d slurm:
 
     $ sq
-Lorsqu
+Lorsqu'on annule une job slurm associée à une règle snakemake, la règle échoue aussi. Par contre, si c'est le workflow de snakemake qui est annuler avec `ctrl`
 # Erreurs fréquentes 
 Lorsque `dask` utilise plus de `threads` que `slurm` , l'erreur ci dessous peut interrompre  l'exécution d'un ou plusieurs jobs sans pour autant faire appel à  `scancel`. Ce qui fait que le job reste dans l'état `R` jusqu'à la fin de `--time`.
 
@@ -195,6 +195,6 @@ et sera affecté à cpus-per-task dans le profile:
 
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTkzMzc5MzM1Niw4Nzc2NzE4NDYsLTE5MD
+eyJoaXN0b3J5IjpbLTYxNTk0OTAwOSw4Nzc2NzE4NDYsLTE5MD
 g2OTI2MDIsMTk3NzUxMjUxMl19
 -->
