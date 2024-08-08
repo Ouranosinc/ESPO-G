@@ -81,7 +81,7 @@ Après la définition des options `sbatch`  et des valeurs par défaut de `sbatc
 > $ chmod +x status-sacct.sh
 
  et ajouter `cluster-generic-status-cmd: status-sacct.sh` dans *config.v8+.yaml* et l'option `--parsable` sous `sbatch`. 
-On a notamment  le fichier `status-sacct.sh`, ce script est souvent recommandé. Il y a le fichier `status-sacct.py`qui utilise également la commande `sacct` mais est écrit en Python. 	Il y a un fichier `status-scontrol.sh` qui utilise `scontrol` et est écrit en bash. La diffèrence entre `sacct` et `scontrol` est que ce dernier ne montre que les informations sur les jobs en cours d'exécution ou qui sont récemment terminés (5 min) alors que `sacct`  renvoie des informations de la base de données, et fonctionne donc pour tous les jobs. Le derniers fichier est `status-sacct-robust.sh`, est une version de `status-sacct.sh` qui roule plusieurs fois la commande `sacct` si ce dernier n'arrive pas retourner l'état de la jobs
+On a notamment  le fichier `status-sacct.sh`, ce script est souvent recommandé. Il y a le fichier `status-sacct.py`qui utilise également la commande `sacct` mais est écrit en Python. 	Il y a un fichier `status-scontrol.sh` qui utilise `scontrol` et est écrit en bash. La diffèrence entre `sacct` et `scontrol` est que ce dernier ne montre que les informations sur les jobs en cours d'exécution ou qui sont récemment terminés (5 min) alors que `sacct`  renvoie des informations de la base de données, et fonctionne donc pour tous les jobs. Le derniers fichier est `status-sacct-robust.sh`, est une version de `status-sacct.sh` qui roule plusieurs fois la commande `sacct` si ce dernier n'arrive pas retourner l'état de la jobs puis retourne une erreur.
 
 Il faut bien choisir la valeur de `max-status-checks-per-second` qui correspond au nombre de fois maximum qu'on peut voir l'état de tous les jobs et non par job. C'est à dire que si `--max-status-checks-per-second` est défini à 10, alors il n’y aura pas plus de 10 requêtes envoyées par seconde, donc pour 500 jobs, cela signifie qu’il faudra environ 50 secondes pour toutes les vérifier .
 Les jobs sont bien soumis au cluster si les informations de snakemake écrites à la console sont suivies de `Submitted job 28 with external jobid '32636155'.`
@@ -213,8 +213,8 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEyMTUzMTg1NiwxNjU1OTkyODc3LC00MT
-M0ODcyMjksLTEzMzU1NzY1NDgsLTEzMTE3MzA0MDYsNjE4MDAw
-MDMsLTk4OTQ0MDQ3OSw0OTM2OTU0MSwtMjE0MDEwMzU4LDg3Nz
-Y3MTg0NiwtMTkwODY5MjYwMiwxOTc3NTEyNTEyXX0=
+eyJoaXN0b3J5IjpbLTEyNTcyMjAyMjQsMTY1NTk5Mjg3NywtND
+EzNDg3MjI5LC0xMzM1NTc2NTQ4LC0xMzExNzMwNDA2LDYxODAw
+MDAzLC05ODk0NDA0NzksNDkzNjk1NDEsLTIxNDAxMDM1OCw4Nz
+c2NzE4NDYsLTE5MDg2OTI2MDIsMTk3NzUxMjUxMl19
 -->
