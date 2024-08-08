@@ -81,7 +81,7 @@ Après la définition des options `sbatch`  et des valeurs par défaut de `sbatc
 > $ chmod +x status-sacct.sh
 
  et ajouter `cluster-generic-status-cmd: status-sacct.sh` dans *config.v8+.yaml* et l'option `--parsable` sous `sbatch`. 
-On a notamment  le fichier `status-sacct.sh`, ce script est souvent recommandé. Il y a le fichier `status-sacct.py`qui utilise également la commande `sacct` mais est écrit en Python. 	Il y a un fichier `status-scontrol.sh` qui utilise `scontrol` et est écrit en bash. La diffèrence entre `sacct` et `scontrol` est que ce dernier ne montre que les informations sur les jobs en cours d'exécution ou qui sont récemment terminés (5 min) alors que `sacct`  renvoie des informations de la base de données correspondante, et fonctionne donc pour tous les jobs. Le derniers fichier est `status-sacct-robust.sh`
+On a notamment  le fichier `status-sacct.sh`, ce script est souvent recommandé. Il y a le fichier `status-sacct.py`qui utilise également la commande `sacct` mais est écrit en Python. 	Il y a un fichier `status-scontrol.sh` qui utilise `scontrol` et est écrit en bash. La diffèrence entre `sacct` et `scontrol` est que ce dernier ne montre que les informations sur les jobs en cours d'exécution ou qui sont récemment terminés (5 min) alors que `sacct`  renvoie des informations de la base de données, et fonctionne donc pour tous les jobs. Le derniers fichier est `status-sacct-robust.sh`
 
 Il faut bien choisir la valeur de `max-status-checks-per-second` qui correspond au nombre de fois maximum qu'on peut voir l'état de tous les jobs et non par job. C'est à dire que si `--max-status-checks-per-second` est défini à 10, alors il n’y aura pas plus de 10 requêtes envoyées par seconde, donc pour 500 jobs, cela signifie qu’il faudra environ 50 secondes pour toutes les vérifier .
 Les jobs sont bien soumis au cluster si les informations de snakemake écrites à la console sont suivies de `Submitted job 28 with external jobid '32636155'.`
@@ -213,7 +213,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTY5NjI2NjYxMiwtNDEzNDg3MjI5LC0xMz
+eyJoaXN0b3J5IjpbMTY1NTk5Mjg3NywtNDEzNDg3MjI5LC0xMz
 M1NTc2NTQ4LC0xMzExNzMwNDA2LDYxODAwMDAzLC05ODk0NDA0
 NzksNDkzNjk1NDEsLTIxNDAxMDM1OCw4Nzc2NzE4NDYsLTE5MD
 g2OTI2MDIsMTk3NzUxMjUxMl19
