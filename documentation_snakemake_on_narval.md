@@ -48,7 +48,7 @@ Dans le fichier *config.v8+.yaml* se trouvent les paramètres que l'on veut pass
     printshellcmds: True  
     scheduler: greedy
 
-On peut utiliser les paramètres de snakemake comme {wildcards} et {rule} dans les options `sbatch` de slurm. Les wildcards ne peuvent pas contenir  "/" si vous voulez les utiliser dans le nom des fichiers lod de slurm. Cependant vous pouvez les utiliser pour 
+On peut utiliser les paramètres de snakemake comme {wildcards} et {rule} dans les options `sbatch` de slurm. Les wildcards ne peuvent pas contenir  "/" si vous voulez les utiliser dans le nom des fichiers lod de slurm. Cependant vous pouvez les utiliser dans --job-name.
 Pour la règle `adjust` suivante:
 
     rule adjust:  
@@ -74,7 +74,9 @@ Pour la règle `adjust` suivante:
  2. adjust-region=north_nodup,sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global,var=dtr-32072382.out
  3. adjust-region=middle_nodup,sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global,var=dtr-32072381.out
  
-`--cpus-per-task` prendra comme valeur 15, `--mem` sera égal à 60000 par defaut puis que `mem` n'est pas defini dans la section `resources` de de la règle. Pareil pour `--qos`, il prendra la valeur par défaut définie dans le profile soit `high_priority`. Après la définition des options `sbatch`  et des valeurs par défaut de `sbatch`, il y a le paramètre `cluster-generic-status-cmd: status-sacct.sh` qui sera passé à la commande snakemake et servira  à vérifier le statut des job soumis à slurm. Ce parametre est nécessaire surtout pour détecter les jobs qui échouent à cause du temps limite `--time`. Snakemake dépend par défaut de `cluster-status.py`, fournie par le profile slurm officiel de snakemake, pour connaître l'état des jobs de slurm. Cependant, certains jobs peuvent échouer silencieusement sans que snakemake ne s'en rende compte se qui fait que son exécution peut rester bloquée indéfinement. C'est pourquoi il y a d'autres alternatives fournies par snakemake pour gérer ce problème. Les fichiers dans [ extras/](https://github.com/jdblischak/smk-simple-slurm/tree/main/extras) permettent de gérer le statut des jobs de différente manière, il faut télécharger celui qui vous convient dans le même répertoire que *config.v8+.yaml*, le rendre exécutable avec la commande `
+`--cpus-per-task` prendra comme valeur 15, `--mem` sera égal à 60000 par defaut puis que `mem` n'est pas defini dans la section `resources` de de la règle. Pareil pour `--qos`, il prendra la valeur par défaut définie dans le profile soit `high_priority`. 
+
+Après la définition des options `sbatch`  et des valeurs par défaut de `sbatch`, il y a le paramètre `cluster-generic-status-cmd: status-sacct.sh` qui sera passé à la commande snakemake et servira  à vérifier le statut des job soumis à slurm. Ce parametre est nécessaire surtout pour détecter les jobs qui échouent à cause du temps limite `--time`. Snakemake dépend par défaut de `cluster-status.py`, fournie par le profile slurm officiel de snakemake, pour connaître l'état des jobs de slurm. Cependant, certains jobs peuvent échouer silencieusement sans que snakemake ne s'en rende compte se qui fait que son exécution peut rester bloquée indéfinement. C'est pourquoi il y a d'autres alternatives fournies par snakemake pour gérer ce problème. Les fichiers dans [ extras/](https://github.com/jdblischak/smk-simple-slurm/tree/main/extras) permettent de gérer le statut des jobs de différente manière, il faut télécharger celui qui vous convient dans le même répertoire que *config.v8+.yaml*, le rendre exécutable avec la commande `
 
 > $ chmod +x status-sacct.sh
 
@@ -208,7 +210,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEwNDY2NTAxNTksLTEzMTE3MzA0MDYsNj
+eyJoaXN0b3J5IjpbLTEyMzczNjM2MTQsLTEzMTE3MzA0MDYsNj
 E4MDAwMDMsLTk4OTQ0MDQ3OSw0OTM2OTU0MSwtMjE0MDEwMzU4
 LDg3NzY3MTg0NiwtMTkwODY5MjYwMiwxOTc3NTEyNTEyXX0=
 -->
