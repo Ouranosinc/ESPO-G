@@ -48,7 +48,8 @@ Dans le fichier *config.v8+.yaml* se trouvent les paramètres que l'on veut pass
     printshellcmds: True  
     scheduler: greedy
 
-On peut utiliser les paramètres de snakemake comme {wildcards} et {rule} dans les options `sbatch` de slurm. Pour la règle `adjust` suivante:
+On peut utiliser les paramètres de snakemake comme {wildcards} et {rule} dans les options `sbatch` de slurm. Les wildcards ne peuvent pas contenir  "/"
+Pour la règle `adjust` suivante:
 
     rule adjust:  
        input:  
@@ -207,7 +208,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEzMTE3MzA0MDYsNjE4MDAwMDMsLTk4OT
-Q0MDQ3OSw0OTM2OTU0MSwtMjE0MDEwMzU4LDg3NzY3MTg0Niwt
-MTkwODY5MjYwMiwxOTc3NTEyNTEyXX0=
+eyJoaXN0b3J5IjpbNjE4NzgzMDI2LC0xMzExNzMwNDA2LDYxOD
+AwMDAzLC05ODk0NDA0NzksNDkzNjk1NDEsLTIxNDAxMDM1OCw4
+Nzc2NzE4NDYsLTE5MDg2OTI2MDIsMTk3NzUxMjUxMl19
 -->
