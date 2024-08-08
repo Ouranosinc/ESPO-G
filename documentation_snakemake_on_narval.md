@@ -1,3 +1,6 @@
+# Snakemake
+# Création d'environment
+
 
 # Le profile de snakemake
 Pour éxecuter un workflow snakemake dans un cluster, on utilise la commande 
@@ -140,6 +143,8 @@ Pour annuler tous les jobs soumis par l'utilisateur USERNAME.
 Pour annuler automatiquement tous les travaux en cours d’exécution lorsque vous annulez le processus principal de Snakemake (c’est-à-dire le comportement par défaut de --drmaa), vous pouvez spécifier `cluster-generic-cancel-cmd : scancel` dans *config.v8+.yaml* . De la même manière que pour --cluster-generic-status-cmd, vous devez inclure l’indicateur --parsable à la commande sbatch passée à --cluster-generic-cancel-cmd afin de transmettre l’ID de tâche à scancel.
 **Remarque :** N’appuyez qu’une seule fois sur Ctrl-C. Si vous appuyez trop rapidement une deuxième fois, Snakemake sera tué avant qu’il ne puisse terminer d’annuler tous les travaux avec scancel.
 
+# Arborescence des fichiers
+
 # Erreurs fréquentes 
 Lorsque `dask` utilise plus de `threads` que `slurm` , l'erreur ci dessous peut interrompre  l'exécution d'un ou plusieurs jobs sans pour autant faire appel à  `scancel`. Ce qui fait que le job reste dans l'état `R` jusqu'à la fin de `--time`.
 
@@ -216,9 +221,9 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbOTMyNTk3Nzg0LDIxNDU1ODU4MjgsLTQwNz
-UzNDY1OCwtMTI1NzIyMDIyNCwxNjU1OTkyODc3LC00MTM0ODcy
-MjksLTEzMzU1NzY1NDgsLTEzMTE3MzA0MDYsNjE4MDAwMDMsLT
-k4OTQ0MDQ3OSw0OTM2OTU0MSwtMjE0MDEwMzU4LDg3NzY3MTg0
-NiwtMTkwODY5MjYwMiwxOTc3NTEyNTEyXX0=
+eyJoaXN0b3J5IjpbMTQ1OTY4ODgyNSwyMTQ1NTg1ODI4LC00MD
+c1MzQ2NTgsLTEyNTcyMjAyMjQsMTY1NTk5Mjg3NywtNDEzNDg3
+MjI5LC0xMzM1NTc2NTQ4LC0xMzExNzMwNDA2LDYxODAwMDAzLC
+05ODk0NDA0NzksNDkzNjk1NDEsLTIxNDAxMDM1OCw4Nzc2NzE4
+NDYsLTE5MDg2OTI2MDIsMTk3NzUxMjUxMl19
 -->
