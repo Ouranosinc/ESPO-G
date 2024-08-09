@@ -1,20 +1,25 @@
 # Snakemake
 Snakemake est un outil inspiré de GNU Make, mais conçu pour être plus flexible et puissant. Il utilise une syntaxe basée sur Python pour définir des règles qui spécifient comment générer des fichiers de sortie à partir de fichiers d’entrée. Pour consulter la documentation officielle vous pouvez cliquer sur ce [lien](https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html).
 Les workflows sont définis en termes de règles. Chaque règle spécifie comment créer un fichier de sortie à partir d’un ou plusieurs fichiers d’entrée. Voici un exemple de règle :
-'''
-rule diag_measures_improvement:
-    input:
-        sim=Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-sim-meas_{sim_id}_{dom_name}.zarr",
-        scen=Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-scen-meas_{sim_id}_{dom_name}.zarr"
-    output:
-        directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_{sim_id}_{dom_name}.zarr")
-    log:
-        "logs/diag_measures_improvement_sim_{sim_id}_{dom_name}"
-    wildcard_constraints:
-        sim_id = "([^_]*_){6}[^_]*"
-    script:
-        f"{home}workflow/scripts/diag_measures_improvement.py"
-'''
+
+    rule adjust:  
+       input:  
+            train = Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_{var}_training.zarr",  
+            rechunk = Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_regchunked.zarr",  
+       output:  
+           directory(Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_{var}_adjusted.zarr")  
+       wildcard_constraints:  
+           region = r"[a-zA-Z]+_[a-zA-Z]+",  
+           sim_id="([^_]*_){6}[^_]*"  
+      log:  
+            "logs/adjust_{sim_id}_{region}_{var}"  
+      params:  
+           n_workers=5,  
+           threads=3  
+      threads: 15  
+      script:  
+            f"{home}workflow/scripts/adjust.py"
+
 # Création d'environment
 
 
@@ -237,10 +242,10 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE4NTg2NzQ5MzgsMTQ1OTY4ODgyNSwyMT
-Q1NTg1ODI4LC00MDc1MzQ2NTgsLTEyNTcyMjAyMjQsMTY1NTk5
-Mjg3NywtNDEzNDg3MjI5LC0xMzM1NTc2NTQ4LC0xMzExNzMwND
-A2LDYxODAwMDAzLC05ODk0NDA0NzksNDkzNjk1NDEsLTIxNDAx
-MDM1OCw4Nzc2NzE4NDYsLTE5MDg2OTI2MDIsMTk3NzUxMjUxMl
-19
+eyJoaXN0b3J5IjpbMTQ4MDA3MDMwMSwxNDU5Njg4ODI1LDIxND
+U1ODU4MjgsLTQwNzUzNDY1OCwtMTI1NzIyMDIyNCwxNjU1OTky
+ODc3LC00MTM0ODcyMjksLTEzMzU1NzY1NDgsLTEzMTE3MzA0MD
+YsNjE4MDAwMDMsLTk4OTQ0MDQ3OSw0OTM2OTU0MSwtMjE0MDEw
+MzU4LDg3NzY3MTg0NiwtMTkwODY5MjYwMiwxOTc3NTEyNTEyXX
+0=
 -->
