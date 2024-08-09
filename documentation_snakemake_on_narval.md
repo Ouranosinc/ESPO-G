@@ -2,24 +2,22 @@
 Snakemake est un outil inspiré de GNU Make, mais conçu pour être plus flexible et puissant. Il utilise une syntaxe basée sur Python pour définir des règles qui spécifient comment générer des fichiers de sortie à partir de fichiers d’entrée. Pour consulter la documentation officielle vous pouvez cliquer sur ce [lien](https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html).
 Les workflows sont définis en termes de règles. Chaque règle spécifie comment créer un fichier de sortie à partir d’un ou plusieurs fichiers d’entrée. Voici un exemple de règle :
 
-    rule adjust:  
-       input:  
-            train = Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_{var}_training.zarr",  
-            rechunk = Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_regchunked.zarr",  
-       output:  
-           directory(Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_{var}_adjusted.zarr")  
-       wildcard_constraints:  
-           region = r"[a-zA-Z]+_[a-zA-Z]+",  
-           sim_id="([^_]*_){6}[^_]*"  
-      log:  
-            "logs/adjust_{sim_id}_{region}_{var}"  
+        rule reference_DEFAULT:  
+        output:  
+            directory(Path(config['paths']['final'])/"reference/ref_{region}_default.zarr")  
+        wildcard_constraints:  
+            region=r"[a-zA-Z]+_[a-zA-Z]+"  
       params:  
-           n_workers=5,  
-           threads=3  
+            n_workers=2,  
+            threads_per_worker=5,  
+            memory_limit='25GB'  
+      resources:  
+            mem='55GB'  
       threads: 15  
       script:  
-            f"{home}workflow/scripts/adjust.py"
-Une règle snakemake doit avoir un output c’est-à-dire le fichier qu’on veut créer. La manière dont le fichier et son contenu sont générés est spécifié dans le script, run ou shell. S’il s’agit d’un script, le chemin vers le fichier du script est donné comme dans l'exemple précédent. Dan le script on peut utiliser les paramèetres de snakemake par exemple on utilise `snakemake.input[0])`si la règle ne possède qu’un seul fichier input ou bien  `xr.open_zarr(snakemake.input)`  si elle en possède plusieurs. On peut aussi avoir plusiueurs fichiers input, qu’on peut appeler chacun par leur nom, par exemple  `xr.open_zarr(snakemake.input.south)`si on a:
+            f"{home}workflow/scripts/load_default_ref.py"
+
+Une règle snakemake doit avoir un output c’est-à-dire le fichier qu’on veut créer. La manière dont le fichier et son contenu sont générés est spécifié dans le script, run ou shell. S’il s’agit d’un script, le chemin vers le fichier du script est donné comme dans l'exemple précédent. Dan le script on peut utiliser les paramèetres de snakemake par exemple on utilise `snakemake.input)`si la règle ne possède qu’un seul fichier input ou bien  `xr.open_zarr(snakemake.input[0])`  si elle en possède plusieurs. On peut aussi avoir plusieurs fichiers input, qu’on peut appeler chacun par leur nom, par exemple  `xr.open_zarr(snakemake.input.south)`si on a:
 
 ```
 input:  
@@ -256,10 +254,10 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEyNjQ0MDY3NTAsLTE4MTExNzMyMTksMT
-Q1OTY4ODgyNSwyMTQ1NTg1ODI4LC00MDc1MzQ2NTgsLTEyNTcy
-MjAyMjQsMTY1NTk5Mjg3NywtNDEzNDg3MjI5LC0xMzM1NTc2NT
-Q4LC0xMzExNzMwNDA2LDYxODAwMDAzLC05ODk0NDA0NzksNDkz
-Njk1NDEsLTIxNDAxMDM1OCw4Nzc2NzE4NDYsLTE5MDg2OTI2MD
-IsMTk3NzUxMjUxMl19
+eyJoaXN0b3J5IjpbMzkxNzQ4NDUwLC0xODExMTczMjE5LDE0NT
+k2ODg4MjUsMjE0NTU4NTgyOCwtNDA3NTM0NjU4LC0xMjU3MjIw
+MjI0LDE2NTU5OTI4NzcsLTQxMzQ4NzIyOSwtMTMzNTU3NjU0OC
+wtMTMxMTczMDQwNiw2MTgwMDAwMywtOTg5NDQwNDc5LDQ5MzY5
+NTQxLC0yMTQwMTAzNTgsODc3NjcxODQ2LC0xOTA4NjkyNjAyLD
+E5Nzc1MTI1MTJdfQ==
 -->
