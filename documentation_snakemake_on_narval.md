@@ -19,7 +19,7 @@ Les workflows sont définis en termes de règles. Chaque règle spécifie commen
       threads: 15  
       script:  
             f"{home}workflow/scripts/adjust.py"
-
+Une règle snakemake doit avoir un output c’est-à-dire le fichier qu’on veut créer. La manière dont le fichier et son contenu sont générés est spécifié dans le script, run ou shell. S’il s’agit d’un script, le chemin vers le fichier du script est donné. La section input n’est pas obligatoire c’est le cas dans la règle `reference_DEFAULT` dans `Makeref.smk`
 
 
 
@@ -248,10 +248,10 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE4MTExNzMyMTksMTQ1OTY4ODgyNSwyMT
-Q1NTg1ODI4LC00MDc1MzQ2NTgsLTEyNTcyMjAyMjQsMTY1NTk5
-Mjg3NywtNDEzNDg3MjI5LC0xMzM1NTc2NTQ4LC0xMzExNzMwND
-A2LDYxODAwMDAzLC05ODk0NDA0NzksNDkzNjk1NDEsLTIxNDAx
-MDM1OCw4Nzc2NzE4NDYsLTE5MDg2OTI2MDIsMTk3NzUxMjUxMl
-19
+eyJoaXN0b3J5IjpbNDYyMTY5MTY5LC0xODExMTczMjE5LDE0NT
+k2ODg4MjUsMjE0NTU4NTgyOCwtNDA3NTM0NjU4LC0xMjU3MjIw
+MjI0LDE2NTU5OTI4NzcsLTQxMzQ4NzIyOSwtMTMzNTU3NjU0OC
+wtMTMxMTczMDQwNiw2MTgwMDAwMywtOTg5NDQwNDc5LDQ5MzY5
+NTQxLC0yMTQwMTAzNTgsODc3NjcxODQ2LC0xOTA4NjkyNjAyLD
+E5Nzc1MTI1MTJdfQ==
 -->
