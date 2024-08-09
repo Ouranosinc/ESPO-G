@@ -17,7 +17,7 @@ Les workflows sont définis en termes de règles. Chaque règle spécifie commen
       script:  
             f"{home}workflow/scripts/load_default_ref.py"
 
-Une règle snakemake doit avoir un output c’est-à-dire le fichier qu’on veut créer. La manière dont le fichier et son contenu sont générés est spécifié dans le script, run ou shell. S’il s’agit d’un script, le chemin vers le fichier du script est donné comme dans l'exemple précédent. Dan le script on peut utiliser les paramèetres de snakemake par exemple on utilise `snakemake.input)`si la règle ne possède qu’un seul fichier input ou bien  `xr.open_zarr(snakemake.input[0])`  si elle en possède plusieurs. On peut aussi appeler chacun chaque fichier input par un nom, par exemple  `xr.open_zarr(snakemake.input.south)`si on a:
+Une règle snakemake doit avoir un output c’est-à-dire le fichier qu’on veut créer. La manière dont le fichier et son contenu sont générés est spécifié dans le script, run ou shell. S’il s’agit d’un script, le chemin vers le fichier du script est donné comme dans l'exemple précédent. Dan le script on peut utiliser les paramèetres de snakemake par exemple on utilise `snakemake.input)`si la règle ne possède qu’un seul fichier input ou bien  `xr.open_zarr(snakemake.input[0])`  si elle en possède plusieurs. On peut aussi appeler chaque fichier input par un nom, par exemple  `xr.open_zarr(snakemake.input.south)`si on a:
 
 ```
 input:  
@@ -254,10 +254,10 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE0Mjk1NDA2MDIsLTE4MTExNzMyMTksMT
-Q1OTY4ODgyNSwyMTQ1NTg1ODI4LC00MDc1MzQ2NTgsLTEyNTcy
-MjAyMjQsMTY1NTk5Mjg3NywtNDEzNDg3MjI5LC0xMzM1NTc2NT
-Q4LC0xMzExNzMwNDA2LDYxODAwMDAzLC05ODk0NDA0NzksNDkz
-Njk1NDEsLTIxNDAxMDM1OCw4Nzc2NzE4NDYsLTE5MDg2OTI2MD
-IsMTk3NzUxMjUxMl19
+eyJoaXN0b3J5IjpbNjQ0NzA0NTUwLC0xNDI5NTQwNjAyLC0xOD
+ExMTczMjE5LDE0NTk2ODg4MjUsMjE0NTU4NTgyOCwtNDA3NTM0
+NjU4LC0xMjU3MjIwMjI0LDE2NTU5OTI4NzcsLTQxMzQ4NzIyOS
+wtMTMzNTU3NjU0OCwtMTMxMTczMDQwNiw2MTgwMDAwMywtOTg5
+NDQwNDc5LDQ5MzY5NTQxLC0yMTQwMTAzNTgsODc3NjcxODQ2LC
+0xOTA4NjkyNjAyLDE5Nzc1MTI1MTJdfQ==
 -->
