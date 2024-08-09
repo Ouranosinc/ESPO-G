@@ -19,7 +19,7 @@ Les workflows sont définis en termes de règles. Chaque règle spécifie commen
       script:  
             f"{home}workflow/scripts/load_default_ref.py"
 
-Une règle snakemake doit avoir un output c’est-à-dire le fichier qu’on veut créer. La manière dont le fichier et son contenu sont générés est spécifié dans le script, run ou shell. S’il s’agit d’un script, le chemin vers le fichier du script est donné comme dans l'exemple précédent. Dans le script on peut utiliser les paramèetres de snakemake par exemple on utilise `snakemake.input)`si la règle ne possède qu’un seul fichier input ou bien  `xr.open_zarr(snakemake.input[0])`  si elle possède une liste de fichiers input. On peut aussi appeler chaque fichier input par un nom, par exemple  `xr.open_zarr(snakemake.input.south)`si on a:
+Une règle snakemake doit avoir un output c’est-à-dire le fichier qu’on veut créer. La manière dont le fichier et son contenu sont générés est spécifié dans le script, run ou shell. S’il s’agit d’un script, le chemin vers le fichier du script est donné comme dans l'exemple précédent. Dans le script on peut utiliser les paramèetres de snakemake par exemple on utilise `snakemake.input`si la règle ne possède qu’un seul fichier input ou bien  `snakemake.input[0]`  si elle possède une liste de fichiers input. On peut aussi appeler chaque fichier input par un nom, par exemple  `snakemake.input.south`si on a:
 
 ```
 input:  
@@ -27,7 +27,7 @@ input:
     north=Path(config['paths']['final'])/"reference/ref_ north_nodup_default.zarr"  
     south=Path(config['paths']['final'])/"reference/ref_south_nodup_default.zarr"
 ```
-La section input n’est pas obligatoire c’est le cas dans la règle `reference_DEFAULT` dans `Makeref.smk`. Dans la règle ci-haut j'utilise la section `params` pour passer des valeurs aux paramètres de dask.distributed.LocalCluster et qu'elles soient en adéquation avec les ressources demandées à slurm. Donc le client sera appelé de la façon suivante:
+La section input n’est pas obligatoire c’est le cas dans la règle `reference_DEFAULT` dans `Makeref.smk`. Dans la règle ci-haut j'utilise la section `params` pour passer des valeurs aux paramètres de dask.distributed.LocalCluster et qu'elles soient en adéquation avec les ressources demandées à slurm. Donc le client sera appelé de la façon suivante dans le script :
 
     cluster = LocalCluster(n_workers=snakemake.resources.n_workers, threads_per_worker=snakemake.params.threads_per_worker,  
                            memory_limit=snakemake.params.memory_limit, **daskkws)  
@@ -260,7 +260,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTk1MTI2NjcyNCw4MTYxODAyNSwtMTU3OT
+eyJoaXN0b3J5IjpbMTQyMzQ1OTY5MSw4MTYxODAyNSwtMTU3OT
 I2MDUyNCwtMTQyOTU0MDYwMiwtMTgxMTE3MzIxOSwxNDU5Njg4
 ODI1LDIxNDU1ODU4MjgsLTQwNzUzNDY1OCwtMTI1NzIyMDIyNC
 wxNjU1OTkyODc3LC00MTM0ODcyMjksLTEzMzU1NzY1NDgsLTEz
