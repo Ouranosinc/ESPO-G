@@ -19,7 +19,7 @@ Les workflows sont définis en termes de règles. Chaque règle spécifie commen
       script:  
             f"{home}workflow/scripts/load_default_ref.py"
 
-Une règle snakemake doit avoir un output c’est-à-dire le fichier qu’on veut créer. La manière dont le fichier et son contenu sont générés est spécifié dans le script, run ou shell. S’il s’agit d’un script, le chemin vers le fichier du script est donné comme dans l'exemple précédent. Dan le script on peut utiliser les paramèetres de snakemake par exemple on utilise `snakemake.input)`si la règle ne possède qu’un seul fichier input ou bien  `xr.open_zarr(snakemake.input[0])`  si elle possède une liste de fichiers input. L fonction `expand()` On peut aussi appeler chaque fichier input par un nom, par exemple  `xr.open_zarr(snakemake.input.south)`si on a:
+Une règle snakemake doit avoir un output c’est-à-dire le fichier qu’on veut créer. La manière dont le fichier et son contenu sont générés est spécifié dans le script, run ou shell. S’il s’agit d’un script, le chemin vers le fichier du script est donné comme dans l'exemple précédent. Dan le script on peut utiliser les paramèetres de snakemake par exemple on utilise `snakemake.input)`si la règle ne possède qu’un seul fichier input ou bien  `xr.open_zarr(snakemake.input[0])`  si elle possède une liste de fichiers input. On peut aussi appeler chaque fichier input par un nom, par exemple  `xr.open_zarr(snakemake.input.south)`si on a:
 
 ```
 input:  
@@ -260,11 +260,10 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTg2OTEzMDkyMiwtMTU3OTI2MDUyNCwtMT
-QyOTU0MDYwMiwtMTgxMTE3MzIxOSwxNDU5Njg4ODI1LDIxNDU1
-ODU4MjgsLTQwNzUzNDY1OCwtMTI1NzIyMDIyNCwxNjU1OTkyOD
-c3LC00MTM0ODcyMjksLTEzMzU1NzY1NDgsLTEzMTE3MzA0MDYs
-NjE4MDAwMDMsLTk4OTQ0MDQ3OSw0OTM2OTU0MSwtMjE0MDEwMz
-U4LDg3NzY3MTg0NiwtMTkwODY5MjYwMiwxOTc3NTEyNTEyXX0=
-
+eyJoaXN0b3J5IjpbODE2MTgwMjUsLTE1NzkyNjA1MjQsLTE0Mj
+k1NDA2MDIsLTE4MTExNzMyMTksMTQ1OTY4ODgyNSwyMTQ1NTg1
+ODI4LC00MDc1MzQ2NTgsLTEyNTcyMjAyMjQsMTY1NTk5Mjg3Ny
+wtNDEzNDg3MjI5LC0xMzM1NTc2NTQ4LC0xMzExNzMwNDA2LDYx
+ODAwMDAzLC05ODk0NDA0NzksNDkzNjk1NDEsLTIxNDAxMDM1OC
+w4Nzc2NzE4NDYsLTE5MDg2OTI2MDIsMTk3NzUxMjUxMl19
 -->
