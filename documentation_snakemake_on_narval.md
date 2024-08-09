@@ -1,5 +1,5 @@
 # Snakemake
-Snakemake est un outil inspiré de GNU Make, mais conçu pour être plus flexible et puissant. Il utilise une syntaxe basée sur Python pour définir des règles qui spécifient comment générer des fichiers de sortie à partir de fichiers [d’entrée]. (https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html)
+Snakemake est un outil inspiré de GNU Make, mais conçu pour être plus flexible et puissant. Il utilise une syntaxe basée sur Python pour définir des règles qui spécifient comment générer des fichiers de sortie à partir de fichiers d’entrée. Pour consulter la documentation officielle vous pouvez cliquer sur ce [lien](https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html)
 # Création d'environment
 
 
@@ -222,10 +222,10 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbODAyNTE1Njk5LDE0NTk2ODg4MjUsMjE0NT
-U4NTgyOCwtNDA3NTM0NjU4LC0xMjU3MjIwMjI0LDE2NTU5OTI4
-NzcsLTQxMzQ4NzIyOSwtMTMzNTU3NjU0OCwtMTMxMTczMDQwNi
-w2MTgwMDAwMywtOTg5NDQwNDc5LDQ5MzY5NTQxLC0yMTQwMTAz
-NTgsODc3NjcxODQ2LC0xOTA4NjkyNjAyLDE5Nzc1MTI1MTJdfQ
-==
+eyJoaXN0b3J5IjpbLTE0Njk3OTE1MTQsMTQ1OTY4ODgyNSwyMT
+Q1NTg1ODI4LC00MDc1MzQ2NTgsLTEyNTcyMjAyMjQsMTY1NTk5
+Mjg3NywtNDEzNDg3MjI5LC0xMzM1NTc2NTQ4LC0xMzExNzMwND
+A2LDYxODAwMDAzLC05ODk0NDA0NzksNDkzNjk1NDEsLTIxNDAx
+MDM1OCw4Nzc2NzE4NDYsLTE5MDg2OTI2MDIsMTk3NzUxMjUxMl
+19
 -->
