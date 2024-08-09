@@ -25,7 +25,7 @@ input:
     north=Path(config['paths']['final'])/"reference/ref_ north_nodup_default.zarr"  
     south=Path(config['paths']['final'])/"reference/ref_south_nodup_default.zarr"
 ```
-La section input n’est pas obligatoire c’est le cas dans la règle `reference_DEFAULT` dans `Makeref.smk`. Dans la règle ci haut j'utilise la section `params` pour passer des valeurs aux paramètres de 
+La section input n’est pas obligatoire c’est le cas dans la règle `reference_DEFAULT` dans `Makeref.smk`. Dans la règle ci haut j'utilise la section `params` pour passer des valeurs aux paramètres de dask.distributed.LocalCluster
 
 
 
@@ -254,7 +254,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTkxOTM5NDAxMywtMTQyOTU0MDYwMiwtMT
+eyJoaXN0b3J5IjpbMTUzNzg4MTMxNCwtMTQyOTU0MDYwMiwtMT
 gxMTE3MzIxOSwxNDU5Njg4ODI1LDIxNDU1ODU4MjgsLTQwNzUz
 NDY1OCwtMTI1NzIyMDIyNCwxNjU1OTkyODc3LC00MTM0ODcyMj
 ksLTEzMzU1NzY1NDgsLTEzMTE3MzA0MDYsNjE4MDAwMDMsLTk4
