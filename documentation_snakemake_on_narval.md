@@ -27,13 +27,13 @@ input:
     north=Path(config['paths']['final'])/"reference/ref_ north_nodup_default.zarr"  
     south=Path(config['paths']['final'])/"reference/ref_south_nodup_default.zarr"
 ```
-La section input n’est pas obligatoire c’est le cas dans la règle `reference_DEFAULT` dans `Makeref.smk`. Dans la règle ci-haut j'utilise la section `params` pour passer des valeurs aux paramètres de dask.distributed.LocalCluster et qu'elles soient en adéquation avec les ressources demandées à slurm. Donc le client sera appelé de la façon suivante dans le script :
+La section input n’est pas obligatoire c’est le cas dans la règle `reference_DEFAULT` dans `Makeref.smk`. Dans la règle ci-haut j'utilise la section `params` pour passer des valeurs aux paramètres de dask.distributed.LocalCluster et qu'elles soient en adéquation avec les ressources demandées à slurm. Donc le client sera appelé de la façon suivante dans le script *load_default_ref.py*:
 
     cluster = LocalCluster(n_workers=snakemake.resources.n_workers, threads_per_worker=snakemake.params.threads_per_worker,  
                            memory_limit=snakemake.params.memory_limit, **daskkws)  
     client = Client(cluster)
 
-Dans le script de soumission slurm (expliqué dans la partie Profile de Snakemake) on aura exactement --cpus-per-task= n_workers*threads_per_worker et --mem=n_workers*memory_limit
+Dans le script de soumission slurm (expliqué dans la partie Profile de Snakemake) on aura exactement `--cpus-per-task= n_workers*threads_per_worker` et `--mem=n_workers*memory_limit`
 
 
 Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à
@@ -260,7 +260,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTQyMzQ1OTY5MSw4MTYxODAyNSwtMTU3OT
+eyJoaXN0b3J5IjpbMTEyODM4NzE5Niw4MTYxODAyNSwtMTU3OT
 I2MDUyNCwtMTQyOTU0MDYwMiwtMTgxMTE3MzIxOSwxNDU5Njg4
 ODI1LDIxNDU1ODU4MjgsLTQwNzUzNDY1OCwtMTI1NzIyMDIyNC
 wxNjU1OTkyODc3LC00MTM0ODcyMjksLTEzMzU1NzY1NDgsLTEz
