@@ -20,6 +20,12 @@ Les workflows sont définis en termes de règles. Chaque règle spécifie commen
       script:  
             f"{home}workflow/scripts/adjust.py"
 
+
+
+
+
+Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à
+
 # Création d'environment
 
 
@@ -242,10 +248,10 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTQ4MDA3MDMwMSwxNDU5Njg4ODI1LDIxND
-U1ODU4MjgsLTQwNzUzNDY1OCwtMTI1NzIyMDIyNCwxNjU1OTky
-ODc3LC00MTM0ODcyMjksLTEzMzU1NzY1NDgsLTEzMTE3MzA0MD
-YsNjE4MDAwMDMsLTk4OTQ0MDQ3OSw0OTM2OTU0MSwtMjE0MDEw
-MzU4LDg3NzY3MTg0NiwtMTkwODY5MjYwMiwxOTc3NTEyNTEyXX
-0=
+eyJoaXN0b3J5IjpbLTE4MTExNzMyMTksMTQ1OTY4ODgyNSwyMT
+Q1NTg1ODI4LC00MDc1MzQ2NTgsLTEyNTcyMjAyMjQsMTY1NTk5
+Mjg3NywtNDEzNDg3MjI5LC0xMzM1NTc2NTQ4LC0xMzExNzMwND
+A2LDYxODAwMDAzLC05ODk0NDA0NzksNDkzNjk1NDEsLTIxNDAx
+MDM1OCw4Nzc2NzE4NDYsLTE5MDg2OTI2MDIsMTk3NzUxMjUxMl
+19
 -->
