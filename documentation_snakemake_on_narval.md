@@ -33,7 +33,7 @@ La section input n’est pas obligatoire c’est le cas dans la règle `referenc
                            memory_limit=snakemake.params.memory_limit, **daskkws)  
     client = Client(cluster)
 
-Dans le script de soumission slurm on aura exactement
+Dans le script de soumission slurm (expliqué dans la  on aura exactement
 
 
 Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à
@@ -260,11 +260,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTg0MDA2NDYyOSwtMTU3OTI2MDUyNCwtMT
-QyOTU0MDYwMiwtMTgxMTE3MzIxOSwxNDU5Njg4ODI1LDIxNDU1
-ODU4MjgsLTQwNzUzNDY1OCwtMTI1NzIyMDIyNCwxNjU1OTkyOD
-c3LC00MTM0ODcyMjksLTEzMzU1NzY1NDgsLTEzMTE3MzA0MDYs
-NjE4MDAwMDMsLTk4OTQ0MDQ3OSw0OTM2OTU0MSwtMjE0MDEwMz
-U4LDg3NzY3MTg0NiwtMTkwODY5MjYwMiwxOTc3NTEyNTEyXX0=
+eyJoaXN0b3J5IjpbLTIxNzc4NTc3LC0xNTc5MjYwNTI0LC0xND
+I5NTQwNjAyLC0xODExMTczMjE5LDE0NTk2ODg4MjUsMjE0NTU4
+NTgyOCwtNDA3NTM0NjU4LC0xMjU3MjIwMjI0LDE2NTU5OTI4Nz
+csLTQxMzQ4NzIyOSwtMTMzNTU3NjU0OCwtMTMxMTczMDQwNiw2
+MTgwMDAwMywtOTg5NDQwNDc5LDQ5MzY5NTQxLC0yMTQwMTAzNT
+gsODc3NjcxODQ2LC0xOTA4NjkyNjAyLDE5Nzc1MTI1MTJdfQ==
 
 -->
