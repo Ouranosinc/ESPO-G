@@ -16,10 +16,12 @@ if jobid == "Submitted":
 output = str(subprocess.check_output("sacct -j %s --format State --noheader | head -1 | awk '{print $1}'" % jobid,
                                      shell=True).strip())
 
-running_status = ["PENDING", "CONFIGURING", "COMPLETING", "RUNNING", "SUSPENDED"]
+# running_status = ["PENDING", "CONFIGURING", "COMPLETING", "RUNNING", "SUSPENDED"]
+failed_status = ["FAILED", "CANCELLED", "TIMEOUT", "PREEMPTED", "NODE_FAIL", "REVOKED", "SPECIAL_EXIT"]
 if "COMPLETED" in output:
     print("success")
-elif any(r in output for r in running_status):
-    print("running")
-else:
+elif any(r in output for r in failed_status):
     print("failed")
+else:
+    print("running")
+

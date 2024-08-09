@@ -12,12 +12,12 @@ rule final_zarr:
         region=r"[a-zA-Z]+_[a-zA-Z]+",
         sim_id= "([^_]*_){6}[^_]*"
     params:
-        n_workers=4,
-        threads_per_worker=3,
-        memory_limit='15GB'
+        threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,
+        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
     resources:
-        mem='65GB',
-        time=60
-    threads: 15
+        mem='40GB',
+        n_workers=4,
+        time=120
+    threads: 4
     script:
         f"{home}workflow/scripts/final_zarr.py"

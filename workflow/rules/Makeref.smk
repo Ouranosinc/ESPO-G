@@ -1,3 +1,5 @@
+localrules: concat_diag_ref_prop, reference_360_DAY,
+
 from pathlib import Path
 
 region_name=list(config["custom"]["regions"].keys())
@@ -9,12 +11,13 @@ rule reference_DEFAULT:
     wildcard_constraints:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     params:
-        n_workers=2,
-        threads_per_worker=5,
-        memory_limit='25GB'
+        threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,
+        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+    threads: 2
     resources:
-        mem='55GB'
-    threads: 15
+        mem='5GB',
+        n_workers=2,
+        time=40
     script:
         f"{home}workflow/scripts/load_default_ref.py"
 
@@ -26,12 +29,12 @@ rule reference_NOLEAP:
     wildcard_constraints:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     params:
-        n_workers=2,
-        threads_per_worker=5,
-        memory_limit='25GB'
+        threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,
+        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+    threads: 4
     resources:
-        mem='55GB'
-    threads: 15
+        mem='30GB',
+        n_workers=2
     script:
         f"{home}workflow/scripts/load_noleap_ref.py"
 
@@ -46,9 +49,6 @@ rule reference_360_DAY:
         n_workers=2,
         threads_per_worker=5,
         memory_limit='25GB'
-    resources:
-        mem='55GB'
-    threads: 15
     script:
         f"{home}workflow/scripts/load_360_day_ref.py"
 
@@ -60,12 +60,12 @@ rule diagnostics:
     wildcard_constraints:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     params:
-        n_workers=2,
-        threads_per_worker=5,
-        memory_limit='25GB'
+        threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,
+        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
     resources:
-        mem='55GB'
-    threads: 15
+        mem='30GB',
+        n_workers=2
+    threads: 6
     script:
         f"{home}workflow/scripts/diagnostics.py"
 

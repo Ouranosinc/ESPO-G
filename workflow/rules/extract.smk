@@ -11,11 +11,12 @@ rule extract:
        region = r"[a-zA-Z]+_[a-zA-Z]+",
        sim_id="([^_]*_){6}[^_]*"
    params:
-        n_workers=2,
-        threads_per_worker=5,
-        memory_limit='25GB'
-   threads: 15
+        threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,
+        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+   threads: 2
    resources:
-        mem='55GB'
+        mem='5GB',
+        n_workers=2,
+        time=40
    script:
        f"{home}workflow/scripts/extract.py"

@@ -8,12 +8,13 @@ rule off_diag_ref_prop:
     output:
         prop=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-ref-prop_{sim_id}_{dom_name}.zarr"))
     params:
-        n_workers=3,
-        threads_per_worker=5,
-        memory_limit='20GB'
-    threads: 20
+        threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,
+        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+    threads: 6
     resources:
-        mem='65GB'
+        mem='30GB',
+        n_workers=3,
+        time=60
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
     script:
@@ -27,14 +28,12 @@ rule off_diag_sim_prop_meas:
         prop=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-sim-prop_{sim_id}_{dom_name}.zarr")),
         meas=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-sim-meas_{sim_id}_{dom_name}.zarr"))
     params:
-        n_workers=3,
-        threads_per_worker=5,
-        memory_limit="20GB"
-    threads: 20
+        threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,
+        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+    threads: 9
     resources:
-        mem="65GB",
-        time=65
-
+        mem="21GB",
+        n_workers=3
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
     script:
@@ -48,12 +47,12 @@ rule off_diag_scen_prop_meas:
         prop=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-scen-prop_{sim_id}_{dom_name}.zarr")),
         meas=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-scen-meas_{sim_id}_{dom_name}.zarr"))
     params:
-        n_workers=3,
-        threads_per_worker=5,
-        memory_limit='20GB'
-    threads: 20
+        threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,
+        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+    threads: 15
     resources:
-        mem='65GB'
+        mem='60GB',
+        n_workers=3
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
     script:
@@ -66,12 +65,12 @@ rule diag_measures_improvement:
     output:
         temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_{sim_id}_{dom_name}.zarr"))
     params:
-        n_workers=3,
-        threads_per_worker=5,
-        memory_limit='20GB'
-    threads: 20
+        threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,
+        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+    threads: 6
     resources:
-        mem='65GB'
+        mem='6GB',
+        n_workers=3
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
     script:

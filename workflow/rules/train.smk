@@ -13,12 +13,12 @@ rule train:
        region = r"[a-zA-Z]+_[a-zA-Z]+",
        sim_id="([^_]*_){6}[^_]*"
    params:
-       n_workers=4,
-       threads_per_worker=3,
-       memory_limit='15GB'
-   threads: 15
+       threads_per_worker=lambda wildcards, threads, resources: threads / resources.n_workers,
+       memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+   threads: 8
    resources:
         time=60,
-        mem='65GB'
+        n_workers=4,
+        mem='40GB'
    script:
         f"{home}workflow/scripts/train.py"

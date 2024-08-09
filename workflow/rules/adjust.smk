@@ -12,12 +12,12 @@ rule adjust:
        region = r"[a-zA-Z]+_[a-zA-Z]+",
        sim_id="([^_]*_){6}[^_]*"
    params:
-       n_workers=5,
-       threads_per_worker=3,
-       memory_limit='12GB'
-   threads: 20
+       threads_per_worker=lambda wildcards, threads, resources: threads / resources.n_workers,
+       memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+   threads: 10
    resources:
-        mem='65GB'
+        mem='50GB',
+        n_workers=5,
    script:
         f"{home}workflow/scripts/adjust.py"
 

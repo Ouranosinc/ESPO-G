@@ -1,4 +1,4 @@
-# Ce fichier configure les paramètres par défaut pour Snakemake
+# Ce fichier configure les paramètres par défaut pour Snakemake version minimum 8.0.0
 #
 # executor: cluster-generic
 # cluster-generic-submit-cmd:
@@ -14,6 +14,10 @@
 #    --output=slurm_logs/{rule}/{rule}-{wildcards}-%j.out    # renommer le nom du fichier output en fonction de du nom de la règle et des ses wildcards
 #    --time={resources.time}
 #    --parsable    # pour que sbatch renvoie uniquement le job ID sans aucun texte supplémentaire. Est obligatoire si on utilise cluster-generic-status-cmd
+# default-resources:   # donne les paramètres de resources et params  par defaut lorsqu'ils ne sont pas explicitement cité dans la règle
+#  - qos=high_priority
+#  - mem=80GB
+#  - time=30
 # non-slurm profile defaults
 #cluster-generic-status-cmd: status-sacct.sh    # permet a snakemake de connaître le status des job slurm
 #restart-times: 3    # permet de ressoumettre les jobs qui ont échoués
@@ -29,7 +33,7 @@
 
 executor: cluster-generic
 cluster-generic-submit-cmd:
-  mkdir -p slurm_logs/{rule} &&
+  mkdir -p s_logs/{rule} &&
   sbatch
     --partition=c-frigon
     --account=ctb-frigon
@@ -38,15 +42,16 @@ cluster-generic-submit-cmd:
     --qos={resources.qos}
     --mem={resources.mem}
     --job-name={rule}-{wildcards}
-    --output=slurm_logs/{rule}/{rule}-{wildcards}-%j.out
+    --output=s_logs/{rule}/{rule}-{wildcards}-%j.out
     --time={resources.time}
     --parsable
 default-resources:
   - qos=high_priority
   - mem=80GB
-  - time=30
-cluster-generic-status-cmd: status-sacct.sh
-restart-times: 3
+  - time=25
+cluster-generic-cancel-cmd: "scancel"
+cluster-generic-status-cmd: status-sacct.py
+#restart-times: 3
 max-jobs-per-second: 10
 max-status-checks-per-second: 30
 local-cores: 1

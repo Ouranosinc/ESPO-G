@@ -14,12 +14,12 @@ rule clean_up:
        region = r"[a-zA-Z]+_[a-zA-Z]+",
        sim_id="([^_]*_){6}[^_]*"
    params:
-       n_workers=2,
-       threads_per_worker=3,
-       memory_limit='30GB'
-   threads: 10
+       threads_per_worker=lambda wildcards, threads, resources: threads / resources.n_workers,
+       memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+   threads: 6
    resources:
-        mem='65GB'
+        mem='40GB',
+        n_workers=2
    script:
         f"{home}workflow/scripts/clean_up.py"
 

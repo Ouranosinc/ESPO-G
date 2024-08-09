@@ -1,3 +1,5 @@
+localrules: concatenation_diag, concatenation_final
+
 from pathlib import Path
 
 home=config["paths"]["home"]
@@ -16,12 +18,12 @@ rule DIAGNOSTICS:
         region=r"[a-zA-Z]+_[a-zA-Z]+",
         sim_id="([^_]*_){6}[^_]*"
     params:
-        n_workers=3,
-        threads_per_worker=5,
-        memory_limit='20GB'
-    threads: 20
+        threads_per_worker=lambda wildcards, threads, resources: threads / resources.n_workers,
+        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+    threads: 6
     resources:
-        mem='65GB'
+        mem='30GB',
+        n_workers=3
     script:
         f"{home}workflow/scripts/DIAGNOSTICS.py"
 
@@ -56,12 +58,12 @@ rule diag_improved_et_heatmap:
         region=r"[a-zA-Z]+_[a-zA-Z]+",
         sim_id= "([^_]*_){6}[^_]*"
     params:
-        n_workers=3,
-        threads_per_worker=5,
-        memory_limit='20GB'
-    threads: 20
+        threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,
+        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+    threads: 15
     resources:
-        mem='65GB'
+        mem='60GB',
+        n_workers=3
     script:
         f"{home}workflow/scripts/diag_improved_et_heatmap.py"
 

@@ -10,11 +10,11 @@ rule health_checks:
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
     params:
-        n_workers=8,
-        threads_per_worker=5,
-        memory_limit='5GB'
-    threads: 45
+        threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,
+        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+    threads: 40
     resources:
-        mem='45GB'
+        mem='40GB',
+        n_workers=8
     script:
         f"{home}workflow/scripts/health_check.py"
