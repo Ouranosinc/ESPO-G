@@ -2,18 +2,20 @@
 Snakemake est un outil inspiré de GNU Make, mais conçu pour être plus flexible et puissant. Il utilise une syntaxe basée sur Python pour définir des règles qui spécifient comment générer des fichiers de sortie à partir de fichiers d’entrée. Pour consulter la documentation officielle vous pouvez cliquer sur ce [lien](https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html).
 Les workflows sont définis en termes de règles. Chaque règle spécifie comment créer un fichier de sortie à partir d’un ou plusieurs fichiers d’entrée. Voici un exemple de règle :
 
+    
+
         rule reference_DEFAULT:  
         output:  
             directory(Path(config['paths']['final'])/"reference/ref_{region}_default.zarr")  
         wildcard_constraints:  
             region=r"[a-zA-Z]+_[a-zA-Z]+"  
       params:  
-            n_workers=2,  
-            threads_per_worker=5,  
-            memory_limit='25GB'  
+            threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,  
+            memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers  
+        threads: 10  
       resources:  
-            mem='55GB'  
-      threads: 15  
+            mem='50GB',  
+            n_workers=2  
       script:  
             f"{home}workflow/scripts/load_default_ref.py"
 
@@ -25,7 +27,7 @@ input:
     north=Path(config['paths']['final'])/"reference/ref_ north_nodup_default.zarr"  
     south=Path(config['paths']['final'])/"reference/ref_south_nodup_default.zarr"
 ```
-La section input n’est pas obligatoire c’est le cas dans la règle `reference_DEFAULT` dans `Makeref.smk`. Dans la règle ci-haut j'utilise la section `params` pour passer des valeurs aux paramètres de dask.distributed.LocalCluster et qu'elles soient en adéquation avec les ressources demandées à slurm.
+La section input n’est pas obligatoire c’est le cas dans la règle `reference_DEFAULT` dans `Makeref.smk`. Dans la règle ci-haut j'utilise la section `params` pour passer des valeurs aux paramètres de dask.distributed.LocalCluster et qu'elles soient en adéquation avec les ressources demandées à slurm. Ainsi l'appel du client 
 
 
 
@@ -254,10 +256,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE1NzkyNjA1MjQsLTE0Mjk1NDA2MDIsLT
-E4MTExNzMyMTksMTQ1OTY4ODgyNSwyMTQ1NTg1ODI4LC00MDc1
-MzQ2NTgsLTEyNTcyMjAyMjQsMTY1NTk5Mjg3NywtNDEzNDg3Mj
-I5LC0xMzM1NTc2NTQ4LC0xMzExNzMwNDA2LDYxODAwMDAzLC05
-ODk0NDA0NzksNDkzNjk1NDEsLTIxNDAxMDM1OCw4Nzc2NzE4ND
-YsLTE5MDg2OTI2MDIsMTk3NzUxMjUxMl19
+eyJoaXN0b3J5IjpbMjAxMDAyNzgyMCwtMTU3OTI2MDUyNCwtMT
+QyOTU0MDYwMiwtMTgxMTE3MzIxOSwxNDU5Njg4ODI1LDIxNDU1
+ODU4MjgsLTQwNzUzNDY1OCwtMTI1NzIyMDIyNCwxNjU1OTkyOD
+c3LC00MTM0ODcyMjksLTEzMzU1NzY1NDgsLTEzMTE3MzA0MDYs
+NjE4MDAwMDMsLTk4OTQ0MDQ3OSw0OTM2OTU0MSwtMjE0MDEwMz
+U4LDg3NzY3MTg0NiwtMTkwODY5MjYwMiwxOTc3NTEyNTEyXX0=
+
 -->
