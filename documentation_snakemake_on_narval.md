@@ -101,7 +101,34 @@ min_version("8.12.0")
 ```
 
 ## Arborescence des fichiers
-
+Il est recommandé de stocker chaque workflow dans un référentiel git dédié de la structure suivante :
+```
+├── .gitignore
+├── README.md
+├── LICENSE.md
+├── workflow
+│   ├── rules
+|   │   ├── module1.smk
+|   │   └── module2.smk
+│   ├── envs
+|   │   ├── tool1.yaml
+|   │   └── tool2.yaml
+│   ├── scripts
+|   │   ├── script1.py
+|   │   └── script2.R
+│   ├── notebooks
+|   │   ├── notebook1.py.ipynb
+|   │   └── notebook2.r.ipynb
+│   ├── report
+|   │   ├── plot1.rst
+|   │   └── plot2.rst
+|   └── Snakefile
+├── config
+│   ├── config.yaml
+│   └── some-sheet.tsv
+├── results
+└── resources
+```
 
 ## Wildcards
 Les wildcards sont utilisés pour alléger le code et automatiser la notation des fichiers. En effets, au lieu de boucler sur les régions on utilise les wildcards dans les fichiers input et output. Les fichiers input ne doivent pas contenir des wildcards qui ne sont pas présents dans le output, alors que les fichiers log et benchmark doivent avoir exactement les mêmes wildcards que les fichiers output. La valeur des wildcards ne doit être spécifiée que lors de l’exécution du workflow, soit dans la règle  `all`, où toutes les valeurs possibles du wildcards sont passées à la fonction  `expand()`, soit avec la commande  `snakemake --cores`  à qui on donne le nombre de cores souhaités et le fichier qu’on veut généré.
@@ -499,11 +526,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTExODM2OTYyODksMzUzMjE5NTc4LC0zNj
-k0ODc4MTgsLTEwMzAyMzI3Niw5NTgzMjAyMTQsLTE0NzIyMDY4
-NDAsLTE3MTczNzU0NTUsLTQ1MDcyNDkzNCwzMDAyOTcwMjAsLT
-E5OTE1NDI5NjIsLTEyOTA4MzU5NzcsLTEzODg2OTExMTUsMTgz
-NDYzMDE3OCwyNzI1MTMyNDgsLTM0NzAyOTA5NywtMTI0NDUyMj
-QzMSw0MzEyNjI0MTUsLTEyMjMwNDc4NjUsMTEyODM4NzE5Niw4
-MTYxODAyNV19
+eyJoaXN0b3J5IjpbNTM5MTA4ODc5LC0xMTgzNjk2Mjg5LDM1Mz
+IxOTU3OCwtMzY5NDg3ODE4LC0xMDMwMjMyNzYsOTU4MzIwMjE0
+LC0xNDcyMjA2ODQwLC0xNzE3Mzc1NDU1LC00NTA3MjQ5MzQsMz
+AwMjk3MDIwLC0xOTkxNTQyOTYyLC0xMjkwODM1OTc3LC0xMzg4
+NjkxMTE1LDE4MzQ2MzAxNzgsMjcyNTEzMjQ4LC0zNDcwMjkwOT
+csLTEyNDQ1MjI0MzEsNDMxMjYyNDE1LC0xMjIzMDQ3ODY1LDEx
+MjgzODcxOTZdfQ==
 -->
