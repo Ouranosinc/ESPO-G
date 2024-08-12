@@ -61,7 +61,7 @@ C'est aussi dans le ***Snakefile***  qu'on associe le workflow à un fichier de 
 ```
 configfile: "config/config.yaml"
 ```
-Pour utiliser les parametres du fichier config.yaml
+Il faut utiliser les paramètres du fichier config.yaml avec l'outil `config` de snakemake, exemple 
 ## Arborescence des fichiers
 
 
@@ -476,11 +476,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE4NzYxNjg1MDgsMzUzMjE5NTc4LC0zNj
-k0ODc4MTgsLTEwMzAyMzI3Niw5NTgzMjAyMTQsLTE0NzIyMDY4
-NDAsLTE3MTczNzU0NTUsLTQ1MDcyNDkzNCwzMDAyOTcwMjAsLT
-E5OTE1NDI5NjIsLTEyOTA4MzU5NzcsLTEzODg2OTExMTUsMTgz
-NDYzMDE3OCwyNzI1MTMyNDgsLTM0NzAyOTA5NywtMTI0NDUyMj
-QzMSw0MzEyNjI0MTUsLTEyMjMwNDc4NjUsMTEyODM4NzE5Niw4
-MTYxODAyNV19
+eyJoaXN0b3J5IjpbMjExNjM4NDgxNiwzNTMyMTk1NzgsLTM2OT
+Q4NzgxOCwtMTAzMDIzMjc2LDk1ODMyMDIxNCwtMTQ3MjIwNjg0
+MCwtMTcxNzM3NTQ1NSwtNDUwNzI0OTM0LDMwMDI5NzAyMCwtMT
+k5MTU0Mjk2MiwtMTI5MDgzNTk3NywtMTM4ODY5MTExNSwxODM0
+NjMwMTc4LDI3MjUxMzI0OCwtMzQ3MDI5MDk3LC0xMjQ0NTIyND
+MxLDQzMTI2MjQxNSwtMTIyMzA0Nzg2NSwxMTI4Mzg3MTk2LDgx
+NjE4MDI1XX0=
 -->
