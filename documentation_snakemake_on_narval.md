@@ -103,9 +103,7 @@ min_version("8.12.0")
 ## Arborescence des fichiers
 Le workflow est stocké  dans le référentiel git  de la structure suivante :
 ```
-├── .gitignore
 ├── config
-├── LICENSE.md
 ├── workflow
 │   ├── rules
 |   │   ├── module1.smk
@@ -113,6 +111,7 @@ Le workflow est stocké  dans le référentiel git  de la structure suivante :
 │   ├── scripts
 |   │   ├── script1.py
 |   │   └── script2.py
+├── .gitignore
 ├── Snakefile
 ├── dag.png
 ├── README.md
@@ -515,11 +514,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTUwNTM0NTkwNywtMTU4NzY1NzE0MiwtMT
-E4MzY5NjI4OSwzNTMyMTk1NzgsLTM2OTQ4NzgxOCwtMTAzMDIz
-Mjc2LDk1ODMyMDIxNCwtMTQ3MjIwNjg0MCwtMTcxNzM3NTQ1NS
-wtNDUwNzI0OTM0LDMwMDI5NzAyMCwtMTk5MTU0Mjk2MiwtMTI5
-MDgzNTk3NywtMTM4ODY5MTExNSwxODM0NjMwMTc4LDI3MjUxMz
-I0OCwtMzQ3MDI5MDk3LC0xMjQ0NTIyNDMxLDQzMTI2MjQxNSwt
-MTIyMzA0Nzg2NV19
+eyJoaXN0b3J5IjpbLTEwMDgyNjY1MzUsLTE1ODc2NTcxNDIsLT
+ExODM2OTYyODksMzUzMjE5NTc4LC0zNjk0ODc4MTgsLTEwMzAy
+MzI3Niw5NTgzMjAyMTQsLTE0NzIyMDY4NDAsLTE3MTczNzU0NT
+UsLTQ1MDcyNDkzNCwzMDAyOTcwMjAsLTE5OTE1NDI5NjIsLTEy
+OTA4MzU5NzcsLTEzODg2OTExMTUsMTgzNDYzMDE3OCwyNzI1MT
+MyNDgsLTM0NzAyOTA5NywtMTI0NDUyMjQzMSw0MzEyNjI0MTUs
+LTEyMjMwNDc4NjVdfQ==
 -->
