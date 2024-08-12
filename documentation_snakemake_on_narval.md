@@ -57,7 +57,11 @@ Pour utiliser des fichiers *.smk* il faut les inclure dan le ***Snakefile*** de 
 ```
 include: "workflow/rules/common.smk
 ```
-C'est aussi dans le ***Snakefile***  qu'on associe le workflow à un fichier de configuration. Snakefile n'accepte qu'un seul fichier de configuration qu'
+C'est aussi dans le ***Snakefile***  qu'on associe le workflow à un fichier de **configuration**. Snakefile n'accepte qu'un seul fichier de configuration qu'on importe de la sorte:
+```
+configfile: "config/config.yaml"
+```
+Pour utiliser les parametres du fichier config.yaml
 ## Arborescence des fichiers
 
 
@@ -472,7 +476,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEyODgxNzcxODUsMzUzMjE5NTc4LC0zNj
+eyJoaXN0b3J5IjpbLTE4NzYxNjg1MDgsMzUzMjE5NTc4LC0zNj
 k0ODc4MTgsLTEwMzAyMzI3Niw5NTgzMjAyMTQsLTE0NzIyMDY4
 NDAsLTE3MTczNzU0NTUsLTQ1MDcyNDkzNCwzMDAyOTcwMjAsLT
 E5OTE1NDI5NjIsLTEyOTA4MzU5NzcsLTEzODg2OTExMTUsMTgz
