@@ -39,7 +39,7 @@ Dans le script de soumission slurm (expliqué dans la partie Profile de Snakemak
 Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à ESPO-G est la suivante:
 
 # Création d'environment
-Puisque `conda` n'est pas utilisé sur narval on ne peut pas utiliser le paramètre `conda` de snakemake dans les règles. Donc il n'est pas possible de créer un environment pour chaque règles via `conda`. Donc il faut créer l'envireonment une seule fois dans le repertoire courant en effectuant les étapes suivantes:
+Puisque `conda` n'est pas utilisé sur narval on ne peut pas utiliser le paramètre `conda` de snakemake dans les règles. Donc il n'est pas possible de créer un environment pour chaque règles via `conda`. Donc il faut créer l'envireonment pour snakemake une seule fois dans le repertoire courant en effectuant les étapes suivantes:
 
        $  module load StdEnv/2023 gcc openmpi python/3.11 arrow/16.1.0 openmpi netcdf proj esmf geos mpi4py 
        $ virtualenv --no-download $SLURM_TMPDIR/env 
@@ -271,11 +271,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNTkwODk4NjQwLDE4MzQ2MzAxNzgsMjcyNT
-EzMjQ4LC0zNDcwMjkwOTcsLTEyNDQ1MjI0MzEsNDMxMjYyNDE1
-LC0xMjIzMDQ3ODY1LDExMjgzODcxOTYsODE2MTgwMjUsLTE1Nz
-kyNjA1MjQsLTE0Mjk1NDA2MDIsLTE4MTExNzMyMTksMTQ1OTY4
-ODgyNSwyMTQ1NTg1ODI4LC00MDc1MzQ2NTgsLTEyNTcyMjAyMj
-QsMTY1NTk5Mjg3NywtNDEzNDg3MjI5LC0xMzM1NTc2NTQ4LC0x
-MzExNzMwNDA2XX0=
+eyJoaXN0b3J5IjpbLTE3ODQ5MzY5MDYsMTgzNDYzMDE3OCwyNz
+I1MTMyNDgsLTM0NzAyOTA5NywtMTI0NDUyMjQzMSw0MzEyNjI0
+MTUsLTEyMjMwNDc4NjUsMTEyODM4NzE5Niw4MTYxODAyNSwtMT
+U3OTI2MDUyNCwtMTQyOTU0MDYwMiwtMTgxMTE3MzIxOSwxNDU5
+Njg4ODI1LDIxNDU1ODU4MjgsLTQwNzUzNDY1OCwtMTI1NzIyMD
+IyNCwxNjU1OTkyODc3LC00MTM0ODcyMjksLTEzMzU1NzY1NDgs
+LTEzMTE3MzA0MDZdfQ==
 -->
