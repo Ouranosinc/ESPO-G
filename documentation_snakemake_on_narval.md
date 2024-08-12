@@ -132,6 +132,9 @@ dans la règle   _extract_  et supposez qu’un fichier  _CMIP6_ScenarioMIP_AS-R
 C’est pourquoi une contrainte a été ajoutée à la wildcards `region` pour qu’il soit composé de deux chaînes de caractères séparées par un tiret du bas. Le wildcards sim_id est aussi contraint à avoir minimum 6 underscords.
 ## Fonction expand()
 L a fonction expande génère une list de fichiers avec tous les wildcards résolus. Exemple les wildcards sample=[A, B] et num=[1, 2], la sortie de 
+```
+expand(échantillon)
+```
 
 ## Graphe acyclique dirigé
 Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à ESPO-G est la suivante:
@@ -413,7 +416,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTUyNzkxOTU4MywtMTAzMDIzMjc2LDk1OD
+eyJoaXN0b3J5IjpbLTI5NTA1MTI3MSwtMTAzMDIzMjc2LDk1OD
 MyMDIxNCwtMTQ3MjIwNjg0MCwtMTcxNzM3NTQ1NSwtNDUwNzI0
 OTM0LDMwMDI5NzAyMCwtMTk5MTU0Mjk2MiwtMTI5MDgzNTk3Ny
 wtMTM4ODY5MTExNSwxODM0NjMwMTc4LDI3MjUxMzI0OCwtMzQ3
