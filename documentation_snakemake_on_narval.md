@@ -41,6 +41,14 @@ Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâche
 # Création d'environment
 Puisque `conda` n'est pas utilisé sur narval on ne peut pas utiliser le paramètre `conda` de snakemake dans les règles. Donc il n'est pas possible de créer un environment pour chaque règles via `conda`. Donc il faut créer l'envireonment une seule fois dans le repertoire courant en effectuant les étapes suivantes:
 
+>$  module load StdEnv/2023 gcc openmpi python/3.11 arrow/16.1.0 openmpi netcdf proj esmf geos mpi4py # loader les bons modules, voir
+>$ section sur le> virtualenv --no-download $SLURM_TMPDIR/env source
+> $SLURM_TMPDIR/env/bin/activate
+> 
+>$ pip install --no-index --upgrade pip
+>$ pip install  --no-index -r /project/ctbfrigon/oumou/ouranos_commun/xscen0.9.0-requirements.txt
+
+
 
 # Le profile de snakemake
 Pour éxecuter un workflow snakemake dans un cluster, on utilise la commande 
@@ -261,11 +269,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEyNDQ1MjI0MzEsNDMxMjYyNDE1LC0xMj
-IzMDQ3ODY1LDExMjgzODcxOTYsODE2MTgwMjUsLTE1NzkyNjA1
-MjQsLTE0Mjk1NDA2MDIsLTE4MTExNzMyMTksMTQ1OTY4ODgyNS
-wyMTQ1NTg1ODI4LC00MDc1MzQ2NTgsLTEyNTcyMjAyMjQsMTY1
-NTk5Mjg3NywtNDEzNDg3MjI5LC0xMzM1NTc2NTQ4LC0xMzExNz
-MwNDA2LDYxODAwMDAzLC05ODk0NDA0NzksNDkzNjk1NDEsLTIx
-NDAxMDM1OF19
+eyJoaXN0b3J5IjpbMTE5NzU3MjEyNiwtMTI0NDUyMjQzMSw0Mz
+EyNjI0MTUsLTEyMjMwNDc4NjUsMTEyODM4NzE5Niw4MTYxODAy
+NSwtMTU3OTI2MDUyNCwtMTQyOTU0MDYwMiwtMTgxMTE3MzIxOS
+wxNDU5Njg4ODI1LDIxNDU1ODU4MjgsLTQwNzUzNDY1OCwtMTI1
+NzIyMDIyNCwxNjU1OTkyODc3LC00MTM0ODcyMjksLTEzMzU1Nz
+Y1NDgsLTEzMTE3MzA0MDYsNjE4MDAwMDMsLTk4OTQ0MDQ3OSw0
+OTM2OTU0MV19
 -->
