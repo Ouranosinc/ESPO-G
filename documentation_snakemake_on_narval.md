@@ -2,13 +2,14 @@
 Snakemake est un outil inspiré de GNU Make, mais conçu pour être plus flexible et puissant. Il utilise une syntaxe basée sur Python pour définir des règles qui spécifient comment générer des fichiers de sortie à partir de fichiers d’entrée. Pour consulter la documentation officielle vous pouvez cliquer sur ce [lien](https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html).
 Les workflows sont définis en termes de règles. Chaque règle spécifie comment créer un fichier de sortie à partir d’un ou plusieurs fichiers d’entrée. Voici un exemple de règle :
 
-        rule reference_DEFAULT:  
+    rule reference_DEFAULT:  
         output:  
             directory(Path(config['paths']['final'])/"reference/ref_{region}_default.zarr")  
         wildcard_constraints:  
             region=r"[a-zA-Z]+_[a-zA-Z]+"  
-      params:  
-            threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,  
+        params:  
+        threads_per_worker= lambda wildcards,threads,                 
+        resources: threads / resources.n_workers,  
             memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers  
         threads: 10  
       resources:  
@@ -311,7 +312,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTUzNzQ2NzQ2MiwtNDUwNzI0OTM0LDMwMD
+eyJoaXN0b3J5IjpbMTc3OTk0ODAwOCwtNDUwNzI0OTM0LDMwMD
 I5NzAyMCwtMTk5MTU0Mjk2MiwtMTI5MDgzNTk3NywtMTM4ODY5
 MTExNSwxODM0NjMwMTc4LDI3MjUxMzI0OCwtMzQ3MDI5MDk3LC
 0xMjQ0NTIyNDMxLDQzMTI2MjQxNSwtMTIyMzA0Nzg2NSwxMTI4
