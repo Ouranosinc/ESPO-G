@@ -32,17 +32,19 @@ La section input n’est pas obligatoire c’est le cas dans la règle `referenc
     client = Client(cluster)
 
 La section `resources` est utilisée pour déterminer quelles tâches peuvent être exécutées en même temps sans dépasser les limites spécifiées sur la ligne de commande. C'est-à-dire que Snakemake ne vérifie pas la consommation de ressources des tâches en temps réel. Ainsi les variables de resources seront utiliser dans le script de soumission slurm à l'exception de `n_workers`. L'appel à `sbatch` ressemblera à:
-sbatch  
-  --partition=c-frigon  
-  --account=ctb-frigon  
-  --constraint=genoa  
-  --cpus-per-task={resources.cpus_per_task}  
-  --qos={resources.qos}  
-  --mem={resources.mem}  
-  --job-name={rule}-{wildcards}  
-  --output=s_logs/{rule}/{rule}-{wildcards}-%j.out  
-  --time={resources.time}  
-  --parsable
+
+    sbatch  
+      --partition=c-frigon  
+      --account=ctb-frigon  
+      --constraint=genoa  
+      --cpus-per-task={resources.cpus_per_task}  
+      --qos={resources.qos}  
+      --mem={resources.mem}  
+      --job-name={rule}-{wildcards}  
+      --output=s_logs/{rule}/{rule}-{wildcards}-%j.out  
+      --time={resources.time}  
+      --parsable
+
 Le répertoire _workflow_ contient des fichiers _.smk_ qui sont des ensembles de règles regroupées par tâches. C’est-à-dire que chaque tâche dans `tasks`de _config.yaml_, a son fichier _.smk_.  
 Dans un fichier _.smk_ l’ordre d’exécution des règles est dicté par les fichiers `input`. Par exemple dans _Makeref.smk_, la règle `reference_DEFAULT` est exécutée en premier, car elle sert d’input pour le reste des règles présent dans ce fichier y compris la règle `concat_diag_ref_prop`qui a comme input, le output de la règle `diagnostics`, qui dépend lui même de `reference_DEFAULT`. On aurait pu utiliser `ruleorder`pour imposer un ordre d’exécution des règles `reference_NOLEAP, reference_360_DAY et diagnostics`puisqu’elles sont indépendantes les unes les autres, mais cela n’est pas nécessaire dans ce cas-ci.
 Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à ESPO-G est la suivante:
@@ -324,7 +326,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMjAxNzkzNjA1OCwtMTAzMDIzMjc2LDk1OD
+eyJoaXN0b3J5IjpbLTgzMDkyOTM1MCwtMTAzMDIzMjc2LDk1OD
 MyMDIxNCwtMTQ3MjIwNjg0MCwtMTcxNzM3NTQ1NSwtNDUwNzI0
 OTM0LDMwMDI5NzAyMCwtMTk5MTU0Mjk2MiwtMTI5MDgzNTk3Ny
 wtMTM4ODY5MTExNSwxODM0NjMwMTc4LDI3MjUxMzI0OCwtMzQ3
