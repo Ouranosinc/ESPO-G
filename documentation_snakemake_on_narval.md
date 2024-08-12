@@ -116,9 +116,9 @@ Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-sim-meas_id1_NA
 ```
  et  
 
-     `Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-scen-meas_id1_NAM.zarr"`
+     Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-scen-meas_id1_NAM.zarr"
 
-  remplace ses wildcards `sim_id` et `dom_name` par `id1` et `NAM` respectivement. Si les fichiers n'existent pas encore, snakemake fera la même chose jusqu’à touver un fichiers dépendant qui existent. Ainsi, snakemake fera le sens inverse vers le fichier  `Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_id1_NAM.zarr"`  en exécutant le script associé aux règles des fichiers dépendants afin de créer ces derniers.
+  remplace ses wildcards `sim_id` et `dom_name` par `id1` et `NAM` respectivement. Si les fichiers n'existent pas encore, snakemake fera la même chose jusqu’à touver un fichiers dépendant qui existent. Une fois un fichieAinsi, snakemake fera le sens inverse vers le fichier  `Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_id1_NAM.zarr"`  en exécutant le script associé aux règles des fichiers dépendants afin de créer ces derniers.
 
 Plusieurs wildcards dans un même nom de fichier peuvent provoquer une ambiguïté. Considérez le modèle  `Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_extracted.zarr"`  dans le fichier  _extract.smk_  et supposez qu’un fichier  _CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup_extracted.zarr_  est disponible. Il n’est pas clair si  `sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1`  et  `region=ssp585_r1i1p1f1_global_middle_nodup`  ou  `sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global`  et  `region=middle_nodup`  dans ce cas.  
 C’est pourquoi une contrainte a été ajoutée à la wildcards region pour qu’il soit composé de deux chaînes de caractères séparées par un tiret du bas. Le wildcards sim_id est aussi contraint à avoir minimum 6 underscords.
@@ -405,11 +405,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTEzNTQ3NzQ4MCwtMTAzMDIzMjc2LDk1OD
-MyMDIxNCwtMTQ3MjIwNjg0MCwtMTcxNzM3NTQ1NSwtNDUwNzI0
-OTM0LDMwMDI5NzAyMCwtMTk5MTU0Mjk2MiwtMTI5MDgzNTk3Ny
-wtMTM4ODY5MTExNSwxODM0NjMwMTc4LDI3MjUxMzI0OCwtMzQ3
-MDI5MDk3LC0xMjQ0NTIyNDMxLDQzMTI2MjQxNSwtMTIyMzA0Nz
-g2NSwxMTI4Mzg3MTk2LDgxNjE4MDI1LC0xNTc5MjYwNTI0LC0x
-NDI5NTQwNjAyXX0=
+eyJoaXN0b3J5IjpbLTIwMzQ4NjM5OTYsLTEwMzAyMzI3Niw5NT
+gzMjAyMTQsLTE0NzIyMDY4NDAsLTE3MTczNzU0NTUsLTQ1MDcy
+NDkzNCwzMDAyOTcwMjAsLTE5OTE1NDI5NjIsLTEyOTA4MzU5Nz
+csLTEzODg2OTExMTUsMTgzNDYzMDE3OCwyNzI1MTMyNDgsLTM0
+NzAyOTA5NywtMTI0NDUyMjQzMSw0MzEyNjI0MTUsLTEyMjMwND
+c4NjUsMTEyODM4NzE5Niw4MTYxODAyNSwtMTU3OTI2MDUyNCwt
+MTQyOTU0MDYwMl19
 -->
