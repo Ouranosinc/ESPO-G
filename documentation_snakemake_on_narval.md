@@ -50,7 +50,8 @@ Puisque `conda` n'est pas utilisé sur narval on ne peut pas utiliser le paramè
     [name@server ~]$ pip freeze --local > requirements.txt
     [name@server ~]$ deactivate
     [name@server ~]$ rm -rf $ENVDIR
-Cela produira un fichier appelé requirements.txt, avec un contenu tel que le suivant
+Cela produira un fichier appelé requirements.txt, avec comme contenu:
+
 
 
 
@@ -273,11 +274,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMjg1Mzc5NTEyLDE4MzQ2MzAxNzgsMjcyNT
-EzMjQ4LC0zNDcwMjkwOTcsLTEyNDQ1MjI0MzEsNDMxMjYyNDE1
-LC0xMjIzMDQ3ODY1LDExMjgzODcxOTYsODE2MTgwMjUsLTE1Nz
-kyNjA1MjQsLTE0Mjk1NDA2MDIsLTE4MTExNzMyMTksMTQ1OTY4
-ODgyNSwyMTQ1NTg1ODI4LC00MDc1MzQ2NTgsLTEyNTcyMjAyMj
-QsMTY1NTk5Mjg3NywtNDEzNDg3MjI5LC0xMzM1NTc2NTQ4LC0x
-MzExNzMwNDA2XX0=
+eyJoaXN0b3J5IjpbLTEzODg2OTExMTUsMTgzNDYzMDE3OCwyNz
+I1MTMyNDgsLTM0NzAyOTA5NywtMTI0NDUyMjQzMSw0MzEyNjI0
+MTUsLTEyMjMwNDc4NjUsMTEyODM4NzE5Niw4MTYxODAyNSwtMT
+U3OTI2MDUyNCwtMTQyOTU0MDYwMiwtMTgxMTE3MzIxOSwxNDU5
+Njg4ODI1LDIxNDU1ODU4MjgsLTQwNzUzNDY1OCwtMTI1NzIyMD
+IyNCwxNjU1OTkyODc3LC00MTM0ODcyMjksLTEzMzU1NzY1NDgs
+LTEzMTE3MzA0MDZdfQ==
 -->
