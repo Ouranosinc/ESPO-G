@@ -96,7 +96,7 @@ Cela produira un fichier appelé requirements.txt, avec comme contenu:
     yte==1.5.4+computecanada
 
 # Le profile de snakemake
-La documentation officielle peut-être consulter sur ce  [lien](https://github.com/jdblischak/smk-simple-slurm/tree/main).  Pour éxecuter un workflow snakemake dans un cluster, on utilise la commande 
+La documentation complète peut-être consulter sur ce  [lien](https://github.com/jdblischak/smk-simple-slurm/tree/main).  Pour éxecuter un workflow snakemake dans un cluster, on utilise la commande 
 
 > $ snakemake --profile simple/
 
@@ -314,11 +314,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMjAzOTg5MjI1NiwtMTk5MTU0Mjk2MiwtMT
-I5MDgzNTk3NywtMTM4ODY5MTExNSwxODM0NjMwMTc4LDI3MjUx
-MzI0OCwtMzQ3MDI5MDk3LC0xMjQ0NTIyNDMxLDQzMTI2MjQxNS
-wtMTIyMzA0Nzg2NSwxMTI4Mzg3MTk2LDgxNjE4MDI1LC0xNTc5
-MjYwNTI0LC0xNDI5NTQwNjAyLC0xODExMTczMjE5LDE0NTk2OD
-g4MjUsMjE0NTU4NTgyOCwtNDA3NTM0NjU4LC0xMjU3MjIwMjI0
-LDE2NTU5OTI4NzddfQ==
+eyJoaXN0b3J5IjpbMzAwMjk3MDIwLC0xOTkxNTQyOTYyLC0xMj
+kwODM1OTc3LC0xMzg4NjkxMTE1LDE4MzQ2MzAxNzgsMjcyNTEz
+MjQ4LC0zNDcwMjkwOTcsLTEyNDQ1MjI0MzEsNDMxMjYyNDE1LC
+0xMjIzMDQ3ODY1LDExMjgzODcxOTYsODE2MTgwMjUsLTE1Nzky
+NjA1MjQsLTE0Mjk1NDA2MDIsLTE4MTExNzMyMTksMTQ1OTY4OD
+gyNSwyMTQ1NTg1ODI4LC00MDc1MzQ2NTgsLTEyNTcyMjAyMjQs
+MTY1NTk5Mjg3N119
 -->
