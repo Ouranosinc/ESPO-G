@@ -104,6 +104,9 @@ min_version("8.12.0")
 Le workflow est stocké  dans le référentiel git  de la structure suivante :
 ```
 ├── config
+│   ├── config.yaml
+|   ├── off-properties_ESPO-
+|   └── module2.smk
 ├── workflow
 │   ├── rules
 |   │   ├── module1.smk
@@ -115,7 +118,6 @@ Le workflow est stocké  dans le référentiel git  de la structure suivante :
 ├── Snakefile
 ├── dag.png
 ├── README.md
-│   ├── config.yaml
 ```
 
 ## Wildcards
@@ -514,7 +516,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEwMDgyNjY1MzUsLTE1ODc2NTcxNDIsLT
+eyJoaXN0b3J5IjpbLTExNDQ3NTAxMjQsLTE1ODc2NTcxNDIsLT
 ExODM2OTYyODksMzUzMjE5NTc4LC0zNjk0ODc4MTgsLTEwMzAy
 MzI3Niw5NTgzMjAyMTQsLTE0NzIyMDY4NDAsLTE3MTczNzU0NT
 UsLTQ1MDcyNDkzNCwzMDAyOTcwMjAsLTE5OTE1NDI5NjIsLTEy
