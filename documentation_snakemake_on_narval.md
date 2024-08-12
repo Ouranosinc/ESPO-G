@@ -25,7 +25,7 @@ input:
     north=Path(config['paths']['final'])/"reference/ref_ north_nodup_default.zarr"  
     south=Path(config['paths']['final'])/"reference/ref_south_nodup_default.zarr"
 ```
-La section input n’est pas obligatoire c’est le cas dans la règle `reference_DEFAULT` dans `Makeref.smk`. Dans la règle ci-haut j'utilise la section `params` pour passer des valeurs aux paramètres de dask.distributed.LocalCluster et qu'elles soient en adéquation avec les ressources demandées à slurm. Donc le client sera appelé de la façon suivante dans le script *load_default_ref.py*:
+La section input n’est pas obligatoire c’est le cas dans la règle `reference_DEFAULT` dans `Makeref.smk`. Dans la règle ci-haut j'utilise la section `params` pour passer des valeurs aux paramètres de dask.distributed.LocalCluster et qu'elles soient en adéquation avec les ressources demandées à slurm. À l'execption de `n_workers` qui est dans ressources par soucis de portabilité. En effet Donc le client sera appelé de la façon suivante dans le script *load_default_ref.py*:
 
     cluster = LocalCluster(n_workers=snakemake.resources.n_workers, threads_per_worker=snakemake.params.threads_per_worker,  
                            memory_limit=snakemake.params.memory_limit, **daskkws)  
@@ -314,11 +314,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEwMzAyMzI3Niw5NTgzMjAyMTQsLTE0Nz
-IyMDY4NDAsLTE3MTczNzU0NTUsLTQ1MDcyNDkzNCwzMDAyOTcw
-MjAsLTE5OTE1NDI5NjIsLTEyOTA4MzU5NzcsLTEzODg2OTExMT
-UsMTgzNDYzMDE3OCwyNzI1MTMyNDgsLTM0NzAyOTA5NywtMTI0
-NDUyMjQzMSw0MzEyNjI0MTUsLTEyMjMwNDc4NjUsMTEyODM4Nz
-E5Niw4MTYxODAyNSwtMTU3OTI2MDUyNCwtMTQyOTU0MDYwMiwt
-MTgxMTE3MzIxOV19
+eyJoaXN0b3J5IjpbLTgwMTM0MDQ5NCwtMTAzMDIzMjc2LDk1OD
+MyMDIxNCwtMTQ3MjIwNjg0MCwtMTcxNzM3NTQ1NSwtNDUwNzI0
+OTM0LDMwMDI5NzAyMCwtMTk5MTU0Mjk2MiwtMTI5MDgzNTk3Ny
+wtMTM4ODY5MTExNSwxODM0NjMwMTc4LDI3MjUxMzI0OCwtMzQ3
+MDI5MDk3LC0xMjQ0NTIyNDMxLDQzMTI2MjQxNSwtMTIyMzA0Nz
+g2NSwxMTI4Mzg3MTk2LDgxNjE4MDI1LC0xNTc5MjYwNTI0LC0x
+NDI5NTQwNjAyXX0=
 -->
