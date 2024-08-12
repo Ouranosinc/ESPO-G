@@ -148,7 +148,28 @@ qui aura comme sorite:
 ["échantillonA.{num}", "échantillonA.{num}"]
 ```
 ## Common.smk
-Le fichier *common.smk* permet de définir des fonctions qui seront utiliser par les autres fichiers .smk ce qui permet de ne pas trop les surcharger avec du code. C'est pour dans cette règle la fonction `official_diags_inputfiles_ref` 
+Le fichier *common.smk* permet de définir des fonctions qui seront utiliser par les autres fichiers .smk ce qui permet de ne pas trop les surcharger avec du code. C'est pour dans cette règle ci dessous la fonction `official_diags_inputfiles_ref` est directement appelée.
+```
+rule off_diag_ref_prop:  
+    input:  
+        ref=official_diags_inputfiles_ref  
+    output:  
+        prop=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-ref-prop_{sim_id}_{dom_name}.zarr"))  
+    params:  
+        threads_per_worker= lambda wildcards,threads, resources: int(threads / resources.n_workers),  
+        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers  
+    threads: 6  
+  resources:  
+        mem='30GB',  
+        n_workers=3,  
+        time=60  
+  wildcard_constraints:  
+        sim_id = "([^_]*_){6}[^_]*"  
+  script:  
+        f"{home}workflow/scripts/off_diag_ref_prop.py"
+```
+
+
 ## Graphe acyclique dirigé
 Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à ESPO-G est la suivante:
 
@@ -429,7 +450,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTcyMjk5MzU0MCwtMTAzMDIzMjc2LDk1OD
+eyJoaXN0b3J5IjpbMTExMDk2MjU4MSwtMTAzMDIzMjc2LDk1OD
 MyMDIxNCwtMTQ3MjIwNjg0MCwtMTcxNzM3NTQ1NSwtNDUwNzI0
 OTM0LDMwMDI5NzAyMCwtMTk5MTU0Mjk2MiwtMTI5MDgzNTk3Ny
 wtMTM4ODY5MTExNSwxODM0NjMwMTc4LDI3MjUxMzI0OCwtMzQ3
