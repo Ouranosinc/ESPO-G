@@ -45,10 +45,10 @@ Puisque `conda` n'est pas utilisé sur narval on ne peut pas utiliser le paramè
     [name@server ~]$ ENVDIR=/tmp/$RANDOM
     [name@server ~]$ virtualenv --no-download $ENVDIR
     [name@server ~]$ source $ENVDIR/bin/activate
-    [name@server ~]$ pip install --no-index --upgrade pip
-    [name@server ~]$ pip install --no-index snakemake==8.12.0
-    [name@server ~]$ pip freeze --local > requirements.txt
-    [name@server ~]$ deactivate
+    (xxxx)[name@server ~]$ pip install --no-index --upgrade pip
+    (xxxx)[name@server ~]$ pip install --no-index snakemake==8.12.0
+    (xxxx)[name@server ~]$ pip freeze --local > requirements.txt
+    (xxxx)[name@server ~]$ deactivate
     [name@server ~]$ rm -rf $ENVDIR
 Cela produira un fichier appelé requirements.txt, avec comme contenu:
 
@@ -274,11 +274,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEzODg2OTExMTUsMTgzNDYzMDE3OCwyNz
-I1MTMyNDgsLTM0NzAyOTA5NywtMTI0NDUyMjQzMSw0MzEyNjI0
-MTUsLTEyMjMwNDc4NjUsMTEyODM4NzE5Niw4MTYxODAyNSwtMT
-U3OTI2MDUyNCwtMTQyOTU0MDYwMiwtMTgxMTE3MzIxOSwxNDU5
-Njg4ODI1LDIxNDU1ODU4MjgsLTQwNzUzNDY1OCwtMTI1NzIyMD
-IyNCwxNjU1OTkyODc3LC00MTM0ODcyMjksLTEzMzU1NzY1NDgs
-LTEzMTE3MzA0MDZdfQ==
+eyJoaXN0b3J5IjpbLTEyOTA4MzU5NzcsLTEzODg2OTExMTUsMT
+gzNDYzMDE3OCwyNzI1MTMyNDgsLTM0NzAyOTA5NywtMTI0NDUy
+MjQzMSw0MzEyNjI0MTUsLTEyMjMwNDc4NjUsMTEyODM4NzE5Ni
+w4MTYxODAyNSwtMTU3OTI2MDUyNCwtMTQyOTU0MDYwMiwtMTgx
+MTE3MzIxOSwxNDU5Njg4ODI1LDIxNDU1ODU4MjgsLTQwNzUzND
+Y1OCwtMTI1NzIyMDIyNCwxNjU1OTkyODc3LC00MTM0ODcyMjks
+LTEzMzU1NzY1NDhdfQ==
 -->
