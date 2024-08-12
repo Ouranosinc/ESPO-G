@@ -39,7 +39,8 @@ Dans le script de soumission slurm (expliqué dans la partie Profile de Snakemak
 Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à ESPO-G est la suivante:
 
 # Création d'environment
-Puisque `conda` n'est pas utilisé sur narval on ne peut pas utiliser le paramètre `conda` de snakemake dans les règles. Donc il n'est pas possible de créer un environment pour chaque règles via `conda`. Donc il faut créer l'envireonment une seule fois dans le repertoire courant en effectuant les étae
+Puisque `conda` n'est pas utilisé sur narval on ne peut pas utiliser le paramètre `conda` de snakemake dans les règles. Donc il n'est pas possible de créer un environment pour chaque règles via `conda`. Donc il faut créer l'envireonment une seule fois dans le repertoire courant en effectuant les étapes suivantes:
+
 
 # Le profile de snakemake
 Pour éxecuter un workflow snakemake dans un cluster, on utilise la commande 
@@ -260,7 +261,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE1NDkwMDg2NzAsNDMxMjYyNDE1LC0xMj
+eyJoaXN0b3J5IjpbLTEyNDQ1MjI0MzEsNDMxMjYyNDE1LC0xMj
 IzMDQ3ODY1LDExMjgzODcxOTYsODE2MTgwMjUsLTE1NzkyNjA1
 MjQsLTE0Mjk1NDA2MDIsLTE4MTExNzMyMTksMTQ1OTY4ODgyNS
 wyMTQ1NTg1ODI4LC00MDc1MzQ2NTgsLTEyNTcyMjAyMjQsMTY1
