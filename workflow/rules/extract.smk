@@ -10,13 +10,13 @@ rule extract:
    wildcard_constraints:
        region = r"[a-zA-Z]+_[a-zA-Z]+",
        sim_id="([^_]*_){6}[^_]*"
-   params:
-        threads_per_worker= lambda wildcards,threads, resources: int(threads / resources.n_workers),
-        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
-   threads: 1
    resources:
-        mem='5GB',
-        n_workers=2,
-        time=160
+       n_workers=2,
+       mem='50GB',
+       cpus_per_task=10,
+       time=170
+   params:
+        threads_per_worker= lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
+        memory_limit=lambda wildcards, resources: float(resources.mem.rstrip("GB")) / resources.n_workers
    script:
        f"{home}workflow/scripts/extract.py"
