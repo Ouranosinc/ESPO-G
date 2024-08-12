@@ -45,8 +45,8 @@ Puisque `conda` n'est pas utilisé sur narval on ne peut pas utiliser le paramè
        $ virtualenv --no-download $SLURM_TMPDIR/env 
        $ source SLURM_TMPDIR/env/bin/activate
        $ pip install --no-index --upgrade pip
+       $ pip install --no-index snakemake==8.12.0
        $ pip install  --no-index -r /project/ctbfrigon/oumou/ouranos_commun/xscen0.9.0-requirements.txt
-       $ pip install snakemake==8.12.0
 Pour avor le fichier  xscen0.9.0-requirements.txt, il faut faire:
 
 
@@ -271,11 +271,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTgzNDYzMDE3OCwyNzI1MTMyNDgsLTM0Nz
-AyOTA5NywtMTI0NDUyMjQzMSw0MzEyNjI0MTUsLTEyMjMwNDc4
-NjUsMTEyODM4NzE5Niw4MTYxODAyNSwtMTU3OTI2MDUyNCwtMT
-QyOTU0MDYwMiwtMTgxMTE3MzIxOSwxNDU5Njg4ODI1LDIxNDU1
-ODU4MjgsLTQwNzUzNDY1OCwtMTI1NzIyMDIyNCwxNjU1OTkyOD
-c3LC00MTM0ODcyMjksLTEzMzU1NzY1NDgsLTEzMTE3MzA0MDYs
-NjE4MDAwMDNdfQ==
+eyJoaXN0b3J5IjpbNTkwODk4NjQwLDE4MzQ2MzAxNzgsMjcyNT
+EzMjQ4LC0zNDcwMjkwOTcsLTEyNDQ1MjI0MzEsNDMxMjYyNDE1
+LC0xMjIzMDQ3ODY1LDExMjgzODcxOTYsODE2MTgwMjUsLTE1Nz
+kyNjA1MjQsLTE0Mjk1NDA2MDIsLTE4MTExNzMyMTksMTQ1OTY4
+ODgyNSwyMTQ1NTg1ODI4LC00MDc1MzQ2NTgsLTEyNTcyMjAyMj
+QsMTY1NTk5Mjg3NywtNDEzNDg3MjI5LC0xMzM1NTc2NTQ4LC0x
+MzExNzMwNDA2XX0=
 -->
