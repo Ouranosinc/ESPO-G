@@ -175,7 +175,7 @@ def official_diags_inputfiles_ref(wildcards):
     ref=Path(config['paths']['final'])/f"reference/ref_{step_dict['domain'][wildcards.dom_name]}_default.zarr"  
     return ref
 ```
-
+Il faut noter l'argument `wildcards` de `official_diags_inputfiles_ref` qui est présent car la fonctio
 ## Graphe acyclique dirigé
 Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à ESPO-G est la suivante:
 
@@ -456,11 +456,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTM2OTQ4NzgxOCwtMTAzMDIzMjc2LDk1OD
-MyMDIxNCwtMTQ3MjIwNjg0MCwtMTcxNzM3NTQ1NSwtNDUwNzI0
-OTM0LDMwMDI5NzAyMCwtMTk5MTU0Mjk2MiwtMTI5MDgzNTk3Ny
-wtMTM4ODY5MTExNSwxODM0NjMwMTc4LDI3MjUxMzI0OCwtMzQ3
-MDI5MDk3LC0xMjQ0NTIyNDMxLDQzMTI2MjQxNSwtMTIyMzA0Nz
-g2NSwxMTI4Mzg3MTk2LDgxNjE4MDI1LC0xNTc5MjYwNTI0LC0x
-NDI5NTQwNjAyXX0=
+eyJoaXN0b3J5IjpbMTE2MTQ1Mjc4NCwtMzY5NDg3ODE4LC0xMD
+MwMjMyNzYsOTU4MzIwMjE0LC0xNDcyMjA2ODQwLC0xNzE3Mzc1
+NDU1LC00NTA3MjQ5MzQsMzAwMjk3MDIwLC0xOTkxNTQyOTYyLC
+0xMjkwODM1OTc3LC0xMzg4NjkxMTE1LDE4MzQ2MzAxNzgsMjcy
+NTEzMjQ4LC0zNDcwMjkwOTcsLTEyNDQ1MjI0MzEsNDMxMjYyND
+E1LC0xMjIzMDQ3ODY1LDExMjgzODcxOTYsODE2MTgwMjUsLTE1
+NzkyNjA1MjRdfQ==
 -->
