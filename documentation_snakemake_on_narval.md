@@ -31,8 +31,7 @@ La section input n’est pas obligatoire c’est le cas dans la règle `referenc
                            memory_limit=snakemake.params.memory_limit, **daskkws)  
     client = Client(cluster)
 
-Dans le script de soumission slurm (expliqué dans la partie Profile de Snakemake) on aura exactement `--cpus-per-task= n_workers*threads_per_worker` et `--mem=n_workers*memory_limit`
-La section `resources` est utilisée pour déterminer quelles tâches peuvent être exécutées en même temps sans dépasser les limites spécifiées sur la ligne de commande. C'est-à-dire que Snakemake ne vérifie pas la consommation de ressources des tâches en temps réel. Ainsi resources.
+La section `resources` est utilisée pour déterminer quelles tâches peuvent être exécutées en même temps sans dépasser les limites spécifiées sur la ligne de commande. C'est-à-dire que Snakemake ne vérifie pas la consommation de ressources des tâches en temps réel. Ainsi les variables de resources seront utiliser dans le script de soumission slurm,.
 Le répertoire _workflow_ contient des fichiers _.smk_ qui sont des ensembles de règles regroupées par tâches. C’est-à-dire que chaque tâche dans `tasks`de _config.yaml_, a son fichier _.smk_.  
 Dans un fichier _.smk_ l’ordre d’exécution des règles est dicté par les fichiers `input`. Par exemple dans _Makeref.smk_, la règle `reference_DEFAULT` est exécutée en premier, car elle sert d’input pour le reste des règles présent dans ce fichier y compris la règle `concat_diag_ref_prop`qui a comme input, le output de la règle `diagnostics`, qui dépend lui même de `reference_DEFAULT`. On aurait pu utiliser `ruleorder`pour imposer un ordre d’exécution des règles `reference_NOLEAP, reference_360_DAY et diagnostics`puisqu’elles sont indépendantes les unes les autres, mais cela n’est pas nécessaire dans ce cas-ci.
 Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à ESPO-G est la suivante:
@@ -314,11 +313,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMzIzMTA4NTc5LC0xMDMwMjMyNzYsOTU4Mz
-IwMjE0LC0xNDcyMjA2ODQwLC0xNzE3Mzc1NDU1LC00NTA3MjQ5
-MzQsMzAwMjk3MDIwLC0xOTkxNTQyOTYyLC0xMjkwODM1OTc3LC
-0xMzg4NjkxMTE1LDE4MzQ2MzAxNzgsMjcyNTEzMjQ4LC0zNDcw
-MjkwOTcsLTEyNDQ1MjI0MzEsNDMxMjYyNDE1LC0xMjIzMDQ3OD
-Y1LDExMjgzODcxOTYsODE2MTgwMjUsLTE1NzkyNjA1MjQsLTE0
-Mjk1NDA2MDJdfQ==
+eyJoaXN0b3J5IjpbLTE1NjMxMDkzNjEsLTEwMzAyMzI3Niw5NT
+gzMjAyMTQsLTE0NzIyMDY4NDAsLTE3MTczNzU0NTUsLTQ1MDcy
+NDkzNCwzMDAyOTcwMjAsLTE5OTE1NDI5NjIsLTEyOTA4MzU5Nz
+csLTEzODg2OTExMTUsMTgzNDYzMDE3OCwyNzI1MTMyNDgsLTM0
+NzAyOTA5NywtMTI0NDUyMjQzMSw0MzEyNjI0MTUsLTEyMjMwND
+c4NjUsMTEyODM4NzE5Niw4MTYxODAyNSwtMTU3OTI2MDUyNCwt
+MTQyOTU0MDYwMl19
 -->
