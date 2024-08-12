@@ -52,7 +52,17 @@ Dans un fichier _.smk_ l’ordre d’exécution des règles est dicté par les f
 Le fichier  ***Snakefile***  est essentiel dans Snakemake. Il faut obligatoirement avoir un fiche dans le rpertoire courant, applé ***Snakefile*** ou ***snakefile*** afin  de pouvoir utiliser la commande `snakemake`. Pour des workflow ayant peu de règles, il n'est pas nécessaire d'avoir des fichiers *.smk*, toutes les règles peuvent être écrites dans le  *Snakefile*. Cependant, la première règle qui doit être définie est la règle **all**.
 
 La règle  **all**  est souvent utilisée pour définir les fichiers cibles finaux que l’on souhaite obtenir à la fin du workflow.  En d’autres termes, elle indique à Snakemake quels fichiers doivent être générés pour que le workflow soit considéré comme terminé.
-
+La règle all de ESPO-G est:
+```
+rule all:  
+    input:  
+        expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_{sim_id}_{dom_name}.zarr", sim_id=sim_id_name,dom_name=dom),  
+        expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/DIAGNOCTICS_diag-heatmap_{sim_id}_{region}.zarr", sim_id=sim_id_name,region=region_name),  
+        expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/DIAGNOCTICS_diag-improved_{sim_id}_{region}.zarr", sim_id=sim_id_name, region=region_name),  
+        expand(Path(config['paths']['final'])/"diagnostics/NAM/{sim_id}/{level}_{sim_id}_NAM.zar", sim_id=sim_id_name,level=level_name),  
+        expand(Path(config['paths']['final']) / "checks/NAM/{sim_id}_NAM_checks.zarr", sim_id=sim_id_name),  
+        Path(config['paths']['final']) / "diagnostics/NAM/ECMWF-ERA5-Land_NAM/diag-ref-prop_ECMWF-ERA5-Land_NAM.zar"
+```
 
 La fonction expande génère une liste de fichiers avec tous les wildcards résolus. Exemple les wildcards sample=[A, B] et num=[1, 2], la sortie de 
 ```
@@ -66,7 +76,7 @@ Il est aussi possible de résoudre seulement le wildcards {sample} en faisant:
 ```
 expand("échantillon{sample}.{{num}}", sample=[A, B])
 ```
-qui aura comme sorite:
+qui aura comme sortie:
 ```
 ["échantillonA.{num}", "échantillonA.{num}"]
 ```
@@ -487,7 +497,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTQ4NzI0MzczOCwzNTMyMTk1NzgsLTM2OT
+eyJoaXN0b3J5IjpbMjEzNTE1OTczMCwzNTMyMTk1NzgsLTM2OT
 Q4NzgxOCwtMTAzMDIzMjc2LDk1ODMyMDIxNCwtMTQ3MjIwNjg0
 MCwtMTcxNzM3NTQ1NSwtNDUwNzI0OTM0LDMwMDI5NzAyMCwtMT
 k5MTU0Mjk2MiwtMTI5MDgzNTk3NywtMTM4ODY5MTExNSwxODM0
