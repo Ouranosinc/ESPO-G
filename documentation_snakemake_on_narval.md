@@ -48,25 +48,6 @@ La section `resources` est utilisée pour déterminer quelles tâches peuvent ê
 Le répertoire _workflow_ contient des fichiers _.smk_ qui sont des ensembles de règles regroupées par tâches. C’est-à-dire que chaque tâche dans `tasks`de _config.yaml_, a son fichier _.smk_.  
 Dans un fichier _.smk_ l’ordre d’exécution des règles est dicté par les fichiers `input`. Par exemple dans _Makeref.smk_, la règle `reference_DEFAULT` est exécutée en premier, car elle sert d’input pour le reste des règles présent dans ce fichier y compris la règle `concat_diag_ref_prop`qui a comme input, le output de la règle `diagnostics`, qui dépend lui même de `reference_DEFAULT`. On aurait pu utiliser `ruleorder`pour imposer un ordre d’exécution des règles `reference_NOLEAP, reference_360_DAY et diagnostics`puisqu’elles sont indépendantes les unes les autres, mais cela n’est pas nécessaire dans ce cas-ci.
 
-
-## Fonction expand()
-L a fonction expande génère une list de fichiers avec tous les wildcards résolus. Exemple les wildcards sample=[A, B] et num=[1, 2], la sortie de 
-```
-expand("échantillon{sample}.{num}", sample=[A, B],  num=[1, 2])
-```
-sera 
-```
-["échantillonA.1", "échantillonA.2", "échantillonB.1", "échantillonB.2"]
-```
-Il est aussi possible de résoudre seulement le wildcards {sample} en faisant:
-```
-expand("échantillon{sample}.{{num}}", sample=[A, B])
-```
-qui aura comme sorite:
-```
-["échantillonA.{num}", "échantillonA.{num}"]
-```
-
 ## Snakefile et règle all
 
 
@@ -154,6 +135,23 @@ Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_extracte
 dans la règle   _extract_  et supposez qu’un fichier  _CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup_extracted.zarr_  est disponible. Il n’est pas clair si  `sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1`  et  `region=ssp585_r1i1p1f1_global_middle_nodup`  ou  `sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global`  et  `region=middle_nodup`  dans ce cas.  
 C’est pourquoi une contrainte a été ajoutée à la wildcards `region` pour qu’il soit composé de deux chaînes de caractères séparées par un tiret du bas. Le wildcards sim_id est aussi contraint à avoir minimum 6 underscords.
 
+## Fonction expand()
+L a fonction expande génère une liste de fichiers avec tous les wildcards résolus. Exemple les wildcards sample=[A, B] et num=[1, 2], la sortie de 
+```
+expand("échantillon{sample}.{num}", sample=[A, B],  num=[1, 2])
+```
+sera 
+```
+["échantillonA.1", "échantillonA.2", "échantillonB.1", "échantillonB.2"]
+```
+Il est aussi possible de résoudre seulement le wildcards {sample} en faisant:
+```
+expand("échantillon{sample}.{{num}}", sample=[A, B])
+```
+qui aura comme sorite:
+```
+["échantillonA.{num}", "échantillonA.{num}"]
+```
 ## Common.smk
 Le fichier *common.smk* permet de définir des fonctions qui seront utiliser par les autres fichiers .smk ce qui permet de ne pas trop les surcharger avec du code. C'est pour dans cette règle ci dessous la fonction `official_diags_inputfiles_ref` est directement appelée.
 ```
@@ -464,7 +462,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTg0MTQzMDMzNSwzNTMyMTk1NzgsLTM2OT
+eyJoaXN0b3J5IjpbLTM0MjY5NjQzNCwzNTMyMTk1NzgsLTM2OT
 Q4NzgxOCwtMTAzMDIzMjc2LDk1ODMyMDIxNCwtMTQ3MjIwNjg0
 MCwtMTcxNzM3NTQ1NSwtNDUwNzI0OTM0LDMwMDI5NzAyMCwtMT
 k5MTU0Mjk2MiwtMTI5MDgzNTk3NywtMTM4ODY5MTExNSwxODM0
