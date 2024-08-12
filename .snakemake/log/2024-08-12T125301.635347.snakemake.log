@@ -1,0 +1,123 @@
+Building DAG of jobs...
+Using shell: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/bash
+Provided remote nodes: 10
+Job stats:
+job                          count
+-------------------------  -------
+DIAGNOSTICS                      3
+adjust                           9
+all                              1
+clean_up                         3
+concat_diag_ref_prop             1
+concatenation_diag               4
+concatenation_final              1
+diag_improved_et_heatmap         3
+diag_measures_improvement        4
+diagnostics                      3
+extract                          3
+final_zarr                       3
+health_checks                    1
+off_diag_ref_prop                4
+off_diag_scen_prop_meas          4
+off_diag_sim_prop_meas           4
+rechunk                          3
+reference_360_DAY                3
+reference_DEFAULT                3
+reference_NOLEAP                 3
+regrid                           3
+train                            9
+total                           75
+
+Select jobs to execute...
+Execute 6 jobs...
+
+[Mon Aug 12 12:53:01 2024]
+rule reference_DEFAULT:
+    output: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/reference/ref_south_nodup_default.zarr
+    jobid: 16
+    reason: Missing output files: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/reference/ref_south_nodup_default.zarr
+    wildcards: region=south_nodup
+    resources: mem_mb=4768, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, qos=high_priority, mem=5GB, time=160, n_workers=2
+
+Submitted job 16 with external jobid '32795065'.
+
+[Mon Aug 12 12:53:03 2024]
+rule reference_DEFAULT:
+    output: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/reference/ref_middle_nodup_default.zarr
+    jobid: 4
+    reason: Missing output files: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/reference/ref_middle_nodup_default.zarr
+    wildcards: region=middle_nodup
+    resources: mem_mb=4768, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, qos=high_priority, mem=5GB, time=160, n_workers=2
+
+Submitted job 4 with external jobid '32795067'.
+
+[Mon Aug 12 12:53:05 2024]
+rule extract:
+    input: /home/oumou/espo_SNAKEMAKE_NARVAL/workflow/scripts/extract.py
+    output: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south_nodup_extracted.zarr
+    jobid: 20
+    reason: Missing output files: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south_nodup_extracted.zarr
+    wildcards: region=south_nodup, sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global
+    resources: mem_mb=4768, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, qos=high_priority, mem=5GB, time=160, n_workers=2
+
+Submitted job 20 with external jobid '32795068'.
+
+[Mon Aug 12 12:53:08 2024]
+rule reference_DEFAULT:
+    output: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/reference/ref_north_nodup_default.zarr
+    jobid: 39
+    reason: Missing output files: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/reference/ref_north_nodup_default.zarr
+    wildcards: region=north_nodup
+    resources: mem_mb=4768, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, qos=high_priority, mem=5GB, time=160, n_workers=2
+
+Submitted job 39 with external jobid '32795069'.
+
+[Mon Aug 12 12:53:10 2024]
+rule extract:
+    input: /home/oumou/espo_SNAKEMAKE_NARVAL/workflow/scripts/extract.py
+    output: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup_extracted.zarr
+    jobid: 8
+    reason: Missing output files: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup_extracted.zarr
+    wildcards: sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global, region=middle_nodup
+    resources: mem_mb=4768, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, qos=high_priority, mem=5GB, time=160, n_workers=2
+
+Submitted job 8 with external jobid '32795070'.
+
+[Mon Aug 12 12:53:10 2024]
+rule extract:
+    input: /home/oumou/espo_SNAKEMAKE_NARVAL/workflow/scripts/extract.py
+    output: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup_extracted.zarr
+    jobid: 43
+    reason: Missing output files: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup_extracted.zarr
+    wildcards: region=north_nodup, sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global
+    resources: mem_mb=4768, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=<TBD>, qos=high_priority, mem=5GB, time=160, n_workers=2
+
+Submitted job 43 with external jobid '32795071'.
+Waiting at most 60 seconds for missing files.
+MissingOutputException in rule extract in file /home/oumou/espo_SNAKEMAKE_NARVAL/workflow/rules/extract.smk, line 5:
+Job 20  completed successfully, but some output files are missing. Missing files after 60 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+/scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_south_nodup_extracted.zarr (missing locally, parent dir contents: logger.log)
+Waiting at most 60 seconds for missing files.
+MissingOutputException in rule extract in file /home/oumou/espo_SNAKEMAKE_NARVAL/workflow/rules/extract.smk, line 5:
+Job 43  completed successfully, but some output files are missing. Missing files after 60 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+/scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_north_nodup_extracted.zarr (missing locally, parent dir contents: logger.log)
+Waiting at most 60 seconds for missing files.
+MissingOutputException in rule reference_DEFAULT in file /home/oumou/espo_SNAKEMAKE_NARVAL/workflow/rules/Makeref.smk, line 8:
+Job 16  completed successfully, but some output files are missing. Missing files after 60 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+/project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/reference/ref_south_nodup_default.zarr (missing locally, parent dir not present)
+Waiting at most 60 seconds for missing files.
+MissingOutputException in rule reference_DEFAULT in file /home/oumou/espo_SNAKEMAKE_NARVAL/workflow/rules/Makeref.smk, line 8:
+Job 4  completed successfully, but some output files are missing. Missing files after 60 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+/project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/reference/ref_middle_nodup_default.zarr (missing locally, parent dir not present)
+Waiting at most 60 seconds for missing files.
+MissingOutputException in rule reference_DEFAULT in file /home/oumou/espo_SNAKEMAKE_NARVAL/workflow/rules/Makeref.smk, line 8:
+Job 39  completed successfully, but some output files are missing. Missing files after 60 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+/project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/reference/ref_north_nodup_default.zarr (missing locally, parent dir not present)
+Waiting at most 60 seconds for missing files.
+MissingOutputException in rule extract in file /home/oumou/espo_SNAKEMAKE_NARVAL/workflow/rules/extract.smk, line 5:
+Job 8  completed successfully, but some output files are missing. Missing files after 60 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+/scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup_extracted.zarr (missing locally, parent dir contents: logger.log)
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2024-08-12T125301.635347.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

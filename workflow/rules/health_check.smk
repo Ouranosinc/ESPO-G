@@ -10,7 +10,7 @@ rule health_checks:
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
     params:
-        threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,
+        threads_per_worker= lambda wildcards,threads, resources: int(threads / resources.n_workers),
         memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
     threads: 40
     resources:

@@ -11,13 +11,13 @@ rule reference_DEFAULT:
     wildcard_constraints:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     params:
-        threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,
+        threads_per_worker= lambda wildcards,threads, resources: int(threads / resources.n_workers),
         memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
-    threads: 2
+    threads: 1
     resources:
         mem='5GB',
         n_workers=2,
-        time=40
+        time=160
     script:
         f"{home}workflow/scripts/load_default_ref.py"
 
@@ -29,11 +29,11 @@ rule reference_NOLEAP:
     wildcard_constraints:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     params:
-        threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,
+        threads_per_worker= lambda wildcards,threads, resources: int(threads / resources.n_workers),
         memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
-    threads: 4
+    threads: 2
     resources:
-        mem='30GB',
+        mem='15GB',
         n_workers=2
     script:
         f"{home}workflow/scripts/load_noleap_ref.py"
@@ -47,8 +47,8 @@ rule reference_360_DAY:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     params:
         n_workers=2,
-        threads_per_worker=5,
-        memory_limit='25GB'
+        threads_per_worker=2,
+        memory_limit='5GB'
     script:
         f"{home}workflow/scripts/load_360_day_ref.py"
 
@@ -60,12 +60,12 @@ rule diagnostics:
     wildcard_constraints:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     params:
-        threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,
+        threads_per_worker= lambda wildcards,threads, resources: int(threads / resources.n_workers),
         memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
     resources:
-        mem='30GB',
+        mem='15GB',
         n_workers=2
-    threads: 6
+    threads: 2
     script:
         f"{home}workflow/scripts/diagnostics.py"
 

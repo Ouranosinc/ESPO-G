@@ -45,10 +45,11 @@ cluster-generic-submit-cmd:
     --output=s_logs/{rule}/{rule}-{wildcards}-%j.out
     --time={resources.time}
     --parsable
+  jobscript.sh
 default-resources:
   - qos=high_priority
   - mem=80GB
-  - time=25
+  - time=120
 cluster-generic-cancel-cmd: "scancel"
 cluster-generic-status-cmd: status-sacct.py
 #restart-times: 3
@@ -60,4 +61,5 @@ jobs: 10
 keep-going: True
 rerun-incomplete: True
 printshellcmds: True
+
 

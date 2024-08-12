@@ -11,7 +11,7 @@ rule rechunk:
        region = r"[a-zA-Z]+_[a-zA-Z]+",
        sim_id="([^_]*_){6}[^_]*"
    params:
-       threads_per_worker=lambda wildcards, threads, resources: threads / resources.n_workers,
+       threads_per_worker=lambda wildcards, threads, resources: int(threads / resources.n_workers),
        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
    threads: 8
    resources:
