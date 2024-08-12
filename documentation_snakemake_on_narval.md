@@ -42,8 +42,9 @@ Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâche
 Puisque `conda` n'est pas utilisé sur narval on ne peut pas utiliser le paramètre `conda` de snakemake dans les règles. Donc il n'est pas possible de créer un environment pour chaque règles via `conda`. Donc il faut créer l'envireonment pour snakemake une seule fois dans le repertoire courant en effectuant les étapes suivantes:
 
     [name@server ~]$ module load StdEnv/2023 gcc openmpi python/3.11 arrow/16.1.0 openmpi netcdf proj esmf geos mpi4py 
-    [name@server ~]$ virtualenv --no-download $SLURM_TMPDIR/env 
-    [name@server ~] $ source SLURM_TMPDIR/env/bin/activate
+    [name@server ~]$ ENVDIR=$SLURM_TMPDIR/env
+    [name@server ~]$ virtualenv --no-download $ENVDIR 
+    [name@server ~] $ source $ENVDIR/bin/activate
     [name@server ~]$ pip install --no-index --upgrade pip
     [name@server ~]$ pip install --no-index snakemake==8.12.0
     [name@server ~]$ pip freeze --local > requirements.txt
@@ -273,11 +274,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTE5NDYxOTYyNywxODM0NjMwMTc4LDI3Mj
-UxMzI0OCwtMzQ3MDI5MDk3LC0xMjQ0NTIyNDMxLDQzMTI2MjQx
-NSwtMTIyMzA0Nzg2NSwxMTI4Mzg3MTk2LDgxNjE4MDI1LC0xNT
-c5MjYwNTI0LC0xNDI5NTQwNjAyLC0xODExMTczMjE5LDE0NTk2
-ODg4MjUsMjE0NTU4NTgyOCwtNDA3NTM0NjU4LC0xMjU3MjIwMj
-I0LDE2NTU5OTI4NzcsLTQxMzQ4NzIyOSwtMTMzNTU3NjU0OCwt
-MTMxMTczMDQwNl19
+eyJoaXN0b3J5IjpbMTEwMjYzMTUwLDE4MzQ2MzAxNzgsMjcyNT
+EzMjQ4LC0zNDcwMjkwOTcsLTEyNDQ1MjI0MzEsNDMxMjYyNDE1
+LC0xMjIzMDQ3ODY1LDExMjgzODcxOTYsODE2MTgwMjUsLTE1Nz
+kyNjA1MjQsLTE0Mjk1NDA2MDIsLTE4MTExNzMyMTksMTQ1OTY4
+ODgyNSwyMTQ1NTg1ODI4LC00MDc1MzQ2NTgsLTEyNTcyMjAyMj
+QsMTY1NTk5Mjg3NywtNDEzNDg3MjI5LC0xMzM1NTc2NTQ4LC0x
+MzExNzMwNDA2XX0=
 -->
