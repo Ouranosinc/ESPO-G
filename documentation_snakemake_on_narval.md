@@ -1,21 +1,23 @@
 # Snakemake
 Snakemake est un outil inspiré de GNU Make, mais conçu pour être plus flexible et puissant. Il utilise une syntaxe basée sur Python pour définir des règles qui spécifient comment générer des fichiers de sortie à partir de fichiers d’entrée. Pour consulter la documentation officielle vous pouvez cliquer sur ce [lien](https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html).
 Les workflows sont définis en termes de règles. Chaque règle spécifie comment créer un fichier de sortie à partir d’un ou plusieurs fichiers d’entrée. Voici un exemple de règle :
-```rule reference_DEFAULT:  
+```
+rule reference_DEFAULT:  
     output:  
         directory(Path(config['paths']['final'])/"reference/ref_{region}_default.zarr")  
     wildcard_constraints:  
         region=r"[a-zA-Z]+_[a-zA-Z]+"  
-  params:  
+    params:  
         threads_per_worker= lambda wildcards,threads, resources: int(threads / resources.n_workers),  
         memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers  
     threads: 1  
-  resources:  
+    resources:  
         mem='5GB',  
         n_workers=2,  
         time=160  
-  script:  
-        f"{home}workflow/scripts/load_default_ref.py"```
+    script:  
+        f"{home}workflow/scripts/load_default_ref.py"
+```
 Une règle snakemake doit avoir un output c’est-à-dire le fichier qu’on veut créer. La manière dont le fichier et son contenu sont générés est spécifié dans le script, run ou shell. S’il s’agit d’un script, le chemin vers le fichier du script est donné comme dans l'exemple précédent. Dans le script on peut utiliser les paramèetres de snakemake par exemple on utilise `snakemake.input`si la règle ne possède qu’un seul fichier input ou bien  `snakemake.input[0]`  si elle possède une liste de fichiers input. On peut aussi appeler chaque fichier input par un nom, par exemple  `snakemake.input.south`si on a:
 ```
 input:  
@@ -311,7 +313,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE1MzI0NzE4MzksLTQ1MDcyNDkzNCwzMD
+eyJoaXN0b3J5IjpbLTE3MTczNzU0NTUsLTQ1MDcyNDkzNCwzMD
 AyOTcwMjAsLTE5OTE1NDI5NjIsLTEyOTA4MzU5NzcsLTEzODg2
 OTExMTUsMTgzNDYzMDE3OCwyNzI1MTMyNDgsLTM0NzAyOTA5Ny
 wtMTI0NDUyMjQzMSw0MzEyNjI0MTUsLTEyMjMwNDc4NjUsMTEy
