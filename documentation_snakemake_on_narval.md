@@ -54,7 +54,9 @@ Le fichier  ***Snakefile***  est essentiel dans Snakemake. Il faut obligatoireme
 La règle  **all**  est souvent utilisée pour définir les fichiers cibles finaux que l’on souhaite obtenir à la fin du workflow.  En d’autres termes, elle indique à Snakemake quels fichiers doivent être générés pour que le workflow soit considéré comme terminé.
 Pour utiliser des fichiers *.smk* il faut les inclure dan le ***Snakefile*** de cette façon:
 
+```
 include: "workflow/rules/common.smk
+```
 
 
 ## Wildcards
@@ -468,11 +470,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMjg3OTEyNTIwLDM1MzIxOTU3OCwtMzY5ND
-g3ODE4LC0xMDMwMjMyNzYsOTU4MzIwMjE0LC0xNDcyMjA2ODQw
-LC0xNzE3Mzc1NDU1LC00NTA3MjQ5MzQsMzAwMjk3MDIwLC0xOT
-kxNTQyOTYyLC0xMjkwODM1OTc3LC0xMzg4NjkxMTE1LDE4MzQ2
-MzAxNzgsMjcyNTEzMjQ4LC0zNDcwMjkwOTcsLTEyNDQ1MjI0Mz
-EsNDMxMjYyNDE1LC0xMjIzMDQ3ODY1LDExMjgzODcxOTYsODE2
-MTgwMjVdfQ==
+eyJoaXN0b3J5IjpbLTIxMjI0MDY0MTYsMzUzMjE5NTc4LC0zNj
+k0ODc4MTgsLTEwMzAyMzI3Niw5NTgzMjAyMTQsLTE0NzIyMDY4
+NDAsLTE3MTczNzU0NTUsLTQ1MDcyNDkzNCwzMDAyOTcwMjAsLT
+E5OTE1NDI5NjIsLTEyOTA4MzU5NzcsLTEzODg2OTExMTUsMTgz
+NDYzMDE3OCwyNzI1MTMyNDgsLTM0NzAyOTA5NywtMTI0NDUyMj
+QzMSw0MzEyNjI0MTUsLTEyMjMwNDc4NjUsMTEyODM4NzE5Niw4
+MTYxODAyNV19
 -->
