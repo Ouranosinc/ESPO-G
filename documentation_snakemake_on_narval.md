@@ -115,13 +115,7 @@ Il est recommandé de stocker chaque workflow dans un référentiel git dédié 
 |   │   └── tool2.yaml
 │   ├── scripts
 |   │   ├── script1.py
-|   │   └── script2.R
-│   ├── notebooks
-|   │   ├── notebook1.py.ipynb
-|   │   └── notebook2.r.ipynb
-│   ├── report
-|   │   ├── plot1.rst
-|   │   └── plot2.rst
+|   │   └── script2.py
 |   └── Snakefile
 ├── config
 │   ├── config.yaml
@@ -526,7 +520,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNTM5MTA4ODc5LC0xMTgzNjk2Mjg5LDM1Mz
+eyJoaXN0b3J5IjpbOTI0NTg0NzIzLC0xMTgzNjk2Mjg5LDM1Mz
 IxOTU3OCwtMzY5NDg3ODE4LC0xMDMwMjMyNzYsOTU4MzIwMjE0
 LC0xNDcyMjA2ODQwLC0xNzE3Mzc1NDU1LC00NTA3MjQ5MzQsMz
 AwMjk3MDIwLC0xOTkxNTQyOTYyLC0xMjkwODM1OTc3LC0xMzg4
