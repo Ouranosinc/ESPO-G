@@ -32,7 +32,7 @@ La section input n’est pas obligatoire c’est le cas dans la règle `referenc
     client = Client(cluster)
 
 Dans le script de soumission slurm (expliqué dans la partie Profile de Snakemake) on aura exactement `--cpus-per-task= n_workers*threads_per_worker` et `--mem=n_workers*memory_limit`
-La section `resources` sert a definir des valeurs 
+La section `resources` est utilisée pour déterminer quelles tâches peuvent être exécutées en même temps sans dépasser les limites spécifiées sur la ligne de commande.
 Le répertoire _workflow_ contient des fichiers _.smk_ qui sont des ensembles de règles regroupées par tâches. C’est-à-dire que chaque tâche dans `tasks`de _config.yaml_, a son fichier _.smk_.  
 Dans un fichier _.smk_ l’ordre d’exécution des règles est dicté par les fichiers `input`. Par exemple dans _Makeref.smk_, la règle `reference_DEFAULT` est exécutée en premier, car elle sert d’input pour le reste des règles présent dans ce fichier y compris la règle `concat_diag_ref_prop`qui a comme input, le output de la règle `diagnostics`, qui dépend lui même de `reference_DEFAULT`. On aurait pu utiliser `ruleorder`pour imposer un ordre d’exécution des règles `reference_NOLEAP, reference_360_DAY et diagnostics`puisqu’elles sont indépendantes les unes les autres, mais cela n’est pas nécessaire dans ce cas-ci.
 Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à ESPO-G est la suivante:
@@ -314,11 +314,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbOTU4MzIwMjE0LC0xNDcyMjA2ODQwLC0xNz
-E3Mzc1NDU1LC00NTA3MjQ5MzQsMzAwMjk3MDIwLC0xOTkxNTQy
-OTYyLC0xMjkwODM1OTc3LC0xMzg4NjkxMTE1LDE4MzQ2MzAxNz
-gsMjcyNTEzMjQ4LC0zNDcwMjkwOTcsLTEyNDQ1MjI0MzEsNDMx
-MjYyNDE1LC0xMjIzMDQ3ODY1LDExMjgzODcxOTYsODE2MTgwMj
-UsLTE1NzkyNjA1MjQsLTE0Mjk1NDA2MDIsLTE4MTExNzMyMTks
-MTQ1OTY4ODgyNV19
+eyJoaXN0b3J5IjpbLTE3ODAxMzYyMjMsOTU4MzIwMjE0LC0xND
+cyMjA2ODQwLC0xNzE3Mzc1NDU1LC00NTA3MjQ5MzQsMzAwMjk3
+MDIwLC0xOTkxNTQyOTYyLC0xMjkwODM1OTc3LC0xMzg4NjkxMT
+E1LDE4MzQ2MzAxNzgsMjcyNTEzMjQ4LC0zNDcwMjkwOTcsLTEy
+NDQ1MjI0MzEsNDMxMjYyNDE1LC0xMjIzMDQ3ODY1LDExMjgzOD
+cxOTYsODE2MTgwMjUsLTE1NzkyNjA1MjQsLTE0Mjk1NDA2MDIs
+LTE4MTExNzMyMTldfQ==
 -->
