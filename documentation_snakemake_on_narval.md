@@ -156,12 +156,12 @@ rule off_diag_ref_prop:
     output:  
         prop=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-ref-prop_{sim_id}_{dom_name}.zarr"))  
     params:  
-        threads_per_worker= lambda wildcards,threads, resources: int(threads / resources.n_workers),  
-        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers  
-    threads: 6  
+        threads_per_worker= lambda wildcards,threads, resources: int(resources.cpus_per_task / resources.n_workers),  
+        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers   
   resources:  
         mem='30GB',  
-        n_workers=3,  
+        n_workers=3, 
+        cpus_per_task=6, 
         time=60  
   wildcard_constraints:  
         sim_id = "([^_]*_){6}[^_]*"  
@@ -450,11 +450,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTExMDk2MjU4MSwtMTAzMDIzMjc2LDk1OD
-MyMDIxNCwtMTQ3MjIwNjg0MCwtMTcxNzM3NTQ1NSwtNDUwNzI0
-OTM0LDMwMDI5NzAyMCwtMTk5MTU0Mjk2MiwtMTI5MDgzNTk3Ny
-wtMTM4ODY5MTExNSwxODM0NjMwMTc4LDI3MjUxMzI0OCwtMzQ3
-MDI5MDk3LC0xMjQ0NTIyNDMxLDQzMTI2MjQxNSwtMTIyMzA0Nz
-g2NSwxMTI4Mzg3MTk2LDgxNjE4MDI1LC0xNTc5MjYwNTI0LC0x
-NDI5NTQwNjAyXX0=
+eyJoaXN0b3J5IjpbNzc1OTYwMzA3LC0xMDMwMjMyNzYsOTU4Mz
+IwMjE0LC0xNDcyMjA2ODQwLC0xNzE3Mzc1NDU1LC00NTA3MjQ5
+MzQsMzAwMjk3MDIwLC0xOTkxNTQyOTYyLC0xMjkwODM1OTc3LC
+0xMzg4NjkxMTE1LDE4MzQ2MzAxNzgsMjcyNTEzMjQ4LC0zNDcw
+MjkwOTcsLTEyNDQ1MjI0MzEsNDMxMjYyNDE1LC0xMjIzMDQ3OD
+Y1LDExMjgzODcxOTYsODE2MTgwMjUsLTE1NzkyNjA1MjQsLTE0
+Mjk1NDA2MDJdfQ==
 -->
