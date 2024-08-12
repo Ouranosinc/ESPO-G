@@ -49,7 +49,7 @@ Le répertoire _workflow_ contient des fichiers _.smk_ qui sont des ensembles de
 Dans un fichier _.smk_ l’ordre d’exécution des règles est dicté par les fichiers `input`. Par exemple dans _Makeref.smk_, la règle `reference_DEFAULT` est exécutée en premier, car elle sert d’input pour le reste des règles présent dans ce fichier y compris la règle `concat_diag_ref_prop`qui a comme input, le output de la règle `diagnostics`, qui dépend lui même de `reference_DEFAULT`. On aurait pu utiliser `ruleorder`pour imposer un ordre d’exécution des règles `reference_NOLEAP, reference_360_DAY et diagnostics`puisqu’elles sont indépendantes les unes les autres, mais cela n’est pas nécessaire dans ce cas-ci.
 
 ## Snakefile et règle all
-Le fichier  ***Snakefile***  est essentiel dans Snakemake. Il faut obligatoirement avoir un fiche dans le rpertoire courant, applé ***Snakefile*** ou ***snakefile*** afin  de pouvoir utiliser la commande `snakemake`. Pour des workflow ayant peu de règles, il n'est pas nécessaire d'avoir des fichiers *.smk*, toutes les règles peuvent être écrites dans le  *Snakefile*. Cependant, la première règle qui doit être définie est la règle **all**.
+Le fichier  ***Snakefile***  est essentiel dans Snakemake. Il faut obligatoirement avoir un fichier dans le rpertoire courant, applé ***Snakefile*** ou ***snakefile*** afin  de pouvoir utiliser la commande `snakemake`. Pour des workflow ayant peu de règles, il n'est pas nécessaire d'avoir des fichiers *.smk*, toutes les règles peuvent être écrites dans le  *Snakefile*. Cependant, la première règle qui doit être définie est la règle **all**.
 
 La règle  **all**  est souvent utilisée pour définir les fichiers cibles finaux que l’on souhaite obtenir à la fin du workflow.  En d’autres termes, elle indique à Snakemake quels fichiers doivent être générés pour que le workflow soit considéré comme terminé.
 La règle all de ESPO-G est:
@@ -80,6 +80,8 @@ qui aura comme sortie:
 ```
 ["échantillonA.{num}", "échantillonA.{num}"]
 ```
+
+
 Pour utiliser des fichiers *.smk* il faut les inclure dan le ***Snakefile*** de cette façon:
 
 ```
@@ -497,11 +499,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMjEzNTE1OTczMCwzNTMyMTk1NzgsLTM2OT
-Q4NzgxOCwtMTAzMDIzMjc2LDk1ODMyMDIxNCwtMTQ3MjIwNjg0
-MCwtMTcxNzM3NTQ1NSwtNDUwNzI0OTM0LDMwMDI5NzAyMCwtMT
-k5MTU0Mjk2MiwtMTI5MDgzNTk3NywtMTM4ODY5MTExNSwxODM0
-NjMwMTc4LDI3MjUxMzI0OCwtMzQ3MDI5MDk3LC0xMjQ0NTIyND
-MxLDQzMTI2MjQxNSwtMTIyMzA0Nzg2NSwxMTI4Mzg3MTk2LDgx
-NjE4MDI1XX0=
+eyJoaXN0b3J5IjpbODY5NjgzMDc5LDM1MzIxOTU3OCwtMzY5ND
+g3ODE4LC0xMDMwMjMyNzYsOTU4MzIwMjE0LC0xNDcyMjA2ODQw
+LC0xNzE3Mzc1NDU1LC00NTA3MjQ5MzQsMzAwMjk3MDIwLC0xOT
+kxNTQyOTYyLC0xMjkwODM1OTc3LC0xMzg4NjkxMTE1LDE4MzQ2
+MzAxNzgsMjcyNTEzMjQ4LC0zNDcwMjkwOTcsLTEyNDQ1MjI0Mz
+EsNDMxMjYyNDE1LC0xMjIzMDQ3ODY1LDExMjgzODcxOTYsODE2
+MTgwMjVdfQ==
 -->
