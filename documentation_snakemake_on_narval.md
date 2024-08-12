@@ -223,7 +223,7 @@ Les jobs sont bien soumis au cluster si les informations de snakemake écrites �
 Et on peut voir l'etat des jobs avec la commande d slurm:
 
     $ sq
- Pour plus de detail sur l'utilisation de la mémoire et des threads des jobs en temps réelle on peut consulter la page 
+ Pour plus de détail sur l'utilisation de la mémoire et des threads des jobs en temps réelle on peut consulter cette  [page](https://portail.narval.calculquebec.ca/).
 Lorsqu'on annule une job slurm associée à une règle snakemake, la règle échoue aussi. Par contre, si c'est le processus Snakemake qui est annuler avec `ctrl + c` les jobs slurm associés doivent être annulées séparement avec la commande:
 
     $ scancel <JOBID>
@@ -315,7 +315,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTcyMjY0ODc0MywzMDAyOTcwMjAsLTE5OT
+eyJoaXN0b3J5IjpbLTQ1MDcyNDkzNCwzMDAyOTcwMjAsLTE5OT
 E1NDI5NjIsLTEyOTA4MzU5NzcsLTEzODg2OTExMTUsMTgzNDYz
 MDE3OCwyNzI1MTMyNDgsLTM0NzAyOTA5NywtMTI0NDUyMjQzMS
 w0MzEyNjI0MTUsLTEyMjMwNDc4NjUsMTEyODM4NzE5Niw4MTYx
