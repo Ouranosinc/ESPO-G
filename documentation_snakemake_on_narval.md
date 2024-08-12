@@ -65,6 +65,11 @@ Path(config['paths']['final'])/"reference/ref_south_nodup_default.zarr"
 ```
 Pour chaque fichier input, le script associé à  `reference_DEFAULT`  est exécuté et toutes les variables snakemake.wildcards.region présentes dans le script sont remplacées par la valeur actuelle du wildcard  `region` .
 
+Pour générer un fichier en particulier, exemple: `Path(config['paths'['final'])/"reference/ref_{region}_default.zarr"`  pour `middle_nodup`, on exécute la commande: 
+ ```
+$ snakemake --cores 10 /project/ctb-frigon/oumou/ESPO-G6-stage/reference/ref_middle_nodup_default.zarr/
+```
+
 Lors de l’exécution de la commande  `snakemake --cores N all`  ou  `snakemake --cores N chemin/vers/le_fichiers_désiré.zarr`, Snakemake détermine automatiquement les dépendances entre les règles en faisant correspondre les noms de fichiers. C’est à dire pour
 
 ```
@@ -75,12 +80,6 @@ rule all:
 ```
 
 snakemake va écrire tous les fichiers possibles en remplaçant toutes les valeurs de `sim_id` et `dome_name`. Il va ensuite chercher la règle qui a comme output  `Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_{sim_id}_{dom_name}.zarr"`  afin de voir les dépendance (les fichiers input).
-
-Pour générer un fichier en particulier, exemple: `Path(config['paths'['final'])/"reference/ref_{region}_default.zarr"`  pour `middle_nodup`, on exécute la commande: 
- ```
-$ snakemake --cores 10 /project/ctb-frigon/oumou/ESPO-G6-stage/reference/ref_middle_nodup_default.zarr/
-```
-
 **Attention:** la commande `snakemake --cores` bne soumet pas des jobs à un cluster. Elle exécute les règles localement. Pour soumettre les règles à un cluster il faut utiliser l'argument `cluster-generic-submit-cmd` qui sera discuté dans le prochain chapitre.
 
 
@@ -365,7 +364,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE4Nzg0Nzg1ODYsLTEwMzAyMzI3Niw5NT
+eyJoaXN0b3J5IjpbLTE3NTA3MjIxMzYsLTEwMzAyMzI3Niw5NT
 gzMjAyMTQsLTE0NzIyMDY4NDAsLTE3MTczNzU0NTUsLTQ1MDcy
 NDkzNCwzMDAyOTcwMjAsLTE5OTE1NDI5NjIsLTEyOTA4MzU5Nz
 csLTEzODg2OTExMTUsMTgzNDYzMDE3OCwyNzI1MTMyNDgsLTM0
