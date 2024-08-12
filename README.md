@@ -6,19 +6,20 @@
 <h1 id="snakemake">Snakemake</h1>
 <p>Snakemake est un outil inspiré de GNU Make, mais conçu pour être plus flexible et puissant. Il utilise une syntaxe basée sur Python pour définir des règles qui spécifient comment générer des fichiers de sortie à partir de fichiers d’entrée. Pour consulter la documentation officielle vous pouvez cliquer sur ce <a href="https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html">lien</a>.<br>
 Les workflows sont définis en termes de règles. Chaque règle spécifie comment créer un fichier de sortie à partir d’un ou plusieurs fichiers d’entrée. Voici un exemple de règle :</p>
-<pre><code>    rule reference_DEFAULT:  
+<pre><code>rule reference_DEFAULT:  
     output:  
         directory(Path(config['paths']['final'])/"reference/ref_{region}_default.zarr")  
     wildcard_constraints:  
         region=r"[a-zA-Z]+_[a-zA-Z]+"  
-  params:  
-        threads_per_worker= lambda wildcards,threads, resources: threads / resources.n_workers,  
+    params:  
+        threads_per_worker= lambda wildcards,threads, resources: int(threads / resources.n_workers),  
         memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers  
-    threads: 10  
-  resources:  
-        mem='50GB',  
-        n_workers=2  
-  script:  
+    threads: 1  
+    resources:  
+        mem='5GB',  
+        n_workers=2,  
+        time=160  
+    script:  
         f"{home}workflow/scripts/load_default_ref.py"
 </code></pre>
 <p>Une règle snakemake doit avoir un output c’est-à-dire le fichier qu’on veut créer. La manière dont le fichier et son contenu sont générés est spécifié dans le script, run ou shell. S’il s’agit d’un script, le chemin vers le fichier du script est donné comme dans l’exemple précédent. Dans le script on peut utiliser les paramèetres de snakemake par exemple on utilise <code>snakemake.input</code>si la règle ne possède qu’un seul fichier input ou bien  <code>snakemake.input[0]</code>  si elle possède une liste de fichiers input. On peut aussi appeler chaque fichier input par un nom, par exemple  <code>snakemake.input.south</code>si on a:</p>
@@ -35,8 +36,63 @@ client = Client(cluster)
 <p>Dans le script de soumission slurm (expliqué dans la partie Profile de Snakemake) on aura exactement <code>--cpus-per-task= n_workers*threads_per_worker</code> et <code>--mem=n_workers*memory_limit</code></p>
 <p>Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à ESPO-G est la suivante:</p>
 <h1 id="création-denvironment">Création d’environment</h1>
+<p>Puisque <code>conda</code> n’est pas utilisé sur narval on ne peut pas utiliser le paramètre <code>conda</code> de snakemake dans les règles. Donc il n’est pas possible de créer un environment pour chaque règles via <code>conda</code>. Donc il faut créer l’envireonment pour snakemake une seule fois dans le repertoire courant en effectuant les étapes suivantes:</p>
+<pre><code>[name@server ~]$ module load StdEnv/2023 gcc openmpi python/3.11 arrow/16.1.0 openmpi netcdf proj esmf geos mpi4py 
+[name@server ~]$ ENVDIR=/tmp/$RANDOM
+[name@server ~]$ virtualenv --no-download $ENVDIR
+[name@server ~]$ source $ENVDIR/bin/activate
+(xxxx)[name@server ~]$ pip install --no-index --upgrade pip
+(xxxx)[name@server ~]$ pip install --no-index snakemake==8.12.0
+(xxxx)[name@server ~]$ pip freeze --local &gt; requirements.txt
+(xxxx)[name@server ~]$ deactivate
+[name@server ~]$ rm -rf $ENVDIR
+</code></pre>
+<p>Cela produira un fichier appelé requirements.txt, avec comme contenu:</p>
+<pre><code>appdirs==1.4.4+computecanada
+argparse_dataclass==2.0.0+computecanada
+attrs==23.2.0+computecanada
+charset_normalizer==3.2.0+computecanada
+conda_inject==1.3.2+computecanada
+ConfigArgParse==1.7+computecanada
+connection_pool==0.0.3+computecanada
+datrie==0.8.2+computecanada
+docutils==0.21.2+computecanada
+dpath==2.2.0+computecanada
+fastjsonschema==2.20.0+computecanada
+gitdb==4.0.11+computecanada
+GitPython==3.1.43+computecanada
+humanfriendly==10.0+computecanada
+idna==3.4+computecanada
+immutables==0.20+computecanada
+jinja2==3.1.4+computecanada
+jsonschema==4.23.0+computecanada
+jsonschema_specifications==2023.12.1+computecanada
+MarkupSafe==2.1.5+computecanada
+nbformat==5.10.4+computecanada
+plac==1.4.3+computecanada
+PuLP==2.8.0+computecanada
+PyYAML==6.0.1+computecanada
+referencing==0.35.1+computecanada
+requests==2.31.0+computecanada
+reretry==0.11.8+computecanada
+rpds_py==0.18.1+computecanada
+smart_open==7.0.4+computecanada
+smmap==5.0.1+computecanada
+snakemake==8.12.0+computecanada
+snakemake_interface_common==1.17.2+computecanada
+snakemake_interface_executor_plugins==9.2.0+computecanada
+snakemake_interface_report_plugins==1.0.0+computecanada
+snakemake_interface_storage_plugins==3.2.3+computecanada
+stopit==1.1.2+computecanada
+tabulate==0.9.0+computecanada
+throttler==1.2.2+computecanada
+toposort==1.10+computecanada
+urllib3==2.1.0+computecanada
+wrapt==1.16.0+computecanada
+yte==1.5.4+computecanada
+</code></pre>
 <h1 id="le-profile-de-snakemake">Le profile de snakemake</h1>
-<p>Pour éxecuter un workflow snakemake dans un cluster, on utilise la commande</p>
+<p>La documentation complète peut-être consulter sur ce  <a href="https://github.com/jdblischak/smk-simple-slurm/tree/main">lien</a>.  Pour éxecuter un workflow snakemake dans un cluster, on utilise la commande</p>
 <blockquote>
 <p>$ snakemake --profile simple/</p>
 </blockquote>
@@ -154,7 +210,8 @@ Submitted job 31 with external jobid '32636148'.
 <p>Et on peut voir l’etat des jobs avec la commande d slurm:</p>
 <pre><code>$ sq
 </code></pre>
-<p>Lorsqu’on annule une job slurm associée à une règle snakemake, la règle échoue aussi. Par contre, si c’est le processus Snakemake qui est annuler avec <code>ctrl + c</code> les jobs slurm associés doivent être annulées séparement avec la commande:</p>
+<p>Pour plus de détail sur l’utilisation de la mémoire et des threads des jobs en temps réelle on peut consulter cette  <a href="https://portail.narval.calculquebec.ca/">page</a>.<br>
+Lorsqu’on annule une job slurm associée à une règle snakemake, la règle échoue aussi. Par contre, si c’est le processus Snakemake qui est annuler avec <code>ctrl + c</code> les jobs slurm associés doivent être annulées séparement avec la commande:</p>
 <pre><code>$ scancel &lt;JOBID&gt;
 </code></pre>
 <p>ou</p>
