@@ -168,8 +168,13 @@ rule off_diag_ref_prop:
   script:  
         f"{home}workflow/scripts/off_diag_ref_prop.py"
 ```
-
-
+et la d'efinition de la fonction dans *common.smk* est la suivante:
+```
+def official_diags_inputfiles_ref(wildcards):  
+    step_dict=config['off-diag']['steps']["ref"]  
+    ref=Path(config['paths']['final'])/f"reference/ref_{step_dict['domain'][wildcards.dom_name]}_default.zarr"  
+  return ref
+```
 ## Graphe acyclique dirigé
 Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à ESPO-G est la suivante:
 
@@ -450,7 +455,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNzc1OTYwMzA3LC0xMDMwMjMyNzYsOTU4Mz
+eyJoaXN0b3J5IjpbLTQ5MTg4MDI0LC0xMDMwMjMyNzYsOTU4Mz
 IwMjE0LC0xNDcyMjA2ODQwLC0xNzE3Mzc1NDU1LC00NTA3MjQ5
 MzQsMzAwMjk3MDIwLC0xOTkxNTQyOTYyLC0xMjkwODM1OTc3LC
 0xMzg4NjkxMTE1LDE4MzQ2MzAxNzgsMjcyNTEzMjQ4LC0zNDcw
