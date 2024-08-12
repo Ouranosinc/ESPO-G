@@ -47,6 +47,10 @@ La section `resources` est utilisée pour déterminer quelles tâches peuvent ê
 
 Le répertoire _workflow_ contient des fichiers _.smk_ qui sont des ensembles de règles regroupées par tâches. C’est-à-dire que chaque tâche dans `tasks`de _config.yaml_, a son fichier _.smk_.  
 Dans un fichier _.smk_ l’ordre d’exécution des règles est dicté par les fichiers `input`. Par exemple dans _Makeref.smk_, la règle `reference_DEFAULT` est exécutée en premier, car elle sert d’input pour le reste des règles présent dans ce fichier y compris la règle `concat_diag_ref_prop`qui a comme input, le output de la règle `diagnostics`, qui dépend lui même de `reference_DEFAULT`. On aurait pu utiliser `ruleorder`pour imposer un ordre d’exécution des règles `reference_NOLEAP, reference_360_DAY et diagnostics`puisqu’elles sont indépendantes les unes les autres, mais cela n’est pas nécessaire dans ce cas-ci.
+
+## Snakefile et règle all
+
+
 ## Wildcards
 Les wildcards sont utilisés pour alléger le code et automatiser la notation des fichiers. En effets, au lieu de boucler sur les régions on utilise les wildcards dans les fichiers input et output. Les fichiers input ne doivent pas contenir des wildcards qui ne sont pas présents dans le output, alors que les fichiers log et benchmark doivent avoir exactement les mêmes wildcards que les fichiers output. La valeur des wildcards ne doit être spécifiée que lors de l’exécution du workflow, soit dans la règle  `all`, où toutes les valeurs possibles du wildcards sont passées à la fonction  `expand()`, soit avec la commande  `snakemake --cores`  à qui on donne le nombre de cores souhaités et le fichier qu’on veut généré.
 Exemple pour générer tous les fichiers output de la règle  `reference_DEFAULT`, on utilise la règle  `all`  avec comme input:
@@ -236,7 +240,7 @@ Cela produira un fichier appelé requirements.txt, avec comme contenu:
     urllib3==2.1.0+computecanada
     wrapt==1.16.0+computecanada
     yte==1.5.4+computecanada
-Ensuite,  dans le répertoire courant , 
+Ensuite,  dans le répertoire courant du fichier Snakefile, 
 # Le profile de snakemake
 La documentation complète peut-être consulter sur ce  [lien](https://github.com/jdblischak/smk-simple-slurm/tree/main).  Pour éxecuter un workflow snakemake dans un cluster, on utilise la commande 
 
@@ -457,11 +461,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTMwNjE2MzAwLDM1MzIxOTU3OCwtMzY5ND
-g3ODE4LC0xMDMwMjMyNzYsOTU4MzIwMjE0LC0xNDcyMjA2ODQw
-LC0xNzE3Mzc1NDU1LC00NTA3MjQ5MzQsMzAwMjk3MDIwLC0xOT
-kxNTQyOTYyLC0xMjkwODM1OTc3LC0xMzg4NjkxMTE1LDE4MzQ2
-MzAxNzgsMjcyNTEzMjQ4LC0zNDcwMjkwOTcsLTEyNDQ1MjI0Mz
-EsNDMxMjYyNDE1LC0xMjIzMDQ3ODY1LDExMjgzODcxOTYsODE2
-MTgwMjVdfQ==
+eyJoaXN0b3J5IjpbMTU0MDI1MjYwNSwzNTMyMTk1NzgsLTM2OT
+Q4NzgxOCwtMTAzMDIzMjc2LDk1ODMyMDIxNCwtMTQ3MjIwNjg0
+MCwtMTcxNzM3NTQ1NSwtNDUwNzI0OTM0LDMwMDI5NzAyMCwtMT
+k5MTU0Mjk2MiwtMTI5MDgzNTk3NywtMTM4ODY5MTExNSwxODM0
+NjMwMTc4LDI3MjUxMzI0OCwtMzQ3MDI5MDk3LC0xMjQ0NTIyND
+MxLDQzMTI2MjQxNSwtMTIyMzA0Nzg2NSwxMTI4Mzg3MTk2LDgx
+NjE4MDI1XX0=
 -->
