@@ -47,6 +47,7 @@ La section `resources` est utilisée pour déterminer quelles tâches peuvent ê
 
 Le répertoire _workflow_ contient des fichiers _.smk_ qui sont des ensembles de règles regroupées par tâches. C’est-à-dire que chaque tâche dans `tasks`de _config.yaml_, a son fichier _.smk_.  
 Dans un fichier _.smk_ l’ordre d’exécution des règles est dicté par les fichiers `input`. Par exemple dans _Makeref.smk_, la règle `reference_DEFAULT` est exécutée en premier, car elle sert d’input pour le reste des règles présent dans ce fichier y compris la règle `concat_diag_ref_prop`qui a comme input, le output de la règle `diagnostics`, qui dépend lui même de `reference_DEFAULT`. On aurait pu utiliser `ruleorder`pour imposer un ordre d’exécution des règles `reference_NOLEAP, reference_360_DAY et diagnostics`puisqu’elles sont indépendantes les unes les autres, mais cela n’est pas nécessaire dans ce cas-ci.
+## 
 Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à ESPO-G est la suivante:
 
 # Création d'environment
@@ -326,11 +327,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTgzMDkyOTM1MCwtMTAzMDIzMjc2LDk1OD
-MyMDIxNCwtMTQ3MjIwNjg0MCwtMTcxNzM3NTQ1NSwtNDUwNzI0
-OTM0LDMwMDI5NzAyMCwtMTk5MTU0Mjk2MiwtMTI5MDgzNTk3Ny
-wtMTM4ODY5MTExNSwxODM0NjMwMTc4LDI3MjUxMzI0OCwtMzQ3
-MDI5MDk3LC0xMjQ0NTIyNDMxLDQzMTI2MjQxNSwtMTIyMzA0Nz
-g2NSwxMTI4Mzg3MTk2LDgxNjE4MDI1LC0xNTc5MjYwNTI0LC0x
-NDI5NTQwNjAyXX0=
+eyJoaXN0b3J5IjpbMzk3NDI5NzU2LC0xMDMwMjMyNzYsOTU4Mz
+IwMjE0LC0xNDcyMjA2ODQwLC0xNzE3Mzc1NDU1LC00NTA3MjQ5
+MzQsMzAwMjk3MDIwLC0xOTkxNTQyOTYyLC0xMjkwODM1OTc3LC
+0xMzg4NjkxMTE1LDE4MzQ2MzAxNzgsMjcyNTEzMjQ4LC0zNDcw
+MjkwOTcsLTEyNDQ1MjI0MzEsNDMxMjYyNDE1LC0xMjIzMDQ3OD
+Y1LDExMjgzODcxOTYsODE2MTgwMjUsLTE1NzkyNjA1MjQsLTE0
+Mjk1NDA2MDJdfQ==
 -->
