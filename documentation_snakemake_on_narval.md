@@ -101,7 +101,7 @@ min_version("8.12.0")
 ```
 
 ## Arborescence des fichiers
-Il est recommandé de stocker chaque workflow dans un référentiel git dédié de la structure suivante :
+Le workflow est stocké  dans le référentiel git  de la structure suivante :
 ```
 ├── .gitignore
 ├── README.md
@@ -514,11 +514,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE1ODc2NTcxNDIsLTExODM2OTYyODksMz
-UzMjE5NTc4LC0zNjk0ODc4MTgsLTEwMzAyMzI3Niw5NTgzMjAy
-MTQsLTE0NzIyMDY4NDAsLTE3MTczNzU0NTUsLTQ1MDcyNDkzNC
-wzMDAyOTcwMjAsLTE5OTE1NDI5NjIsLTEyOTA4MzU5NzcsLTEz
-ODg2OTExMTUsMTgzNDYzMDE3OCwyNzI1MTMyNDgsLTM0NzAyOT
-A5NywtMTI0NDUyMjQzMSw0MzEyNjI0MTUsLTEyMjMwNDc4NjUs
-MTEyODM4NzE5Nl19
+eyJoaXN0b3J5IjpbMTUxOTkxNjU0OCwtMTU4NzY1NzE0MiwtMT
+E4MzY5NjI4OSwzNTMyMTk1NzgsLTM2OTQ4NzgxOCwtMTAzMDIz
+Mjc2LDk1ODMyMDIxNCwtMTQ3MjIwNjg0MCwtMTcxNzM3NTQ1NS
+wtNDUwNzI0OTM0LDMwMDI5NzAyMCwtMTk5MTU0Mjk2MiwtMTI5
+MDgzNTk3NywtMTM4ODY5MTExNSwxODM0NjMwMTc4LDI3MjUxMz
+I0OCwtMzQ3MDI5MDk3LC0xMjQ0NTIyNDMxLDQzMTI2MjQxNSwt
+MTIyMzA0Nzg2NV19
 -->
