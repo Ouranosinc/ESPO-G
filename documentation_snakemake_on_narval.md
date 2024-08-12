@@ -36,7 +36,7 @@ La section input n’est pas obligatoire c’est le cas dans la règle `referenc
 Dans le script de soumission slurm (expliqué dans la partie Profile de Snakemake) on aura exactement `--cpus-per-task= n_workers*threads_per_worker` et `--mem=n_workers*memory_limit`
 
 
-Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à
+Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à ESPO-G est la suivante:
 
 # Création d'environment
 
@@ -260,11 +260,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTEyODM4NzE5Niw4MTYxODAyNSwtMTU3OT
-I2MDUyNCwtMTQyOTU0MDYwMiwtMTgxMTE3MzIxOSwxNDU5Njg4
-ODI1LDIxNDU1ODU4MjgsLTQwNzUzNDY1OCwtMTI1NzIyMDIyNC
-wxNjU1OTkyODc3LC00MTM0ODcyMjksLTEzMzU1NzY1NDgsLTEz
-MTE3MzA0MDYsNjE4MDAwMDMsLTk4OTQ0MDQ3OSw0OTM2OTU0MS
-wtMjE0MDEwMzU4LDg3NzY3MTg0NiwtMTkwODY5MjYwMiwxOTc3
-NTEyNTEyXX0=
+eyJoaXN0b3J5IjpbLTEyMjMwNDc4NjUsMTEyODM4NzE5Niw4MT
+YxODAyNSwtMTU3OTI2MDUyNCwtMTQyOTU0MDYwMiwtMTgxMTE3
+MzIxOSwxNDU5Njg4ODI1LDIxNDU1ODU4MjgsLTQwNzUzNDY1OC
+wtMTI1NzIyMDIyNCwxNjU1OTkyODc3LC00MTM0ODcyMjksLTEz
+MzU1NzY1NDgsLTEzMTE3MzA0MDYsNjE4MDAwMDMsLTk4OTQ0MD
+Q3OSw0OTM2OTU0MSwtMjE0MDEwMzU4LDg3NzY3MTg0NiwtMTkw
+ODY5MjYwMl19
 -->
