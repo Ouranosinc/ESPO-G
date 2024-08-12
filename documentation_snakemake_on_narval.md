@@ -61,7 +61,7 @@ Path(config['paths']['final'])/"reference/ref_south_nodup_default.zarr"
 ```
 Pour chaque fichier input, le script associé à  `reference_DEFAULT`  est exécuté et toutes les variables snakemake.wildcards.region présentes dans le script sont sont remplacées par la valeur actuelle du wildcard  `region` .
 
-Pour générer un fichier en particulier, exemple: `Path(config['paths'['final'])/"reference/ref_{region}_default.zarr"`  pour `middle_nodup`, on exécute la commande:  `snakemake --cores 10 /jarre/scenario/ocisse/ESPO-G6-stage/reference/ref_middle_nodup_default.zarr/`.
+Pour générer un fichier en particulier, exemple: `Path(config['paths'['final'])/"reference/ref_{region}_default.zarr"`  pour `middle_nodup`, on exécute la commande:  `$ snakemake --cores 10 /project/ctb-frigon/oumou/ESPO-G6-stage/reference/ref_middle_nodup_default.zarr/`.
 
 Lors de l’exécution de la commande  `snakemake --cores N all`  ou  `snakemake --cores N chemin/vers/le_fichiers_désiré.zarr`, Snakemake détermine automatiquement les dépendances entre les règles en faisant correspondre les noms de fichiers. C’est à dire pour
 
@@ -357,7 +357,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTM5OTI4MTI5OSwtMTAzMDIzMjc2LDk1OD
+eyJoaXN0b3J5IjpbLTQxMzIyMDI5MCwtMTAzMDIzMjc2LDk1OD
 MyMDIxNCwtMTQ3MjIwNjg0MCwtMTcxNzM3NTQ1NSwtNDUwNzI0
 OTM0LDMwMDI5NzAyMCwtMTk5MTU0Mjk2MiwtMTI5MDgzNTk3Ny
 wtMTM4ODY5MTExNSwxODM0NjMwMTc4LDI3MjUxMzI0OCwtMzQ3
