@@ -52,6 +52,24 @@ Dans un fichier _.smk_ l’ordre d’exécution des règles est dicté par les f
 Le fichier  ***Snakefile***  est essentiel dans Snakemake. Il faut obligatoirement avoir un fiche dans le rpertoire courant, applé ***Snakefile*** ou ***snakefile*** afin  de pouvoir utiliser la commande `snakemake`. Pour des workflow ayant peu de règles, il n'est pas nécessaire d'avoir des fichiers *.smk*, toutes les règles peuvent être écrites dans le  *Snakefile*. Cependant, la première règle qui doit être définie est la règle **all**.
 
 La règle  **all**  est souvent utilisée pour définir les fichiers cibles finaux que l’on souhaite obtenir à la fin du workflow.  En d’autres termes, elle indique à Snakemake quels fichiers doivent être générés pour que le workflow soit considéré comme terminé.
+
+
+La fonction expande génère une liste de fichiers avec tous les wildcards résolus. Exemple les wildcards sample=[A, B] et num=[1, 2], la sortie de 
+```
+expand("échantillon{sample}.{num}", sample=[A, B],  num=[1, 2])
+```
+sera 
+```
+["échantillonA.1", "échantillonA.2", "échantillonB.1", "échantillonB.2"]
+```
+Il est aussi possible de résoudre seulement le wildcards {sample} en faisant:
+```
+expand("échantillon{sample}.{{num}}", sample=[A, B])
+```
+qui aura comme sorite:
+```
+["échantillonA.{num}", "échantillonA.{num}"]
+```
 Pour utiliser des fichiers *.smk* il faut les inclure dan le ***Snakefile*** de cette façon:
 
 ```
@@ -64,8 +82,12 @@ configfile: "config/config.yaml"
 Il faut utiliser les paramètres du fichier config.yaml avec l'outil `config` de snakemake, exemple `config["custom"]["regions"]`.
 On peut contraindre snakemake à utiliser une version minimale en ajoutant dans le Snakefile:
 ```
-configfile: "config/config.yaml"
+from snakemake.utils import min_version  
+ 
+##### set minimum snakemake version #####  
+min_version("8.12.0")
 ```
+
 ## Arborescence des fichiers
 
 
@@ -153,23 +175,8 @@ Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_extracte
 dans la règle   _extract_  et supposez qu’un fichier  _CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup_extracted.zarr_  est disponible. Il n’est pas clair si  `sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1`  et  `region=ssp585_r1i1p1f1_global_middle_nodup`  ou  `sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global`  et  `region=middle_nodup`  dans ce cas.  
 C’est pourquoi une contrainte a été ajoutée à la wildcards `region` pour qu’il soit composé de deux chaînes de caractères séparées par un tiret du bas. Le wildcards sim_id est aussi contraint à avoir minimum 6 underscords.
 
-## Fonction expand()
-L a fonction expande génère une liste de fichiers avec tous les wildcards résolus. Exemple les wildcards sample=[A, B] et num=[1, 2], la sortie de 
-```
-expand("échantillon{sample}.{num}", sample=[A, B],  num=[1, 2])
-```
-sera 
-```
-["échantillonA.1", "échantillonA.2", "échantillonB.1", "échantillonB.2"]
-```
-Il est aussi possible de résoudre seulement le wildcards {sample} en faisant:
-```
-expand("échantillon{sample}.{{num}}", sample=[A, B])
-```
-qui aura comme sorite:
-```
-["échantillonA.{num}", "échantillonA.{num}"]
-```
+
+
 ## Common.smk
 Le fichier *common.smk* permet de définir des fonctions qui seront utiliser par les autres fichiers .smk ce qui permet de ne pas trop les surcharger avec du code. C'est pour dans cette règle ci dessous la fonction `official_diags_inputfiles_ref` est directement appelée.
 ```
@@ -480,11 +487,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNTA2MjU2MTc5LDM1MzIxOTU3OCwtMzY5ND
-g3ODE4LC0xMDMwMjMyNzYsOTU4MzIwMjE0LC0xNDcyMjA2ODQw
-LC0xNzE3Mzc1NDU1LC00NTA3MjQ5MzQsMzAwMjk3MDIwLC0xOT
-kxNTQyOTYyLC0xMjkwODM1OTc3LC0xMzg4NjkxMTE1LDE4MzQ2
-MzAxNzgsMjcyNTEzMjQ4LC0zNDcwMjkwOTcsLTEyNDQ1MjI0Mz
-EsNDMxMjYyNDE1LC0xMjIzMDQ3ODY1LDExMjgzODcxOTYsODE2
-MTgwMjVdfQ==
+eyJoaXN0b3J5IjpbMTQ4NzI0MzczOCwzNTMyMTk1NzgsLTM2OT
+Q4NzgxOCwtMTAzMDIzMjc2LDk1ODMyMDIxNCwtMTQ3MjIwNjg0
+MCwtMTcxNzM3NTQ1NSwtNDUwNzI0OTM0LDMwMDI5NzAyMCwtMT
+k5MTU0Mjk2MiwtMTI5MDgzNTk3NywtMTM4ODY5MTExNSwxODM0
+NjMwMTc4LDI3MjUxMzI0OCwtMzQ3MDI5MDk3LC0xMjQ0NTIyND
+MxLDQzMTI2MjQxNSwtMTIyMzA0Nzg2NSwxMTI4Mzg3MTk2LDgx
+NjE4MDI1XX0=
 -->
