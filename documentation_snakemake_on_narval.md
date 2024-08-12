@@ -59,6 +59,7 @@ Path(config['paths']['final'])/"reference/ref_ north_nodup_default.zarr"
 Path(config['paths']['final'])/"reference/ref_south_nodup_default.zarr"
 
 ```
+Pour chaque fichier input, le script associé à  `reference_DEFAULT`  est exécuté et toutes les variables snakemake.wildcards.region présentes dans le script sont sont remplacées par la valeur actuelle du wildcard  `region` .
 
 **Attention:** la commande `snakemake --cores` bne soumet pas des jobs à un cluster. Elle exécute les règles localement. Pour soumettre les règles à un cluster il faut utiliser l'argument `cluster-generic-submit-cmd` qui sera discuté dans le prochain chapitre.
 
@@ -344,11 +345,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNDAzMzczMTE1LC0xMDMwMjMyNzYsOTU4Mz
-IwMjE0LC0xNDcyMjA2ODQwLC0xNzE3Mzc1NDU1LC00NTA3MjQ5
-MzQsMzAwMjk3MDIwLC0xOTkxNTQyOTYyLC0xMjkwODM1OTc3LC
-0xMzg4NjkxMTE1LDE4MzQ2MzAxNzgsMjcyNTEzMjQ4LC0zNDcw
-MjkwOTcsLTEyNDQ1MjI0MzEsNDMxMjYyNDE1LC0xMjIzMDQ3OD
-Y1LDExMjgzODcxOTYsODE2MTgwMjUsLTE1NzkyNjA1MjQsLTE0
-Mjk1NDA2MDJdfQ==
+eyJoaXN0b3J5IjpbLTE4MDYzNzMzNzEsLTEwMzAyMzI3Niw5NT
+gzMjAyMTQsLTE0NzIyMDY4NDAsLTE3MTczNzU0NTUsLTQ1MDcy
+NDkzNCwzMDAyOTcwMjAsLTE5OTE1NDI5NjIsLTEyOTA4MzU5Nz
+csLTEzODg2OTExMTUsMTgzNDYzMDE3OCwyNzI1MTMyNDgsLTM0
+NzAyOTA5NywtMTI0NDUyMjQzMSw0MzEyNjI0MTUsLTEyMjMwND
+c4NjUsMTEyODM4NzE5Niw4MTYxODAyNSwtMTU3OTI2MDUyNCwt
+MTQyOTU0MDYwMl19
 -->
