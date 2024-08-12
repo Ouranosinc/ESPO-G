@@ -61,7 +61,6 @@ Path(config['paths']['final'])/"reference/ref_south_nodup_default.zarr"
 ```
 Pour chaque fichier input, le script associé à  `reference_DEFAULT`  est exécuté et toutes les variables snakemake.wildcards.region présentes dans le script sont sont remplacées par la valeur actuelle du wildcard  `region` .
 
-
 Lors de l’exécution de la commande  `snakemake --cores N all`  ou  `snakemake --cores N chemin/vers/le_fichiers_désiré.zarr`, Snakemake détermine automatiquement les dépendances entre les règles en faisant correspondre les noms de fichiers. C’est à dire pour
 
 ```
@@ -71,7 +70,13 @@ rule all:
 
 ```
 
-snakemake va écrire tous les fichiers possibles en remplaçant toutes les valeurs de `sim_id` et `dome_name`. Il va ensuite chercher la règle qui a comme output  `Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_{sim_id}_{dom_name}.zarr"`  afin de voir les dépendance (les fichiers input).
+snakemake va écrire tous les fichiers possibles en remplaçant toutes les valeurs de `sim_id` et `dome_name`. Il va ensuite chercher la règle qui a comme output  `Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_{sim_id}_{dom_name}.zarr"`  afin de voir les dépendance (les fichiers input)
+
+Pour générer un fichier en particulier, exemple: `Path(config['paths'['final'])/"reference/ref_{region}_default.zarr"`  pour `middle_nodup`, on exécute la commande: 
+ ```
+$ snakemake --cores 10 /project/ctb-frigon/oumou/ESPO-G6-stage/reference/ref_middle_nodup_default.zarr/
+```
+
 **Attention:** la commande `snakemake --cores` bne soumet pas des jobs à un cluster. Elle exécute les règles localement. Pour soumettre les règles à un cluster il faut utiliser l'argument `cluster-generic-submit-cmd` qui sera discuté dans le prochain chapitre.
 
 
@@ -356,11 +361,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTYyMDA3NzY3NywtMTAzMDIzMjc2LDk1OD
-MyMDIxNCwtMTQ3MjIwNjg0MCwtMTcxNzM3NTQ1NSwtNDUwNzI0
-OTM0LDMwMDI5NzAyMCwtMTk5MTU0Mjk2MiwtMTI5MDgzNTk3Ny
-wtMTM4ODY5MTExNSwxODM0NjMwMTc4LDI3MjUxMzI0OCwtMzQ3
-MDI5MDk3LC0xMjQ0NTIyNDMxLDQzMTI2MjQxNSwtMTIyMzA0Nz
-g2NSwxMTI4Mzg3MTk2LDgxNjE4MDI1LC0xNTc5MjYwNTI0LC0x
-NDI5NTQwNjAyXX0=
+eyJoaXN0b3J5IjpbLTEyODEwNjMyMzYsLTEwMzAyMzI3Niw5NT
+gzMjAyMTQsLTE0NzIyMDY4NDAsLTE3MTczNzU0NTUsLTQ1MDcy
+NDkzNCwzMDAyOTcwMjAsLTE5OTE1NDI5NjIsLTEyOTA4MzU5Nz
+csLTEzODg2OTExMTUsMTgzNDYzMDE3OCwyNzI1MTMyNDgsLTM0
+NzAyOTA5NywtMTI0NDUyMjQzMSw0MzEyNjI0MTUsLTEyMjMwND
+c4NjUsMTEyODM4NzE5Niw4MTYxODAyNSwtMTU3OTI2MDUyNCwt
+MTQyOTU0MDYwMl19
 -->
