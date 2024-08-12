@@ -110,18 +110,12 @@ Il est recommandé de stocker chaque workflow dans un référentiel git dédié 
 │   ├── rules
 |   │   ├── module1.smk
 |   │   └── module2.smk
-│   ├── envs
-|   │   ├── tool1.yaml
-|   │   └── tool2.yaml
 │   ├── scripts
 |   │   ├── script1.py
 |   │   └── script2.py
 |   └── Snakefile
 ├── config
 │   ├── config.yaml
-│   └── some-sheet.tsv
-├── results
-└── resources
 ```
 
 ## Wildcards
@@ -520,11 +514,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbOTI0NTg0NzIzLC0xMTgzNjk2Mjg5LDM1Mz
-IxOTU3OCwtMzY5NDg3ODE4LC0xMDMwMjMyNzYsOTU4MzIwMjE0
-LC0xNDcyMjA2ODQwLC0xNzE3Mzc1NDU1LC00NTA3MjQ5MzQsMz
-AwMjk3MDIwLC0xOTkxNTQyOTYyLC0xMjkwODM1OTc3LC0xMzg4
-NjkxMTE1LDE4MzQ2MzAxNzgsMjcyNTEzMjQ4LC0zNDcwMjkwOT
-csLTEyNDQ1MjI0MzEsNDMxMjYyNDE1LC0xMjIzMDQ3ODY1LDEx
-MjgzODcxOTZdfQ==
+eyJoaXN0b3J5IjpbLTE1ODc2NTcxNDIsLTExODM2OTYyODksMz
+UzMjE5NTc4LC0zNjk0ODc4MTgsLTEwMzAyMzI3Niw5NTgzMjAy
+MTQsLTE0NzIyMDY4NDAsLTE3MTczNzU0NTUsLTQ1MDcyNDkzNC
+wzMDAyOTcwMjAsLTE5OTE1NDI5NjIsLTEyOTA4MzU5NzcsLTEz
+ODg2OTExMTUsMTgzNDYzMDE3OCwyNzI1MTMyNDgsLTM0NzAyOT
+A5NywtMTI0NDUyMjQzMSw0MzEyNjI0MTUsLTEyMjMwNDc4NjUs
+MTEyODM4NzE5Nl19
 -->
