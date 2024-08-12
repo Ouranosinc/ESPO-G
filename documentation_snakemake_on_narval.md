@@ -51,9 +51,49 @@ Puisque `conda` n'est pas utilisé sur narval on ne peut pas utiliser le paramè
     (xxxx)[name@server ~]$ deactivate
     [name@server ~]$ rm -rf $ENVDIR
 Cela produira un fichier appelé requirements.txt, avec comme contenu:
-
-
-
+    
+    appdirs==1.4.4+computecanada
+    argparse_dataclass==2.0.0+computecanada
+    attrs==23.2.0+computecanada
+    charset_normalizer==3.2.0+computecanada
+    conda_inject==1.3.2+computecanada
+    ConfigArgParse==1.7+computecanada
+    connection_pool==0.0.3+computecanada
+    datrie==0.8.2+computecanada
+    docutils==0.21.2+computecanada
+    dpath==2.2.0+computecanada
+    fastjsonschema==2.20.0+computecanada
+    gitdb==4.0.11+computecanada
+    GitPython==3.1.43+computecanada
+    humanfriendly==10.0+computecanada
+    idna==3.4+computecanada
+    immutables==0.20+computecanada
+    jinja2==3.1.4+computecanada
+    jsonschema==4.23.0+computecanada
+    jsonschema_specifications==2023.12.1+computecanada
+    MarkupSafe==2.1.5+computecanada
+    nbformat==5.10.4+computecanada
+    plac==1.4.3+computecanada
+    PuLP==2.8.0+computecanada
+    PyYAML==6.0.1+computecanada
+    referencing==0.35.1+computecanada
+    requests==2.31.0+computecanada
+    reretry==0.11.8+computecanada
+    rpds_py==0.18.1+computecanada
+    smart_open==7.0.4+computecanada
+    smmap==5.0.1+computecanada
+    snakemake==8.12.0+computecanada
+    snakemake_interface_common==1.17.2+computecanada
+    snakemake_interface_executor_plugins==9.2.0+computecanada
+    snakemake_interface_report_plugins==1.0.0+computecanada
+    snakemake_interface_storage_plugins==3.2.3+computecanada
+    stopit==1.1.2+computecanada
+    tabulate==0.9.0+computecanada
+    throttler==1.2.2+computecanada
+    toposort==1.10+computecanada
+    urllib3==2.1.0+computecanada
+    wrapt==1.16.0+computecanada
+    yte==1.5.4+computecanada
 
 # Le profile de snakemake
 Pour éxecuter un workflow snakemake dans un cluster, on utilise la commande 
@@ -274,11 +314,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEyOTA4MzU5NzcsLTEzODg2OTExMTUsMT
-gzNDYzMDE3OCwyNzI1MTMyNDgsLTM0NzAyOTA5NywtMTI0NDUy
-MjQzMSw0MzEyNjI0MTUsLTEyMjMwNDc4NjUsMTEyODM4NzE5Ni
-w4MTYxODAyNSwtMTU3OTI2MDUyNCwtMTQyOTU0MDYwMiwtMTgx
-MTE3MzIxOSwxNDU5Njg4ODI1LDIxNDU1ODU4MjgsLTQwNzUzND
-Y1OCwtMTI1NzIyMDIyNCwxNjU1OTkyODc3LC00MTM0ODcyMjks
-LTEzMzU1NzY1NDhdfQ==
+eyJoaXN0b3J5IjpbLTE5OTE1NDI5NjIsLTEyOTA4MzU5NzcsLT
+EzODg2OTExMTUsMTgzNDYzMDE3OCwyNzI1MTMyNDgsLTM0NzAy
+OTA5NywtMTI0NDUyMjQzMSw0MzEyNjI0MTUsLTEyMjMwNDc4Nj
+UsMTEyODM4NzE5Niw4MTYxODAyNSwtMTU3OTI2MDUyNCwtMTQy
+OTU0MDYwMiwtMTgxMTE3MzIxOSwxNDU5Njg4ODI1LDIxNDU1OD
+U4MjgsLTQwNzUzNDY1OCwtMTI1NzIyMDIyNCwxNjU1OTkyODc3
+LC00MTM0ODcyMjldfQ==
 -->
