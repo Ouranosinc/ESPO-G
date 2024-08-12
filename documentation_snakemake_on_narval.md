@@ -133,7 +133,7 @@ C’est pourquoi une contrainte a été ajoutée à la wildcards `region` pour q
 ## Fonction expand()
 L a fonction expande génère une list de fichiers avec tous les wildcards résolus. Exemple les wildcards sample=[A, B] et num=[1, 2], la sortie de 
 ```
-expand("échantillon{sample}.{num}", )
+expand("échantillon{sample}.{num}", sample=[A, B],  num=[1, 2])
 ```
 sera 
 ```
@@ -141,8 +141,9 @@ sera
 ```
 Il est aussi possible de résoudre seulement le wildcards {sample} en faisant:
 ```
-expand("échantillon{sample}.{{num}}")
+expand("échantillon{sample}.{{num}}", sample=[A, B])
 ```
+qui aura comme sorite:
 
 ## Graphe acyclique dirigé
 Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à ESPO-G est la suivante:
@@ -424,11 +425,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE3NTM2NTgxMDYsLTEwMzAyMzI3Niw5NT
-gzMjAyMTQsLTE0NzIyMDY4NDAsLTE3MTczNzU0NTUsLTQ1MDcy
-NDkzNCwzMDAyOTcwMjAsLTE5OTE1NDI5NjIsLTEyOTA4MzU5Nz
-csLTEzODg2OTExMTUsMTgzNDYzMDE3OCwyNzI1MTMyNDgsLTM0
-NzAyOTA5NywtMTI0NDUyMjQzMSw0MzEyNjI0MTUsLTEyMjMwND
-c4NjUsMTEyODM4NzE5Niw4MTYxODAyNSwtMTU3OTI2MDUyNCwt
-MTQyOTU0MDYwMl19
+eyJoaXN0b3J5IjpbLTM3NTMxMjg4NSwtMTAzMDIzMjc2LDk1OD
+MyMDIxNCwtMTQ3MjIwNjg0MCwtMTcxNzM3NTQ1NSwtNDUwNzI0
+OTM0LDMwMDI5NzAyMCwtMTk5MTU0Mjk2MiwtMTI5MDgzNTk3Ny
+wtMTM4ODY5MTExNSwxODM0NjMwMTc4LDI3MjUxMzI0OCwtMzQ3
+MDI5MDk3LC0xMjQ0NTIyNDMxLDQzMTI2MjQxNSwtMTIyMzA0Nz
+g2NSwxMTI4Mzg3MTk2LDgxNjE4MDI1LC0xNTc5MjYwNTI0LC0x
+NDI5NTQwNjAyXX0=
 -->
