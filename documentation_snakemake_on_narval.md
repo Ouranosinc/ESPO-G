@@ -148,7 +148,7 @@ qui aura comme sorite:
 ["échantillonA.{num}", "échantillonA.{num}"]
 ```
 ## Common.smk
-
+Le fichier *common.smk* permet de définir des fonctions qui seront utiliser par 
 ## Graphe acyclique dirigé
 Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à ESPO-G est la suivante:
 
@@ -429,11 +429,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEyMzk2OTY4NjksLTEwMzAyMzI3Niw5NT
-gzMjAyMTQsLTE0NzIyMDY4NDAsLTE3MTczNzU0NTUsLTQ1MDcy
-NDkzNCwzMDAyOTcwMjAsLTE5OTE1NDI5NjIsLTEyOTA4MzU5Nz
-csLTEzODg2OTExMTUsMTgzNDYzMDE3OCwyNzI1MTMyNDgsLTM0
-NzAyOTA5NywtMTI0NDUyMjQzMSw0MzEyNjI0MTUsLTEyMjMwND
-c4NjUsMTEyODM4NzE5Niw4MTYxODAyNSwtMTU3OTI2MDUyNCwt
-MTQyOTU0MDYwMl19
+eyJoaXN0b3J5IjpbLTYzMjk0NzY2MCwtMTAzMDIzMjc2LDk1OD
+MyMDIxNCwtMTQ3MjIwNjg0MCwtMTcxNzM3NTQ1NSwtNDUwNzI0
+OTM0LDMwMDI5NzAyMCwtMTk5MTU0Mjk2MiwtMTI5MDgzNTk3Ny
+wtMTM4ODY5MTExNSwxODM0NjMwMTc4LDI3MjUxMzI0OCwtMzQ3
+MDI5MDk3LC0xMjQ0NTIyNDMxLDQzMTI2MjQxNSwtMTIyMzA0Nz
+g2NSwxMTI4Mzg3MTk2LDgxNjE4MDI1LC0xNTc5MjYwNTI0LC0x
+NDI5NTQwNjAyXX0=
 -->
