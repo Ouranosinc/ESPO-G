@@ -176,11 +176,12 @@ def official_diags_inputfiles_ref(wildcards):
     return ref
 ```
 Il faut noter l'argument `wildcards` de `official_diags_inputfiles_ref` qui est présent car la fonction fait appel aux wildcards de la règle dans laquelle elle est appelée.
+
 ## Graphe acyclique dirigé
 Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à ESPO-G est la suivante:
 
 # Création d'environment
-Puisque `conda` n'est pas utilisé sur narval on ne peut pas utiliser le paramètre `conda` de snakemake dans les règles. Donc il n'est pas possible de créer un environment pour chaque règles via `conda`. Donc il faut créer l'envireonment pour snakemake une seule fois dans le repertoire courant en effectuant les étapes suivantes:
+Puisque `conda` n'est pas utilisé sur narval on ne peut pas utiliser le paramètre `conda` de snakemake dans les règles. Donc il n'est pas possible de créer un environment pour chaque règles via `conda`. Il faut créer l'environment pour snakemake une seule fois dans le repertoire courant en effectuant les étapes suivantes:
 
     [name@server ~]$ module load StdEnv/2023 gcc openmpi python/3.11 arrow/16.1.0 openmpi netcdf proj esmf geos mpi4py 
     [name@server ~]$ ENVDIR=/tmp/$RANDOM
@@ -456,11 +457,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMzUzMjE5NTc4LC0zNjk0ODc4MTgsLTEwMz
-AyMzI3Niw5NTgzMjAyMTQsLTE0NzIyMDY4NDAsLTE3MTczNzU0
-NTUsLTQ1MDcyNDkzNCwzMDAyOTcwMjAsLTE5OTE1NDI5NjIsLT
-EyOTA4MzU5NzcsLTEzODg2OTExMTUsMTgzNDYzMDE3OCwyNzI1
-MTMyNDgsLTM0NzAyOTA5NywtMTI0NDUyMjQzMSw0MzEyNjI0MT
-UsLTEyMjMwNDc4NjUsMTEyODM4NzE5Niw4MTYxODAyNSwtMTU3
-OTI2MDUyNF19
+eyJoaXN0b3J5IjpbLTIwOTI3ODkwNjEsMzUzMjE5NTc4LC0zNj
+k0ODc4MTgsLTEwMzAyMzI3Niw5NTgzMjAyMTQsLTE0NzIyMDY4
+NDAsLTE3MTczNzU0NTUsLTQ1MDcyNDkzNCwzMDAyOTcwMjAsLT
+E5OTE1NDI5NjIsLTEyOTA4MzU5NzcsLTEzODg2OTExMTUsMTgz
+NDYzMDE3OCwyNzI1MTMyNDgsLTM0NzAyOTA5NywtMTI0NDUyMj
+QzMSw0MzEyNjI0MTUsLTEyMjMwNDc4NjUsMTEyODM4NzE5Niw4
+MTYxODAyNV19
 -->
