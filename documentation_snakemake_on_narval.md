@@ -41,12 +41,11 @@ Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâche
 # Création d'environment
 Puisque `conda` n'est pas utilisé sur narval on ne peut pas utiliser le paramètre `conda` de snakemake dans les règles. Donc il n'est pas possible de créer un environment pour chaque règles via `conda`. Donc il faut créer l'envireonment une seule fois dans le repertoire courant en effectuant les étapes suivantes:
 
-        $  module load StdEnv/2023 gcc openmpi python/3.11 arrow/16.1.0 openmpi netcdf proj esmf geos mpi4py 
-       $ virtualenv --no-download $SLURM_TMPDIR/env source
-        $SLURM_TMPDIR/env/bin/activate
-         
-        $ pip install --no-index --upgrade pip
-        $ pip install  --no-index -r /project/ctbfrigon/oumou/ouranos_commun/xscen0.9.0-requirements.txt
+       $  module load StdEnv/2023 gcc openmpi python/3.11 arrow/16.1.0 openmpi netcdf proj esmf geos mpi4py 
+       $ virtualenv --no-download $SLURM_TMPDIR/env 
+       $ source SLURM_TMPDIR/env/bin/activate
+       $ pip install --no-index --upgrade pip
+       $ pip install  --no-index -r /project/ctbfrigon/oumou/ouranos_commun/xscen0.9.0-requirements.txt
 
 
 
@@ -269,11 +268,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE0Nzg4NjgzNjEsLTEyNDQ1MjI0MzEsND
-MxMjYyNDE1LC0xMjIzMDQ3ODY1LDExMjgzODcxOTYsODE2MTgw
-MjUsLTE1NzkyNjA1MjQsLTE0Mjk1NDA2MDIsLTE4MTExNzMyMT
-ksMTQ1OTY4ODgyNSwyMTQ1NTg1ODI4LC00MDc1MzQ2NTgsLTEy
-NTcyMjAyMjQsMTY1NTk5Mjg3NywtNDEzNDg3MjI5LC0xMzM1NT
-c2NTQ4LC0xMzExNzMwNDA2LDYxODAwMDAzLC05ODk0NDA0Nzks
-NDkzNjk1NDFdfQ==
+eyJoaXN0b3J5IjpbLTM0NzAyOTA5NywtMTI0NDUyMjQzMSw0Mz
+EyNjI0MTUsLTEyMjMwNDc4NjUsMTEyODM4NzE5Niw4MTYxODAy
+NSwtMTU3OTI2MDUyNCwtMTQyOTU0MDYwMiwtMTgxMTE3MzIxOS
+wxNDU5Njg4ODI1LDIxNDU1ODU4MjgsLTQwNzUzNDY1OCwtMTI1
+NzIyMDIyNCwxNjU1OTkyODc3LC00MTM0ODcyMjksLTEzMzU1Nz
+Y1NDgsLTEzMTE3MzA0MDYsNjE4MDAwMDMsLTk4OTQ0MDQ3OSw0
+OTM2OTU0MV19
 -->
