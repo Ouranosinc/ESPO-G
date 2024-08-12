@@ -104,7 +104,7 @@ min_version("8.12.0")
 Le workflow est stocké  dans le référentiel git  de la structure suivante :
 ```
 ├── .gitignore
-├── README.md
+├── config
 ├── LICENSE.md
 ├── workflow
 │   ├── rules
@@ -113,8 +113,9 @@ Le workflow est stocké  dans le référentiel git  de la structure suivante :
 │   ├── scripts
 |   │   ├── script1.py
 |   │   └── script2.py
-|   └── Snakefile
-├── config
+├── Snakefile
+├── dag.png
+├── README.md
 │   ├── config.yaml
 ```
 
@@ -514,7 +515,7 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTUxOTkxNjU0OCwtMTU4NzY1NzE0MiwtMT
+eyJoaXN0b3J5IjpbMTUwNTM0NTkwNywtMTU4NzY1NzE0MiwtMT
 E4MzY5NjI4OSwzNTMyMTk1NzgsLTM2OTQ4NzgxOCwtMTAzMDIz
 Mjc2LDk1ODMyMDIxNCwtMTQ3MjIwNjg0MCwtMTcxNzM3NTQ1NS
 wtNDUwNzI0OTM0LDMwMDI5NzAyMCwtMTk5MTU0Mjk2MiwtMTI5
