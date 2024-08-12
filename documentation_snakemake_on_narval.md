@@ -2,8 +2,6 @@
 Snakemake est un outil inspiré de GNU Make, mais conçu pour être plus flexible et puissant. Il utilise une syntaxe basée sur Python pour définir des règles qui spécifient comment générer des fichiers de sortie à partir de fichiers d’entrée. Pour consulter la documentation officielle vous pouvez cliquer sur ce [lien](https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html).
 Les workflows sont définis en termes de règles. Chaque règle spécifie comment créer un fichier de sortie à partir d’un ou plusieurs fichiers d’entrée. Voici un exemple de règle :
 
-    
-
         rule reference_DEFAULT:  
         output:  
             directory(Path(config['paths']['final'])/"reference/ref_{region}_default.zarr")  
@@ -18,9 +16,7 @@ Les workflows sont définis en termes de règles. Chaque règle spécifie commen
             n_workers=2  
       script:  
             f"{home}workflow/scripts/load_default_ref.py"
-
 Une règle snakemake doit avoir un output c’est-à-dire le fichier qu’on veut créer. La manière dont le fichier et son contenu sont générés est spécifié dans le script, run ou shell. S’il s’agit d’un script, le chemin vers le fichier du script est donné comme dans l'exemple précédent. Dans le script on peut utiliser les paramèetres de snakemake par exemple on utilise `snakemake.input`si la règle ne possède qu’un seul fichier input ou bien  `snakemake.input[0]`  si elle possède une liste de fichiers input. On peut aussi appeler chaque fichier input par un nom, par exemple  `snakemake.input.south`si on a:
-
 ```
 input:  
     middle=Path(config['paths']['final'])/"reference/ref_middle_nodup_default.zarr"  
@@ -315,11 +311,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTQ1MDcyNDkzNCwzMDAyOTcwMjAsLTE5OT
-E1NDI5NjIsLTEyOTA4MzU5NzcsLTEzODg2OTExMTUsMTgzNDYz
-MDE3OCwyNzI1MTMyNDgsLTM0NzAyOTA5NywtMTI0NDUyMjQzMS
-w0MzEyNjI0MTUsLTEyMjMwNDc4NjUsMTEyODM4NzE5Niw4MTYx
-ODAyNSwtMTU3OTI2MDUyNCwtMTQyOTU0MDYwMiwtMTgxMTE3Mz
-IxOSwxNDU5Njg4ODI1LDIxNDU1ODU4MjgsLTQwNzUzNDY1OCwt
-MTI1NzIyMDIyNF19
+eyJoaXN0b3J5IjpbLTUzNzQ2NzQ2MiwtNDUwNzI0OTM0LDMwMD
+I5NzAyMCwtMTk5MTU0Mjk2MiwtMTI5MDgzNTk3NywtMTM4ODY5
+MTExNSwxODM0NjMwMTc4LDI3MjUxMzI0OCwtMzQ3MDI5MDk3LC
+0xMjQ0NTIyNDMxLDQzMTI2MjQxNSwtMTIyMzA0Nzg2NSwxMTI4
+Mzg3MTk2LDgxNjE4MDI1LC0xNTc5MjYwNTI0LC0xNDI5NTQwNj
+AyLC0xODExMTczMjE5LDE0NTk2ODg4MjUsMjE0NTU4NTgyOCwt
+NDA3NTM0NjU4XX0=
 -->
