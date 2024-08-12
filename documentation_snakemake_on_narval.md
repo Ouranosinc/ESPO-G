@@ -107,7 +107,7 @@ Le workflow est stocké  dans le référentiel git  de la structure suivante :
 │   ├── config.yaml
 |   ├── off-properties_ESPO-G.yaml
 |   ├── portraits.yaml
-|   └── portraits_ESPO-G.yaml
+|   └── properties_ESPO-G.yaml
 ├── workflow
 │   ├── rules
 |   │   ├── module1.smk
@@ -517,11 +517,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEwNTI4Nzg5ODEsLTE1ODc2NTcxNDIsLT
-ExODM2OTYyODksMzUzMjE5NTc4LC0zNjk0ODc4MTgsLTEwMzAy
-MzI3Niw5NTgzMjAyMTQsLTE0NzIyMDY4NDAsLTE3MTczNzU0NT
-UsLTQ1MDcyNDkzNCwzMDAyOTcwMjAsLTE5OTE1NDI5NjIsLTEy
-OTA4MzU5NzcsLTEzODg2OTExMTUsMTgzNDYzMDE3OCwyNzI1MT
-MyNDgsLTM0NzAyOTA5NywtMTI0NDUyMjQzMSw0MzEyNjI0MTUs
-LTEyMjMwNDc4NjVdfQ==
+eyJoaXN0b3J5IjpbMzM4OTY3NDc0LC0xNTg3NjU3MTQyLC0xMT
+gzNjk2Mjg5LDM1MzIxOTU3OCwtMzY5NDg3ODE4LC0xMDMwMjMy
+NzYsOTU4MzIwMjE0LC0xNDcyMjA2ODQwLC0xNzE3Mzc1NDU1LC
+00NTA3MjQ5MzQsMzAwMjk3MDIwLC0xOTkxNTQyOTYyLC0xMjkw
+ODM1OTc3LC0xMzg4NjkxMTE1LDE4MzQ2MzAxNzgsMjcyNTEzMj
+Q4LC0zNDcwMjkwOTcsLTEyNDQ1MjI0MzEsNDMxMjYyNDE1LC0x
+MjIzMDQ3ODY1XX0=
 -->
