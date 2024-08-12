@@ -46,6 +46,7 @@ Puisque `conda` n'est pas utilisé sur narval on ne peut pas utiliser le paramè
        $ source SLURM_TMPDIR/env/bin/activate
        $ pip install --no-index --upgrade pip
        $ pip install  --no-index -r /project/ctbfrigon/oumou/ouranos_commun/xscen0.9.0-requirements.txt
+       $ pip i
 
 
 
@@ -268,11 +269,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTM0NzAyOTA5NywtMTI0NDUyMjQzMSw0Mz
-EyNjI0MTUsLTEyMjMwNDc4NjUsMTEyODM4NzE5Niw4MTYxODAy
-NSwtMTU3OTI2MDUyNCwtMTQyOTU0MDYwMiwtMTgxMTE3MzIxOS
-wxNDU5Njg4ODI1LDIxNDU1ODU4MjgsLTQwNzUzNDY1OCwtMTI1
-NzIyMDIyNCwxNjU1OTkyODc3LC00MTM0ODcyMjksLTEzMzU1Nz
-Y1NDgsLTEzMTE3MzA0MDYsNjE4MDAwMDMsLTk4OTQ0MDQ3OSw0
-OTM2OTU0MV19
+eyJoaXN0b3J5IjpbLTE2MTgyNDkxNTEsLTM0NzAyOTA5NywtMT
+I0NDUyMjQzMSw0MzEyNjI0MTUsLTEyMjMwNDc4NjUsMTEyODM4
+NzE5Niw4MTYxODAyNSwtMTU3OTI2MDUyNCwtMTQyOTU0MDYwMi
+wtMTgxMTE3MzIxOSwxNDU5Njg4ODI1LDIxNDU1ODU4MjgsLTQw
+NzUzNDY1OCwtMTI1NzIyMDIyNCwxNjU1OTkyODc3LC00MTM0OD
+cyMjksLTEzMzU1NzY1NDgsLTEzMTE3MzA0MDYsNjE4MDAwMDMs
+LTk4OTQ0MDQ3OV19
 -->
