@@ -181,7 +181,7 @@ Il faut noter l'argument `wildcards` de `official_diags_inputfiles_ref` qui est 
 Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le DAG associé à ESPO-G est la suivante:
 
 # Création d'environment
-Puisque `conda` n'est pas utilisé sur narval on ne peut pas utiliser le paramètre `conda` de snakemake dans les règles. Donc il n'est pas possible de créer un environment pour chaque règles via `conda`. Il faut créer l'environment pour snakemake une seule fois dans le repertoire courant en effectuant les étapes suivantes:
+Puisque `conda` n'est pas utilisé sur narval on ne peut pas utiliser le paramètre `conda` de snakemake dans les règles. Donc il n'est pas possible de créer un environment pour chaque règles via `conda`. Il faut ainsi créer l'environment pour snakemake une seule fois en effectuant les étapes suivantes:
 
     [name@server ~]$ module load StdEnv/2023 gcc openmpi python/3.11 arrow/16.1.0 openmpi netcdf proj esmf geos mpi4py 
     [name@server ~]$ ENVDIR=/tmp/$RANDOM
@@ -236,7 +236,7 @@ Cela produira un fichier appelé requirements.txt, avec comme contenu:
     urllib3==2.1.0+computecanada
     wrapt==1.16.0+computecanada
     yte==1.5.4+computecanada
-
+Ensuite,  dans le répertoire courant , 
 # Le profile de snakemake
 La documentation complète peut-être consulter sur ce  [lien](https://github.com/jdblischak/smk-simple-slurm/tree/main).  Pour éxecuter un workflow snakemake dans un cluster, on utilise la commande 
 
@@ -457,11 +457,11 @@ et sera affecté à cpus-per-task dans le profile:
 Il faut demander aussi au mois autant de mémoire à slurm via `sbatch --mem` que `memory_limit*n_workers` de dasks pour éviter les `slurmstepd: error: Detected 1 oom-kill event(s) `.
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTIwOTI3ODkwNjEsMzUzMjE5NTc4LC0zNj
-k0ODc4MTgsLTEwMzAyMzI3Niw5NTgzMjAyMTQsLTE0NzIyMDY4
-NDAsLTE3MTczNzU0NTUsLTQ1MDcyNDkzNCwzMDAyOTcwMjAsLT
-E5OTE1NDI5NjIsLTEyOTA4MzU5NzcsLTEzODg2OTExMTUsMTgz
-NDYzMDE3OCwyNzI1MTMyNDgsLTM0NzAyOTA5NywtMTI0NDUyMj
-QzMSw0MzEyNjI0MTUsLTEyMjMwNDc4NjUsMTEyODM4NzE5Niw4
-MTYxODAyNV19
+eyJoaXN0b3J5IjpbLTMwNjE2MzAwLDM1MzIxOTU3OCwtMzY5ND
+g3ODE4LC0xMDMwMjMyNzYsOTU4MzIwMjE0LC0xNDcyMjA2ODQw
+LC0xNzE3Mzc1NDU1LC00NTA3MjQ5MzQsMzAwMjk3MDIwLC0xOT
+kxNTQyOTYyLC0xMjkwODM1OTc3LC0xMzg4NjkxMTE1LDE4MzQ2
+MzAxNzgsMjcyNTEzMjQ4LC0zNDcwMjkwOTcsLTEyNDQ1MjI0Mz
+EsNDMxMjYyNDE1LC0xMjIzMDQ3ODY1LDExMjgzODcxOTYsODE2
+MTgwMjVdfQ==
 -->
