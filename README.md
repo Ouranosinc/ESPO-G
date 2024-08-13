@@ -175,6 +175,13 @@ La règle all de ESPO-G est:</p>
 ##### set minimum snakemake version #####  
 min_version("8.0.0")
 </code></pre>
+<p><strong>Générer le rapport</strong>  : Une fois votre workflow terminé, vous pouvez générer le rapport en exécutant la commande suivante :</p>
+<pre><code>```
+snakemake --report report.html
+
+```
+</code></pre>
+<p>Cette commande créera un rapport HTML détaillé contenant des statistiques d’exécution, des informations de provenance, la topologie du workflow et les résultats. Il est pratique pour le temps moyen d’exécution des règles,</p>
 <h2 id="common.smk">Common.smk</h2>
 <p>Le fichier <em><strong>common.smk</strong></em> permet de définir des fonctions qui seront utilisées par les autres fichiers .smk ce qui permet de ne pas trop les surcharger avec du code. C’est pour dans cette règle-ci dessous la fonction <code>official_diags_inputfiles_ref</code> est directement appelée.</p>
 <pre><code>rule off_diag_ref_prop:  
@@ -224,7 +231,10 @@ min_version("8.0.0")
 </code></pre>
 <h2 id="graphe-acyclique-dirigé">Graphe acyclique dirigé</h2>
 <p>Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le graphe acyclique dirigé peut être obtenu avec la commande</p>
-<pre><code>snakemake --dag --all | dot -Tpng &gt; nom_du_fichier.png  
+<pre><code>$ snakemake --dag --all | dot -Tpng &gt; nom_du_fichier.png  
+</code></pre>
+<p>Il faudrait d,abord installer <code>graphviz</code> pour pouvoir utiliser <code>dot</code>.</p>
+<pre><code>$ pip install graphviz 
 </code></pre>
 <p>On peut remplacer l’extension .png, par .svg ou .pdf.<br>
 Le DAG associé à ESPO-G est la suivante:<br>
