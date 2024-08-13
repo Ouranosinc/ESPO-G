@@ -219,6 +219,7 @@ min_version("8.0.0")
 ├── .gitignore
 ├── Snakefile
 ├── dag.png
+├── jobscript.sh
 ├── README.md
 </code></pre>
 <h2 id="graphe-acyclique-dirigé">Graphe acyclique dirigé</h2>
