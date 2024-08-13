@@ -4,7 +4,7 @@
 ---
 
 <h1 id="snakemake">Snakemake</h1>
-<p>Snakemake est un outil inspiré de GNU Make, mais conçu pour être plus flexible et puissant. Il utilise une syntaxe basée sur Python pour définir des règles qui spécifient comment générer des fichiers de sortie à partir de fichiers d’entrée. Pour consulter la documentation officielle, vous pouvez cliquer sur ce <a href="%5Bhttps://snakemake.readthedocs.io/en/stable/snakefiles/rules.html%5D(https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html)">lien</a>.<br>
+<p>Snakemake est un outil inspiré de GNU Make, mais conçu pour être plus flexible et puissant. Il utilise une syntaxe basée sur Python pour définir des règles qui spécifient comment générer des fichiers de sortie à partir de fichiers d’entrée. Pour consulter la documentation officielle, vous pouvez cliquer sur ce <a href="https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html">lien</a>.<br>
 Les workflows sont définis en termes de règles. Chaque règle spécifie comment créer un ou des fichiers de sortie à partir d’un ou plusieurs fichiers d’entrée. Voici un exemple de règle :</p>
 <pre><code>rule reference_DEFAULT:  
     output:  
@@ -300,7 +300,7 @@ echo "Environnment installé!"
 <pre><code>$ bash nomDeFichier.sh
 </code></pre>
 <h1 id="le-profile-de-snakemake">Le profile de snakemake</h1>
-<p>La documentation complète peut-être consulter sur ce <a href="%5Bhttps://github.com/jdblischak/smk-simple-slurm/tree/main%5D(https://github.com/jdblischak/smk-simple-slurm/tree/main)">lien</a>.<br>
+<p>La documentation complète peut-être consulter sur ce <a href="https://github.com/jdblischak/smk-simple-slurm/tree/main">lien</a>.<br>
 Pour exécuter un workflow snakemake dans un cluster, on utilise la commande</p>
 <pre><code>$ snakemake --profile simple/  
 </code></pre>
@@ -370,7 +370,7 @@ Pour la règle <code>adjust</code> suivante:</p>
 <p>Après la définition des options <code>sbatch</code> et des valeurs par défaut de <code>sbatch</code>, il y a le paramètre <code>cluster-generic-status-cmd: status-sacct.sh</code> qui sera passé à la commande snakemake et servira à vérifier le statut des jobs soumis à slurm. Ce paramètre est nécessaire surtout pour détecter les jobs qui échouent à cause du temps limite <code>--time</code>. Snakemake dépend par défaut de <code>cluster-status.py</code>, fournie par le profile slurm officiel de snakemake, pour connaître l’état des jobs de slurm. Cependant, certains jobs peuvent échouer silencieusement sans que snakemake ne s’en rende compte se qui fait que son exécution peut rester bloquée indéfiniment. C’est pourquoi il y a d’autres alternatives fournies par snakemake pour gérer ce problème. Les fichiers dans <a href="%5Bhttps://github.com/jdblischak/smk-simple-slurm/tree/main/extras%5D(https://github.com/jdblischak/smk-simple-slurm/tree/main/extras)"> extras/</a> permettent de gérer le statut des jobs de différentes manières, il faut télécharger celui qui vous convient dans le même répertoire que <em>config.v8+.yaml</em>, le rendre exécutable avec la commande:</p>
 <pre><code>$ chmod +x status-sacct.sh
 </code></pre>
-<p>et ajouter <code>cluster-generic-status-cmd: status-sacct.sh</code> dans <em>config.v8+.yaml</em> et l’option <code>--parsable</code> sous <code>sbatch</code>. <strong>–parsable</strong> permet de de transmettre le <strong>job ID</strong> à <strong>“$jobid”</strong> dans le fichier <strong><a href="http://status-sacct.sh">status-sacct.sh</a></strong>.<br>
+<p>et ajouter <code>cluster-generic-status-cmd: status-sacct.sh</code> dans <em>config.v8+.yaml</em> et l’option <code>--parsable</code> sous <code>sbatch</code>. <strong>–parsable</strong> permet de de transmettre le <strong>job ID</strong> à <strong>“$jobid”</strong> dans le fichier <strong><code>status-sacct.sh</code></strong>.<br>
 On a notamment le fichier <code>status-sacct.sh</code>, ce script est souvent recommandé. Il y a le fichier <code>status-sacct.py</code>qui utilise également la commande <code>sacct</code> mais est écrit en Python. Il y a un fichier <code>status-scontrol.sh</code> qui utilise <code>scontrol</code> et est écrit en bash. La différence entre <code>sacct</code> et <code>scontrol</code> est que ce dernier ne montre que les informations sur les jobs en cours d’exécution ou qui sont récemment terminés (5 min) alors que <code>sacct</code> renvoie des informations de la base de données, et fonctionne donc pour tous les jobs. Le dernier fichier est <code>status-sacct-robust.sh</code>, est une version de <code>status-sacct.sh</code> qui roule plusieurs fois la commande <code>sacct</code> si ce dernier n’arrive pas retourner l’état de la jobs avant de retourne une erreur.</p>
 <p>Il faut bien choisir la valeur de <code>max-status-checks-per-second</code> qui correspond au nombre de fois maximum qu’on peut voir l’état de tous les jobs et non par job. C’est à dire que si <code>--max-status-checks-per-second</code> est défini à 10, alors il n’y aura pas plus de 10 requêtes envoyées par seconde, donc pour 500 jobs, cela signifie qu’il faudra environ 50 secondes pour toutes les vérifier .</p>
 <p><strong>Attention:</strong> les jobs sont bien soumis au cluster si les informations de snakemake écrites à la console sont suivies de <code>Submitted job 28 with external jobid '32636155'.</code><br>
@@ -414,7 +414,7 @@ Submitted job 31 with external jobid '32636148'.
 <p>Et on peut voir l’état des jobs avec la commande d slurm:</p>
 <pre><code>$ sq
 </code></pre>
-<p>Pour plus de détail sur l’utilisation de la mémoire et des threads des jobs en temps réel on peut consulter cette <a href="%5Bhttps://portail.narval.calculquebec.ca/%5D(https://portail.narval.calculquebec.ca/)">page</a> qui est fournie par l’alliance. On peut également y retrouvé la cammande en entier qui a été passée à la console.</p>
+<p>Pour plus de détail sur l’utilisation de la mémoire et des threads des jobs en temps réel on peut consulter cette <a href="https://portail.narval.calculquebec.ca/">page</a> qui est fournie par l’alliance. On peut également y retrouvé la cammande en entier qui a été passée à la console.</p>
 <p>Lorsqu’on annule une job slurm associée à une règle snakemake, la règle échoue aussi. Par contre, si c’est le processus Snakemake qui est annulé avec <code>ctrl + c</code> les jobs slurm associés doivent être annulées séparément avec la commande:</p>
 <pre><code>$ scancel &lt;JOBID&gt;
 </code></pre>
