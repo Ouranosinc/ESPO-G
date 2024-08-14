@@ -179,7 +179,6 @@ min_version("8.0.0")
 <pre><code>```
 snakemake --report report.html
 
-```
 </code></pre>
 <p>Cette commande créera un rapport HTML détaillé contenant des statistiques d’exécution, des informations de provenance, la topologie du workflow et les résultats. Il est pratique pour le temps moyen d’exécution des règles,</p>
 <h2 id="common.smk">Common.smk</h2>
