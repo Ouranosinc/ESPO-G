@@ -20,7 +20,19 @@ rule reference_DEFAULT:
 <pre><code>chemin/vers/ref_north.zarr
 chemin/vers/ref_south.zarr
 </code></pre>
-<p>en exécutant le script <strong>load_ref.py</strong> qui utilise le fichier  <strong>“chemin/vers/fichierInput.zarr”</strong> comme point de départ</p>
+<p>en exécutant le script <strong>load_ref.py</strong> qui utilise le fichier  <strong>“chemin/vers/fichierInput.zarr”</strong> comme point de départ. le script peut ressembler à:</p>
+<pre><code>import xarray as xr  
+import xscen as xs  
+import xclim as xc
+
+if __name__ == '__main__':  
+	  # load input_file 
+	  input = xr.open_zarr(snakemake.input.rechunk)  
+	  # 
+	  # do your stuff 
+	  #
+	  xs.save_to_zarr(input, str(snakemake.output[0]))
+</code></pre>
 <h2 id="section"></h2>
 <p>La section input n’est pas obligatoire. C’est le cas dans la règle <code>reference_DEFAULT</code> dans <code>Makeref.smk</code>. Dans la règle ci-haut j’utilise la section <code>params</code> pour passer des valeurs aux paramètres de dask.distributed.LocalCluster dans le script <em><strong>load_default_ref.py</strong></em> et qu’elles soient en adéquation avec les ressources demandées à slurm. À l’exception de <code>n_workers</code> qui est dans ressources par souci de portabilité. En effet pour que <code>mem</code> soit exactement égale à <code>memory_limit</code>, j’utilise la fonction <code>lambda</code> qui ne peut pas prendre comme paramètre <code>params</code> . Donc le client sera appelé de la façon suivante dans le script <em><strong>load_default_ref.py</strong></em>::</p>
 <pre><code>    cluster = LocalCluster(n_workers=snakemake.resources.n_workers, threads_per_worker=snakemake.params.threads_per_worker,  
