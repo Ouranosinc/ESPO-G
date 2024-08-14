@@ -6,21 +6,17 @@
 <h1 id="snakemake">Snakemake</h1>
 <p>Snakemake est un outil inspiré de GNU Make, mais conçu pour être plus flexible et puissant. Il utilise une syntaxe basée sur Python pour définir des règles qui spécifient comment générer des fichiers de sortie à partir de fichiers d’entrée. Pour consulter la documentation officielle, vous pouvez cliquer sur ce <a href="https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html">lien</a>.<br>
 Les workflows sont définis en termes de règles. Chaque règle spécifie comment créer un ou des fichiers de sortie à partir d’un ou plusieurs fichiers d’entrée. Voici un exemple de règle :</p>
-<pre><code>rule reference_DEFAULT:  
+<pre><code>region=[south, north]
+
+rule reference_DEFAULT:  
     output:  
-        directory(Path(config['paths']['final'])/"reference/ref_{region}_default.zarr")  
-    wildcard_constraints:  
-        region=r"[a-zA-Z]+_[a-zA-Z]+"  
-    params:  
-        threads_per_worker= lambda wildcards,threads, resources: int(resources.cpus_per_task / resources.n_workers),  
-        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers    
-    resources:  
-        mem='5GB',  
-        n_workers=2,
-        cpus_per_task=1,  
-        time=160  
+        "chemin/vers/ref_{region}.zarr" 
     script:  
-        f"{home}workflow/scripts/load_default_ref.py"
+        "load_ref.py"
+</code></pre>
+<p>Ici l’objectif est de générer les fichiers:</p>
+<pre><code>chemin/vers/ref_north.zarr
+chemin/vers/ref_south.zarr
 </code></pre>
 <p>La section input n’est pas obligatoire. C’est le cas dans la règle <code>reference_DEFAULT</code> dans <code>Makeref.smk</code>. Dans la règle ci-haut j’utilise la section <code>params</code> pour passer des valeurs aux paramètres de dask.distributed.LocalCluster dans le script <em><strong>load_default_ref.py</strong></em> et qu’elles soient en adéquation avec les ressources demandées à slurm. À l’exception de <code>n_workers</code> qui est dans ressources par souci de portabilité. En effet pour que <code>mem</code> soit exactement égale à <code>memory_limit</code>, j’utilise la fonction <code>lambda</code> qui ne peut pas prendre comme paramètre <code>params</code> . Donc le client sera appelé de la façon suivante dans le script <em><strong>load_default_ref.py</strong></em>::</p>
 <pre><code>    cluster = LocalCluster(n_workers=snakemake.resources.n_workers, threads_per_worker=snakemake.params.threads_per_worker,  
@@ -237,7 +233,7 @@ min_version("8.0.0")
 Le DAG associé à ESPO-G est la suivante:<br>
 <img src="" alt="Graphe acyclique dirigé"></p>
 <h1 id="création-denvironment">Création d’environment</h1>
-<p>Puisque <code>conda</code> n’est pas utilisé sur narval on ne peut pas utiliser le paramètre <code>conda</code> de snakemake dans les règles. Donc il n’est pas possible de créer un environment pour chaque règle via <code>conda</code>. Il faut ainsi créer l’environnent pour snakemake une seule fois en effectuant les étapes suivantes:</p>
+<p>Puisque <code>conda</code> n’est pas utilisé sur narval on ne peut pas utiliser le paramètre <code>conda</code> de snakemake dans les règles. Donc il n’est pas possible de créer un environment pour chaque règle via <code>conda</code>. Il faut ainsi créer l’environment pour snakemake une seule fois en effectuant les étapes suivantes:</p>
 <pre><code>[name@server ~]$ module load StdEnv/2023 gcc openmpi python/3.11 arrow/16.1.0 openmpi netcdf proj esmf geos mpi4py 
 [name@server ~]$ ENVDIR=/tmp/$RANDOM
 [name@server ~]$ virtualenv --no-download $ENVDIR
