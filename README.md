@@ -39,7 +39,18 @@ Il a trois principaux répertoire: <strong>HOME</strong>, <strong>SCRATCH</stron
 Le <strong>HOME</strong> a un quota fixe par utilisateur et est sauvegardé tous les jours, le <strong>SCRATCH</strong>  a un grand quota par utilisateur qui sert à stocker les fichiers temporaires et <strong>PROJECT</strong> a un large quota qui est sauvegardé tous les jour.</p>
 <p>Les jobs sont soumis à l’ordonnanceur <strong>slurm</strong> qui  planifie l’exécution de chaque job en fonction des ressources disponibles.<br>
 Les jobs non intéractives sont soumis via <code>sbatch</code> et les jobs intéractives sont soumis via <code>srun</code>.<br>
-Chaque job sur Narval doit avoir une durée d’au moins une heure (cinq minutes pour les tâches de test) et vous ne pouvez pas avoir plus de 1000 tâches, en cours d’exécution ou en file d’attente, à un moment donné. La durée maximale d’un travail sur Narval est de 7 jours (168 heures).</p>
+Pour soumettre une tâche (exemple <code>echo 'Hello, world!'</code>)à slurm, il faudra donc écrire un script de soumission <code>soumission.sh</code> de la forme:</p>
+<pre><code>#!/bin/bash
+#SBATCH --time=00:15:00
+#SBATCH --account=def-someuser
+echo 'Hello, world!'
+sleep 30
+</code></pre>
+<p>et éxécuter la commande:</p>
+<pre><code>$ sbatch simple_job.sh
+Submitted batch job 123456
+</code></pre>
+<p>ce job réservera 1 core et 256MB de mémoire pour 15 minutes</p>
 <h2 id="snakemake-sur-narval">Snakemake sur narval</h2>
 <p>Pour utiliser snakemake sur <strong>narval</strong>, les règles doivent avoir d’autres directives en plus de <strong>input</strong>, <strong>output</strong> et <strong>script</strong>.</p>
 <h2 id="section"></h2>
