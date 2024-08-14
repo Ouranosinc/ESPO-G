@@ -179,6 +179,7 @@ min_version("8.0.0")
 <pre><code>```
 snakemake --report report.html
 
+```
 </code></pre>
 <p>Cette commande créera un rapport HTML détaillé contenant des statistiques d’exécution, des informations de provenance, la topologie du workflow et les résultats. Il est pratique pour le temps moyen d’exécution des règles,</p>
 <h2 id="common.smk">Common.smk</h2>
@@ -230,10 +231,10 @@ snakemake --report report.html
 </code></pre>
 <h2 id="graphe-acyclique-dirigé">Graphe acyclique dirigé</h2>
 <p>Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le graphe acyclique dirigé peut être obtenu avec la commande</p>
-<pre><code>$ snakemake --dag --all | dot -Tpng &gt; nom_du_fichier.png  
+<pre><code>$ snakemake --dag all | dot -Tpng &gt; nom_du_fichier.png  
 </code></pre>
 <p>Il faudrait d,abord installer <code>graphviz</code> pour pouvoir utiliser <code>dot</code>.</p>
-<pre><code>$ pip install graphviz 
+<pre><code>$ pip install --no-index graphviz 
 </code></pre>
 <p>On peut remplacer l’extension .png, par .svg ou .pdf.<br>
 Le DAG associé à ESPO-G est la suivante:<br>
