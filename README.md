@@ -176,10 +176,7 @@ La règle all de ESPO-G est:</p>
 min_version("8.0.0")
 </code></pre>
 <p><strong>Générer le rapport</strong>  : Une fois votre workflow terminé, vous pouvez générer le rapport en exécutant la commande suivante :</p>
-<pre><code>```
-snakemake --report report.html
-
-```
+<pre><code>snakemake --report report.html
 </code></pre>
 <p>Cette commande créera un rapport HTML détaillé contenant des statistiques d’exécution, des informations de provenance, la topologie du workflow et les résultats. Il est pratique pour le temps moyen d’exécution des règles,</p>
 <h2 id="common.smk">Common.smk</h2>
