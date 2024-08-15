@@ -343,17 +343,17 @@ ds_refnl = convert_calendar(ds_ref, "noleap")
 xs.save_to_zarr(ds_refnl, str(snakemake.output[0]))
 </code></pre>
 <p>au lieu de</p>
-<pre><code>  for region_name, region_dict in CONFIG['custom']['regions'].items():
-	   if not pcat.exists_in_cat(domain=region_name, calendar='noleap', source=ref_source):
-            ds_ref = pcat.search(source=ref_source,calendar='default',domain=region_name).to_dask()
-            
-            # convert calendars
-            ds_refnl = convert_calendar(ds_ref, "noleap")
-            save_move_update(ds=ds_refnl,
-                             pcat=pcat,
-                             init_path=f"{exec_wdir}/ref_{region_name}_noleap.zarr",
-                             final_path=f"{refdir}/ref_{region_name}_noleap.zarr",
-                             info_dict={'calendar': 'noleap'})
+<pre><code>for region_name, region_dict in CONFIG['custom']['regions'].items():
+  if not pcat.exists_in_cat(domain=region_name, calendar='noleap', source=ref_source):
+          ds_ref = pcat.search(source=ref_source,calendar='default',domain=region_name).to_dask()
+          
+          # convert calendars
+          ds_refnl = convert_calendar(ds_ref, "noleap")
+          save_move_update(ds=ds_refnl,
+                           pcat=pcat,
+                           init_path=f"{exec_wdir}/ref_{region_name}_noleap.zarr",
+                           final_path=f"{refdir}/ref_{region_name}_noleap.zarr",
+                           info_dict={'calendar': 'noleap'})
 </code></pre>
 <p>Pour chaque fichier input, le script associé à <code>reference_NOLEAP</code> est exécuté et toutes les variables <code>snakemake.wildcards.region</code> présentes dans le script sont remplacées par la valeur actuelle du wildcard <code>region</code> .<br>
 La valeur des wildcards est spécifiée que lors de l’exécution du workflow, dans la règle <code>all</code>, où toutes les valeurs possibles du wildcards sont passées à la fonction <code>expand()</code>.</p>
