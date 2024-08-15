@@ -20,7 +20,7 @@ rule reference_DEFAULT:
 <pre><code>chemin/vers/ref_north.zarr
 chemin/vers/ref_south.zarr
 </code></pre>
-<p>en exécutant le script <strong>load_ref.py</strong> qui utilise le fichier  <strong>“chemin/vers/fichierInput.zarr”</strong> comme point de départ. le script peut ressembler à:</p>
+<p>en exécutant le script <strong>load_ref.py</strong> qui utilise le fichier  <strong>“chemin/vers/fichierInput.zarr”</strong> comme point de départ. Le script peut ressembler à:</p>
 <pre><code>import xarray as xr  
 import xscen as xs  
 import xclim as xc
@@ -86,8 +86,10 @@ D’abord on crée le fichier <em><strong>requirement.text</strong></em>:</p>
 echo "Modules loading..."  
 module load StdEnv/2023 gcc openmpi python/3.11 arrow/16.1.0 openmpi netcdf proj esmf geos mpi4py  
 echo "Modules loaded successfully."  
+
 virtualenv --no-download $SLURM_TMPDIR/env  
 source $SLURM_TMPDIR/env/bin/activate  
+
 pip install --no-index --upgrade pip  
 pip install  --no-index -r requirements.txt  
 echo "Environnment installé!"
