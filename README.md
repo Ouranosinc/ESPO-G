@@ -14,7 +14,7 @@ rule reference_DEFAULT:
 	output:  
 		"chemin/vers/ref_{region}.zarr"  
 	script:  
-		"load_ref.py"  
+		"load_ref.py"
 </code></pre>
 <p>Ici l’objectif est de générer les fichiers:</p>
 <pre><code>chemin/vers/ref_north.zarr  
@@ -211,13 +211,13 @@ cluster-generic-submit-cmd:
     --partition=c-frigon  
     --account=ctb-frigon  
     --constraint=genoa  
-    --cpus-per-task={resources.cpus_per_task}  # nombre de workers de dasks 
+    --cpus-per-task={resources.cpus_per_task}
     --qos={resources.qos}  
     --mem={resources.mem}  
-    --job-name={rule}-{wildcards}  # renommer le nom de la job en fonction de du nom de la règle et des ses wildcards
-    --output=logs/{rule}/{rule}-{wildcards}-%j.out  # renommer le nom du fichier output en fonction de du nom de la règle et des ses wildcards 
+    --job-name={rule}-{wildcards}
+    --output=logs/{rule}/{rule}-{wildcards}-%j.out 
     --time={resources.time}  
-    --parsable  # pour que sbatch renvoie uniquement le job ID sans aucun texte supplémentaire. Est obligatoire si on utilise cluster-generic-status-cmd
+    --parsable
 default-resources:  
   - qos=high_priority  
   - mem=80GB  
@@ -226,15 +226,35 @@ default-resources:
 cluster-generic-cancel-cmd: "scancel"  
 cluster-generic-status-cmd: status-sacct.sh  
 restart-times: 3  
-max-jobs-per-second: 10           # Cela peut être utile pour éviter de surcharger le cluster avec trop de soumissions simultanées.
-max-status-checks-per-second: 30     # le nombre total de vérification d'état de tous les jobs
-local-cores: 1               #  pour les règle qui s'exécutent localement. Exemple: localrules: nom_de_la_regle
-latency-wait: 60        # attendre un certain temps pour que les fichiers soient visibles en cas de MissingFileExeption error
-jobs: 10           # le maximum de jobs qui peuvent être roulés en parallèle
-keep-going: True         # pour continuer à exécuter les règles qui sont independantes d'une règle qui a échoué
-rerun-incomplete: True       # permet de relancer les tâches qui n’ont pas été complètement exécutées lors d’une précédente exécution
-printshellcmds: True     # pour que snakemake affiche les commandes shell qui sont exécutées pour chaque règle. Cela peut être très utile pour le débogage
+max-jobs-per-second: 10
+max-status-checks-per-second: 30
+local-cores: 1
+latency-wait: 60
+jobs: 10
+keep-going: True
+rerun-incomplete: True
+printshellcmds: True
 </code></pre>
+<p><strong>mkdir -p logs/{rule}:</strong> crée un repertoire pour sauvegarder les fichiers output de slurm</p>
+<p><strong>sbatch --partition:</strong> pour avoir la priorité Ouranos<br>
+<strong>sbatch --account:</strong>  choisir un compte. Obligatoire sur narval<br>
+<strong>sbatch --constraint:</strong> pour accéder à bébé narval<br>
+<strong>sbatch --cpus-per-task:</strong> nombre de workers de dasks<br>
+<strong>sbatch --job-name:</strong>  renommer le nom de la job en fonction de du nom de la règle et des ses wildcards<br>
+<strong>sbatch --output:</strong> renommer le nom du fichier output en fonction de du nom de la règle et des ses wildcards<br>
+<strong>sbatch --parsable:</strong> pour que sbatch renvoie uniquement le job ID sans aucun texte supplémentaire. Est obligatoire si on utilise cluster-generic-status-cmd.<br>
+<strong>cluster-generic-cancel-cmd:</strong><br>
+<strong>cluster-generic-status-cmd:</strong> permet d’annuler les jobs slurm lorsque le processus de snakemake est interrompu<br>
+<strong>restart-times:</strong> exécute jusqu’à 3 fois la règle en cas d’échec.<br>
+<strong>max-jobs-per-second:</strong>  Cela peut être utile pour éviter de surcharger le cluster avec trop de soumissions simultanées.<br>
+<strong>max-status-checks-per-second:</strong> le nombre total de vérification d’état de tous les jobs<br>
+<strong>local-cores:</strong> pour les règle qui s’exécutent localement. Exemple: localrules: nom_de_la_regle<br>
+<strong>latency-wait:</strong> attendre un certain temps pour que les fichiers soient visibles en cas de MissingFileExeption error<br>
+<strong>jobs:</strong> le maximum de jobs qui peuvent être roulés en parallèle<br>
+<strong>keep-going:</strong>  pour continuer à exécuter les règles qui sont independantes d’une règle qui a échoué<br>
+<strong>rerun-incomplete:</strong>  permet de relancer les tâches qui n’ont pas été complètement exécutées lors d’une précédente exécution<br>
+<strong>printshellcmds:</strong>  pour que snakemake affiche les commandes shell qui sont exécutées pour chaque règle. Cela peut être très utile pour le<br>
+débogage.</p>
 <p><strong>Remarque:</strong></p>
 <ul>
 <li>il faut bien choisir la valeur de <code>max-status-checks-per-second</code><br>
