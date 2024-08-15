@@ -144,9 +144,8 @@ restart-times: 3
 <p><code>Cluster-generic</code>est un plugin générique qui donne accès à plusieurs types de plugin. Slurm est sélectionné via  <code>sbatch</code>. <code>resources.cpus</code> et <code>resources.mem</code> seront remplacé respectivement par “1.5G” et 10. Puisque maRegle n’a pas resources.time, c’est la valeur par défaut du fichier  <em><strong>config.v8+.yaml</strong></em> qui sera prise, 120. <code>--parsable</code> stocke le <strong>job ID</strong>.</p>
 <p>Le paramètre  <code>cluster-generic-cancel-cmd</code> permet d’annuler  les jobs slurm lorsque le processus de snakemake est intérrompu.</p>
 <p><strong>Remarque :</strong> si vous appuyez trop rapidement <strong>Ctrl-C</strong> une deuxième fois, Snakemake sera tué avant qu’il ne puisse terminer d’annuler tous les travaux avec <code>scancel</code>.</p>
-<p>\label{simple}<br>
-Le paramètre <code>cluster-generic-status-cmd: status-sacct.sh</code>  vérifie l’état des jobs soumis à slurm. Il est nécessaire surtout pour détecter les jobs qui échouent à cause du temps limite <code>--time</code> car par défaut Snakemake ne vérifie pas l’état <strong>TIMEOUT</strong>. <code>status-sacct.sh</code> est un  script parmi quatre autres proposé par <a href="https://github.com/jdblischak/smk-simple-slurm/tree/main/extras">snakemake</a>.</p>
-<p>Ces fichiers utilisent <code>sacct</code> ou <code>sacct</code>.<br>
+<p>Le paramètre <code>cluster-generic-status-cmd: status-sacct.sh</code>  vérifie l’état des jobs soumis à slurm. Il est nécessaire surtout pour détecter les jobs qui échouent à cause du temps limite <code>--time</code> car par défaut Snakemake ne vérifie pas l’état <strong>TIMEOUT</strong>. <code>status-sacct.sh</code> est un  script parmi quatre autres proposé par <a href="https://github.com/jdblischak/smk-simple-slurm/tree/main/extras">snakemake</a>.<br>
+Ces fichiers utilisent <code>sacct</code> ou <code>sacct</code>.<br>
 <code>scontrol</code> ne montre que les informations sur les jobs en cours d’exécution ou qui sont récemment terminés (5 min) alors que <code>sacct</code> renvoie des informations de la base de données, et fonctionne donc pour tous les jobs.<br>
 Le script de status doit être dans  le repertoire <strong>simple/</strong> et dois être éxécutable.</p>
 <p><code>restart-times</code> reéxécute jusqu’à 3 fois la régle en cas d’échec.</p>
@@ -215,6 +214,8 @@ Le répertoire config/ contient:</p>
 <li><strong>properties_ESPO-G.yaml:</strong> fournie à <code>xs.properties_and_measures</code> utilisé dans le script de la règle <em>DIAGNOSTICS</em> un chemin d’accès à un fichier YAML qui indique comment calculer les propriétés</li>
 </ul>
 <h3 id="simple">simple</h3>
-<p>voir la partie Snakemake sur naval. \ref{simple}.</p>
-<h2 id="section"></h2>
+<p>Le répertoire simple a deux fichier, le fichier <em><strong>config.v8+.yaml</strong></em> et <strong><code>status-sacct.sh</code></strong>. Comme discuté dans le chapitre Snakemake sur narval,  <em><strong>config.v8+.yaml</strong></em> est utiliser pour passer des paramètres à la commande <code>snakemake</code>. En plus des parametre donné en exemple dans le chapitre Snakemake sur narval, le profile de ESPO en  introduit d’autre pour</p>
+<h3 id="workflow">workflow</h3>
+<h3 id="section"></h3>
+<h2 id="section-1"></h2>
 
