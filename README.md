@@ -51,6 +51,7 @@ Submitted batch job 123456
 <p>Ce job réservera par défaut 1 core et 256MB de mémoire pour 15 minutes.  <code>--time</code> et <code>--account</code> sont des argument sbatch obligatoire pour soumettre un job sur Narval. Il possible de choisir la quantité de mémoire et de cores en ajoutant les options sbatch <code>--mem</code> ou <code>--mem-per-cpu</code> et <code>--cpus-per-task</code>.<br>
 Il est conseillé de créer un environment pour chaque job et il est possible de le faire dans le script de soumission. Exemple:</p>
 <pre><code>#!/bin/bash
+
 #SBATCH --account=def-frigon
 #SBATCH --mem-per-cpu=1.5G      # increase as needed
 #SBATCH --time=1:00:00
