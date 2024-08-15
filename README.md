@@ -171,14 +171,14 @@ Le script de statut doit être dans le répertoire <strong>simple/</strong> et d
 <p>Il faut obligatoirement avoir un fichier dans le répertoire courant, appelé <em><strong>Snakefile</strong></em> ou <em><strong>snakefile</strong></em> afin de pouvoir utiliser la commande <code>snakemake</code>. Pour des workflows ayant peu de règles, il n’est pas nécessaire d’avoir des fichiers <em>.smk</em>, toutes les règles peuvent être écrites dans le <em>Snakefile</em>. Cependant, la première règle qui doit être définie est la règle <strong>all</strong>.</p>
 <p>Elle définit les fichiers cibles finaux que l’on souhaite obtenir à la fin du workflow. En d’autres termes, elle indique à Snakemake quels fichiers doivent être générés pour que le workflow soit considéré comme terminé.<br>
 La règle all de ESPO-G est:</p>
-<pre><code> rule all:  
-    input:  
-        expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_{sim_id}_{dom_name}.zarr", sim_id=sim_id_name,dom_name=dom),  
-        expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/DIAGNOCTICS_diag-heatmap_{sim_id}_{region}.zarr", sim_id=sim_id_name,region=region_name),  
-        expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/DIAGNOCTICS_diag-improved_{sim_id}_{region}.zarr", sim_id=sim_id_name, region=region_name),  
-        expand(Path(config['paths']['final'])/"diagnostics/NAM/{sim_id}/{level}_{sim_id}_NAM.zar", sim_id=sim_id_name,level=level_name),  
-        expand(Path(config['paths']['final']) / "checks/NAM/{sim_id}_NAM_checks.zarr", sim_id=sim_id_name),  
-        Path(config['paths']['final']) / "diagnostics/NAM/ECMWF-ERA5-Land_NAM/diag-ref-prop_ECMWF-ERA5-Land_NAM.zar"
+<pre><code>rule all:  
+   input:  
+       expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_{sim_id}_{dom_name}.zarr", sim_id=sim_id_name,dom_name=dom),  
+       expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/DIAGNOCTICS_diag-heatmap_{sim_id}_{region}.zarr", sim_id=sim_id_name,region=region_name),  
+       expand(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/DIAGNOCTICS_diag-improved_{sim_id}_{region}.zarr", sim_id=sim_id_name, region=region_name),  
+       expand(Path(config['paths']['final'])/"diagnostics/NAM/{sim_id}/{level}_{sim_id}_NAM.zar", sim_id=sim_id_name,level=level_name),  
+       expand(Path(config['paths']['final']) / "checks/NAM/{sim_id}_NAM_checks.zarr", sim_id=sim_id_name),  
+       Path(config['paths']['final']) / "diagnostics/NAM/ECMWF-ERA5-Land_NAM/diag-ref-prop_ECMWF-ERA5-Land_NAM.zar"
 </code></pre>
 <p>C’est dans le fichier Snakfile qu’il faut associer les fichiers <strong>.smk</strong> au processus snakemake:</p>
 <pre><code>include: "workflow/rules/Makeref.smk  
