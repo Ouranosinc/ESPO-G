@@ -6,8 +6,7 @@
 <h1 id="snakemake">Snakemake</h1>
 <p>Snakemake est un outil inspiré de GNU Make, mais conçu pour être plus flexible et puissant. Il utilise une syntaxe basée sur Python pour définir des règles qui spécifient comment générer des fichiers de sortie à partir de fichiers d’entrée. Pour consulter la documentation officielle, vous pouvez cliquer sur ce <a href="https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html">lien</a>.<br>
 Les workflows sont définis en termes de règles. Chaque règle spécifie comment créer un ou des fichiers de sortie à partir d’un ou plusieurs fichiers d’entrée. Voici un exemple de règle :</p>
-<pre><code>
-region=[south, north]
+<pre><code>region=[south, north]
 
 rule reference_DEFAULT: 
 input:
@@ -16,7 +15,6 @@ input:
        "chemin/vers/ref_{region}.zarr" 
    script:  
        "load_ref.py"
-
 </code></pre>
 <p>Ici l’objectif est de générer les fichiers:</p>
 <pre><code>chemin/vers/ref_north.zarr
