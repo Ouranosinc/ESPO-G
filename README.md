@@ -9,12 +9,12 @@ Les workflows sont définis en termes de règles. Chaque règle spécifie commen
 <pre><code>region=[south, north]  
   
 rule reference_DEFAULT:  
-input:  
-"chemin/vers/fichierInput.zarr"  
-output:  
-"chemin/vers/ref_{region}.zarr"  
-script:  
-"load_ref.py"  
+	input:  
+		"chemin/vers/fichierInput.zarr"  
+	output:  
+		"chemin/vers/ref_{region}.zarr"  
+	script:  
+		"load_ref.py"  
 </code></pre>
 <p>Ici l’objectif est de générer les fichiers:</p>
 <pre><code>chemin/vers/ref_north.zarr  
