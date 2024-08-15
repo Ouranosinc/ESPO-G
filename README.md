@@ -366,8 +366,7 @@ xs.save_to_zarr(ds_refnl, str(snakemake.output[0]))
 <pre><code>for region_name, region_dict in CONFIG['custom']['regions'].items():
   if not pcat.exists_in_cat(domain=region_name, calendar='noleap', source=ref_source):
           ds_ref = pcat.search(source=ref_source,calendar='default',domain=region_name).to_dask()
-          
-          # convert calendars
+      
           ds_refnl = convert_calendar(ds_ref, "noleap")
           save_move_update(ds=ds_refnl,
                            pcat=pcat,
