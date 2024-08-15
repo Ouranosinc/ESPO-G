@@ -283,8 +283,8 @@ then
   exit 1  
 fi  
   
-output=`sacct -j "$jobid" --format State --noheader | head -n 1 | awk '{print $1}'`  
-  
+output=`sacct -j "$jobid" --format State --noheader | head -n 1 | awk '{print $1}'` 
+ 
 if [[ $output =~ ^(COMPLETED).* ]]  
 then  
   echo success  
