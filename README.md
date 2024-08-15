@@ -36,7 +36,7 @@ if __name__ == '__main__':
 <h1 id="narval">Narval</h1>
 <p>Le cluster narval permet d’optimiser la parallélisation d’un workflow en le divisant en plusieurs jobs qui peuvent s’exécuter en même temps.</p>
 <p>Les jobs sont soumis à l’ordonnanceur <strong>slurm</strong> qui  planifie l’exécution de chaque job en fonction des ressources disponibles.<br>
-Les jobs non intéractives sont soumis via <code>sbatch</code> et les jobs intéractives sont soumis via <code>srun</code>.<br>
+Les jobs non intéractives sont soumis via <code>sbatch</code>.<br>
 Pour soumettre une tâche (exemple <code>echo 'Hello, world!'</code>)à slurm, il faudra donc écrire un script de soumission <code>soumission.sh</code> de la forme:</p>
 <pre><code>#!/bin/bash
 
@@ -70,35 +70,14 @@ echo 'Hello, world!'
 Le HOME a un quota fixe par utilisateur et est sauvegardé tous les jours, le SCRATCH  a un grand quota par utilisateur qui sert à stocker les fichiers temporaires et PROJECT a un large quota qui est sauvegardé tous les jour.<br>
 Il ne faut pas créer un environment de le SCRATCH.</p>
 <h1 id="snakemake-sur-narval">Snakemake sur narval</h1>
-<p>Pour utiliser snakemake sur <strong>narval</strong>, il faut créer un environment snakemake.<br>
-D’abord on crée le fichier <em><strong>requirement.text</strong></em>:</p>
-<pre><code>[name@server ~]$ module load StdEnv/2023 gcc openmpi python/3.11 arrow/16.1.0 openmpi netcdf proj esmf geos mpi4py 
-[name@server ~]$ ENVDIR=/tmp/$RANDOM
-[name@server ~]$ virtualenv --no-download $ENVDIR
-[name@server ~]$ source $ENVDIR/bin/activate
-(xxxx)[name@server ~]$ pip install --no-index --upgrade pip
-(xxxx)[name@server ~]$ pip install --no-index snakemake==8.12.0
-(xxxx)[name@server ~]$ pip install snakemake-executor-plugin-cluster-generic
-(xxxx)[name@server ~]$ pip freeze --local &gt; requirements.txt
-(xxxx)[name@server ~]$ deactivate
-[name@server ~]$ rm -rf $ENVDIR
-</code></pre>
-<p>Ensuite créer un script :</p>
-<pre><code>#!/bin/bash  
- 
-echo "Modules loading..."  
-module load StdEnv/2023 gcc openmpi python/3.11 arrow/16.1.0 openmpi netcdf proj esmf geos mpi4py  
-echo "Modules loaded successfully."  
-
-virtualenv --no-download $SLURM_TMPDIR/env  
-source $SLURM_TMPDIR/env/bin/activate  
-
-pip install --no-index --upgrade pip  
-pip install  --no-index -r requirements.txt  
-echo "Environnment installé!"
-</code></pre>
-<p>Enfin,  dans le répertoire courant du fichier Snakefile,</p>
-<pre><code>$ bash nomDeFichier.sh
+<p>Pour utiliser snakemake sur <strong>narval</strong>, il faut créer un environment snakemake:</p>
+<pre><code>module load StdEnv/2023 gcc openmpi python/3.11 arrow/16.1.0 openmpi netcdf proj esmf geos mpi4py 
+virtualenv --no-download &lt;NOM-ENV&gt; 
+source &lt;NOM-ENV&gt;/bin/activate 
+pip install --no-index --upgrade pip 
+pip install --no-index -r "/project/ctb-frigon/scenario/environnements/xscen0.9.0-requirements.txt" 
+pip install --no-index snakemake==8.12.0
+pip install snakemake-executor-plugin-cluster-generic
 </code></pre>
 <p>Les règles doivent avoir d’autres directives en plus de <strong>input</strong>, <strong>output</strong> et <strong>script</strong>. La directive <code>resources</code> est utilisée pour passer des valeurs à <code>sbatch</code>. Ainsi chaque script de soumission demandera des ressources spécifiques à chaque règle. Exemple:</p>
 <pre><code>region=[south, north]
@@ -150,11 +129,13 @@ restart-times: 3
 <p>Le paramètre  <code>cluster-generic-cancel-cmd</code> permet d’annuler  les jobs slurm lorsque le processus de snakemake est intérrompu.</p>
 <p><strong>Remarque :</strong> si vous appuyez trop rapidement <strong>Ctrl-C</strong> une deuxième fois, Snakemake sera tué avant qu’il ne puisse terminer d’annuler tous les travaux avec <code>scancel</code>.</p>
 <p>Le paramètre <code>cluster-generic-status-cmd: status-sacct.sh</code>  vérifie l’état des jobs soumis à slurm. Il est nécessaire surtout pour détecter les jobs qui échouent à cause du temps limite <code>--time</code> car par défaut Snakemake ne vérifie pas l’état <strong>TIMEOUT</strong>. <code>status-sacct.sh</code> est un  script parmi quatre autres proposé par <a href="https://github.com/jdblischak/smk-simple-slurm/tree/main/extras">snakemake</a>.<br>
-Ces fichiers utilisent <code>sacct</code> ou <code>sacct</code>.<br>
+Ces fichiers utilisent <code>sacct</code> ou <code>scontrol</code>.<br>
 <code>scontrol</code> ne montre que les informations sur les jobs en cours d’exécution ou qui sont récemment terminés (5 min) alors que <code>sacct</code> renvoie des informations de la base de données, et fonctionne donc pour tous les jobs.<br>
 Le script de status doit être dans  le repertoire <strong>simple/</strong> et dois être éxécutable.</p>
 <p><code>restart-times</code> reéxécute jusqu’à 3 fois la régle en cas d’échec.</p>
-<p><strong>Attention:</strong> les jobs sont bien soumis au cluster si les informations de snakemake écrites à la console sont suivies de <code>Submitted job 28 with external jobid '32636155'.</code></p>
+<p><strong>Attention:</strong> les jobs sont bien soumis au cluster si les informations de snakemake écrites à la console sont suivies de <code>Submitted job 28 with external jobid '32636155'.</code> Et on peut voir l’état des jobs avec la commande slurm:</p>
+<pre><code>$ sq
+</code></pre>
 <h1 id="espo-on-snakemake-on-narval">ESPO on snakemake on narval</h1>
 <p>Le workflow est stocké  dans le référentiel git  de la structure suivante :</p>
 <pre><code>├── Snakefile
@@ -219,8 +200,70 @@ Le répertoire config/ contient:</p>
 <li><strong>properties_ESPO-G.yaml:</strong> fournie à <code>xs.properties_and_measures</code> utilisé dans le script de la règle <em>DIAGNOSTICS</em> un chemin d’accès à un fichier YAML qui indique comment calculer les propriétés</li>
 </ul>
 <h3 id="simple">simple</h3>
-<p>Le répertoire simple a deux fichier, le fichier <em><strong>config.v8+.yaml</strong></em> et <strong><code>status-sacct.sh</code></strong>. Comme discuté dans le chapitre Snakemake sur narval,  <em><strong>config.v8+.yaml</strong></em> est utiliser pour passer des paramètres à la commande <code>snakemake</code>. En plus des parametre donné en exemple dans le chapitre Snakemake sur narval, le profile de ESPO en  introduit d’autre pour</p>
+<p>Le répertoire simple a deux fichier, le fichier <em><strong>config.v8+.yaml</strong></em> et <strong><code>status-sacct.sh</code></strong>. Comme discuté dans le chapitre Snakemake sur narval,  <em><strong>config.v8+.yaml</strong></em> est utiliser pour passer des paramètres à la commande <code>snakemake</code>. En plus des paramètres donnés en exemple dans le chapitre Snakemake sur narval, le profile de ESPO en  introduit d’autres puisqu’il roule plusieurs jobs en même temps.</p>
+<pre><code>executor: cluster-generic  
+cluster-generic-submit-cmd:  
+  mkdir -p logs/{rule} &amp;&amp;   # crée un repertoire pour sauvegarder les fichiers output de slurm
+  sbatch   
+    --partition=c-frigon  
+    --account=ctb-frigon  
+    --constraint=genoa  
+    --cpus-per-task={resources.cpus_per_task}  # nombre de workers de dasks 
+    --qos={resources.qos}  
+    --mem={resources.mem}  
+    --job-name={rule}-{wildcards}  # renommer le nom de la job en fonction de du nom de la règle et des ses wildcards
+    --output=logs/{rule}/{rule}-{wildcards}-%j.out  # renommer le nom du fichier output en fonction de du nom de la règle et des ses wildcards 
+    --time={resources.time}  
+    --parsable  # pour que sbatch renvoie uniquement le job ID sans aucun texte supplémentaire. Est obligatoire si on utilise cluster-generic-status-cmd
+default-resources:  
+  - qos=high_priority  
+  - mem=80GB  
+  - time=20  
+# non-slurm profile defaults
+cluster-generic-cancel-cmd: "scancel"  
+cluster-generic-status-cmd: status-sacct.sh  
+restart-times: 3  
+max-jobs-per-second: 10           # Cela peut être utile pour éviter de surcharger le cluster avec trop de soumissions simultanées.
+max-status-checks-per-second: 30     # le nombre total de vérification d'état de tous les jobs
+local-cores: 1               #  pour les règle qui s'exécutent localement. Exemple: localrules: nom_de_la_regle
+latency-wait: 60        # attendre un certain temps pour que les fichiers soient visibles en cas de MissingFileExeption error
+jobs: 10           # le maximum de jobs qui peuvent être roulés en parallèle
+keep-going: True         # pour continuer à exécuter les règles qui sont independantes d'une règle qui a échoué
+rerun-incomplete: True       # permet de relancer les tâches qui n’ont pas été complètement exécutées lors d’une précédente exécution
+printshellcmds: True     # pour que snakemake affiche les commandes shell qui sont exécutées pour chaque règle. Cela peut être très utile pour le débogage
+</code></pre>
+<p><strong>Remarque:</strong> il faut bien choisir la valeur de  <code>max-status-checks-per-second</code>  qui correspond au nombre de fois maximum qu’on peut voir l’état de tous les jobs et non par job. C’est à dire que si  <code>--max-status-checks-per-second</code>  est défini à 10, alors il n’y aura pas plus de 10 requêtes envoyées par seconde, donc pour 500 jobs, cela signifie qu’il faudra environ 50 secondes pour toutes les vérifier.</p>
+<p>La commande shell soumise pour chaque règle ainsi que les statistiques sur l’utilisation des ressources utilisées par le job slurm de la règle peuvent être consultés à la page de <a href="https://portail.narval.calculquebec.ca/">l’alliance</a>.</p>
+<p>Le fichier <strong><code>status-sacct.sh</code></strong> a été modifié. Avant snakemake annulait la job si le script n’arrivait pas connaître son status c-a-d pour tout statut différent de ["“COMPLETED"PENDING”, “CONFIGURING”, “COMPLETING”, “RUNNING”, “SUSPENDED”], la règle est automatiquement annulée alors que le job slurm associé est peut-être toujours valide. Ce qui fait que snakemake va essayer de réexécuter la règle créant un autre job, puis ily aura deux jobs associés à la même règle qui tenteront d’ouvrir et de modifier les mêmes fichiers.</p>
+<p>Maintenant le script est écrit de la sorte:</p>
+<pre><code>if [[ "$jobid" == Submitted ]]  
+then  
+  echo smk-simple-slurm: Invalid job ID: "$jobid" &gt;&amp;2  
+  echo smk-simple-slurm: Did you remember to add the flag --parsable to your sbatch call? &gt;&amp;2  
+  exit 1  
+fi  
+  
+output=`sacct -j "$jobid" --format State --noheader | head -n 1 | awk '{print $1}'`  
+  
+if [[ $output =~ ^(COMPLETED).* ]]  
+then  
+  echo success  
+elif [[ $output =~ ^(FAILED|CANCELLED|TIMEOUT|PREEMPTED|NODE_FAIL|REVOKED|SPECIAL_EXIT).* ]]  
+then  
+  echo failed  
+else  
+  echo running  
+fi
+</code></pre>
+<p>par conséquent, tant que la status n’est pas [“FAILED”, “CANCELLED”, “TIMEOUT”, “PREEMPTED”, “NODE_FAIL”, “REVOKED”, “SPECIAL_EXIT”], la règle n’est pas annulée.</p>
 <h3 id="workflow">workflow</h3>
-<h3 id="section"></h3>
-<h2 id="section-1"></h2>
+<p>Dans workflow/ se trouve rules/ pour les fichiers <strong>.smk</strong> et /scripts/ pour les scripts des règles.</p>
+<h3 id="graphe-acyclique-dirigé-ou-dag">Graphe acyclique dirigé ou DAG</h3>
+<p>Snakemake construit automatiquement un graphe acyclique dirigé (DAG) des tâches à partir des dépendances entre les règles. Cela permet de paralléliser les tâches et d’optimiser l’exécution. Le graphe acyclique dirigé peut être obtenu avec la commande</p>
+<pre><code>$ snakemake --dag all | dot -Tpng &gt; nom_du_fichier.png  
+</code></pre>
+<p>On peut remplacer l’extension .png, par .svg ou .pdf.<br>
+Le DAG associé à ESPO-G est la suivante:<br>
+<img src="" alt="Graphe acyclique dirigé"></p>
+<h2 id="section"></h2>
 
