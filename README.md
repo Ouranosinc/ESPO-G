@@ -330,7 +330,7 @@ Le DAG associé à ESPO-G est la suivante:<br>
 <h1 id="informations-utiles-pour-comprendre-snakemake">Informations utiles pour comprendre snakemake</h1>
 <h2 id="wildcards">Wildcards</h2>
 <p>Le workflow ESPO de base a une grosse boucle <code>for</code> pour boucler sur trois régions.<br>
-Les wildcards sont utilisés pour alléger le code et automatiser la notation des fichiers. Au lieu de boucler sur les régions on utilise les wildcards dans les fichiers input et output. Exemple dans la règle <code>reference_NOLEAP</code> de <strong>Makeref.smk</strong>, il y a:</p>
+Les wildcards sont utilisés pour alléger le code et automatiser la notation des fichiers. Au lieu de boucler sur les régions on utilise les wildcards dans les fichiers <code>input</code> et <code>output</code>. Exemple dans la règle <code>reference_NOLEAP</code> de <strong>Makeref.smk</strong>, il y a:</p>
 <pre><code>input:  
     Path(config['paths']['final'])/"reference/ref_{region}_default.zarr"  
 output:  
@@ -343,25 +343,25 @@ ds_refnl = convert_calendar(ds_ref, "noleap")
 xs.save_to_zarr(ds_refnl, str(snakemake.output[0]))
 </code></pre>
 <p>au lieu de</p>
-<pre><code>for region_name, region_dict in CONFIG['custom']['regions'].items():
-     if not pcat.exists_in_cat(domain=region_name, calendar='noleap', source=ref_source):
-          ds_ref = pcat.search(source=ref_source,calendar='default',domain=region_name).to_dask()
-          
-          # convert calendars
-          ds_refnl = convert_calendar(ds_ref, "noleap")
-          save_move_update(ds=ds_refnl,
-                           pcat=pcat,
-                           init_path=f"{exec_wdir}/ref_{region_name}_noleap.zarr",
-                           final_path=f"{refdir}/ref_{region_name}_noleap.zarr",
-                           info_dict={'calendar': 'noleap'})
+<pre><code>  for region_name, region_dict in CONFIG['custom']['regions'].items():
+	   if not pcat.exists_in_cat(domain=region_name, calendar='noleap', source=ref_source):
+            ds_ref = pcat.search(source=ref_source,calendar='default',domain=region_name).to_dask()
+            
+            # convert calendars
+            ds_refnl = convert_calendar(ds_ref, "noleap")
+            save_move_update(ds=ds_refnl,
+                             pcat=pcat,
+                             init_path=f"{exec_wdir}/ref_{region_name}_noleap.zarr",
+                             final_path=f"{refdir}/ref_{region_name}_noleap.zarr",
+                             info_dict={'calendar': 'noleap'})
 </code></pre>
-<p>Pour chaque fichier input, le script associé à <code>reference_NOLEAP</code> est exécuté et toutes les variables snakemake.wildcards.region présentes dans le script sont remplacées par la valeur actuelle du wildcard <code>region</code> .<br>
+<p>Pour chaque fichier input, le script associé à <code>reference_NOLEAP</code> est exécuté et toutes les variables <code>snakemake.wildcards.region</code> présentes dans le script sont remplacées par la valeur actuelle du wildcard <code>region</code> .<br>
 La valeur des wildcards est spécifiée que lors de l’exécution du workflow, dans la règle <code>all</code>, où toutes les valeurs possibles du wildcards sont passées à la fonction <code>expand()</code>.</p>
 <pre><code>rule all:  
 input:  
 	expand(Path(config['paths']['final'])/"reference/ref_{region}_noleap.zarr", region=list(config["custom"]["regions"].keys())
 </code></pre>
-<p>La fonction <code>expand()</code> génére tous les chemins possibles en remplaçant le wildcard <code>region</code> par ses valeurs. Donc pour les régions middle_nodup, north_nodup et south_nodup, c’est comme si on avait</p>
+<p>La fonction <code>expand()</code> génére tous les chemins possibles en remplaçant le wildcard <code>region</code> par ses valeurs. Donc pour les régions <strong>middle_nodup, north_nodup</strong> et <strong>south_nodup</strong>, c’est comme si on avait</p>
 <pre><code>rule all:  
 input:  
 Path(config['paths']['final'])/"reference/ref_middle_nodup_default.zarr"  
@@ -375,16 +375,16 @@ Path(config['paths']['final'])/"reference/ref_south_nodup_default.zarr"
 <pre><code>$ snakemake --profile simple/ /project/ctb-frigon/oumou/ESPO-G6-stage/reference/ref_middle_nodup_noleap.zarr/
 </code></pre>
 <p><strong>Remarque:</strong> jes fichiers input ne doivent pas contenir des wildcards qui ne sont pas présents dans les fichiers output. De plus, plusieurs wildcards dans un même nom de fichier peuvent provoquer une ambiguïté. Considérez le nom fichier suivant:</p>
-<pre><code>Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_extracted.zarr"  
+<pre><code>Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_extracted.zarr"
 </code></pre>
 <p>dans la règle <strong>extract</strong> et supposez qu’un fichier</p>
 <pre><code>CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global_middle_nodup_extracted.zarr 
 </code></pre>
-<p>est disponible. Il n’est pas clair si<br>
-<code>sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1</code> et <code>region=ssp585_r1i1p1f1_global_middle_nodup</code><br>
+<p>est disponible. Il n’est pas clair si</p>
+<p><code>sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1</code> et <code>region=ssp585_r1i1p1f1_global_middle_nodup</code><br>
 ou<br>
-<code>sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global</code> et <code>region=middle_nodup</code><br>
-C’est pourquoi une contrainte a été ajoutée à la wildcards <code>region</code> pour qu’il soit composé de deux chaînes de caractères séparées par un tiret du bas. Le wildcards sim_id est aussi contraint à avoir minimum 6 underscords:</p>
+<code>sim_id=CMIP6_ScenarioMIP_AS-RCEC_TaiESM1_ssp585_r1i1p1f1_global</code> et <code>region=middle_nodup</code></p>
+<p>C’est pourquoi une contrainte a été ajoutée à la wildcards <code>region</code> pour qu’il soit composé de deux chaînes de caractères séparées par un tiret du bas. Le wildcards sim_id est aussi contraint à avoir minimum 6 underscords:</p>
 <pre><code>wildcard_constraints:  
     region = r"[a-zA-Z]+_[a-zA-Z]+",  
     sim_id="([^_]*_){6}[^_]*"
@@ -446,7 +446,7 @@ client = Client(cluster)
 <pre><code>shell("somecommand {output.somename}")
 </code></pre>
 <h1 id="erreurs-non-résolue">Erreurs non résolue</h1>
-<p>Lorsque <code>dask</code> utilise plus de <code>threads</code> que <code>slurm</code> , l’erreur ci-dessous peut interrompre l’exécution d’un ou plusieurs jobs sans pour autant faire appel à <code>scancel</code>. Ce qui fait que le job reste dans l’état <code>R</code> jusqu’à la fin de <code>--time</code>.</p>
+<p>Puisque les jobs utilisent bien moins qu’un nœud au complet,  Slurm essaie de les rouler d’une manière aussi “compacte” que possible, en y mettant trois, quatre voire davantage sur un seul nœud. Il est possible que quelque-part dans Dask, il y ait des instructions qui supposent que les fils d’exécution de Dask ne partagent pas l’espace de mémoire ou des autres ressources du nœud avec des fils d’exécution Dask venant d’un autre job. Ces conflits entre fils d’exécution Dask n’arrivent pas à tous les coups, mais de temps en temps, selon le hasard de Dask et l’ordre dans lequel Slurm lance les tâches sur ce nœud. Par conséquent,  l’erreur ci-dessous peut interrompre l’exécution d’un ou plusieurs jobs.</p>
 <pre><code>[nc31222:1355168:a:1360164]    ib_iface.c:746  Assertion `gid-&gt;global.interface_id != 0' failed
 ==== backtrace (tid:1360164) ====
  0 0x000000000001e2d0 uct_ib_iface_fill_ah_attr_from_gid_lid()  /tmp/ebuser/avx2/UCX/1.14.1/GCCcore-12.3.0/ucx-1.14.1/src/uct/ib/base/ib_iface.c:746
@@ -498,7 +498,5 @@ client = Client(cluster)
 [nc31222:1355168] [21] /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib64/libc.so.6(__clone+0x40)[0x1507d3c7bfc0]
 [nc31222:1355168] *** End of error message ***
 </code></pre>
-<p>Puisque les jobs utilisent bien moins qu’un nœud au complet,  Slurm essaie de les rouler d’une manière aussi “compacte” que possible, en y mettant trois, quatre voire davantage sur un seul nœud. Il est possible que quelque-part dans Dask, il y ait des instructions qui supposent que les fils d’exécution de Dask ne partagent pas l’espace de mémoire ou des autres ressources du nœud avec des fils d’exécution Dask venant d’un autre job. Ces conflits entre fils d’exécution Dask n’arrivent pas à tous les coups, mais de temps en temps, selon le hasard de Dask et l’ordre dans lequel Slurm lance les tâches sur ce nœud.<br>
-Dask semble passer par MPI pour le lancement de ces fils d’exécution</p>
 <p>Les solutions pour contourner ce problème, c’est soit s’assurer que jamais deux jobs ne se trouvent sur un même nœud, bien que cela risque de gaspiller les ressources de la grappe. Soit reéxécuter les jobs qui échouent. La dernière option est la meilleure puisque snakemake propose un mécanisme qui permet de reéxécuter des règles qui échouent autant de fois qu’on souhaite grâce à <code>restart-times</code>.</p>
 
