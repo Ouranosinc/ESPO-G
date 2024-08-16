@@ -13,7 +13,7 @@ rule regrid:
        sim_id="([^_]*_){6}[^_]*"
    params:
        threads_per_worker=lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
-       memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+       memory_limit=lambda wildcards, resources: f'{float(resources.mem.rstrip("GB")) / resources.n_workers}GB'
    resources:
         mem='48GB',
         cpus_per_task=9,

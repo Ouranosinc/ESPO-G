@@ -30,32 +30,29 @@
 #rerun-incomplete: True
 #printshellcmds: True
 
-
 executor: cluster-generic
 cluster-generic-submit-cmd:
-  mkdir -p s_logs/{rule} &&
-  sbatch
+  mkdir -p logs/{rule} &&
+  sbatch 
     --partition=c-frigon
     --account=ctb-frigon
     --constraint=genoa
-    --cpus-per-task={threads}
+    --cpus-per-task={resources.cpus_per_task}
     --qos={resources.qos}
     --mem={resources.mem}
     --job-name={rule}-{wildcards}
-    --output=s_logs/{rule}/{rule}-{wildcards}-%j.out
+    --output=logs/{rule}/{rule}-{wildcards}-%j.out
     --time={resources.time}
     --parsable
-  jobscript.sh
 default-resources:
   - qos=high_priority
   - mem=80GB
-  - time=120
+  - time=20
 cluster-generic-cancel-cmd: "scancel"
-cluster-generic-status-cmd: status-sacct.py
-#restart-times: 3
+cluster-generic-status-cmd: status-sacct.sh
+restart-times: 3
 max-jobs-per-second: 10
 max-status-checks-per-second: 30
-local-cores: 1
 latency-wait: 60
 jobs: 10
 keep-going: True

@@ -45,6 +45,7 @@ if __name__ == '__main__':
                 overwrite=True)
 
         shutil.move(fi_path_exec, str(snakemake.output[0]))
-        shutil.move(snakemake.input.regridded, CONFIG['paths']['regriddir'])
+        shutil.copytree(snakemake.input.regridded, Path(CONFIG['paths']['regriddir'])/f"{snakemake.wildcards.sim_id}_{snakemake.wildcards.region}_regchunked.zarr")
+
 
 

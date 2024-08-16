@@ -14,9 +14,8 @@ rule extract:
        n_workers=2,
        mem='50GB',
        cpus_per_task=10,
-       time=170
    params:
         threads_per_worker= lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
-        memory_limit=lambda wildcards, resources: float(resources.mem.rstrip("GB")) / resources.n_workers
+        memory_limit=lambda wildcards, resources: f'{float(resources.mem.rstrip("GB")) / resources.n_workers}GB'
    script:
        f"{home}workflow/scripts/extract.py"

@@ -1,7 +1,9 @@
 from pathlib import Path
 
 home=config["paths"]["home"]
+
 ruleorder: DIAGNOSTICS > diag_improved_et_heatmap > concatenation_diag > concatenation_final
+
 rule DIAGNOSTICS:
     input:
         regridded_and_rechunked = Path(config['paths']['exec_workdir'])/"ESPO-G_workdir/{sim_id}_{region}_regchunked.zarr",
@@ -16,8 +18,8 @@ rule DIAGNOSTICS:
         region=r"[a-zA-Z]+_[a-zA-Z]+",
         sim_id="([^_]*_){6}[^_]*"
     params:
-        threads_per_worker=lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
-        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+        threads_per_worker= lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
+        memory_limit=lambda wildcards, resources: f'{float(resources.mem.rstrip("GB")) / resources.n_workers}GB'
     resources:
         mem='60GB',
         n_workers=3,
@@ -32,6 +34,8 @@ rule concatenation_final:
         directory(Path(config['paths']['final'])/"FINAL/NAM/day_{sim_id}_NAM_1950-2100.zarr")
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
+    resources:
+        cpus_per_task=1
     script:
         f"{home}workflow/scripts/concatenation_final.py"
 
@@ -42,6 +46,8 @@ rule concatenation_diag:
         directory(Path(config['paths']['final'])/"diagnostics/NAM/{sim_id}/{level}_{sim_id}_NAM.zar")
     wildcard_constraints:
         sim_id = "([^_]*_){6}[^_]*"
+    resources:
+        cpus_per_task=1
     script:
         f"{home}workflow/scripts/concatenation_diag.py"
 
@@ -57,7 +63,7 @@ rule diag_improved_et_heatmap:
         sim_id= "([^_]*_){6}[^_]*"
     params:
         threads_per_worker= lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
-        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+        memory_limit=lambda wildcards, resources: f'{float(resources.mem.rstrip("GB")) / resources.n_workers}GB'
     resources:
         mem='60GB',
         n_workers=3,

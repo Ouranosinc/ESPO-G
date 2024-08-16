@@ -8,8 +8,8 @@ rule off_diag_ref_prop:
     output:
         prop=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-ref-prop_{sim_id}_{dom_name}.zarr"))
     params:
-        threads_per_worker=lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
-        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+        threads_per_worker= lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
+        memory_limit=lambda wildcards, resources: f'{float(resources.mem.rstrip("GB")) / resources.n_workers}GB'
     resources:
         mem='60GB',
         n_workers=3,
@@ -28,8 +28,8 @@ rule off_diag_sim_prop_meas:
         prop=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-sim-prop_{sim_id}_{dom_name}.zarr")),
         meas=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-sim-meas_{sim_id}_{dom_name}.zarr"))
     params:
-        threads_per_worker=lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
-        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+        threads_per_worker= lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
+        memory_limit=lambda wildcards, resources: f'{float(resources.mem.rstrip("GB")) / resources.n_workers}GB'
     resources:
         mem="60GB",
         cpus_per_task=15,
@@ -47,8 +47,8 @@ rule off_diag_scen_prop_meas:
         prop=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-scen-prop_{sim_id}_{dom_name}.zarr")),
         meas=temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/off-diag-scen-meas_{sim_id}_{dom_name}.zarr"))
     params:
-        threads_per_worker=lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
-        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+        threads_per_worker= lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
+        memory_limit=lambda wildcards, resources: f'{float(resources.mem.rstrip("GB")) / resources.n_workers}GB'
     resources:
         mem='60GB',
         cpus_per_task=15,
@@ -65,8 +65,8 @@ rule diag_measures_improvement:
     output:
         temp(directory(Path(config['paths']['exec_workdir']) / "ESPO-G_workdir/diag-improved_{sim_id}_{dom_name}.zarr"))
     params:
-        threads_per_worker=lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
-        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+        threads_per_worker= lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
+        memory_limit=lambda wildcards, resources: f'{float(resources.mem.rstrip("GB")) / resources.n_workers}GB'
     resources:
         mem='6GB',
         cpus_per_task=15,

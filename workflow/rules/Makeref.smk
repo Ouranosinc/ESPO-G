@@ -10,12 +10,11 @@ rule reference_DEFAULT:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     params:
         threads_per_worker= lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
-        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+        memory_limit=lambda wildcards, resources: f'{float(resources.mem.rstrip("GB")) / resources.n_workers}GB'
     resources:
         mem='50GB',
         n_workers=2,
         cpus_per_task=10,
-        time=170
     script:
         f"{home}workflow/scripts/load_default_ref.py"
 
@@ -28,7 +27,7 @@ rule reference_NOLEAP:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     params:
         threads_per_worker= lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
-        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+        memory_limit=lambda wildcards, resources: f'{float(resources.mem.rstrip("GB")) / resources.n_workers}GB'
     resources:
         mem='50GB',
         n_workers=2,
@@ -44,8 +43,8 @@ rule reference_360_DAY:
     wildcard_constraints:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     params:
-        threads_per_worker=lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
-        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+        threads_per_worker= lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
+        memory_limit=lambda wildcards, resources: f'{float(resources.mem.rstrip("GB")) / resources.n_workers}GB'
     resources:
         mem='50GB',
         n_workers=2,
@@ -61,8 +60,8 @@ rule diagnostics:
     wildcard_constraints:
         region=r"[a-zA-Z]+_[a-zA-Z]+"
     params:
-        threads_per_worker=lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
-        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+        threads_per_worker= lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
+        memory_limit=lambda wildcards, resources: f'{float(resources.mem.rstrip("GB")) / resources.n_workers}GB'
     resources:
         mem='50GB',
         n_workers=2,
@@ -78,5 +77,7 @@ rule concat_diag_ref_prop:
        directory(Path(config['paths']['final'])/"diagnostics/NAM/ECMWF-ERA5-Land_NAM/diag-ref-prop_ECMWF-ERA5-Land_NAM.zar")
    wildcard_constraints:
        region = r"[a-zA-Z]+_[a-zA-Z]+"
+   resources:
+       cpus_per_task=1
    script:
         f"{home}workflow/scripts/concat.py"

@@ -5,18 +5,11 @@ from pathlib import Path
 import zarr
 
 
-# def wildcards_sim_id():
-#     cat_sim = xs.search_data_catalogs(
-#         **config['extraction']['simulation']['search_data_catalogs'])
-#     sim_id = list(cat_sim.keys())
-#     return sim_id
-
 def wildcards_sim_id():
     cat_sim = xs.search_data_catalogs(
          **{'data_catalogs': [config['paths']['cat_sim']], 'variables_and_freqs': {'tasmax': 'D', 'tasmin': 'D', 'pr': 'D', }, 'match_hist_and_fut': True,
             'allow_conversion': False, 'allow_resampling': False, 'restrict_members': {'ordered': 1}, 'periods': ['1950', '2100'],
             'exclusions': None, 'other_search_criteria': {'processing_level': 'raw', 'experiment': ['ssp585'], 'source': ['TaiESM1']}}
-        #**config['extraction']['simulation']['search_data_catalogs']
     )
     sim_id = list(cat_sim.keys())
     return sim_id

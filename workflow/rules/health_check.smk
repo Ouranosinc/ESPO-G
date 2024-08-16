@@ -11,7 +11,7 @@ rule health_checks:
         sim_id = "([^_]*_){6}[^_]*"
     params:
         threads_per_worker= lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
-        memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+        memory_limit=lambda wildcards, resources: f'{float(resources.mem.rstrip("GB")) / resources.n_workers}GB'
     threads: 40
     resources:
         mem='40GB',

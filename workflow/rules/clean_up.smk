@@ -15,11 +15,12 @@ rule clean_up:
        sim_id="([^_]*_){6}[^_]*"
    params:
        threads_per_worker=lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
-       memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+       memory_limit=lambda wildcards, resources: f'{float(resources.mem.rstrip("GB")) / resources.n_workers}GB'
    resources:
         mem='25GB',
         n_workers=2,
-        cpus_per_task=6
+        cpus_per_task=6,
+        time=400
    script:
         f"{home}workflow/scripts/clean_up.py"
 

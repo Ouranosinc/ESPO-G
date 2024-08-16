@@ -14,9 +14,9 @@ rule train:
        sim_id="([^_]*_){6}[^_]*"
    params:
        threads_per_worker=lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
-       memory_limit=lambda wildcards, resources: int(resources.mem.rstrip("GB")) / resources.n_workers
+       memory_limit=lambda wildcards, resources: f'{float(resources.mem.rstrip("GB")) / resources.n_workers}GB'
    resources:
-        time=60,
+        time=120,
         n_workers=3,
         cpus_per_task=12,
         mem='60GB'
