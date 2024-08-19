@@ -41,7 +41,6 @@ project:
     id: eg6
 
 tasks:
-  ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
   - makeref
   - extract
   - regrid
@@ -54,12 +53,6 @@ tasks:
   - concat
   - health_checks
   - official-diag
-#  - indicators
-#  - climatological_mean
-#  - abs-delta
-#  - per-delta
-#  - ensemble
-
 
 
 custom:
@@ -69,33 +62,25 @@ custom:
         south_nodup:
             name: south_nodup
             method: bbox
-            lon_bnds: [ -70,-60] # fake smaller region for testing
-            lat_bnds: [ 45, 47.05 ]
-#            lon_bnds: [ -179.95, -10 ]
-#            lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
+            lon_bnds: [ -179.95, -10 ]
+            lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
         middle_nodup:
             name: middle_nodup
             method: bbox
-            lon_bnds: [ -70,-60 ] # fake smaller region for testing
-            lat_bnds: [47.05, 49.05]
-            #lon_bnds: [ -179.95, -10 ]
-            #lat_bnds: [ 40.05, 65.05 ]
+            lon_bnds: [ -179.95, -10 ]
+            lat_bnds: [ 40.05, 65.05 ]
         north_nodup:
             name: north_nodup
             method: bbox
-            lon_bnds: [ -70,-60 ] # fake smaller region for testing
-            lat_bnds: [ 49.05, 53 ]
-#            lon_bnds: [-179.95, -10]
-#            lat_bnds: [65.05, 83.3] # changed from 83.4 to make it fit with other files
+            lon_bnds: [-179.95, -10]
+            lat_bnds: [65.05, 83.3] # changed from 83.4 to make it fit with other files
     amno_region:
       name: &nam-name
         NAM
       method: bbox
       tile_buffer: 1.5
-      lon_bnds: [ -70,-60 ] # fake smaller region for testing
-      lat_bnds: [ 45, 53 ]
-      #lon_bnds: [ -179.95, -10 ]
-      #lat_bnds: [ 10, 83.4 ]
+      lon_bnds: [ -179.95, -10 ]
+      lat_bnds: [ 10, 83.4 ]
     stack_drop_nans: &stack # goal is to drop Nan to make it faster
         True
     chunks:
@@ -104,10 +89,8 @@ custom:
         loc: 600
         time: -1
     out_chunks:
-        lat: 10 # for fake regions
-        lon: 10 # for fake regions
-        #lat: 50
-        #lon: 50
+        lat: 50
+        lon: 50
         time: 4year
     ref_period : &ref_period
         - '1991'
@@ -118,10 +101,8 @@ custom:
     maximal_calendar:
         noleap
     rechunk:
-      lat: 10 # for fake regions
-      lon: 10 # for fake regions
-      #lat: 50
-      #lon: 50
+      lat: 50
+      lon: 50
 
 extraction:
     reference:
@@ -496,28 +477,26 @@ ensemble:
 
 off-diag:
   domains:
-#    Haudenosaunee:
-#        name: Haudenosaunee
-#        method: bbox
-#        lat_bnds: [ 42.0, 47.0 ]
-#        lon_bnds: [ -79.0, -71.0 ]
-#    Ute:
-#        name: Ute
-#        method: bbox
-#        lat_bnds: [ 35.0, 40.0 ]
-#        lon_bnds: [ -111.0, -103.0 ]
-#    Dene:
-#        name: Dene
-#        method: bbox
-#        lat_bnds: [ 60.0, 65.0 ]
-#        lon_bnds: [ -124.0, -116.0 ]
+    Haudenosaunee:
+        name: Haudenosaunee
+        method: bbox
+        lat_bnds: [ 42.0, 47.0 ]
+        lon_bnds: [ -79.0, -71.0 ]
+    Ute:
+        name: Ute
+        method: bbox
+        lat_bnds: [ 35.0, 40.0 ]
+        lon_bnds: [ -111.0, -103.0 ]
+    Dene:
+        name: Dene
+        method: bbox
+        lat_bnds: [ 60.0, 65.0 ]
+        lon_bnds: [ -124.0, -116.0 ]
     Magtogoek:
       name: Magtogoek
       method: bbox
-      lat_bnds:  [ 48, 49] # small fake region
-      lon_bnds: [ -68, -62 ] # small fake region
-      #lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
-      #lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
+      lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
+      lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
   steps:
     ref:
       input:
