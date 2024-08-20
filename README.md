@@ -395,9 +395,12 @@ $ mamba install graphviz
 ``` 
 et faire
 ```  
-$ dot -Tpng dag.dot -o dag.png  
-``` 
-On peut remplacer l’extension .png, par .svg ou .pdf.  
+$ dot -Tpng  -Gdpi=600 -Gratio=fill dag.dot -o dag.png 
+```
+**-Tpng**: spécifie que la sortie doit être au format PNG. On peut remplacer png par svg ou pdf.
+**-Gratio**:ajuste le ratio de l’image pour remplir l’espace disponible.
+**-Gdpi=600**: définit la résolution de l’image à 600 DPI (dots per inch), ce qui augmente la qualité et la taille de l’image.
+  
 
 **TO DO:** il est possible de télècharger une version compilée de graphviz et de le load en tant que module avec 
 ```  
