@@ -2,6 +2,7 @@ from dask.distributed import Client, LocalCluster
 from dask import config as dskconf
 import xarray as xr
 import logging
+import os
 import xscen as xs
 from xscen.xclim_modules import conversions
 from xscen import (CONFIG,measure_time, timeout)
@@ -20,8 +21,8 @@ if __name__ == '__main__':
     step_dict = CONFIG['off-diag']['steps']["ref"]
     # iter over datasets in that setp
 
-    cluster = LocalCluster(n_workers=snakemake.resources.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=snakemake.params.memory_limit, **daskkws)
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
+                           memory_limit=snakemake.params.memory_limit,local_directory=os.environ['SLURM_TMPDIR'], **daskkws)
     client = Client(cluster)
 
     with (

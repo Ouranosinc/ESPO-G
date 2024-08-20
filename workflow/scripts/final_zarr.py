@@ -16,8 +16,8 @@ if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
-    cluster = LocalCluster(n_workers=snakemake.resources.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=snakemake.params.memory_limit, **daskkws)
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
+                           memory_limit=snakemake.params.memory_limit,local_directory=os.environ['SLURM_TMPDIR'], **daskkws)
     client = Client(cluster)
 
     fmtkws = {'region_name': snakemake.wildcards.region, 'sim_id': snakemake.wildcards.sim_id}
@@ -45,6 +45,8 @@ if __name__ == '__main__':
                 overwrite=True)
 
         shutil.move(fi_path_exec, str(snakemake.output[0]))
+        if not os.path.exists(CONFIG['paths']['regriddir']):
+            os.makedirs(CONFIG['paths']['regriddir'])
         shutil.move(snakemake.input.regridded, CONFIG['paths']['regriddir'])
 
 

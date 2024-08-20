@@ -1,33 +1,33 @@
 #Configuration file for ESPO-G6-E5L v1.0.0
 paths:
   project_catalog: &pcat
-   /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/cat_ESPO-G6.json
-  workdir: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/workdir/
-  exec_workdir: /scratch/oumou/ESPO-G6-SNAKEMAKE/ # EXEC_DIR should be a directory where it is easy to read and write
-  regriddir: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/regridded/
-  output: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/NAM_SPLIT/{region_name}/day_{sim_id}_{region_name}_1950-2100.zarr
-  concat_output_final: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/FINAL/{domain}/day_{sim_id}_{domain}_1950-2100.zarr
-  concat_output_diag: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/diagnostics/{domain}/{sim_id}/{level}_{sim_id}_{domain}.zar
-  logging: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/logging/log_{sim_id}_{region_name}.log
-  indicators: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/{id}/{id}_{xrfreq}_{processing_level}.zarr
-  climatology: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/climatology/{id}/{id}_{xrfreq}_{processing_level}.zarr
-  delta: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/delta/{id}/{id}_{xrfreq}_{processing_level}.zarr
-  ensemble: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/ensemble/{processing_level}/{processing_level}_{id}_{xrfreq}_{var}.zarr
-  figures: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/figures/
-  data: /home/oumou/Projets/ESPO-G/documentation/diagnostics_data/
-  exec_diag: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/{processing_level}_{id}_{domain}.zarr
-  final_diag: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/diagnostics/{domain}/{id}/{processing_level}_{id}_{domain}.zarr
-  checks: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/checks/{region_name}/{sim_id}_{region_name}_checks.zarr
-  tmp: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/tmp/{id}_{domain}_pre-remove.zarr
+   /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/cat_ESPO-G6.json
+  workdir: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/workdir/
+  exec_workdir: /scratch/julavoie/ESPO-G6-SNAKEMAKE/ # EXEC_DIR should be a directory where it is easy to read and write
+  regriddir: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/regridded/
+  output: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/NAM_SPLIT/{region_name}/day_{sim_id}_{region_name}_1950-2100.zarr
+  concat_output_final: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/FINAL/{domain}/day_{sim_id}_{domain}_1950-2100.zarr
+  concat_output_diag: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/diagnostics/{domain}/{sim_id}/{level}_{sim_id}_{domain}.zar
+  logging: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/logging/log_{sim_id}_{region_name}.log
+  indicators: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/{id}/{id}_{xrfreq}_{processing_level}.zarr
+  climatology: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/climatology/{id}/{id}_{xrfreq}_{processing_level}.zarr
+  delta: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/delta/{id}/{id}_{xrfreq}_{processing_level}.zarr
+  ensemble: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/ensemble/{processing_level}/{processing_level}_{id}_{xrfreq}_{var}.zarr
+  figures: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/figures/
+  #data: /home/oumou/Projets/ESPO-G/documentation/diagnostics_data/
+  exec_diag: /scratch/julavoie/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/{processing_level}_{id}_{domain}.zarr
+  final_diag: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/diagnostics/{domain}/{id}/{processing_level}_{id}_{domain}.zarr
+  checks: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/checks/{region_name}/{sim_id}_{region_name}_checks.zarr
+  tmp: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/tmp/{id}_{domain}_pre-remove.zarr
   cat_ref: /project/ctb-frigon/julavoie/ouranos_commun/catalogues/reconstruction.json
   cat_sim: /project/ctb-frigon/julavoie/ouranos_commun/catalogues/simulation.json
-  home: /home/oumou/espo_SNAKEMAKE_NARVAL/
-  final: /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/
+  home: /home/julavoie/code/test-vs/ESPO-G/
+  final: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/
 
 utils:
     stack_drop_nans:
         to_file: &coords
-          /project/ctb-frigon/oumou/ESPO-G6-SNAKEMAKE/coords/coords_{domain}_{shape}.nc
+          /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/coords/coords_{domain}_{shape}.nc
     unstack_fill_nan:
       coords: *coords
     maybe_unstack:
@@ -66,22 +66,22 @@ custom:
     delete_in_final_zarr: False
     delete_in_diag: True
     regions:
-        south_nodup:
-            name: south_nodup
+        south:
+            name: south
             method: bbox
 #            lon_bnds: [ -70,-60] # fake smaller region for testing
 #            lat_bnds: [ 45, 47.05 ]
             lon_bnds: [ -179.95, -10 ]
             lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
-        middle_nodup:
-            name: middle_nodup
+        middle:
+            name: middle
             method: bbox
 #            lon_bnds: [ -70,-60 ] # fake smaller region for testing
 #            lat_bnds: [47.05, 49.05]
             lon_bnds: [ -179.95, -10 ]
             lat_bnds: [ 40.05, 65.05 ]
-        north_nodup:
-            name: north_nodup
+        north:
+            name: north
             method: bbox
 #            lon_bnds: [ -70,-60 ] # fake smaller region for testing
 #            lat_bnds: [ 49.05, 53 ]
@@ -237,7 +237,7 @@ regrid:
 io:
   rechunk:
     worker_mem: 2GB
-    temp_store: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/tmp/
+    temp_store: /scratch/julavoie/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/tmp/
 
 
 biasadjust:
@@ -250,7 +250,7 @@ biasadjust:
                     group: time.dayofyear
                     window: 31
                 jitter_under: # to avoid negative dtr (when temperature inversion GFDL)
-                   thresh: 1e-4 K
+                   thresh: 1e-4 K #TODO: put back
                 xclim_train_args:
                     kind: "*"
                     nquantiles: 50
@@ -525,10 +525,10 @@ off-diag:
         calendar: default
         processing_level: extracted
       domain:
-        Haudenosaunee: middle_nodup
-        Ute: south_nodup
-        Dene: middle_nodup
-        Magtogoek: middle_nodup
+        Haudenosaunee: middle
+        Ute: south
+        Dene: middle
+        Magtogoek: middle
       properties_and_measures:
         period: *ref_period
         properties: &off-properties
@@ -539,10 +539,10 @@ off-diag:
         #source: *hausfather-source
         processing_level:  regridded
       domain:
-        Haudenosaunee: middle_nodup
-        Ute: south_nodup
-        Dene: middle_nodup
-        Magtogoek: middle_nodup
+        Haudenosaunee: middle
+        Ute: south
+        Dene: middle
+        Magtogoek: middle
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
@@ -579,7 +579,7 @@ scripting:
 dask:
     array.slicing.split_large_chunks: False
     client:
-        local_directory: /scratch/oumou/ESPO-G6-SNAKEMAKE/tmp_eg6/
+        #local_directory: /scratch/julavoie/ESPO-G6-SNAKEMAKE/tmp_eg6/
         dashboard_address: 2051
 
 logging:
@@ -593,11 +593,11 @@ logging:
             formatter: default
             level : DEBUG
             stream: ext://sys.stdout #needed to have the right color in pycharm
-        file:
-            class: logging.FileHandler
-            formatter: default
-            level : DEBUG
-            filename: /scratch/oumou/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/logger.log
+        # file:
+        #     class: logging.FileHandler
+        #     formatter: default
+        #     level : DEBUG
+        #     filename: /scratch/julavoie/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/logger.log
     loggers:
         xscen:
             level: DEBUG

@@ -16,8 +16,8 @@ if __name__ == '__main__':
     logger.info(fmtkws)
 
 #  ---RECHUNK---
-    cluster = LocalCluster(n_workers=snakemake.resources.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-               memory_limit=snakemake.params.memory_limit, **daskkws)
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
+               memory_limit=snakemake.params.memory_limit,local_directory=os.environ['SLURM_TMPDIR'], **daskkws)
     client = Client(cluster)
     with (
             measure_time(name=f'rechunk', logger=logger),

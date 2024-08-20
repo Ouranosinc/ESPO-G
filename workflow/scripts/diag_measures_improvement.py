@@ -5,7 +5,7 @@ import logging
 import xscen as xs
 from xscen import (CONFIG,
                    measure_time)
-
+import os
 xs.load_config("config/config.yaml")
 logger = logging.getLogger('xscen')
 
@@ -13,8 +13,8 @@ if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
-    cluster = LocalCluster(n_workers=snakemake.resources.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=snakemake.params.memory_limit, **daskkws)
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
+                           memory_limit=snakemake.params.memory_limit,local_directory=os.environ['SLURM_TMPDIR'], **daskkws)
     client = Client(cluster)
 
     fmtkws = {'sim_id': snakemake.wildcards.sim_id}

@@ -29,6 +29,16 @@
 #keep-going: True    # pour continuer à exécuter les règles qui sont independantes d'une règle qui a échoué
 #rerun-incomplete: True
 #printshellcmds: True
+  # sbatch
+  # --partition=c-frigon
+  # --account=ctb-frigon
+  # --constraint=genoa
+  # --cpus-per-task=10
+  # --mem=50G
+  # --job-name={rule}-{wildcards}
+  # --output=s_logs/{rule}/{rule}-{wildcards}-%j.out
+  # --time=170
+  # --parsable
 
 
 executor: cluster-generic
@@ -38,24 +48,25 @@ cluster-generic-submit-cmd:
     --partition=c-frigon
     --account=ctb-frigon
     --constraint=genoa
-    --cpus-per-task={threads}
-    --qos={resources.qos}
-    --mem={resources.mem}
+    --cpus-per-task={params.cpus_per_task}
+    --mem={params.mem}
     --job-name={rule}-{wildcards}
     --output=s_logs/{rule}/{rule}-{wildcards}-%j.out
-    --time={resources.time}
+    --time={params.time}
     --parsable
-  jobscript.sh
+  #jobscript.sh
 default-resources:
-  - qos=high_priority
-  - mem=80GB
-  - time=120
+  disk_mb: 100000
+#   tmpdir=os.environ['SLURM_TMPDIR']
+# default-resources:
+#   - mem=80GB
+#   - time=120
 cluster-generic-cancel-cmd: "scancel"
 cluster-generic-status-cmd: status-sacct.py
-#restart-times: 3
+restart-times: 2
 max-jobs-per-second: 10
 max-status-checks-per-second: 30
-local-cores: 1
+#local-cores: 1
 latency-wait: 60
 jobs: 10
 keep-going: True

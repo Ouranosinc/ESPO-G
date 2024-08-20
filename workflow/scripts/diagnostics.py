@@ -3,6 +3,7 @@ from dask import config as dskconf
 import xarray as xr
 import xscen as xs
 import logging
+import os
 from xscen import (
     CONFIG,
     send_mail_on_exit)
@@ -14,8 +15,8 @@ if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
-    cluster = LocalCluster(n_workers=snakemake.resources.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=snakemake.params.memory_limit, **daskkws)
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
+                           memory_limit=snakemake.params.memory_limit,local_directory=os.environ['SLURM_TMPDIR'], **daskkws)
     client = Client(cluster)
     logger.info("debut open_dataset")
     ds_ref = xr.open_zarr(snakemake.input[0])

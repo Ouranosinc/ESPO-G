@@ -2,6 +2,7 @@ from dask.distributed import Client, LocalCluster
 from dask import config as dskconf
 import xscen as xs
 import logging
+import os
 from xscen import CONFIG
 
 
@@ -12,8 +13,10 @@ if __name__ == '__main__':
     daskkws = CONFIG['dask']['client']
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
-    cluster = LocalCluster(n_workers=snakemake.resources.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=snakemake.params.memory_limit, **daskkws)
+    print(dict(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
+                           memory_limit=snakemake.params.memory_limit), daskkws)
+    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
+                           memory_limit=snakemake.params.memory_limit,local_directory=os.environ['SLURM_TMPDIR'], **daskkws)
     client = Client(cluster)
 
     # default
@@ -24,6 +27,9 @@ if __name__ == '__main__':
 
             # extract
             dc = cat_ref.popitem()[1]
+            print(dc)
+            print(region_dict)
+            print(CONFIG['extraction']['reference']['extract_dataset'])
             ds_ref = xs.extract_dataset(catalog=dc,
                                         region=region_dict,
                                         **CONFIG['extraction']['reference']['extract_dataset']

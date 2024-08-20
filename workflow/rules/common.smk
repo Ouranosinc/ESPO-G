@@ -28,7 +28,7 @@ def official_diags_inputfiles_ref(wildcards):
 
 def official_diags_inputfiles_sim(wildcards):
     step_dict = config['off-diag']['steps']["sim"]
-    sim = Path(config['paths']['exec_workdir'])/f"ESPO-G_workdir/{wildcards.sim_id}_{step_dict['domain'][wildcards.dom_name]}_regchunked.zarr"
+    sim = Path(config['paths']['exec_workdir'])/f"ESPO-G_workdir/{wildcards.sim_id}+{step_dict['domain'][wildcards.dom_name]}+regchunked.zarr"
     return sim
 
 

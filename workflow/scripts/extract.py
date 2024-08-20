@@ -1,40 +1,31 @@
 from dask.distributed import Client, LocalCluster
 from dask import config as dskconf
 import logging
+import os
 import xscen as xs
-from xscen import (
-    extract_dataset,
-    CONFIG,
-    measure_time, timeout
-)
+from xscen import CONFIG
 
 
 xs.load_config("config/config.yaml")
 logger = logging.getLogger('xscen')
 
-if __name__ == '__main__':
-    daskkws = CONFIG['dask'].get('client', {})
-    dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
-    cluster = LocalCluster(n_workers=snakemake.resources.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=snakemake.params.memory_limit, **daskkws)
+if __name__ == '__main__':
+    
+    dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'}) # for array.slicing.split_large_chunks
+    cluster = LocalCluster(
+        n_workers=snakemake.params.n_workers,
+        threads_per_worker=snakemake.params.cpus_per_task/snakemake.params.n_workers,
+        memory_limit=f"{int(int(snakemake.params.mem.replace('GB',''))/snakemake.params.n_workers)}GB",
+        local_directory=os.environ['SLURM_TMPDIR'], **CONFIG['dask'].get('client', {}))
     client = Client(cluster)
 
     fmtkws = {'region_name': snakemake.wildcards.region, 'sim_id': snakemake.wildcards.sim_id}
-    logger.info(fmtkws)
-
-    # ---EXTRACT---
 
     with (
-         measure_time(name='extract', logger=logger),
-         timeout(18000, task='extract')
+         xs.measure_time(name='extract', logger=logger),
+         xs.timeout(18000, task='extract')
     ):
-        logger.info('Adding config to log file')
-        f1 = open(CONFIG['logging']['handlers']['file']['filename'], 'a+')
-        f2 = open('config/config.yaml', 'r')
-        f1.write(f2.read())
-        f1.close()
-        f2.close()
         cat_sim_id = xs.search_data_catalogs(data_catalogs=CONFIG['paths']['cat_sim'],
                                              variables_and_freqs={'tasmax': 'D', 'tasmin': 'D', 'pr': 'D',
                                                                   'dtr': 'D'},
@@ -47,7 +38,7 @@ if __name__ == '__main__':
 
         # extract
         dc_id = cat_sim_id.popitem()[1]
-        ds_sim = extract_dataset(catalog=dc_id,
+        ds_sim = xs.extract_dataset(catalog=dc_id,
                                  region=CONFIG['custom']['amno_region'],
                                  **CONFIG['extraction']['simulation']['extract_dataset'],
                                  )['D']

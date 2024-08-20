@@ -5,7 +5,7 @@ import logging
 import xscen as xs
 import xclim as xc
 from xscen import (CONFIG,adjust, measure_time, timeout)
-
+import os
 xs.load_config("config/config.yaml")
 logger = logging.getLogger('xscen')
 
@@ -14,7 +14,7 @@ if __name__ == '__main__':
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
     cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=snakemake.params.memory_limit, **daskkws)
+                           memory_limit=snakemake.params.memory_limit, local_directory=os.environ['SLURM_TMPDIR'], **daskkws)
     client = Client(cluster)
 
     with (
@@ -26,7 +26,8 @@ if __name__ == '__main__':
         ds_tr = xr.open_zarr(snakemake.input.train)
 
         # there are some negative dtr in the data (GFDL-ESM4). This puts is back to a very small positive.
-        ds_sim['dtr'] = xc.sdba.processing.jitter_under_thresh(ds_sim.dtr, "1e-4 K")
+        # TODO: put back
+        #ds_sim['dtr'] = xc.sdba.processing.jitter_under_thresh(ds_sim.dtr, "1e-4 K")
 
         # adjust
         ds_scen = adjust(dsim=ds_sim,
