@@ -17,7 +17,7 @@ rule clean_up:
        threads_per_worker=lambda wildcards, resources: int(resources.cpus_per_task / resources.n_workers),
        memory_limit=lambda wildcards, resources: f'{float(resources.mem.rstrip("GB")) / resources.n_workers}GB'
    resources:
-        mem='25GB',
+        mem='50GB',
         n_workers=2,
         cpus_per_task=6,
         time=400

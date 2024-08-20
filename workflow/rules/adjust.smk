@@ -22,3 +22,10 @@ rule adjust:
    script:
         f"{home}workflow/scripts/adjust.py"
 
+
+
+
+
+
+
+
