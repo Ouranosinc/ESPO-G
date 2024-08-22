@@ -3,7 +3,8 @@
 
 ---
 
-<p>Oumou Kalssoum Cissé stage été 2024</p>
+<p>Oumou Kalssoum Cissé<br>
+stage, été 2024</p>
 <h1 id="snakemake">Snakemake</h1>
 <p>Snakemake est un outil inspiré de GNU Make, mais conçu pour être plus flexible et puissant. Il utilise une syntaxe basée sur Python pour définir des règles qui spécifient comment générer des fichiers de sortie à partir de fichiers d’entrée. Pour consulter la documentation officielle, vous pouvez cliquer sur ce <a href="https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html">lien</a>.<br>
 Les workflows sont définis en termes de règles. Chaque règle spécifie comment créer un ou des fichiers de sortie à partir d’un ou plusieurs fichiers d’entrée. Voici un exemple de règle :</p>
