@@ -411,8 +411,8 @@ WARNING: This is a development server. Do not use it in a production deployment.
 * Running on http://XX.XX.XX.XX:5000
 Press CTRL+C to quit
 </code></pre>
-<p>Il faut laisser les serveur ouvert et exécuter ls workflow sur un autre terminal.</p>
-<p><strong>3.</strong> Prendre la deuxième adresse fournie par la commande précédente et le donner u paramètre <code>--wms-monitor</code> dans le fichier <em><strong>config.v8+.yaml</strong></em>:</p>
+<p>Il faut laisser le serveur ouvert et exécuter le workflow sur un autre terminal.</p>
+<p><strong>3.</strong> Prendre la deuxième adresse fournie par la commande précédente et le donner au paramètre <code>--wms-monitor</code> dans le fichier <em><strong>config.v8+.yaml</strong></em>:</p>
 <pre><code>$ wms-monitor: "http://10.80.49.2:5000"  
 </code></pre>
 <p>Par défaut le <strong>panoptes</strong> écoute sur le <strong>port 5000</strong>, vous pouvez le modifier au besoin.</p>
