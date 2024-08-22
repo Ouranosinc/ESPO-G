@@ -416,7 +416,7 @@ Press CTRL+C to quit
 <pre><code>$ wms-monitor: "http://10.80.49.2:5000"  
 </code></pre>
 <p>Par défaut le <strong>panoptes</strong> écoute sur le <strong>port 5000</strong>, vous pouvez le modifier au besoin.</p>
-<p>Snakemake envoie les requêtes suivantes à wms monitor :</p>
+<p>Snakemake envoie les requêtes suivantes à <code>--wms-monitor</code> :</p>
 <p><strong>GET /api/service-info</strong> : Snakemake obtient le statut de panoptes. Snakemake continue de fonctionner si le statut (json[‘status’]) est ‘running’. Dans tous les autres cas, snakemake se retire avec un message d’erreur.</p>
 <p><strong>GET /create_workflow</strong> : Snakemake obtient un id/name unique str(uuid.uuid4()) pour chaque workflow déclenché.</p>
 <p><strong>POST /update_workflow_status</strong> : Snakemake publie des mises à jour pour les flux de travail/travaux. Le dictionnaire envoyé contient le dictionnaire des messages de journal, l’horodatage actuel et l’identifiant/nom unique du flux de travail.</p>
