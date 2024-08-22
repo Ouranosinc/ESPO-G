@@ -1,45 +1,30 @@
-from dask.distributed import Client, LocalCluster
-from dask import config as dskconf
 import xarray as xr
-import logging
 import xscen as xs
 import os
-from xclim.core.calendar import get_calendar
-from xscen.utils import translate_time_chunk
-from xscen import (
-    CONFIG,
-    regrid_dataset,
-    measure_time
-)
+import xclim as xc
+from xscen import CONFIG
+from workflow.scripts.utils import dask_cluster
 
-
-xs.load_config("config/config.yaml")
-logger = logging.getLogger('xscen')
+xs.load_config("config/config.yml","config/paths.yml")
 
 if __name__ == '__main__':
-    daskkws = CONFIG['dask'].get('client', {})
-    dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
+    
+    client=dask_cluster(snakemake.params)
 
-# ---REGRID---
-    # only works with xesmf 0.7
+    ds_input = xr.open_zarr(snakemake.input.extract, decode_timedelta=False)
 
-    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=snakemake.params.memory_limit,local_directory=os.environ['SLURM_TMPDIR'], **daskkws)
-    client = Client(cluster)
+    ds_target = xr.open_zarr(snakemake.input.noleap, decode_timedelta=False)
 
-    ds_input = xr.open_zarr(snakemake.input.extract)
-
-    ds_target = xr.open_zarr(snakemake.input.noleap)
-
-    ds_regrid = regrid_dataset(
+    ds_regrid = xs.regrid_dataset(
         ds=ds_input,
-        ds_grid=ds_target, weights_location=f"{CONFIG['paths']['final']}workdir/weights/{snakemake.wildcards.region}"
+        ds_grid=ds_target,
+        weights_location=f"{os.environ['SLURM_TMPDIR']}/weights/"
     )
 
     # chunk time dim
     ds_regrid = ds_regrid.chunk(
-        translate_time_chunk({'time': '4year'},
-                             get_calendar(ds_regrid),
+        xs.utils.translate_time_chunk({'time': '4year'},
+                             xc.core.calendar.get_calendar(ds_regrid),
                              ds_regrid.time.size)
                                )
 

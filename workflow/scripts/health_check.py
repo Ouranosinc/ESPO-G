@@ -1,16 +1,13 @@
 from dask.distributed import Client, LocalCluster
 from dask import config as dskconf
 import xarray as xr
-import logging
 import os
 import xscen as xs
 from xscen import (
     CONFIG,
     measure_time, send_mail)
 
-
-xs.load_config("config/config.yaml")
-logger = logging.getLogger('xscen')
+xs.load_config("config/config.yml","config/paths.yml")
 
 if __name__ == '__main__':
     daskkws = CONFIG['dask'].get('client', {})

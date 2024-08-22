@@ -1,35 +1,16 @@
 import os
-from dask.distributed import Client, LocalCluster
-from dask import config as dskconf
-import logging
-import tempfile
 import xscen as xs
-from xscen.io import rechunk
-from xscen import (CONFIG, measure_time, timeout)
-xs.load_config("config/config.yaml")
-logger = logging.getLogger('xscen')
+from xscen import CONFIG
+from workflow.scripts.utils import dask_cluster
+
+xs.load_config("config/config.yml","config/paths.yml")
 
 if __name__ == '__main__':
-    daskkws = CONFIG['dask'].get('client', {})
-    dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
-    fmtkws = {'region_name': snakemake.wildcards.region, 'sim_id': snakemake.wildcards.sim_id}
-    logger.info(fmtkws)
+    
+    client=dask_cluster(snakemake.params)
 
-#  ---RECHUNK---
-    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-               memory_limit=snakemake.params.memory_limit,local_directory=os.environ['SLURM_TMPDIR'], **daskkws)
-    client = Client(cluster)
-    with (
-            measure_time(name=f'rechunk', logger=logger),
-            timeout(18000, task='rechunk')
-    ):
-        # rechunk in exec
-        specific_temp_dir = CONFIG["io"]["rechunk"]["temp_store"]
-        os.makedirs(specific_temp_dir, exist_ok=True)
-        temp_dir = tempfile.mkdtemp(dir=specific_temp_dir, prefix=f"{snakemake.wildcards.sim_id}_{snakemake.wildcards.region}_")
-
-        rechunk(path_in=str(snakemake.input[0]),
-                path_out=str(snakemake.output[0]),
-                chunks_over_dim=CONFIG['custom']['chunks'],
-                temp_store=temp_dir,
-                overwrite=True)
+    xs.io.rechunk(path_in=str(snakemake.input[0]),
+            path_out=str(snakemake.output[0]),
+            chunks_over_dim=CONFIG['custom']['working_chunks'],
+            temp_store=f"{os.environ['SLURM_TMPDIR']}/{snakemake.wildcards.sim_id}+{snakemake.wildcards.region}/",
+            overwrite=True)

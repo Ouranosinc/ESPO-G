@@ -1,46 +1,3 @@
-# Ce fichier configure les paramètres par défaut pour Snakemake version minimum 8.0.0
-#
-# executor: cluster-generic
-# cluster-generic-submit-cmd:
-#  mkdir -p slurm_logs/{rule} &&    # crée un repertoire pour sauvegarder les fichiers output de slurm
-#  sbatch    # donner les options sbatch de slurm
-#    --partition=c-frigon
-#    --account=ctb-frigon
-#    --constraint=genoa
-#    --cpus-per-task={threads}   # nombre de workers de dasks
-#    --qos={resources.qos}
-#    --mem={resources.mem}
-#    --job-name={rule}-{wildcards}    # renommer le nom de la job en fonction de du nom de la règle et des ses wildcards
-#    --output=slurm_logs/{rule}/{rule}-{wildcards}-%j.out    # renommer le nom du fichier output en fonction de du nom de la règle et des ses wildcards
-#    --time={resources.time}
-#    --parsable    # pour que sbatch renvoie uniquement le job ID sans aucun texte supplémentaire. Est obligatoire si on utilise cluster-generic-status-cmd
-# default-resources:   # donne les paramètres de resources et params  par defaut lorsqu'ils ne sont pas explicitement cité dans la règle
-#  - qos=high_priority
-#  - mem=80GB
-#  - time=30
-# non-slurm profile defaults
-#cluster-generic-status-cmd: status-sacct.sh    # permet a snakemake de connaître le status des job slurm
-#restart-times: 3    # permet de ressoumettre les jobs qui ont échoués
-#max-jobs-per-second: 10     # Cela peut être utile pour éviter de surcharger le cluster avec trop de soumissions simultanées.
-#max-status-checks-per-second: 30    #  limiter le nombre total de vérification d'état de tous les jobs
-#local-cores: 1    #  pour les règle qui s'exécutent localement. Exemple: localrules: nom_de_la_regle
-#latency-wait: 60    # attendre un certain temps pour que les fichiers soient visibles en cas de MissingFileExeption error
-#jobs: 10     # le maximum de jobs qui peuvent être roulés en parallèle
-#keep-going: True    # pour continuer à exécuter les règles qui sont independantes d'une règle qui a échoué
-#rerun-incomplete: True
-#printshellcmds: True
-  # sbatch
-  # --partition=c-frigon
-  # --account=ctb-frigon
-  # --constraint=genoa
-  # --cpus-per-task=10
-  # --mem=50G
-  # --job-name={rule}-{wildcards}
-  # --output=s_logs/{rule}/{rule}-{wildcards}-%j.out
-  # --time=170
-  # --parsable
-
-
 executor: cluster-generic
 cluster-generic-submit-cmd:
   mkdir -p s_logs/{rule} &&
@@ -52,25 +9,17 @@ cluster-generic-submit-cmd:
     --mem={params.mem}
     --job-name={rule}-{wildcards}
     --output=s_logs/{rule}/{rule}-{wildcards}-%j.out
-    --time={params.time}
+    --time=170
     --parsable
-  #jobscript.sh
 default-resources:
   disk_mb: 100000
-#   tmpdir=os.environ['SLURM_TMPDIR']
-# default-resources:
-#   - mem=80GB
-#   - time=120
 cluster-generic-cancel-cmd: "scancel"
-cluster-generic-status-cmd: status-sacct.py
-restart-times: 2
-max-jobs-per-second: 10
-max-status-checks-per-second: 30
-#local-cores: 1
-latency-wait: 60
-jobs: 10
-keep-going: True
+cluster-generic-status-cmd: status-sacct.sh  # permet a snakemake de connaître le status des job slurm
+restart-times: 2 # permet de ressoumettre les jobs qui ont échoués
+max-jobs-per-second: 10     # Cela peut être utile pour éviter de surcharger le cluster avec trop de soumissions simultanées.
+max-status-checks-per-second: 30    #  limiter le nombre total de vérification d'état de tous les jobs
+latency-wait: 60    # attendre un certain temps pour que les fichiers soient visibles en cas de MissingFileExeption error
+jobs: 10     # le maximum de jobs qui peuvent être roulés en parallèle
+keep-going: True    # pour continuer à exécuter les règles qui sont independantes d'une règle qui a échoué
 rerun-incomplete: True
 printshellcmds: True
-
-

@@ -1,70 +1,11 @@
 #Configuration file for ESPO-G6-E5L v1.0.0
-paths:
-  project_catalog: &pcat
-   /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/cat_ESPO-G6.json
-  workdir: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/workdir/
-  exec_workdir: /scratch/julavoie/ESPO-G6-SNAKEMAKE/ # EXEC_DIR should be a directory where it is easy to read and write
-  regriddir: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/regridded/
-  output: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/NAM_SPLIT/{region_name}/day_{sim_id}_{region_name}_1950-2100.zarr
-  concat_output_final: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/FINAL/{domain}/day_{sim_id}_{domain}_1950-2100.zarr
-  concat_output_diag: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/diagnostics/{domain}/{sim_id}/{level}_{sim_id}_{domain}.zar
-  logging: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/logging/log_{sim_id}_{region_name}.log
-  indicators: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/{id}/{id}_{xrfreq}_{processing_level}.zarr
-  climatology: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/climatology/{id}/{id}_{xrfreq}_{processing_level}.zarr
-  delta: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/delta/{id}/{id}_{xrfreq}_{processing_level}.zarr
-  ensemble: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/ensemble/{processing_level}/{processing_level}_{id}_{xrfreq}_{var}.zarr
-  figures: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/figures/
-  #data: /home/oumou/Projets/ESPO-G/documentation/diagnostics_data/
-  exec_diag: /scratch/julavoie/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/{processing_level}_{id}_{domain}.zarr
-  final_diag: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/diagnostics/{domain}/{id}/{processing_level}_{id}_{domain}.zarr
-  checks: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/checks/{region_name}/{sim_id}_{region_name}_checks.zarr
-  tmp: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/tmp/{id}_{domain}_pre-remove.zarr
-  cat_ref: /project/ctb-frigon/julavoie/ouranos_commun/catalogues/reconstruction.json
-  cat_sim: /project/ctb-frigon/julavoie/ouranos_commun/catalogues/simulation.json
-  home: /home/julavoie/code/test-vs/ESPO-G/
-  final: /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/
-
-utils:
-    stack_drop_nans:
-        to_file: &coords
-          /project/ctb-frigon/julavoie/ESPO-G6-SNAKEMAKE/coords/coords_{domain}_{shape}.nc
-    unstack_fill_nan:
-      coords: *coords
-    maybe_unstack:
-      coords: *coords
-
-
 project:
-    name: ESPO-G6-E5L
-    version: 1.0.0
-    description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6
-    id: eg6
-
-tasks:
-  ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
-  - makeref
-  - extract
-  - regrid
-  - rechunk
-  - train
-  - adjust
-  - clean_up
-  - final_zarr
-  - diagnostics
-  - concat
-  - health_checks
-  - official-diag
-#  - indicators
-#  - climatological_mean
-#  - abs-delta
-#  - per-delta
-#  - ensemble
-
-
+  name: ESPO-G6-E5L
+  version: 1.0.0
+  description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6
+  id: eg6
 
 custom:
-    delete_in_final_zarr: False
-    delete_in_diag: True
     regions:
         south:
             name: south
@@ -98,17 +39,16 @@ custom:
       lat_bnds: [ 10, 83.4 ]
     stack_drop_nans: &stack # goal is to drop Nan to make it faster
         True
-    chunks:
+    working_chunks:
         lat: 20
         lon: 20
         loc: 600
         time: -1
-    out_chunks:
+    final_chunks:
 #        lat: 10 # for fake regions
 #        lon: 10 # for fake regions
         lat: 50
         lon: 50
-        time: 4year
     ref_period : &ref_period
         - '1991'
         - '2020'
@@ -117,17 +57,10 @@ custom:
         - '2100'
     maximal_calendar:
         noleap
-    rechunk:
-#      lat: 10 # for fake regions
-#      lon: 10 # for fake regions
-      lat: 50
-      lon: 50
 
 extraction:
     reference:
         search_data_catalogs:
-            data_catalogs:
-              - /project/ctb-frigon/julavoie/ouranos_commun/catalogues/reconstruction.json
             variables_and_freqs: &var_and_freq
                 tasmax: D
                 tasmin: D
@@ -140,19 +73,9 @@ extraction:
                 source: &ref_source
                     "ERA5-Land"
         extract_dataset:
-            xr_combine_kwargs: {}
-        properties_and_measures:
-          to_level_prop: diag-ref-prop
-          period: *ref_period
-          unstack: *stack
-          properties: &properties
-            config/properties_ESPO-G.yml
-        chunks:
-          time: -1
+            xr_combine_kwargs: {} # bc of xscen bug. Should be removed in the future
     simulation:
         search_data_catalogs:
-            data_catalogs:
-               - /project/ctb-frigon/julavoie/ouranos_commun/catalogues/simulation.json
             variables_and_freqs: *var_and_freq
             match_hist_and_fut: True
             allow_conversion: True
@@ -160,13 +83,12 @@ extraction:
             restrict_members:
               ordered: 1
             periods: *sim_period
-            exclusions:
             other_search_criteria:
-              processing_level: raw
-              experiment:
-                - ssp585
-              source:
-                - TaiESM1 # only do one model for testing
+               processing_level: raw
+               experiment:
+                 - ssp585
+               source:
+                 - TaiESM1 # only do one model for testing
 #                - CanESM5
 #                - CNRM-CM6-1
 #                - EC-Earth3-CC
@@ -187,7 +109,6 @@ extraction:
         chunks: {'time': 365, 'lat':-1, 'lon':-1}
     ref_source: *ref_source
 
-
 regrid:
   target:
     source: *ref_source
@@ -198,8 +119,6 @@ regrid:
         extrap_method: inverse_dist
         locstream_out: *stack
         reuse_weights: False
-#        output_chunks: # no need with xesmf 0.8.5
-#          loc: -1
       intermediate_grids:
         reg1:
           cf_grid_2d:
@@ -214,9 +133,6 @@ regrid:
             extrap_method: inverse_dist
             locstream_out: False
             reuse_weights: False
-#            output_chunks: # no need with xesmf 0.8.5
-#              lat: -1
-#              lon: -1
         reg2:
           cf_grid_2d:
             lon0_b: 179.04
@@ -230,15 +146,6 @@ regrid:
             extrap_method: inverse_dist
             locstream_out: False
             reuse_weights: False
-#            output_chunks: # no need with xesmf 0.8.5
-#              lat: -1
-#              lon: -1
-
-io:
-  rechunk:
-    worker_mem: 2GB
-    temp_store: /scratch/julavoie/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/tmp/
-
 
 biasadjust:
     variables:
@@ -250,7 +157,7 @@ biasadjust:
                     group: time.dayofyear
                     window: 31
                 jitter_under: # to avoid negative dtr (when temperature inversion GFDL)
-                   thresh: 1e-4 K #TODO: put back
+                   thresh: 1e-4 K
                 xclim_train_args:
                     kind: "*"
                     nquantiles: 50
@@ -322,8 +229,6 @@ biasadjust:
 
 clean_up:
   search_data_catalogs:
-    data_catalogs:
-      - *pcat
     variables_and_freqs:
       tasmax: D
       tasmin: D
@@ -355,8 +260,12 @@ clean_up:
             detrending and 50 quantiles. The reference was ERA5-Land over the
             1991-2020 period. Tasmax, dtr and pr were adjusted, tasmin was computed
             from tasmax and dtr after the adjustment.
-          redistribution: Redistribution prohibited. For internal use only.
           version: "1.0.0"
+          code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake
+          contact: lavoie.juliette@ouranos.ca
+          organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca
+          avertissement : Ouranos ne donne aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande et d'adéquation à un usage particulier. Toutes les responsabilités découlant de la fourniture des informations (y compris toute responsabilité découlant d'une négligence) sont exclues dans toute la mesure permise par la loi.
+          license:  Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/)
         lat:
           standard_name: latitude
           units: degrees_north
@@ -379,27 +288,6 @@ clean_up:
             standard_name: precipitation_flux
             long_name: Mean daily precipitation flux
             cell_methods: "time: mean within days"
-
-
-diagnostics:
-  sim:
-    input:
-      processing_level:  regridded_and_rechunked
-    dref_for_measure:
-      processing_level: diag-ref-prop
-    properties_and_measures:
-      period: *ref_period
-      unstack: *stack
-      properties: *properties
-  scen:
-    input:
-      processing_level: final
-    dref_for_measure:
-      processing_level: diag-ref-prop
-    properties_and_measures:
-      period: *ref_period
-      unstack: False
-      properties: *properties
 
 health_checks:
     structure:
@@ -446,54 +334,6 @@ health_checks:
       - cfchecks
       - freq
 
-indicators:
-  input:
-    processing_level: final
-    domain:
-     - *nam-name
-  compute_indicators:
-    to_level: individual_indicator
-  load_xclim_module:
-    filename: config/portraits.yml
-
-aggregate:
-  input:
-    clim:
-      processing_level: indicators
-      domain: *nam-name
-    abs-delta:
-      processing_level: climatology
-      domain: *nam-name
-    per-delta:
-      processing_level: climatology
-      variable: prcptot
-      domain: *nam-name
-  climatological_mean:
-    window: 30
-    interval: 10
-    periods: [['1951', '2100']]
-    to_level: climatology
-  compute_deltas:
-    reference_horizon: "1991-2020"
-
-
-ensemble:
-    processing_levels:
-        - indicators
-        - climatology
-        - abs-delta-1991-2020
-        - per-delta-1991-2020
-    domain: *nam-name
-    #source: *hausfather-source
-    ensemble_stats_xscen:
-      statistics:
-        ensemble_percentiles:
-          split: True
-      common_attrs_only: True
-      create_kwargs:
-        chunks:
-          horizon: -1
-
 off-diag:
   domains:
     Haudenosaunee:
@@ -520,10 +360,6 @@ off-diag:
       lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
   steps:
     ref:
-      input:
-        source: *ref_source
-        calendar: default
-        processing_level: extracted
       domain:
         Haudenosaunee: middle
         Ute: south
@@ -533,11 +369,9 @@ off-diag:
         period: *ref_period
         properties: &off-properties
           config/off-properties_ESPO-G.yml
+        to_level_prop: off-diag-ref-prop
       unstack: *stack
     sim:
-      input:
-        #source: *hausfather-source
-        processing_level:  regridded
       domain:
         Haudenosaunee: middle
         Ute: south
@@ -548,11 +382,10 @@ off-diag:
       properties_and_measures:
         period: *ref_period
         properties: *off-properties
+        to_level_prop: off-diag-sim-prop
+        to_level_meas: off-diag-sim-meas
       unstack: *stack
     scen:
-      input:
-        #source: *hausfather-source
-        processing_level: final
       domain:
         Haudenosaunee: NAM
         Ute: NAM
@@ -563,24 +396,17 @@ off-diag:
       properties_and_measures:
         period: *ref_period
         properties: *off-properties
+        to_level_prop: off-diag-scen-prop
+        to_level_meas: off-diag-scen-meas
       unstack: False
 
-scripting:
-    measure_time:
-        cpu: True
-    subject: ESPO-G6
-    send_mail_on_exit:
-        msg_ok: Toutes les étapes demandées ont été complétées.
-        msg_err: Une erreur est survenue durant le traitement.
-        on_error_only: True
-    send_mail:
-        to: oumcis1@ouranos.ca
+io:
+  rechunk:
+    worker_mem: 2GB
+  save_to_zarr:
+    mode: o
 
-dask:
-    array.slicing.split_large_chunks: False
-    client:
-        #local_directory: /scratch/julavoie/ESPO-G6-SNAKEMAKE/tmp_eg6/
-        dashboard_address: 2051
+
 
 logging:
     formatters:
@@ -593,16 +419,15 @@ logging:
             formatter: default
             level : DEBUG
             stream: ext://sys.stdout #needed to have the right color in pycharm
-        # file:
-        #     class: logging.FileHandler
-        #     formatter: default
-        #     level : DEBUG
-        #     filename: /scratch/julavoie/ESPO-G6-SNAKEMAKE/ESPO-G_workdir/logger.log
     loggers:
         xscen:
             level: DEBUG
-            handlers: [file, console]
+            handlers: [console]
+
+dask:
+    array.slicing.split_large_chunks: False
 
 tdd:
   xarray_open_kwargs:
     decode_timedelta: False
+

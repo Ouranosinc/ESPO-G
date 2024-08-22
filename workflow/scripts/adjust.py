@@ -1,37 +1,27 @@
-from dask.distributed import Client, LocalCluster
-from dask import config as dskconf
 import xarray as xr
-import logging
 import xscen as xs
 import xclim as xc
-from xscen import (CONFIG,adjust, measure_time, timeout)
-import os
-xs.load_config("config/config.yaml")
-logger = logging.getLogger('xscen')
+from xscen import CONFIG
+from workflow.scripts.utils import dask_cluster
+
+xs.load_config("config/config.yml","config/paths.yml")
 
 if __name__ == '__main__':
-    daskkws = CONFIG['dask'].get('client', {})
-    dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
 
-    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=snakemake.params.memory_limit, local_directory=os.environ['SLURM_TMPDIR'], **daskkws)
-    client = Client(cluster)
+    client=dask_cluster(snakemake.params)
 
-    with (
-            measure_time(name=f'adjust {snakemake.wildcards.var}', logger=logger),
-            timeout(18000, task='adjust')
-    ):
-        # load sim ds
-        ds_sim = xr.open_zarr(snakemake.input.rechunk)
-        ds_tr = xr.open_zarr(snakemake.input.train)
+    # load sim ds
+    ds_sim = xr.open_zarr(snakemake.input.rechunk, decode_timedelta=False)
+    ds_tr = xr.open_zarr(snakemake.input.train, decode_timedelta=False)
 
-        # there are some negative dtr in the data (GFDL-ESM4). This puts is back to a very small positive.
-        # TODO: put back
-        #ds_sim['dtr'] = xc.sdba.processing.jitter_under_thresh(ds_sim.dtr, "1e-4 K")
+    # there are some negative dtr in the data (GFDL-ESM4). This puts is back to a very small positive.
+    ds_sim['dtr'] = xc.sdba.processing.jitter_under_thresh(ds_sim.dtr, "1e-4 K")
 
-        # adjust
-        ds_scen = adjust(dsim=ds_sim,
-                         dtrain=ds_tr,
-                         **CONFIG['biasadjust']['variables'][snakemake.wildcards.var]['adjusting_args'])
+    # adjust
+    ds_scen = xs.adjust(
+        dsim=ds_sim,
+        dtrain=ds_tr,
+        **CONFIG['biasadjust']['variables'][snakemake.wildcards.var]['adjusting_args']
+        )
 
-        xs.save_to_zarr(ds_scen, str(snakemake.output[0]))
+    xs.save_to_zarr(ds_scen, str(snakemake.output[0]))

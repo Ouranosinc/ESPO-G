@@ -1,0 +1,38 @@
+#Configuration file for ESPO-G6-E5L v1.0.0
+# TODO: replace with your own paths in /project and /scratch and rename file to paths.yml.
+paths:
+  project_catalog: &pcat
+   <PROJECT-ESPO-DIR>/cat_ESPO-G6.json
+  tmpdir: <SCRATCH-ESPO-DIR>
+  home: <FULL-PATH-TO-THIS-REPO>
+  final: <PROJECT-ESPO-DIR>
+
+extraction:
+    reference:
+        search_data_catalogs:
+            data_catalogs:
+              - <PATH-TO-RECONSTRUCTION-CAT>
+    simulation:
+        search_data_catalogs:
+            data_catalogs:
+               - <PATH-TO-SIMULATION-CAT>
+
+clean_up:
+  search_data_catalogs:
+    data_catalogs:
+      - *pcat
+
+utils:
+    stack_drop_nans:
+        to_file: &coords
+          <PROJECT-ESPO-DIR>coords/coords_{domain}_{shape}.nc
+    unstack_fill_nan:
+      coords: *coords
+    maybe_unstack:
+      coords: *coords
+
+dask:
+    client:
+        dashboard_address: <YOUR-RANDOM-PORT-NUMBER>
+
+
