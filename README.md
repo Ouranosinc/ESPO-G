@@ -393,6 +393,29 @@ fi
 </code></pre>
 <p>Le DAG associé à ESPO-G est la suivante:<br>
 <img src="https://github.com/Ouranosinc/ESPO-G/blob/ESPO_snakemake_on_narval/dag.png" alt="Graphe acyclique dirigé"></p>
+<h2 id="monitoring-pas-encore-fonctionnel">Monitoring (pas encore fonctionnel)</h2>
+<p>SnakeMake prend en charge Panoptes, un serveur (en cours de développement) qui vous permet de surveiller l’exécution des workflows SnakeMake. Snakemake communique avec panoptes via le paramètre <code>--wms-monitor</code>. Ce paramètre spécifie l’adresse <strong>IP</strong> et le <strong>port</strong> où panoptes fonctionne (par exemple <strong>–wms-monitor <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a></strong>).</p>
+<p>Les étapes pour utiliser le serveur panoptes sont:</p>
+<p><strong>1</strong>. Installer panoptes:</p>
+<pre><code>$ pip install --no-index panoptes-ui  
+</code></pre>
+<p><strong>2.</strong> Appeler le serveur:</p>
+<pre><code>$ panoptes  
+</code></pre>
+<p>la sortie sera</p>
+<pre><code>* Serving Flask app 'panoptes.app'
+Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+* Running on all addresses (0.0.0.0)
+* Running on http://127.0.0.1:5000
+* Running on http://XX.XX.XX.XX:5000
+Press CTRL+C to quit
+</code></pre>
+<p>Il faut laisser les serveur ouvert et exécuter ls workflow sur un autre terminal.</p>
+<p><strong>3.</strong> Prendre la deuxième adresse fournie par la commande précédente et le donner u paramètre <code>--wms-monitor</code> dans le fichier <em><strong>config.v8+.yaml</strong></em>:</p>
+<pre><code>$ wms-monitor: "http://10.80.49.2:5000"  
+</code></pre>
+<p>Par défaut le <strong>panoptes</strong> écoute sur le <strong>port 5000</strong>, vous pouvez le modifier au besoin.</p>
 <h2 id="report.html">Report.html</h2>
 <p>Une fois votre workflow terminé, vous pouvez générer le rapport en exécutant la commande suivante :</p>
 <pre><code>snakemake --report report.html  
