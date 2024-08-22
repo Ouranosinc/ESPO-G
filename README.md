@@ -77,7 +77,7 @@ source &lt;NOM-ENV&gt;/bin/activate
 pip install --no-index --upgrade pip 
 pip install --no-index -r "/project/ctb-frigon/scenario/environnements/xscen0.9.0-requirements.txt" 
 pip install --no-index snakemake==8.12.0
-pip install --no-index snakemake-executor-plugin-cluster-generic
+pip install --no-index snakemake_executor_plugin_cluster_generic
 pip install --no-index graphviz
 </code></pre>
 <p>Les règles doivent avoir d’autres directives en plus de <strong>input</strong>, <strong>output</strong> et <strong>script</strong>. La directive <code>resources</code> est utilisée pour passer des valeurs à <code>sbatch</code>. Ainsi chaque script de soumission demandera des ressources spécifiques à chaque règle. Exemple:</p>
