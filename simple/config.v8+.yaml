@@ -58,5 +58,5 @@ jobs: 10
 keep-going: True
 rerun-incomplete: True
 printshellcmds: True
-
+wms-monitor: "http://10.80.49.2:5000"
 
