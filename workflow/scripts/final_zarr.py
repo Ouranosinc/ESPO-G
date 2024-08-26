@@ -1,5 +1,4 @@
 from pathlib import Path
-import shutil
 import os
 import xscen as xs
 from xscen import CONFIG
@@ -10,7 +9,6 @@ xs.load_config("config/config.yml","config/paths.yml")
 if __name__ == '__main__':
 
     client=dask_cluster(snakemake.params)
-
 
     # rechunk 
     xs.io.rechunk(

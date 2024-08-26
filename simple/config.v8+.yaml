@@ -9,10 +9,8 @@ cluster-generic-submit-cmd:
     --mem={params.mem}
     --job-name={rule}-{wildcards}
     --output=s_logs/{rule}/{rule}-{wildcards}-%j.out
-    --time=170
+    --time=70
     --parsable
-default-resources:
-  disk_mb: 100000
 cluster-generic-cancel-cmd: "scancel"
 cluster-generic-status-cmd: status-sacct.sh  # permet a snakemake de connaître le status des job slurm
 restart-times: 2 # permet de ressoumettre les jobs qui ont échoués

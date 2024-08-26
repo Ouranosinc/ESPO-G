@@ -1,10 +1,13 @@
 import xscen as xs
 from xscen import CONFIG
+from pathlib import Path
+from zipfile import ZipFile
 
 xs.load_config("config/config.yml","config/paths.yml")
 
 if __name__ == '__main__':
 
+    # eventually take this from xscen
     def zip_directory(root, zipfile, **zip_args):
         root = Path(root)
 
@@ -18,9 +21,7 @@ if __name__ == '__main__':
             for file in root.iterdir():
                 _add_to_zip(zf, file, root)
 
-    zip_directory(snakemake.input.final, snakemake.output.final)
-
-    zip_directory(snakemake.input.regchunked, snakemake.output.regchunked)
-
+    for name, path in snakemake.input.items():
+        zip_directory(path, getattr(snakemake.output,name))
 
 

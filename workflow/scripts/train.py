@@ -17,10 +17,10 @@ if __name__ == '__main__':
     # choose right calendar
     simcal = xc.core.calendar.get_calendar(ds_hist)
     refcal = xs.utils.minimum_calendar(simcal, CONFIG['custom']['maximal_calendar'])
-    if refcal == "noleap":
-        ds_ref = xr.open_zarr(snakemake.input.noleap, decode_timedelta=False)
-    elif refcal == "360_day":
-        ds_ref = xr.open_zarr(snakemake.input.day360, decode_timedelta=False)
+
+    # snakemake can't have 360_day as a keyword..
+    input_cal = 'noleap' if refcal == 'noleap' else  'day360' if refcal == '360_day' else 'unknown'
+    ds_ref = xr.open_zarr(getattr(snakemake.input, input_cal), decode_timedelta=False)
 
     # training
     ds_tr = xs.train(

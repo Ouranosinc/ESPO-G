@@ -2,6 +2,7 @@ import xarray as xr
 import xscen as xs
 from xscen import CONFIG
 from workflow.scripts.utils import dask_cluster
+from xscen.xclim_modules import conversions
 
 xs.load_config("config/config.yml","config/paths.yml")
 
@@ -23,15 +24,12 @@ if __name__ == '__main__':
          **CONFIG['off-diag']['domains'][snakemake.wildcards.diag_domain])
 
     if 'dtr' not in ds_input:
-            ds_input = ds_input.assign(dtr=xs.xclim_modules.conversions.dtr(ds_input.tasmin, ds_input.tasmax))
+            ds_input = ds_input.assign(dtr=conversions.dtr_from_minmax(ds_input.tasmin, ds_input.tasmax))
 
     dref_for_measure = None
-    print(snakemake.input)
-    print(getattr(snakemake.input, 'diag_ref_prop', False))
     if getattr(snakemake.input, 'diag_ref_prop', False):
         dref_for_measure = xr.open_zarr(snakemake.input.diag_ref_prop, decode_timedelta=False)
 
-    print(dref_for_measure)
     prop, meas = xs.properties_and_measures(
         ds=ds_input,
         dref_for_measure=dref_for_measure,
@@ -39,7 +37,5 @@ if __name__ == '__main__':
     )
     
     xs.save_to_zarr(prop, snakemake.output.prop, itervar=True, rechunk=CONFIG['custom']['final_chunks'])
-    print(meas)
     if meas:
-        print('here')
         xs.save_to_zarr(meas, snakemake.output.meas, itervar=True, rechunk=CONFIG['custom']['final_chunks'])

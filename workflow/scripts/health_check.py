@@ -1,37 +1,23 @@
-from dask.distributed import Client, LocalCluster
-from dask import config as dskconf
 import xarray as xr
 import os
 import xscen as xs
-from xscen import (
-    CONFIG,
-    measure_time, send_mail)
+from xscen import CONFIG
+from workflow.scripts.utils import dask_cluster
+
 
 xs.load_config("config/config.yml","config/paths.yml")
 
 if __name__ == '__main__':
-    daskkws = CONFIG['dask'].get('client', {})
-    dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
+    client=dask_cluster(snakemake.params)
+    
+    ds_input = xr.open_zarr(snakemake.input[0], decode_timedelta=False)
 
-    cluster = LocalCluster(n_workers=snakemake.params.n_workers, threads_per_worker=snakemake.params.threads_per_worker,
-                           memory_limit=snakemake.params.memory_limit,local_directory=os.environ['SLURM_TMPDIR'], **daskkws)
-    client = Client(cluster)
+    hc = xs.diagnostics.health_checks(
+        ds=ds_input,
+        **CONFIG['health_checks'])
 
-    fmtkws = {'sim_id': snakemake.wildcards.sim_id}
-    logger.info(fmtkws)
+    hc.attrs.update(ds_input.attrs)
 
-    with (
-        measure_time(name=f'health_checks', logger=logger)
-    ):
-        ds_input = xr.open_zarr(snakemake.input[0], decode_timedelta=False)
-
-        hc = xs.diagnostics.health_checks(
-            ds=ds_input,
-            **CONFIG['health_checks'])
-
-        hc.attrs.update(ds_input.attrs)
-        hc.attrs['cat:processing_level'] = 'health_checks'
-
-        xs.save_to_zarr(hc, str(snakemake.output[0]))
+    xs.save_to_zarr(hc, snakemake.output[0])
 
 

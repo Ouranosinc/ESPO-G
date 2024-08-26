@@ -132,3 +132,5 @@ dmypy.json
 config/paths.yml
 .snakemake/
 s_logs/
+report.html
+dag.dot

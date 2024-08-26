@@ -26,7 +26,6 @@ if __name__ == '__main__':
     ds_sim['time'] = ds_sim.time.dt.floor('D') 
 
     ds_sim = ds_sim.chunk(CONFIG['extraction']['simulation']['chunks'])
-    ds_sim.attrs["cat:_data_format_"] = 'zarr'
     
     # save to zarr
     xs.save_to_zarr(ds_sim, snakemake.output[0])

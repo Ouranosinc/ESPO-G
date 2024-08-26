@@ -38,6 +38,6 @@ if __name__ == '__main__':
 
     xs.save_to_zarr(
         ds=dsC,
-        filename=str(snakemake.output[0]),
+        filename=snakemake.output[0],
         )
 

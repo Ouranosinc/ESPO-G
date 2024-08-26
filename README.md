@@ -171,20 +171,6 @@ scenario-building analysis framework, also being developed at Ouranos. This tool
 [intake-esm](https://intake-esm.readthedocs.io/en/latest/index.html) as well as on YAML configuration files with a
 simple but specific structure. 
 
-
-## Performance
-Bias-adjustment of climate simulations is a quest with many traps. In order to assess the improvements and regressions
-that the process brought to the simulations, we emulated the "VALUE" validation framework (Maraun et al., 2015).
-While that project aimed to "to validate and compare downscaling methods", we based our approach on its ideas of statistical
-"properties" and "measures" to measure bias between the simulations, the scenarios, and the reference.
-
-A detailed analysis is given in [the documentation](documentation/ESPO_G6_R2v100_performance.pdf).
-Our general conclusions concerning the quality of ESPO-G6-R2 v1.0.0 are:
-
- - The marginal properties of the simulations (mean, quantiles) are very well-adjusted, by design of the Quantile Mapping algorithm.
- - The climate change signal is also conserved from the simulations by design of the algorithm.
- - A side effect of adjusting the distributions explicitly is the improvement of the inter-variable correlation, even though the bias correction algorithm does not aim to adjust these aspects.
- - Because tasmin is not directly adjusted, but rather computed from the adjusted tasmax and dtr, it seems that our diagnostics show weaker improvements, compared to tasmax.
  
 
 ## Data availability and download

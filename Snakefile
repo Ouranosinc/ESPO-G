@@ -1,9 +1,7 @@
 from snakemake.utils import min_version
 from pathlib import Path
 
-#set minimum snakemake version
-min_version("8.12.0")
-
+min_version("8.12.0") #set minimum snakemake version
 
 configfile: "config/config.yml"
 configfile: "config/paths.yml"
@@ -12,16 +10,11 @@ include: "workflow/rules/common.smk"
 include: "workflow/rules/Makeref.smk"
 include: "workflow/rules/off_diag.smk"
 
-report: "report/workflow.rst"
-
-
-
 sim_id = wildcards_sim_id()
 region = list(config["custom"]["regions"].keys())
 diag_domain = config['off-diag']['domains'].keys()
 ref_source = [config['extraction']['reference']['search_data_catalogs']['other_search_criteria']['source']]
-
-
+level=['improvement', 'diag_sim_prop','diag_sim_meas','diag_scen_prop','diag_scen_meas']
 
 tmpdir= Path(config['paths']['tmpdir'])
 finaldir=Path(config['paths']['final'])
@@ -29,7 +22,9 @@ finaldir=Path(config['paths']['final'])
 rule all:
     input:
         expand(finaldir/"checks/NAM/{sim_id}+NAM_checks.zarr", sim_id=sim_id),
-        expand(finaldir/"diagnostics/{diag_domain}/{sim_id}+{diag_domain}+improvement.zarr", diag_domain=diag_domain, sim_id=sim_id)
+        expand(finaldir/"diagnostics/{diag_domain}/{sim_id}+{diag_domain}+{level}.zarr.zip", diag_domain=diag_domain, sim_id=sim_id, level=level),
+        expand(finaldir/"diagnostics/{diag_domain}/{ref_source}+{diag_domain}+diag_ref_prop.zarr.zip", diag_domain=diag_domain, ref_source=ref_source),
+
 
 rule extract:
     output:
@@ -56,7 +51,7 @@ rule regrid:
 
 rule rechunk:
      input:
-          Path(config['paths']['tmpdir'])/"{sim_id}+{region}+regridded.zarr"
+          tmpdir/"{sim_id}+{region}+regridded.zarr"
      output:
           temp(directory(tmpdir/"{sim_id}+{region}+regchunked.zarr"))
      params:
@@ -117,13 +112,46 @@ rule final_zarr:
     script:
         "workflow/scripts/final_zarr.py"
 
+# need different move bc wilcards have to be the same in a room
 rule move:
     input:
         final=tmpdir/"/day+{sim_id}+{region}+1950-2100.zarr",
-        regchunked=tmpdir/"{sim_id}+{region}+regchunked.zarr"
+        regchunked=tmpdir/"{sim_id}+{region}+regchunked.zarr",
     output:
         final=finaldir/"NAM_SPLIT/{region}/day+{sim_id}+{region}+1950-2100.zarr.zip",
-        regchunked=finaldir/"regridded/day+{sim_id}+{region}+regchunked.zarr.zip"
+        regchunked=finaldir/"regridded/day+{sim_id}+{region}+regchunked.zarr.zip",
+    params:
+        n_workers=2,
+        mem='50GB',
+        cpus_per_task=10,
+    script:
+        "workflow/scripts/move.py"
+
+rule move_ref:
+    input:
+        prop_ref=expand(tmpdir/"{ref_source}+{{diag_domain}}+diag_ref_prop.zarr", ref_source=ref_source)[0],
+    output:
+        prop_ref=expand(finaldir/"diagnostics/{{diag_domain}}/{ref_source}+{{diag_domain}}+diag_ref_prop.zarr.zip", ref_source=ref_source)[0],
+    params:
+        n_workers=2,
+        mem='50GB',
+        cpus_per_task=10,
+    script:
+        "workflow/scripts/move.py"
+
+rule move_diag:
+    input:
+        prop_sim=tmpdir/"{sim_id}+{diag_domain}+diag_sim_prop.zarr",
+        meas_sim=tmpdir/"{sim_id}+{diag_domain}+diag_sim_meas.zarr",
+        prop_scen=tmpdir/"{sim_id}+{diag_domain}+diag_scen_prop.zarr",
+        meas_scen=tmpdir/"{sim_id}+{diag_domain}+diag_scen_meas.zarr",
+        imp=tmpdir/"{sim_id}+{diag_domain}+improvement.zarr",
+    output:
+        prop_sim=finaldir/"diagnostics/{diag_domain}/{sim_id}+{diag_domain}+diag_sim_prop.zarr.zip",
+        meas_sim=finaldir/"diagnostics/{diag_domain}/{sim_id}+{diag_domain}+diag_sim_meas.zarr.zip",
+        prop_scen=finaldir/"diagnostics/{diag_domain}/{sim_id}+{diag_domain}+diag_scen_prop.zarr.zip",
+        meas_scen=finaldir/"diagnostics/{diag_domain}/{sim_id}+{diag_domain}+diag_scen_meas.zarr.zip",
+        imp=finaldir/"diagnostics/{diag_domain}/{sim_id}+{diag_domain}+improvement.zarr.zip",
     params:
         n_workers=2,
         mem='50GB',
@@ -135,7 +163,7 @@ rule concatenation_final:
     input:
         final = expand(tmpdir/"day+{{sim_id}}+{region}+1950-2100.zarr",  region=region)
     output:
-        directory(finaldir/"FINAL/NAM/day+{sim_id}+NAM_1950-2100.zarr")
+        directory(finaldir/"final/NAM/day+{sim_id}+NAM_1950-2100.zarr")
     params:
         n_workers=12,
         mem='60GB',
