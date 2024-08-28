@@ -20,14 +20,9 @@ if __name__ == '__main__':
         dsC = xr.concat(list_dsR, 'lat')
 
     dsC.attrs['cat:domain'] = CONFIG['custom']['amno_region']['name']
+    dsC.attrs['cat:processing_level']= 'final'
     dsC.attrs.pop('intake_esm_dataset_key')
-
     dsC.attrs.pop('cat:path')
-
-    # if xc.core.calendar.get_calendar(dsC.time) == '360_day':
-    #     dsC = dsC.chunk({'time': 1440} | CONFIG['custom']['rechunk'])
-    # else:
-    #     dsC = dsC.chunk({'time': 1460} | CONFIG['custom']['rechunk'])
 
     dsC = dsC.chunk(
         xs.utils.translate_time_chunk(
@@ -35,6 +30,8 @@ if __name__ == '__main__':
             xc.core.calendar.get_calendar(dsC),
             dsC.time.size)| CONFIG['custom']['final_chunks']
                                )
+    
+    
 
     xs.save_to_zarr(
         ds=dsC,

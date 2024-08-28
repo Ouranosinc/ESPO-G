@@ -60,6 +60,7 @@ Description of the tasks:
  - final_zarr: Rechunk the scenario dataset and save it.
  - concat: Concatenate scenario and diagnostics of the three regions into the complete NAM domain.  
  - official-diag: Compute diagnostics (defined in configuration/off-properties_ESPO-G.yml) on smaller regions to assess the performance.
+ - move: Move files to final location and zip.
 
 
 ## Context

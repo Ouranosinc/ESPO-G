@@ -174,7 +174,7 @@ rule concatenation_final:
 
 rule health_checks:
     input:
-        finaldir/"FINAL/NAM/day+{sim_id}+NAM_1950-2100.zarr"
+        finaldir/"final/NAM/day+{sim_id}+NAM_1950-2100.zarr"
     output:
         directory(finaldir/"checks/NAM/{sim_id}+NAM_checks.zarr")
     params:

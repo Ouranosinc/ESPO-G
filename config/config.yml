@@ -88,17 +88,18 @@ extraction:
                experiment:
                  - ssp585
                source:
-                 - TaiESM1 # only do one model for testing
-#                - CanESM5
-#                - CNRM-CM6-1
-#                - EC-Earth3-CC
-#                - EC-Earth3
-#                - EC-Earth3-Veg
-#                - INM-CM4-8
-#                - IPSL-CM6A-LR
-#                - UKESM1-0-LL
-#                - NorESM2-MM
-#                - NESM3
+                - TaiESM1
+                - CanESM5
+                - CNRM-CM6-1
+                - EC-Earth3-CC
+                - EC-Earth3
+                - EC-Earth3-Veg
+                - INM-CM4-8
+                - IPSL-CM6A-LR
+                - UKESM1-0-LL
+                - NorESM2-MM
+                - NESM3
+                - MIROC6 #Known
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
@@ -254,18 +255,24 @@ clean_up:
       to_level: cleaned_up
       add_attrs:
         global:
+          dataset: ESPO-G6-E5L v1.0.0
           Notes: |
             Regridded on the grid of ERA5-Land, then bias-adjusted with detrended
             quantile mapping on a day-of-year basis with a window of 31 days, LOESS
             detrending and 50 quantiles. The reference was ERA5-Land over the
             1991-2020 period. Tasmax, dtr and pr were adjusted, tasmin was computed
             from tasmax and dtr after the adjustment.
-          version: "1.0.0"
           code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake
-          contact: lavoie.juliette@ouranos.ca
+          contact-ouranos: lavoie.juliette@ouranos.ca
           organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca
           avertissement : Ouranos ne donne aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande et d'adéquation à un usage particulier. Toutes les responsabilités découlant de la fourniture des informations (y compris toute responsabilité découlant d'une négligence) sont exclues dans toute la mesure permise par la loi.
+          organization: Scenarios and Climate Services Group, Ouranos Consortium, Montreal, QC; www.ouranos.ca
+          disclaimer: Ouranos make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.
           license:  Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/)
+          cat:_data_format_: zarr
+          cat:date_end: 2100-12-30
+          cat:date_start: 1950-01-01
+          cat:variables: tasmax, tasmin, pr
         lat:
           standard_name: latitude
           units: degrees_north

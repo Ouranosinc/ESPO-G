@@ -19,6 +19,9 @@ if __name__ == '__main__':
 
     ds = xs.clean_up(ds=ds,**CONFIG['clean_up']['xscen_clean_up'])
 
+    ds.attrs['cat:_data_format_'] = 'zarr'
+    ds.attrs['cat:date'] = 'zarr'
+
     # fix the problematic data
     if snakemake.wildcards.sim_id in CONFIG['clean_up']['problems']:
         ds = ds.where(ds.tasmin > 100)
