@@ -2,6 +2,7 @@ import xarray as xr
 import xscen as xs
 import xclim as xc
 from xscen import  CONFIG
+from workflow.scripts.utils import zip_directory
 
 xs.load_config("config/config.yml","config/paths.yml")
 
@@ -35,6 +36,8 @@ if __name__ == '__main__':
 
     xs.save_to_zarr(
         ds=dsC,
-        filename=snakemake.output[0],
+        filename=snakemake.output.tmp,
         )
+    
+    zip_directory(snakemake.output.tmp, snakemake.output.final)
 

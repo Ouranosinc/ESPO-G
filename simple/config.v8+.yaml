@@ -17,7 +17,7 @@ restart-times: 2 # permet de ressoumettre les jobs qui ont échoués
 max-jobs-per-second: 10     # Cela peut être utile pour éviter de surcharger le cluster avec trop de soumissions simultanées.
 max-status-checks-per-second: 30    #  limiter le nombre total de vérification d'état de tous les jobs
 latency-wait: 60    # attendre un certain temps pour que les fichiers soient visibles en cas de MissingFileExeption error
-jobs: 10     # le maximum de jobs qui peuvent être roulés en parallèle
+jobs: 2     # le maximum de jobs qui peuvent être roulés en parallèle
 keep-going: True    # pour continuer à exécuter les règles qui sont independantes d'une règle qui a échoué
 rerun-incomplete: True
 printshellcmds: True

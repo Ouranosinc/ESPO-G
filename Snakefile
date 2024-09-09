@@ -163,7 +163,8 @@ rule concatenation_final:
     input:
         final = expand(tmpdir/"day+{{sim_id}}+{region}+1950-2100.zarr",  region=region)
     output:
-        directory(finaldir/"final/NAM/day+{sim_id}+NAM_1950-2100.zarr")
+        tmp = temp(tmpdir/"day+{{sim_id}}+NAM+1950-2100.zarr"),
+        final = finaldir/"final/NAM/day+{sim_id}+NAM_1950-2100.zarr.zip"
     params:
         n_workers=12,
         mem='60GB',
@@ -174,7 +175,7 @@ rule concatenation_final:
 
 rule health_checks:
     input:
-        finaldir/"final/NAM/day+{sim_id}+NAM_1950-2100.zarr"
+        finaldir/"final/NAM/day+{sim_id}+NAM_1950-2100.zarr.zip"
     output:
         directory(finaldir/"checks/NAM/{sim_id}+NAM_checks.zarr")
     params:
