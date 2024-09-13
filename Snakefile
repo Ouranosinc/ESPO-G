@@ -115,7 +115,7 @@ rule final_zarr:
 # need different move bc wilcards have to be the same in a room
 rule move:
     input:
-        final=tmpdir/"/day+{sim_id}+{region}+1950-2100.zarr",
+        final=tmpdir/"day+{sim_id}+{region}+1950-2100.zarr",
         regchunked=tmpdir/"{sim_id}+{region}+regchunked.zarr",
     output:
         final=finaldir/"NAM_SPLIT/{region}/day+{sim_id}+{region}+1950-2100.zarr.zip",
@@ -127,43 +127,13 @@ rule move:
     script:
         "workflow/scripts/move.py"
 
-rule move_ref:
-    input:
-        prop_ref=expand(tmpdir/"{ref_source}+{{diag_domain}}+diag_ref_prop.zarr", ref_source=ref_source)[0],
-    output:
-        prop_ref=expand(finaldir/"diagnostics/{{diag_domain}}/{ref_source}+{{diag_domain}}+diag_ref_prop.zarr.zip", ref_source=ref_source)[0],
-    params:
-        n_workers=2,
-        mem='50GB',
-        cpus_per_task=10,
-    script:
-        "workflow/scripts/move.py"
 
-rule move_diag:
-    input:
-        prop_sim=tmpdir/"{sim_id}+{diag_domain}+diag_sim_prop.zarr",
-        meas_sim=tmpdir/"{sim_id}+{diag_domain}+diag_sim_meas.zarr",
-        prop_scen=tmpdir/"{sim_id}+{diag_domain}+diag_scen_prop.zarr",
-        meas_scen=tmpdir/"{sim_id}+{diag_domain}+diag_scen_meas.zarr",
-        imp=tmpdir/"{sim_id}+{diag_domain}+improvement.zarr",
-    output:
-        prop_sim=finaldir/"diagnostics/{diag_domain}/{sim_id}+{diag_domain}+diag_sim_prop.zarr.zip",
-        meas_sim=finaldir/"diagnostics/{diag_domain}/{sim_id}+{diag_domain}+diag_sim_meas.zarr.zip",
-        prop_scen=finaldir/"diagnostics/{diag_domain}/{sim_id}+{diag_domain}+diag_scen_prop.zarr.zip",
-        meas_scen=finaldir/"diagnostics/{diag_domain}/{sim_id}+{diag_domain}+diag_scen_meas.zarr.zip",
-        imp=finaldir/"diagnostics/{diag_domain}/{sim_id}+{diag_domain}+improvement.zarr.zip",
-    params:
-        n_workers=2,
-        mem='50GB',
-        cpus_per_task=10,
-    script:
-        "workflow/scripts/move.py"
 
 rule concatenation_final:
     input:
         final = expand(tmpdir/"day+{{sim_id}}+{region}+1950-2100.zarr",  region=region)
     output:
-        tmp = temp(tmpdir/"day+{{sim_id}}+NAM+1950-2100.zarr"),
+        tmp = temp(directory(tmpdir/"day+{sim_id}+NAM+1950-2100.zarr")),
         final = finaldir/"final/NAM/day+{sim_id}+NAM_1950-2100.zarr.zip"
     params:
         n_workers=12,

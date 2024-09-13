@@ -14,7 +14,7 @@ def official_diags_inputfiles_ref(wildcards):
 
 def official_diags_inputfiles_sim(wildcards):
     step_dict = config['off-diag']['steps']["sim"]
-    sim = tmpdir/f"{wildcards.sim_id}+{step_dict['domain'][wildcards.diag_domain]}+regchunked.zarr"
+    sim= finaldir/f"regridded/day+{wildcards.sim_id}+{step_dict['domain'][wildcards.diag_domain]}+regchunked.zarr.zip"
     return sim
 
 
