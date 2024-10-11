@@ -72,7 +72,7 @@ rule move_ref:
         mem='50GB',
         cpus_per_task=10,
     script:
-        "workflow/scripts/move.py"
+        home/"workflow/scripts/move.py"
 
 rule move_diag:
     input:
@@ -92,4 +92,4 @@ rule move_diag:
         mem='50GB',
         cpus_per_task=10,
     script:
-        "workflow/scripts/move.py"
+       home/"workflow/scripts/move.py"

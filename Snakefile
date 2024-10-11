@@ -1,3 +1,5 @@
+#TODO: before next run, check final attrs and final destination (maybe put direct in staging)
+
 from snakemake.utils import min_version
 from pathlib import Path
 

@@ -135,3 +135,4 @@ s_logs/
 report.html
 dag.dot
 Untitled.ipynb
+workflow/scripts/__pycache__/

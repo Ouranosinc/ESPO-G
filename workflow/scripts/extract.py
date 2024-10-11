@@ -27,5 +27,12 @@ if __name__ == '__main__':
 
     ds_sim = ds_sim.chunk(CONFIG['extraction']['simulation']['chunks'])
     
+    # trick to fix CanESM5
+    if 'CMIP6_ScenarioMIP_CCCma_CanESM5_ssp585_r1i1p1f1_global' == snakemake.wildcards.sim_id:
+        ds_sim['pr'] = ds_sim['pr'].astype('float32')
+        ds_sim['dtr'] = ds_sim['dtr'].astype('float32')
+        ds_sim['tasmax'] = ds_sim['tasmax'].astype('float32')
+        ds_sim['tasmin'] = ds_sim['tasmin'].astype('float32')
+    
     # save to zarr
     xs.save_to_zarr(ds_sim, snakemake.output[0])

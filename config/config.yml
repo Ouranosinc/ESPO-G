@@ -99,7 +99,6 @@ extraction:
                 - UKESM1-0-LL
                 - NorESM2-MM
                 - NESM3
-                - MIROC6 #Known
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
