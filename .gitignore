@@ -136,4 +136,5 @@ report.html
 dag.dot
 Untitled.ipynb
 workflow/scripts/__pycache__/
+/workflow/scripts/__pycache__/
 workflow/scripts/__pycache__/utils.cpython-311.pyc
