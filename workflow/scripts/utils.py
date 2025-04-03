@@ -6,7 +6,7 @@ from xscen import CONFIG
 from zipfile import ZipFile
 
 xs.load_config("config/config.yml","config/paths.yml")
-1
+
 
 def dask_cluster(params):
     cluster = LocalCluster(
