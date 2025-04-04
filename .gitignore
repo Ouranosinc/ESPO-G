@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+.snakemake/
+wheel/
+reports/
+s_logs/
+dat.dot
+PET0.ESMF_LogFile
+config/paths.yml

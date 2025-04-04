@@ -1,0 +1,75 @@
+import os
+import copy
+import xarray as xr
+import xscen as xs
+from xscen import CONFIG
+from workflow.scripts.utils import dask_cluster, tmp_zarr_and_zip
+
+xs.load_config("config/config.yml","config/paths.yml")
+
+if __name__ == '__main__':
+
+    client=dask_cluster(snakemake.params)
+
+    # load data that we already have
+
+    ds_scen=xr.open_mfdataset([snakemake.input.scen_pr,
+                               snakemake.input.scen_tasmax,
+                               snakemake.input.scen_tasmin,
+                               snakemake.input.scen_dtr],
+                               engine='zarr',
+                               decode_timedelta=False)
+    ds_target = xr.open_zarr(snakemake.input.ref, decode_timedelta=False)
+    ref_prop=xr.open_zarr(snakemake.input.ref_prop,decode_timedelta=False)
+
+    # Create ds_sim for full region
+    args=copy.deepcopy(CONFIG['extraction']['simulation']['search_data_catalogs'])
+    args['other_search_criteria'] = {'id': snakemake.wildcards.sim_id +'_global'}
+    # search cat
+    cat_sim_id = xs.search_data_catalogs(**args,)
+    # extract
+    dc_id = cat_sim_id.popitem()[1]
+    # buffer is need to take a bit larger than actual domain, to avoid weird effect at the edge
+    # domain will be cut to the right shape during the regrid
+    region_dict=CONFIG['custom']['full_region']
+    ds_sim = xs.extract_dataset(catalog=dc_id,
+                                region=region_dict,
+                                **CONFIG['extraction']['simulation']['extract_dataset'],
+                                )['D']
+    ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
+    # need lat and lon -1 for the regrid
+    ds_sim = ds_sim.chunk(CONFIG['chunks']['pre-regrid'])
+    args=CONFIG['regrid']['regrid_dataset'].copy()
+    args['regridder_kwargs']['locstream_out']=False
+    ds_sim = xs.regrid_dataset(
+        ds=ds_sim,
+        ds_grid=ds_target,
+        weights_location= f"{os.environ['SLURM_TMPDIR']}/weights/",
+        **args
+    )
+    #mask nan
+    mask=ds_target['tasmax'].isel(time=130, drop=True).notnull().compute()
+    ds_sim=ds_sim.where(mask)
+
+    # chunk time dim
+    ds_sim = ds_sim.chunk({d: CONFIG['chunks']['working'][d] for d in ds_sim.dims})
+
+    sim_prop, sim_meas = xs.properties_and_measures(
+                                ds=ds_sim,
+                                dref_for_measure=ref_prop,
+                                **CONFIG['diagnostics']['properties_and_measures']
+                            )
+    
+    scen_prop, scen_meas = xs.properties_and_measures(
+                            ds=ds_scen,
+                            dref_for_measure=ref_prop,
+                            **CONFIG['diagnostics']['properties_and_measures']
+                        )
+    for out, name in zip([sim_prop, sim_meas, scen_prop, scen_meas],['sim_prop','sim_meas','scen_prop','scen_meas']):
+        #out = out.chunk(CONFIG['custom']['concat_chunks'])
+        tmp_zarr_and_zip(out, snakemake.output[name])
+
+    imp = xs.diagnostics.measures_improvement([sim_meas,scen_meas])
+    tmp_zarr_and_zip(imp, snakemake.output.imp)
+
+

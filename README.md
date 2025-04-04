@@ -13,6 +13,39 @@ The dataset is described in the following article:
 Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024).
 https://www.nature.com/articles/s41597-023-02855-z
 
+## Instructions
+Instructions: 
+1) On narval, build a virtual env:
+
+```bash
+$ module load StdEnv/2023 gcc openmpi python/3.12.4 arrow/18.1.0 openmpi netcdf proj esmf/8.7.0 geos mpi4py/4.0.3 ipykernel/2025a scipy-stack/2024a nodejs
+$ cd <PATH_ENV_DIR>
+$ virtualenv --no-download mbcn-staked
+$ source mbcn-staked/bin/activate
+$ pip install --no-index --upgrade pip
+$ pip install --no-index -r requirements.txt
+$ echo "module load StdEnv/2023 gcc openmpi python/3.12.4 arrow/18.1.0 openmpi netcdf proj esmf/8.7.0 geos mpi4py/4.0.3 ipykernel/2025a scipy-stack/2024a nodejs" > mbcn-staked/bin/modules
+```
+ or just activate it: `pyact mbcn-staked`
+
+2) Specify the `sim_id` wanted in the `Snakefile`. 
+
+3) Create your own `config/paths.yml` based on `paths-template.yml`.
+
+4) Modify `config/config.yml` to reflect method wanted (correct tasmin or dtr, reference dataset, time grouping, region) or rename an existing config file to `config/config.yml`.
+
+5) If needed, personalize the `simple/config.v8+.yaml` for the right slurm parameters.
+
+6) Run the workflow:
+
+```bash
+$ snakemake --profile simple
+```
+
+7) Run `inspection.ipynb` to make sure all looks good.
+
+Snakemake should build a dag that looks like this for 1 simulation: ![Texte alternatif](dag.png)
+
 
 ## Context
 The need to adapt to climate change is present in a growing number of fields, leading to an increase in the demand for 

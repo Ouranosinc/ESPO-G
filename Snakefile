@@ -1,0 +1,201 @@
+from pathlib import Path
+import xscen as xs
+import pandas as pd
+import os
+import numpy as np
+
+# Load configuration
+configfile: "config/config.yml"
+configfile: "config/paths.yml"
+
+# choose the simulations to process
+
+# dict_sim_id = xs.search_data_catalogs(**config['extraction']['simulation']['search_data_catalogs'],)
+# sim_ids= list(dict_sim_id.keys())
+# print(sim_ids)
+# print(len(sim_ids))
+# sim_ids=sim_ids[:3]
+#TODO: put back
+sim_ids=['CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_ssp370_r1i1p1f1_global']#, 'CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_ssp245_r1i1p1f1_global', 'CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp370_r1i1p1f1_global',]
+
+
+
+# define subregions on which to split the computation based on n (size of each subregion) and the full region
+if 'num_of_regions' not in config['subregions']:
+    cat=xs.DataCatalog(config['extraction']['reference']['search_data_catalogs']['data_catalogs'][0])
+    dref=cat.search(**config['extraction']['reference']['search_data_catalogs']['other_search_criteria']).to_dataset()
+    dref=xs.spatial.subset(dref, **config['custom']['full_region'])
+    dref = xs.utils.stack_drop_nans(dref,dref.pr.isel(time=0, drop=True).notnull().compute(),)
+    num_of_regions= int(np.ceil(dref.sizes['loc']/config['subregions']['n']))
+else:
+    num_of_regions=config['subregions']['num_of_regions']
+print(num_of_regions)
+regions=[f"sr-{i}" for i in range(num_of_regions)]
+
+# trick, use dom as wildcard so it can be defined in the config
+domain=[config['custom']['full_region']['name']]
+
+#paths
+wdir= Path(config['paths']['workdir'])
+finaldir= Path(config['paths']['finaldir'])
+
+
+rule all:
+    input: 
+        expand(finaldir/"health/{sim_id}_{dom}_health.zarr.zip",sim_id=sim_ids, dom=domain),
+        expand(finaldir/"diagnostics/{dom}/{sim_id}/{sim_id}_{dom}_imp.zarr.zip",sim_id=sim_ids, dom=domain)
+
+rule diag_ref:
+    output: 
+        ref=finaldir/ "reference/{dom}_default.zarr.zip",
+        prop=finaldir/"diagnostics/{dom}/prop_ref.zarr.zip"
+    params:
+        #n_workers=2,# QC
+        #mem="30GB", #QC
+        n_workers=6,
+        mem="90GB",
+        cpus_per_task=4,
+        #time="00:15:00", #QC
+        time="04:00:00", #NAM
+    script:
+        "workflow/scripts/diag_ref.py"
+
+rule makeref:
+    input: 
+        ref=finaldir/ "reference/{dom}_default.zarr.zip",
+    output: 
+        default=finaldir/ "reference/split_regions/{dom}_{subregion}_default.zarr.zip",
+        noleap=finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
+        day360=finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip",
+    params:
+        n_workers=2,
+        mem="10GB",
+        cpus_per_task=4,
+        time="00:10:00",
+    script: "workflow/scripts/makeref.py"
+
+rule extractregrid:
+    input: 
+        noleap=finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
+    output: temp(wdir/"{sim_id}_{dom}_{subregion}/{sim_id}_{subregion}_regridded.zarr.zip")
+    params:
+        mem="10GB",
+        cpus_per_task=1,
+        #time="00:15:00", #QC
+        time="00:45:00", #NAM
+    script:
+        "workflow/scripts/extract-regrid.py"
+
+rule train:
+    input:
+        sim= wdir/"{sim_id}_{dom}_{subregion}/{sim_id}_{subregion}_regridded.zarr.zip",
+        ref_noleap= finaldir/"reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
+        ref_360_day= finaldir/"reference/split_regions/{dom}_{subregion}_360_day.zarr.zip",
+    output: temp(wdir/"{sim_id}_{dom}_{subregion}/{sim_id}_{subregion}_training.zarr.zip"),
+    params:
+        n_workers=10,
+        mem="30GB",
+        cpus_per_task=12,
+        time="01:00:00",
+    script:
+        "workflow/scripts/train.py"
+
+
+rule adjust:
+    input:
+        sim= wdir/"{sim_id}_{dom}_{subregion}/{sim_id}_{subregion}_regridded.zarr.zip",
+        ref_noleap= finaldir/"reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
+        ref_360_day= finaldir/"reference/split_regions/{dom}_{subregion}_360_day.zarr.zip",
+        train= wdir/"{sim_id}_{dom}_{subregion}/{sim_id}_{subregion}_training.zarr.zip",
+    output: temp(wdir/"{sim_id}_{dom}_{subregion}/{sim_id}_{subregion}_adjusted.zarr.zip"),
+    params:
+        mem="80GB",
+        cpus_per_task=1,
+        time="12:00:00",
+    script:
+        "workflow/scripts/adjust.py"
+
+
+def final_path(id):
+    path='test'
+    path= xs.build_path(
+        data=pd.Series(
+            dict(zip(['mip_era','activity','institution','source', 'experiment','member'],id.split('_'))
+     )|dict(
+        domain=config['custom']['full_region']['name'],
+        format='zarr.zip',
+         variable='foo',
+         type='simulation',
+         processing_level='biasadjusted',
+         bias_adjust_project=config['biasadjust_mbcn']['attrs']['bias_adjust_project'],
+         bias_adjust_institution=config['biasadjust_mbcn']['attrs']['bias_adjust_institution'],
+         version=config['biasadjust_mbcn']['attrs']['version'],
+         frequency='day',
+         xrfreq='D',
+         date_start=config['custom']['sim_period'][0],
+         date_end=config['custom']['sim_period'][1])))
+    return str(os.path.dirname(os.path.dirname(path)))
+
+
+#sim_id HAS to be in output, so can't use only params
+rule concat_scen_clean:
+    input: expand(wdir/"{{sim_id}}_{{dom}}_{subregion}/{{sim_id}}_{subregion}_adjusted.zarr.zip",subregion=regions)
+    output: 
+        pr=finaldir/"staging/{path}/pr/pr_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip", 
+        tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip",
+        tasmin=finaldir/"staging/{path}/tasmin/tasmin_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip",
+        dtr=finaldir/"staging/{path}/dtr/dtr_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip", 
+        tas=finaldir/"staging/{path}/tas/tas_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip",
+    params:
+        path=lambda wildcards: final_path(wildcards.sim_id),
+        mem="45GB", 
+        cpus_per_task=1,
+        time="00:20:00",
+    script:
+        "workflow/scripts/concat_clean.py"
+
+
+rule health:
+    input:
+        pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/pr/pr_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/dtr/dtr_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        tas=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tas/tas_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+    output: 
+        finaldir/"health/{sim_id}_{dom}_health.zarr.zip"
+    params:
+        n_workers=2,
+        mem="20GB",
+        cpus_per_task=4,
+        time="00:10:00",
+    script:
+        "workflow/scripts/health.py"
+
+
+
+rule diag:
+    input:
+        ref=finaldir/ "reference/{dom}_default.zarr.zip",
+        ref_prop=finaldir/"diagnostics/{dom}/prop_ref.zarr.zip",
+        scen_pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/pr/pr_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        scen_tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        scen_tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        scen_dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/dtr/dtr_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+    output: 
+        sim_prop=finaldir/"diagnostics/{dom}/{sim_id}/{sim_id}_{dom}_sim-prop.zarr.zip",
+        sim_meas=finaldir/"diagnostics/{dom}/{sim_id}/{sim_id}_{dom}_sim-meas.zarr.zip",
+        scen_prop=finaldir/"diagnostics/{dom}/{sim_id}/{sim_id}_{dom}_scen-prop.zarr.zip",
+        scen_meas=finaldir/"diagnostics/{dom}/{sim_id}/{sim_id}_{dom}_scen-meas.zarr.zip",
+        imp=finaldir/"diagnostics/{dom}/{sim_id}/{sim_id}_{dom}_imp.zarr.zip",
+    params:
+        n_workers=2,
+        mem="50GB",
+        cpus_per_task=4,
+        time="01:00:00",
+    script:
+        "workflow/scripts/diag.py"
+
+
+    
+

@@ -1,0 +1,23 @@
+
+paths:
+  workdir: /scratch/<USERNAME>/info-crue-cmip6_workdir/  
+  finaldir: /project/<ACCOUNT>/<USERNAME>/IC6-EM-MBCn_v10/
+
+extraction:
+  reference:
+    search_data_catalogs:
+      data_catalogs:
+         - <CAT-PATH>/reconstruction.json
+  simulation:
+    search_data_catalogs:
+      data_catalogs:
+        -  <CAT-PATH>/simulation.json
+
+utils:
+    stack_drop_nans:
+        to_file: &coords
+          /project/<ACCOUNT>/<USERNAME>/IC6-EM-MBCn_v10/coords/coords_{domain}_{shape}.nc
+    unstack_fill_nan:
+      coords: *coords
+    maybe_unstack:
+      coords: *coords
