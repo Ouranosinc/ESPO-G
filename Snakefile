@@ -5,19 +5,16 @@ import os
 import numpy as np
 
 # Load configuration
-configfile: "config/config.yml"
+#configfile: "config/config.yml"
+configfile: "config/config_general.yml"
+configfile: "config/config_region.yml"
 configfile: "config/paths.yml"
 
 # choose the simulations to process
 
-# dict_sim_id = xs.search_data_catalogs(**config['extraction']['simulation']['search_data_catalogs'],)
-# sim_ids= list(dict_sim_id.keys())
-# print(sim_ids)
-# print(len(sim_ids))
-# sim_ids=sim_ids[:3]
-#TODO: put back
-sim_ids=['CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_ssp370_r1i1p1f1_global']#, 'CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_ssp245_r1i1p1f1_global', 'CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp370_r1i1p1f1_global',]
-
+dict_sim_id = xs.search_data_catalogs(**config['extraction']['simulation']['search_data_catalogs'],)
+sim_ids= list(dict_sim_id.keys())
+sim_ids=sim_ids[:1] + ['CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_ssp370_r1i1p1f1_global']
 
 
 # define subregions on which to split the computation based on n (size of each subregion) and the full region
@@ -29,7 +26,6 @@ if 'num_of_regions' not in config['subregions']:
     num_of_regions= int(np.ceil(dref.sizes['loc']/config['subregions']['n']))
 else:
     num_of_regions=config['subregions']['num_of_regions']
-print(num_of_regions)
 regions=[f"sr-{i}" for i in range(num_of_regions)]
 
 # trick, use dom as wildcard so it can be defined in the config
@@ -45,9 +41,28 @@ rule all:
         expand(finaldir/"health/{sim_id}_{dom}_health.zarr.zip",sim_id=sim_ids, dom=domain),
         expand(finaldir/"diagnostics/{dom}/{sim_id}/{sim_id}_{dom}_imp.zarr.zip",sim_id=sim_ids, dom=domain)
 
-rule diag_ref:
-    output: 
+
+
+rule makeref:
+    output:
         ref=finaldir/ "reference/{dom}_default.zarr.zip",
+        refstacked=finaldir/ "reference/{dom}_stacked_default.zarr.zip",
+    params:
+        #n_workers=2,# QC
+        #mem="30GB", #QC
+        n_workers=6,
+        mem="90GB",
+        cpus_per_task=4,
+        #time="00:15:00", #QC
+        time="00:45:00", #NAM 
+    script:
+        "workflow/scripts/makeref.py"
+
+
+rule diag_ref:
+    input:
+        ref=finaldir/ "reference/{dom}_default.zarr.zip",
+    output: 
         prop=finaldir/"diagnostics/{dom}/prop_ref.zarr.zip"
     params:
         #n_workers=2,# QC
@@ -56,13 +71,13 @@ rule diag_ref:
         mem="90GB",
         cpus_per_task=4,
         #time="00:15:00", #QC
-        time="04:00:00", #NAM
+        time="01:00:00", #NAM 
     script:
         "workflow/scripts/diag_ref.py"
 
-rule makeref:
+rule refsubregion:
     input: 
-        ref=finaldir/ "reference/{dom}_default.zarr.zip",
+        refstacked=finaldir/ "reference/{dom}_stacked_default.zarr.zip",
     output: 
         default=finaldir/ "reference/split_regions/{dom}_{subregion}_default.zarr.zip",
         noleap=finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
@@ -71,8 +86,8 @@ rule makeref:
         n_workers=2,
         mem="10GB",
         cpus_per_task=4,
-        time="00:10:00",
-    script: "workflow/scripts/makeref.py"
+        time="00:05:00",
+    script: "workflow/scripts/ref-subregion.py"
 
 rule extractregrid:
     input: 
@@ -81,8 +96,7 @@ rule extractregrid:
     params:
         mem="10GB",
         cpus_per_task=1,
-        #time="00:15:00", #QC
-        time="00:45:00", #NAM
+        time="00:15:00",
     script:
         "workflow/scripts/extract-regrid.py"
 
@@ -132,9 +146,10 @@ def final_path(id):
          version=config['biasadjust_mbcn']['attrs']['version'],
          frequency='day',
          xrfreq='D',
-         date_start=config['custom']['sim_period'][0],
-         date_end=config['custom']['sim_period'][1])))
+         date_start=config['biasadjust_mbcn']['adjust']['periods'][0], #TODO: with divide config 
+         date_end=config['biasadjust_mbcn']['adjust']['periods'][1])))#TODO: with divide config ['adjust']['periods']
     return str(os.path.dirname(os.path.dirname(path)))
+
 
 
 #sim_id HAS to be in output, so can't use only params
@@ -148,9 +163,11 @@ rule concat_scen_clean:
         tas=finaldir/"staging/{path}/tas/tas_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip",
     params:
         path=lambda wildcards: final_path(wildcards.sim_id),
-        mem="45GB", 
+        #mem="45GB", #QC
+        mem="200GB", #NAM
         cpus_per_task=1,
-        time="00:20:00",
+        #time="00:20:00", #QC
+        time="05:00:00", # NAM
     script:
         "workflow/scripts/concat_clean.py"
 
@@ -168,7 +185,8 @@ rule health:
         n_workers=2,
         mem="20GB",
         cpus_per_task=4,
-        time="00:10:00",
+        #time="00:10:00", # QC
+        time="01:00:00", # NAM
     script:
         "workflow/scripts/health.py"
 
@@ -190,9 +208,11 @@ rule diag:
         imp=finaldir/"diagnostics/{dom}/{sim_id}/{sim_id}_{dom}_imp.zarr.zip",
     params:
         n_workers=2,
-        mem="50GB",
+        #mem="50GB", #QC
+        mem="200GB", #NAM
         cpus_per_task=4,
-        time="01:00:00",
+        #time="01:00:00", #QC
+        time="10:00:00", # NAM
     script:
         "workflow/scripts/diag.py"
 

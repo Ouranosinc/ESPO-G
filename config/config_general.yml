@@ -4,41 +4,6 @@ project:
     version: 1.0.0
     description: Ajustement multivarié MBCn
     id: mbcn
-#TODO: divide config
-
-custom:
-    full_region:
-      name: NAM-R2
-      method: bbox
-      lon_bnds: [-179.95, -10  ]
-      lat_bnds: [ 10, 83.4 ]
-    stack_drop_nans: &stack
-        True
-    ref_period : &ref_period # new-ref
-      - '1989'
-      - '2018'
-    sim_period: &sim_period
-      - '1951'
-      - '2100' #TODO: passé 2100
-
-chunks:
-  pre-regrid: &pre-regrid
-    time: 365
-    lat: -1 # always lat,lon
-    lon: -1
-  working:
-      rlat: 15
-      rlon: 15
-      loc: 10
-      time: -1
-  final: 
-      rlat: 30
-      rlon: 30
-      time: 4year
-
-subregions:
-  n: 7500 # number of loc in one region
-  num_of_regions: 75 #TODO: check # can be calculated if we don't know it
 
 extraction:
     reference:
@@ -51,24 +16,24 @@ extraction:
                 tas: D
             allow_resampling: False
             allow_conversion: True
-            periods : *ref_period
-            other_search_criteria:
-                source: &ref_source
-                  RDRS
         extract_dataset:
-          xr_combine_kwargs: {} # bc of xscen bug
+          xr_combine_kwargs: {} # FIXME:  remove when bug is fixed in xscen
         clean_up:
-          to_level: extracted
           variables_and_units:
             tasmax: K
             tasmin: K
+            pr: kg m-2 s-1
+            tas: K
+            dtr: K
     simulation:
         search_data_catalogs:
           variables_and_freqs: *var_and_freq
           match_hist_and_fut: True
           allow_conversion: True
           allow_resampling: False
-          periods: *sim_period
+          periods: &sim_period
+            - '1951'
+            - '2100' #TODO: passé 2100 ?
           restrict_members: 
             ordered: 1
           other_search_criteria:
@@ -92,10 +57,6 @@ extraction:
               - MPI-ESM1-2-LR 
               - MRI-ESM2-0 
               - NorESM2-LM
-              #TODO:WARNING:root:CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp370_r1i1p1f1_global: Insufficient coverage (guessed at 97.3%).
-              # WARNING:root:CMIP6_ScenarioMIP_CAS_FGOALS-g3_ssp245_r2i1p1f1_global: Insufficient coverage (guessed at 57.3%).
-              # WARNING:root:CMIP6_ScenarioMIP_CAS_FGOALS-g3_ssp370_r2i1p1f1_global: Insufficient coverage (guessed at 57.3%).
-              # WARNING:root:CMIP6_ScenarioMIP_MIROC_MIROC-ES2L_ssp245_r1i1p1f2_global: Insufficient coverage (guessed at 98.7%).
               #TODO: CanESM5 attention faire le même membre que MRCC5
             mip_era: CMIP6
         extract_dataset:
@@ -116,7 +77,7 @@ regrid:
     regridder_kwargs:
       method: bilinear
       extrap_method: inverse_dist
-      locstream_out: *stack
+      locstream_out: True
       reuse_weights: False
     intermediate_grids:
       reg1:
@@ -146,8 +107,6 @@ regrid:
           locstream_out: False
           reuse_weights: False
 
-
-
 biasadjust_mbcn:
   maximal_calendar: noleap
   train:
@@ -158,7 +117,6 @@ biasadjust_mbcn:
       - tasmin
       - tas
     method: MBCn
-    period: *ref_period
     group:
       group: 5D
       window: 7
@@ -186,6 +144,8 @@ biasadjust_mbcn:
           kind: "+"
         tasmax:
           kind: "+"
+        tas: 
+          kind: "+"
       adj_kws:
         interp: nearest
         extrapolation: constant
@@ -197,11 +157,12 @@ biasadjust_mbcn:
 
 clean_up:
   xscen_clean_up:
-    to_level: cleaned_up
     variables_and_units:
       tasmax: degC
       tasmin: degC
       pr: mm d-1
+      tas: degC
+      dtr: degC
     convert_calendar_kwargs:
       calendar: standard
       align_on: year
@@ -212,12 +173,8 @@ clean_up:
       dtr: interpolate
       tas: interpolate
     maybe_unstack_dict:
-      stack_drop_nans: *stack
+      stack_drop_nans: True
       dim: loc
-      # rechunk:
-      #   lat: 15
-      #   lon: 15
-      #   time: -1
     round_var:
       pr: 10
     change_attr_prefix: ''
@@ -248,9 +205,6 @@ clean_up:
       dtr: *attrs_to_keep
     add_attrs:
       global:
-        Notes: |
-          Regridded on the grid of EMDNA, then bias-adjusted with MBCn.
-          The reference was EMDNA over the 1989-2018 period.
         version: "v10"
         code: https://github.com/Ouranosinc/info-crue-cmip6/tree/mbcn-stacked
         contact: lavoie.juliette@ouranos.ca
@@ -273,35 +227,24 @@ clean_up:
           standard_name: air_temperature
           long_name: Mean diurnal temperature range
           cell_methods: "time range within days"
+      tas:
+          standard_name: air_temperature
+          long_name: Mean daily temperature
+          cell_methods: "time: mean within days"
 #TODO:lossy compression ?
 
-rechunk:
-    worker_mem: 2GB
 
 diagnostics:
   properties_and_measures:
-    #rechunk: {'lat': 30, 'lon': 30, 'time': -1}
-    period: *ref_period
     unstack: False
     change_units_arg:
       tasmax: degC
       tasmin: degC
       pr: mm d-1
       dtr: K
+      tas: degC
     properties: config/properties_info-crue-6.yml
   health_checks:
-    structure:
-      coords: #TODO: put in region specific config
-        - lat
-        - lon
-        - rlat
-        - rlon
-        - rotated_pole
-        - time
-      dims:
-        - rlat
-        - rlon
-        - time
     start_date: "1951-01-01"
     end_date: "2100-12-30"
     variables_and_units:
@@ -309,12 +252,17 @@ diagnostics:
       tasmin: "°C"
       pr: "mm d-1"
       dtr: K 
+      tas: degC
     cfchecks:
       tasmax:
         cfcheck_from_name: {}
       tasmin:
         cfcheck_from_name: {}
       pr:
+        cfcheck_from_name: {}
+      # dtr:
+      #   cfcheck_from_name: {} #TODO: add to xclim
+      tas:
         cfcheck_from_name: {}
     freq: D
     flags:
@@ -329,6 +277,7 @@ diagnostics:
         negative_accumulation_values:
         very_large_precipitation_events:
           thresh: '300 mm/d'
+      #TODO: add right flag for your variables
     return_flags: True
     raise_on:
       - structure
@@ -338,6 +287,11 @@ diagnostics:
       - cfchecks
       - freq
 
+chunks:
+  pre-regrid: &pre-regrid
+    time: 365
+    lat: -1 # always lat,lon
+    lon: -1
 
 io:
   save_to_zarr:

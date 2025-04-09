@@ -4,8 +4,10 @@ import xscen as xs
 from xscen import CONFIG
 from xscen.xclim_modules import conversions
 from workflow.scripts.utils import create_tmp_path
+if 1==0: #trick vscode
+    import snakemake
 
-xs.load_config("config/config.yml","config/paths.yml")
+xs.load_config("config/config_general.yml","config/config_region.yml","config/paths.yml")
 
 if __name__ == '__main__':
 
@@ -34,15 +36,11 @@ if __name__ == '__main__':
     for var in ds.data_vars:
         ds_cur=ds[[var]]
         clean_path=f"{os.environ['SLURM_TMPDIR']}/{snakemake.wildcards.sim_id}_{snakemake.wildcards.dom}_{var}_cleaned.zarr"
-        xs.save_to_zarr(ds_cur, clean_path)
-        
-        rechunk_path= create_tmp_path(snakemake.output[var])
-        xs.io.rechunk(
-            path_in=clean_path,
-            path_out=rechunk_path,
-            chunks_over_dim=CONFIG['chunks']['final'],
-            temp_store=f"{os.environ['SLURM_TMPDIR']}/tmp_rechunk/{snakemake.wildcards.sim_id}/",
-            **CONFIG['rechunk'],
-            overwrite=True)
-        
-        xs.io.zip_directory( rechunk_path,snakemake.output[var])
+        chunks=xs.utils.translate_time_chunk(
+            CONFIG['chunks']['final'],
+            calendar=ds_cur.time.dt.calendar,
+            timesize=ds_cur.time.size,)
+        ds_cur=ds_cur.chunk(chunks)
+
+        xs.save_to_zarr(ds_cur,snakemake.output[var])
+

@@ -6,8 +6,10 @@ import xscen as xs
 from xscen.utils import minimum_calendar
 from xscen import CONFIG
 from workflow.scripts.utils import tmp_zarr_and_zip
+if 1==0: #trick vscode
+    import snakemake
 
-xs.load_config("config/config.yml","config/paths.yml")
+xs.load_config("config/config_general.yml","config/config_region.yml","config/paths.yml")
 
 if __name__ == '__main__':
 

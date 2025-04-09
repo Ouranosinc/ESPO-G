@@ -4,8 +4,10 @@ import xarray as xr
 import xscen as xs
 from xscen import CONFIG
 from workflow.scripts.utils import dask_cluster, tmp_zarr_and_zip
+if 1==0: #trick vscode
+    import snakemake
 
-xs.load_config("config/config.yml","config/paths.yml")
+xs.load_config("config/config_general.yml","config/config_region.yml","config/paths.yml")
 
 if __name__ == '__main__':
 
@@ -24,7 +26,7 @@ if __name__ == '__main__':
 
     # Create ds_sim for full region
     args=copy.deepcopy(CONFIG['extraction']['simulation']['search_data_catalogs'])
-    args['other_search_criteria'] = {'id': snakemake.wildcards.sim_id +'_global'}
+    args['other_search_criteria'] = {'id': snakemake.wildcards.sim_id}
     # search cat
     cat_sim_id = xs.search_data_catalogs(**args,)
     # extract
@@ -51,8 +53,9 @@ if __name__ == '__main__':
     mask=ds_target['tasmax'].isel(time=130, drop=True).notnull().compute()
     ds_sim=ds_sim.where(mask)
 
-    # chunk time dim
+    # chunk
     ds_sim = ds_sim.chunk({d: CONFIG['chunks']['working'][d] for d in ds_sim.dims})
+    ds_scen = ds_scen.chunk({d: CONFIG['chunks']['working'][d] for d in ds_scen.dims})
 
     sim_prop, sim_meas = xs.properties_and_measures(
                                 ds=ds_sim,

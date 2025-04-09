@@ -3,8 +3,10 @@ from dask.distributed import Client, LocalCluster
 import os
 import xscen as xs
 from xscen import CONFIG
+if 1==0: #trick vscode
+    import snakemake
 
-xs.load_config("config/config.yml","config/paths.yml")
+xs.load_config("config/config_general.yml","config/config_region.yml","config/paths.yml")
 
 def dask_cluster(params):
     """ Set up a dask cluster from snakemake params"""
