@@ -12,9 +12,10 @@ configfile: "config/paths.yml"
 
 # choose the simulations to process
 
-dict_sim_id = xs.search_data_catalogs(**config['extraction']['simulation']['search_data_catalogs'],)
-sim_ids= list(dict_sim_id.keys())
-sim_ids=sim_ids[:1] + ['CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_ssp370_r1i1p1f1_global']
+#dict_sim_id = xs.search_data_catalogs(**config['extraction']['simulation']['search_data_catalogs'],)
+#sim_ids= list(dict_sim_id.keys())
+#sim_ids=sim_ids[:1] + ['CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_ssp370_r1i1p1f1_global']
+sim_ids=['CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_ssp370_r1i1p1f1_global']
 
 
 # define subregions on which to split the computation based on n (size of each subregion) and the full region
@@ -31,6 +32,9 @@ regions=[f"sr-{i}" for i in range(num_of_regions)]
 # trick, use dom as wildcard so it can be defined in the config
 domain=[config['custom']['full_region']['name']]
 
+# diagnostics regions
+diagregions=[d for d in config['diagregion'].keys()]
+
 #paths
 wdir= Path(config['paths']['workdir'])
 finaldir= Path(config['paths']['finaldir'])
@@ -39,7 +43,8 @@ finaldir= Path(config['paths']['finaldir'])
 rule all:
     input: 
         expand(finaldir/"health/{sim_id}_{dom}_health.zarr.zip",sim_id=sim_ids, dom=domain),
-        expand(finaldir/"diagnostics/{dom}/{sim_id}/{sim_id}_{dom}_imp.zarr.zip",sim_id=sim_ids, dom=domain)
+        expand(finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",
+        sim_id=sim_ids, dregion=diagregions, dom=domain)
 
 
 
@@ -59,21 +64,6 @@ rule makeref:
         "workflow/scripts/makeref.py"
 
 
-rule diag_ref:
-    input:
-        ref=finaldir/ "reference/{dom}_default.zarr.zip",
-    output: 
-        prop=finaldir/"diagnostics/{dom}/prop_ref.zarr.zip"
-    params:
-        #n_workers=2,# QC
-        #mem="30GB", #QC
-        n_workers=6,
-        mem="90GB",
-        cpus_per_task=4,
-        #time="00:15:00", #QC
-        time="01:00:00", #NAM 
-    script:
-        "workflow/scripts/diag_ref.py"
 
 rule refsubregion:
     input: 
@@ -146,8 +136,8 @@ def final_path(id):
          version=config['biasadjust_mbcn']['attrs']['version'],
          frequency='day',
          xrfreq='D',
-         date_start=config['biasadjust_mbcn']['adjust']['periods'][0], #TODO: with divide config 
-         date_end=config['biasadjust_mbcn']['adjust']['periods'][1])))#TODO: with divide config ['adjust']['periods']
+         date_start=config['biasadjust_mbcn']['adjust']['periods'][0], 
+         date_end=config['biasadjust_mbcn']['adjust']['periods'][1])))
     return str(os.path.dirname(os.path.dirname(path)))
 
 
@@ -182,36 +172,54 @@ rule health:
     output: 
         finaldir/"health/{sim_id}_{dom}_health.zarr.zip"
     params:
-        n_workers=2,
-        mem="20GB",
+        # n_workers=2,# QC
+        # mem="20GB",# QC
+        n_workers=6, #NAM
+        mem="200GB", #NAM
         cpus_per_task=4,
         #time="00:10:00", # QC
-        time="01:00:00", # NAM
+        time="05:00:00", # NAM
     script:
         "workflow/scripts/health.py"
 
+rule diag_ref:
+    input:
+        ref=finaldir/ "reference/{dom}_default.zarr.zip",
+    output: 
+        prop=finaldir/"diagnostics/{dom}/{dregion}/prop_ref.zarr.zip"
+    params:
+        #n_workers=2,# QC
+        #mem="30GB", #QC
+        n_workers=6,
+        mem="90GB",
+        cpus_per_task=4,
+        #time="00:15:00", #QC
+        time="01:00:00", #NAM 
+    script:
+        "workflow/scripts/diag_ref.py"
 
 
 rule diag:
     input:
         ref=finaldir/ "reference/{dom}_default.zarr.zip",
-        ref_prop=finaldir/"diagnostics/{dom}/prop_ref.zarr.zip",
+        ref_prop=finaldir/"diagnostics/{dom}/{dregion}/prop_ref.zarr.zip",
         scen_pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/pr/pr_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
         scen_tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
         scen_tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
         scen_dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/dtr/dtr_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
     output: 
-        sim_prop=finaldir/"diagnostics/{dom}/{sim_id}/{sim_id}_{dom}_sim-prop.zarr.zip",
-        sim_meas=finaldir/"diagnostics/{dom}/{sim_id}/{sim_id}_{dom}_sim-meas.zarr.zip",
-        scen_prop=finaldir/"diagnostics/{dom}/{sim_id}/{sim_id}_{dom}_scen-prop.zarr.zip",
-        scen_meas=finaldir/"diagnostics/{dom}/{sim_id}/{sim_id}_{dom}_scen-meas.zarr.zip",
-        imp=finaldir/"diagnostics/{dom}/{sim_id}/{sim_id}_{dom}_imp.zarr.zip",
+        sim_prop=finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_sim-prop.zarr.zip",
+        sim_meas=finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_sim-meas.zarr.zip",
+        scen_prop=finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_scen-prop.zarr.zip",
+        scen_meas=finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_scen-meas.zarr.zip",
+        imp=finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",
     params:
-        n_workers=2,
+        #n_workers=2,#QC
         #mem="50GB", #QC
+        #time="01:00:00", #QC
+        n_workers=2, #NAM
         mem="200GB", #NAM
         cpus_per_task=4,
-        #time="01:00:00", #QC
         time="10:00:00", # NAM
     script:
         "workflow/scripts/diag.py"

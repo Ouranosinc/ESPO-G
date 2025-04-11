@@ -1,9 +1,4 @@
 #config_QC-EM
-project:
-    name: MBCn
-    version: 1.0.0
-    description: Ajustement multivarié MBCn
-    id: mbcn
 
 custom:
     full_region:
@@ -11,277 +6,37 @@ custom:
       method: bbox
       lon_bnds: [ -83, -55 ]
       lat_bnds: [ 42, 63 ]
-    stack_drop_nans: &stack
-        True
-    ref_period : &ref_period # new-ref
-      - '1989'
-      - '2018'
-    sim_period: &sim_period
-      - '1951'
-      - '2100'
 
 subregions:
   n: 7500 # number of loc in one region
-  code: EM # code name of regions
   num_of_regions: 6 # can be calculated if we don't know it
 
 extraction:
     reference:
         search_data_catalogs:
-            variables_and_freqs: &var_and_freq
-                tasmax: D
-                tasmin: D
-                pr: D
-                dtr: D
-                tas: D # for test 5 var
-            allow_resampling: False
-            allow_conversion: True
-            periods : *ref_period
             other_search_criteria:
                 source: &ref_source
                   EMDNA
                 member: OI
-        extract_dataset:
-          xr_combine_kwargs: {} # bc of xscen bug
-        clean_up:
-          to_level: extracted
-          variables_and_units:
-            tasmax: K
-            tasmin: K
-    simulation:
-        search_data_catalogs:
-          variables_and_freqs: *var_and_freq
-          match_hist_and_fut: True
-          allow_conversion: True
-          allow_resampling: False
-          periods: *sim_period
-          # exclusions:
-          #   id:
-          #     - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp126_r2i1p1f1_global
-          #     - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp245_r2i1p1f1_global
-          #     - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp370_r2i1p1f1_global
-          #     - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp585_r2i1p1f1_global
-          #     - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp126_r3i1p1f1_global
-          #     - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp245_r3i1p1f1_global
-          #     - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp370_r3i1p1f1_global
-          #     - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp585_r3i1p1f1_global
-          #     - CMIP6_ScenarioMIP_CAS_FGOALS-g3_ssp126_r2i1p1f1_global
-          #     - CMIP6_ScenarioMIP_CAS_FGOALS-g3_ssp245_r2i1p1f1_global
-          #     - CMIP6_ScenarioMIP_CAS_FGOALS-g3_ssp370_r2i1p1f1_global
-          #     - CMIP6_ScenarioMIP_CAS_FGOALS-g3_ssp585_r2i1p1f1_global
-          other_search_criteria:
-            processing_level: raw
-            # experiment:
-            #   - ssp585
-            #   - ssp245
-            #   - ssp370
-            #   - ssp126
-            # source:
-            #   # chosen
-            #   - ACCESS-ESM1-5
-            #   - CanESM5
-            #   - EC-Earth3
-            #   - FGOALS-g3
-            #   - IPSL-CM6A-LR
-            #   - KACE-1-0-G
-            #   - MIROC6
-            #   - MRI-ESM2-0
-            mip_era: CMIP6
-        extract_dataset:
-            periods : *sim_period
-            xr_combine_kwargs:
-              combine_attrs: override
-            xr_open_kwargs:
-              engine: h5netcdf
-              drop_variables:
-                - height
-                - bnds
-                - time_bnds
-                - lat_bnds
-                - lon_bnds
-              chunks:
-                lat: 30
-                lon: 30
-                time: 365
-
-regrid:
-  regrid_dataset:
-    regridder_kwargs:
-      method: bilinear
-      extrap_method: inverse_dist
-      locstream_out: *stack
-      reuse_weights: False
-    intermediate_grids:
-      reg1:
-        cf_grid_2d:
-          lon0_b: 274.75
-          lon1_b: 305.2
-          d_lon: 1
-          lat0_b: 39.75
-          lat1_b: 64
-          d_lat: 1
-        regridder_kwargs:
-          method: bilinear
-          extrap_method: inverse_dist
-          locstream_out: False
-          reuse_weights: False
-      reg2:
-        cf_grid_2d:
-          lon0_b: 274.74
-          lon1_b: 305.2
-          d_lon: 0.5
-          lat0_b: 39.74
-          lat1_b: 64
-          d_lat: 0.5
-        regridder_kwargs:
-          method: bilinear
-          extrap_method: inverse_dist
-          locstream_out: False
-          reuse_weights: False
-
-
+            periods: &ref_period
+              - '1989'
+              - '2018'
 
 biasadjust_mbcn:
-  maximal_calendar: noleap
   train:
-    var:
-      - tasmax
-      - dtr
-      - pr
-      - tasmin
-      - tas # test 5 var
-    method: MBCn
     period: *ref_period
-    group:
-      group: 5D
-      window: 7
-    xsdba_train_args:
-      base_kws:
-        nquantiles: 50
-      n_iter: 20
-      adj_kws:
-        interp: nearest
-        extrapolation: constant
-        n_escore: -1
-  adjust:
-    periods: *sim_period
-    xsdba_adjust_args:
-      period_dim: period # stacking
-      base_kws_vars:
-        pr:
-          kind: "*"
-          jitter_under_thresh_value: "1.1574e-07 kg m^-2 s^-1" #"0.01 mm d-1" #FIXME: when xscen/xsda can handle units correctly
-          adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" #"1 mm d-1"
-        dtr:
-          kind: "*"
-          jitter_under_thresh_value: "1e-4 K"
-        tasmin:
-          kind: "+"
-        tasmax:
-          kind: "+"
-      adj_kws:
-        interp: nearest
-        extrapolation: constant
-  attrs:
-    processing_level: biasadjusted
-    bias_adjust_institution: Ouranos
-    bias_adjust_project: MBCn-EM
-    version: v10
 
 clean_up:
   xscen_clean_up:
-    to_level: cleaned_up
-    variables_and_units:
-      tasmax: degC
-      tasmin: degC
-      pr: mm d-1
-    convert_calendar_kwargs:
-      calendar: standard
-      align_on: year
-    missing_by_var:
-      tasmax: interpolate
-      tasmin: interpolate
-      pr: 0
-      dtr: interpolate
-      tas: interpolate
-    maybe_unstack_dict:
-      stack_drop_nans: *stack
-      dim: loc
-      rechunk:
-        lat: 15
-        lon: 15
-        time: -1
-    round_var:
-      pr: 10
-    change_attr_prefix: ''
-    remove_all_attrs_except:
-      global:
-        - history
-        - "cat:id"
-        - "cat:source"
-        - "cat:member"
-        - "cat:experiment"
-        - "cat:institution"
-        - "cat:activity"
-        - "cat:bias_adjust_project"
-        - "cat:bias_adjust_institution"
-        - "cat:domain"
-        - "cat:mip_era"
-        - "cat:type"
-      tasmax: &attrs_to_keep
-        - bias_adjustment
-        - cell_methods
-        - coordinates
-        - history
-        - long_name
-        - standard_name
-        - units
-      tasmin: *attrs_to_keep
-      pr: *attrs_to_keep
-      dtr: *attrs_to_keep
     add_attrs:
       global:
         Notes: |
           Regridded on the grid of EMDNA, then bias-adjusted with MBCn.
           The reference was EMDNA over the 1989-2018 period.
-        version: "v10"
-        code: https://github.com/Ouranosinc/info-crue-cmip6/tree/mbcn-stacked
-        contact: lavoie.juliette@ouranos.ca
-        organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca
-        avertissement : Ouranos ne donne aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande et d'adéquation à un usage particulier. Toutes les responsabilités découlant de la fourniture des informations (y compris toute responsabilité découlant d'une négligence) sont exclues dans toute la mesure permise par la loi.
-        license:  Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/)
-      tasmax:
-          standard_name: air_temperature
-          long_name: Maximal daily temperature
-          cell_methods: "time: maximum within days"
-      tasmin:
-          standard_name: air_temperature
-          long_name: Minimal daily temperature
-          cell_methods: "time: minimum within days"
-      pr:
-          standard_name: precipitation_flux
-          long_name: Mean daily precipitation flux
-          cell_methods: "time: mean within days"
-      dtr:
-          standard_name: air_temperature
-          long_name: Mean diurnal temperature range
-          cell_methods: "time range within days"
-
-rechunk:
-    worker_mem: 2GB
-
 
 diagnostics:
   properties_and_measures:
-    rechunk: {'lat': 30, 'lon': 30, 'time': -1}
     period: *ref_period
-    unstack: False
-    change_units_arg:
-      tasmax: degC
-      tasmin: degC
-      pr: mm d-1
-      dtr: K
-    properties: config/properties_info-crue-6.yml
   health_checks:
     structure:
       coords:
@@ -292,98 +47,8 @@ diagnostics:
         - lat
         - lon
         - time
-    start_date: "1951-01-01"
-    end_date: "2100-12-30"
-    variables_and_units:
-      tasmax: "°C"
-      tasmin: "°C"
-      pr: "mm d-1"
-      dtr: K 
-    cfchecks:
-      tasmax:
-        cfcheck_from_name: {}
-      tasmin:
-        cfcheck_from_name: {}
-      pr:
-        cfcheck_from_name: {}
-    freq: D
-    flags:
-      tasmax:
-        temperature_extremely_high:
-          thresh: '60 degC'
-        tasmax_below_tasmin:
-      tasmin:
-        temperature_extremely_low:
-          thresh: '-70 degC'
-      pr:
-        negative_accumulation_values:
-        very_large_precipitation_events:
-          thresh: '300 mm/d'
-    return_flags: True
-    raise_on:
-      - structure
-      - start_date
-      - end_date
-      - variables_and_units
-      - cfchecks
-      - freq
-
-
-io:
-  save_to_zarr:
-    mode: o
-
-dask:
-    client:
-        dashboard_address: 6785
-    array.slicing.split_large_chunks: False
-
-logging:
-  formatters:
-    default:
-      format: '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
-      datefmt: '%Y-%m-%d %H:%M:%S'
-  handlers:
-    console:
-      class : logging.StreamHandler
-      formatter: default
-      level : DEBUG
-  loggers:
-    xscen:
-      propagate: False
-      level: INFO
-      handlers: [console] 
-    workflow:
-      propagate: False
-      level: INFO
-      handlers: [console]
-    distributed.worker:
-      propagate: False
-      level: INFO
-      handlers: [console]
-    distributed.scheduler:
-      propagate: False
-      level: INFO
-      handlers: [console]
-    distributed.nanny:
-      propagate: False
-      level: DEBUG
-      handlers: [console]
-    distributed.client:
-      propagate: INFO
-      level: INFO
-      handlers: [console]
-
-tdd:
-  xarray_open_kwargs:
-    decode_timedelta: False
-
 
 chunks:
-  pre-regrid:
-    time: 365
-    lat: -1
-    lon: -1
   working:
       lat: 15
       lon: 15

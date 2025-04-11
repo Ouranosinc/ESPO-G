@@ -134,3 +134,4 @@ s_logs/
 dat.dot
 PET0.ESMF_LogFile
 config/paths.yml
+dag.dot

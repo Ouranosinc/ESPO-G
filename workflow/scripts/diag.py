@@ -14,6 +14,7 @@ if __name__ == '__main__':
     client=dask_cluster(snakemake.params)
 
     # load data that we already have
+    ref_prop=xr.open_zarr(snakemake.input.ref_prop,decode_timedelta=False)
 
     ds_scen=xr.open_mfdataset([snakemake.input.scen_pr,
                                snakemake.input.scen_tasmax,
@@ -21,18 +22,15 @@ if __name__ == '__main__':
                                snakemake.input.scen_dtr],
                                engine='zarr',
                                decode_timedelta=False)
-    ds_target = xr.open_zarr(snakemake.input.ref, decode_timedelta=False)
-    ref_prop=xr.open_zarr(snakemake.input.ref_prop,decode_timedelta=False)
+    ds_scen = xs.spatial.subset(ds_scen, **CONFIG['diagregion'][snakemake.wildcards.dregion])
+
+
 
     # Create ds_sim for full region
     args=copy.deepcopy(CONFIG['extraction']['simulation']['search_data_catalogs'])
     args['other_search_criteria'] = {'id': snakemake.wildcards.sim_id}
-    # search cat
     cat_sim_id = xs.search_data_catalogs(**args,)
-    # extract
     dc_id = cat_sim_id.popitem()[1]
-    # buffer is need to take a bit larger than actual domain, to avoid weird effect at the edge
-    # domain will be cut to the right shape during the regrid
     region_dict=CONFIG['custom']['full_region']
     ds_sim = xs.extract_dataset(catalog=dc_id,
                                 region=region_dict,
@@ -41,6 +39,13 @@ if __name__ == '__main__':
     ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
     # need lat and lon -1 for the regrid
     ds_sim = ds_sim.chunk(CONFIG['chunks']['pre-regrid'])
+
+
+    # get target ref grid
+    ds_target = xr.open_zarr(snakemake.input.ref, decode_timedelta=False)
+    ds_target = xs.spatial.subset(ds_target, **CONFIG['diagregion'][snakemake.wildcards.dregion])
+
+    # regrid
     args=CONFIG['regrid']['regrid_dataset'].copy()
     args['regridder_kwargs']['locstream_out']=False
     ds_sim = xs.regrid_dataset(
@@ -49,7 +54,7 @@ if __name__ == '__main__':
         weights_location= f"{os.environ['SLURM_TMPDIR']}/weights/",
         **args
     )
-    #mask nan
+    #mask nan #TODO: why ?
     mask=ds_target['tasmax'].isel(time=130, drop=True).notnull().compute()
     ds_sim=ds_sim.where(mask)
 
@@ -70,6 +75,7 @@ if __name__ == '__main__':
                         )
     for out, name in zip([sim_prop, sim_meas, scen_prop, scen_meas],['sim_prop','sim_meas','scen_prop','scen_meas']):
         #out = out.chunk(CONFIG['custom']['concat_chunks'])
+        out = out.chunk(CONFIG['chunks']['diag'])
         tmp_zarr_and_zip(out, snakemake.output[name])
 
     imp = xs.diagnostics.measures_improvement([sim_meas,scen_meas])

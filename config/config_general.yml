@@ -157,21 +157,6 @@ biasadjust_mbcn:
 
 clean_up:
   xscen_clean_up:
-    variables_and_units:
-      tasmax: degC
-      tasmin: degC
-      pr: mm d-1
-      tas: degC
-      dtr: degC
-    convert_calendar_kwargs:
-      calendar: standard
-      align_on: year
-    missing_by_var:
-      tasmax: interpolate
-      tasmin: interpolate
-      pr: 0
-      dtr: interpolate
-      tas: interpolate
     maybe_unstack_dict:
       stack_drop_nans: True
       dim: loc
@@ -233,6 +218,27 @@ clean_up:
           cell_methods: "time: mean within days"
 #TODO:lossy compression ?
 
+diagregion:   
+  Magtogoek:
+    name: Magtogoek
+    method: bbox
+    lat_bnds:  [ 41.4, 49.4] 
+    lon_bnds: [ -92.2, -59.8 ]
+  Cree:
+    name: Cree
+    method: bbox
+    lat_bnds: [ 46.9, 53.8 ]
+    lon_bnds: [ -115, -97.1 ]
+  Ute:
+    name: Ute
+    method: bbox
+    lat_bnds:  [ 35.5, 43]
+    lon_bnds: [ -109.6, -95.5 ]
+  Tlicho:
+    name: Tlicho
+    method: bbox
+    lat_bnds:  [ 61.3, 66.75]
+    lon_bnds: [ -130, -103.8 ]
 
 diagnostics:
   properties_and_measures:
@@ -248,11 +254,11 @@ diagnostics:
     start_date: "1951-01-01"
     end_date: "2100-12-30"
     variables_and_units:
-      tasmax: "°C"
-      tasmin: "°C"
-      pr: "mm d-1"
-      dtr: K 
-      tas: degC
+      tasmax: K
+      tasmin: K
+      pr: kg m-2 s-1
+      dtr: K
+      tas: K
     cfchecks:
       tasmax:
         cfcheck_from_name: {}
