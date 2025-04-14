@@ -1,10 +1,10 @@
 #config_NAM-EM
-custom:
-    full_region:
-      name: NAM-EM
-      method: bbox
-      lon_bnds: [-179.95, -10  ]
-      lat_bnds: [ 10, 83.4 ]
+
+full_region:
+  name: NAM-EM
+  method: bbox
+  lon_bnds: [-179.95, -10  ]
+  lat_bnds: [ 10, 83.4 ]
 
 subregions:
   n: 7500 # number of loc in one region

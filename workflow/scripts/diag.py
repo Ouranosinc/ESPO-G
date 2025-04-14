@@ -31,7 +31,7 @@ if __name__ == '__main__':
     args['other_search_criteria'] = {'id': snakemake.wildcards.sim_id}
     cat_sim_id = xs.search_data_catalogs(**args,)
     dc_id = cat_sim_id.popitem()[1]
-    region_dict=CONFIG['custom']['full_region']
+    region_dict=CONFIG['full_region']
     ds_sim = xs.extract_dataset(catalog=dc_id,
                                 region=region_dict,
                                 **CONFIG['extraction']['simulation']['extract_dataset'],
@@ -74,7 +74,6 @@ if __name__ == '__main__':
                             **CONFIG['diagnostics']['properties_and_measures']
                         )
     for out, name in zip([sim_prop, sim_meas, scen_prop, scen_meas],['sim_prop','sim_meas','scen_prop','scen_meas']):
-        #out = out.chunk(CONFIG['custom']['concat_chunks'])
         out = out.chunk(CONFIG['chunks']['diag'])
         tmp_zarr_and_zip(out, snakemake.output[name])
 

@@ -11,23 +11,7 @@ xs.load_config("config/config_general.yml","config/config_region.yml","config/pa
 
 if __name__ == '__main__':
 
-    #client=dask_cluster(snakemake.params)
-
-    # avoid opening the same file at the same time 
-    #pathref=f"{os.environ['SLURM_TMPDIR']}/dref-{snakemake.wildcards.subregion}.zarr"
-    #xs.io.unzip_directory(snakemake.input.ref, pathref)
-    #ds_ref= xr.open_zarr(pathref,decode_timedelta=False)
     ds_ref= xr.open_zarr(snakemake.input.refstacked, decode_timedelta=False)
-
-    # # stack
-    # if CONFIG['custom']['stack_drop_nans']:
-
-    #     variables = list(CONFIG['extraction']['reference']['search_data_catalogs'][
-    #                             'variables_and_freqs'].keys())
-    #     ds_ref = stack_drop_nans(
-    #         ds_ref,
-    #         ds_ref[variables[0]].isel(time=130, drop=True).notnull().compute(),
-    #     )
 
     # cut region
     n=CONFIG['subregions']['n']

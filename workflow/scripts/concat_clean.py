@@ -30,7 +30,7 @@ if __name__ == '__main__':
                     **CONFIG['clean_up']['xscen_clean_up'])
     
     # eventually put un clean up
-    ds.attrs['cat:domain'] = CONFIG['custom']['full_region']['name']
+    ds.attrs['cat:domain'] = CONFIG['full_region']['name']
     ds.attrs.pop('cat:path', None)
 
     for var in ds.data_vars:
@@ -42,5 +42,5 @@ if __name__ == '__main__':
             timesize=ds_cur.time.size,)
         ds_cur=ds_cur.chunk(chunks)
 
-        xs.save_to_zarr(ds_cur,snakemake.output[var])
+        xs.save_to_zarr(ds_cur,snakemake.output[var], **CONFIG['clean_up']['save'])
 

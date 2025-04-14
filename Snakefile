@@ -11,26 +11,23 @@ configfile: "config/config_region.yml"
 configfile: "config/paths.yml"
 
 # choose the simulations to process
-
-#dict_sim_id = xs.search_data_catalogs(**config['extraction']['simulation']['search_data_catalogs'],)
-#sim_ids= list(dict_sim_id.keys())
-#sim_ids=sim_ids[:1] + ['CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_ssp370_r1i1p1f1_global']
-sim_ids=['CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_ssp370_r1i1p1f1_global']
-
+dict_sim_id = xs.search_data_catalogs(**config['extraction']['simulation']['search_data_catalogs'],)
+sim_ids= list(dict_sim_id.keys())
+sim_ids=sim_ids[:5] 
 
 # define subregions on which to split the computation based on n (size of each subregion) and the full region
 if 'num_of_regions' not in config['subregions']:
     cat=xs.DataCatalog(config['extraction']['reference']['search_data_catalogs']['data_catalogs'][0])
     dref=cat.search(**config['extraction']['reference']['search_data_catalogs']['other_search_criteria']).to_dataset()
-    dref=xs.spatial.subset(dref, **config['custom']['full_region'])
+    dref=xs.spatial.subset(dref, **config['full_region'])
     dref = xs.utils.stack_drop_nans(dref,dref.pr.isel(time=0, drop=True).notnull().compute(),)
     num_of_regions= int(np.ceil(dref.sizes['loc']/config['subregions']['n']))
 else:
     num_of_regions=config['subregions']['num_of_regions']
-regions=[f"sr-{i}" for i in range(num_of_regions)]
+subregions=[f"sr-{i}" for i in range(num_of_regions)]
 
 # trick, use dom as wildcard so it can be defined in the config
-domain=[config['custom']['full_region']['name']]
+domain=[config['full_region']['name']]
 
 # diagnostics regions
 diagregions=[d for d in config['diagregion'].keys()]
@@ -126,7 +123,7 @@ def final_path(id):
         data=pd.Series(
             dict(zip(['mip_era','activity','institution','source', 'experiment','member'],id.split('_'))
      )|dict(
-        domain=config['custom']['full_region']['name'],
+        domain=config['full_region']['name'],
         format='zarr.zip',
          variable='foo',
          type='simulation',
@@ -144,7 +141,7 @@ def final_path(id):
 
 #sim_id HAS to be in output, so can't use only params
 rule concat_scen_clean:
-    input: expand(wdir/"{{sim_id}}_{{dom}}_{subregion}/{{sim_id}}_{subregion}_adjusted.zarr.zip",subregion=regions)
+    input: expand(wdir/"{{sim_id}}_{{dom}}_{subregion}/{{sim_id}}_{subregion}_adjusted.zarr.zip",subregion=subregions)
     output: 
         pr=finaldir/"staging/{path}/pr/pr_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip", 
         tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_MBCn-EM_v10_{sim_id}_{dom}_1951-2100.zarr.zip",

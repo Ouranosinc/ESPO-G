@@ -41,7 +41,7 @@ extraction:
             experiment:
               - ssp245
               - ssp370
-            source: # in the TCR likely range (15) 
+            source: # in the TCR likely range (14) 
               - ACCESS-CM2 
               - ACCESS-ESM1-5 
               - BCC-CSM2-MR
@@ -50,7 +50,6 @@ extraction:
               - FGOALS-g3
               - GFDL-ESM4 
               - INM-CM5-0
-              #- KACE-1-0-G # TODO: disqualifie ? https://github.com/Ouranosinc/ESPO-G/issues/6
               - MIROC6
               - MIROC-ES2L 
               - MPI-ESM1-2-HR
@@ -58,6 +57,7 @@ extraction:
               - MRI-ESM2-0 
               - NorESM2-LM
               #TODO: CanESM5 attention faire le même membre que MRCC5
+              #TODO: CanESM5-1 ?
             mip_era: CMIP6
         extract_dataset:
             periods : *sim_period
@@ -156,6 +156,8 @@ biasadjust_mbcn:
     version: v10
 
 clean_up:
+  save:
+    bitround: 12
   xscen_clean_up:
     maybe_unstack_dict:
       stack_drop_nans: True
@@ -216,7 +218,6 @@ clean_up:
           standard_name: air_temperature
           long_name: Mean daily temperature
           cell_methods: "time: mean within days"
-#TODO:lossy compression ?
 
 diagregion:   
   Magtogoek:
@@ -267,7 +268,7 @@ diagnostics:
       pr:
         cfcheck_from_name: {}
       # dtr:
-      #   cfcheck_from_name: {} #TODO: add to xclim
+      #   cfcheck_from_name: {} #FIXME: put back if using xclim >=0.57
       tas:
         cfcheck_from_name: {}
     freq: D

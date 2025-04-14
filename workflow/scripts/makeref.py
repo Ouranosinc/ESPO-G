@@ -13,7 +13,7 @@ if __name__ == '__main__':
     cat_ref = xs.search_data_catalogs(**CONFIG['extraction']['reference']['search_data_catalogs'])
     dc = cat_ref.popitem()[1]
     ds_ref = xs.extract_dataset(catalog=dc,
-                                region=CONFIG['custom']['full_region'],
+                                region=CONFIG['full_region'],
                                 **CONFIG['extraction']['reference']['extract_dataset']
                                 )['D']
     ds_ref = xs.clean_up(ds_ref, **CONFIG['extraction']['reference']['clean_up'])

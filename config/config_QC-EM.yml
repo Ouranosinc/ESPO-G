@@ -1,11 +1,10 @@
 #config_QC-EM
 
-custom:
-    full_region:
-      name: QC-EM
-      method: bbox
-      lon_bnds: [ -83, -55 ]
-      lat_bnds: [ 42, 63 ]
+full_region:
+  name: QC-EM
+  method: bbox
+  lon_bnds: [ -83, -55 ]
+  lat_bnds: [ 42, 63 ]
 
 subregions:
   n: 7500 # number of loc in one region
