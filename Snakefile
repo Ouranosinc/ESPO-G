@@ -52,11 +52,11 @@ rule makeref:
     params:
         #n_workers=2,# QC
         #mem="30GB", #QC
-        n_workers=6,
-        mem="90GB",
-        cpus_per_task=4,
         #time="00:15:00", #QC
+        n_workers=6, #NAM 
+        mem="90GB", #NAM 
         time="00:45:00", #NAM 
+        cpus_per_task=4, 
     script:
         "workflow/scripts/makeref.py"
 
