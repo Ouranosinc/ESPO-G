@@ -151,10 +151,10 @@ rule concat_scen_clean:
     params:
         path=lambda wildcards: final_path(wildcards.sim_id),
         #mem="45GB", #QC
-        mem="200GB", #NAM
-        cpus_per_task=1,
         #time="00:20:00", #QC
-        time="05:00:00", # NAM
+        mem="300GB", #NAM
+        time="03:00:00", # NAM
+        cpus_per_task=1,
     script:
         "workflow/scripts/concat_clean.py"
 
@@ -171,11 +171,11 @@ rule health:
     params:
         # n_workers=2,# QC
         # mem="20GB",# QC
+        #time="00:10:00", # QC
         n_workers=6, #NAM
         mem="200GB", #NAM
+        time="01:00:00", # NAM
         cpus_per_task=4,
-        #time="00:10:00", # QC
-        time="05:00:00", # NAM
     script:
         "workflow/scripts/health.py"
 
@@ -187,11 +187,11 @@ rule diag_ref:
     params:
         #n_workers=2,# QC
         #mem="30GB", #QC
+        #time="00:15:00", #QC
         n_workers=6,
         mem="90GB",
-        cpus_per_task=4,
-        #time="00:15:00", #QC
         time="01:00:00", #NAM 
+        cpus_per_task=4,
     script:
         "workflow/scripts/diag_ref.py"
 
@@ -215,9 +215,9 @@ rule diag:
         #mem="50GB", #QC
         #time="01:00:00", #QC
         n_workers=2, #NAM
-        mem="200GB", #NAM
+        mem="100GB", #NAM
         cpus_per_task=4,
-        time="10:00:00", # NAM
+        time="2:00:00", # NAM
     script:
         "workflow/scripts/diag.py"
 
