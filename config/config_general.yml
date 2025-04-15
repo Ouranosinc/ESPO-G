@@ -14,9 +14,11 @@ extraction:
                 pr: D
                 dtr: D
                 tas: D
+                #mask: fx #TODO: add mask
             allow_resampling: False
             allow_conversion: True
         extract_dataset:
+          #mask: True #TODO: when we have mask
           xr_combine_kwargs: {} # FIXME:  remove when bug is fixed in xscen
         clean_up:
           variables_and_units:
@@ -27,7 +29,12 @@ extraction:
             dtr: K
     simulation:
         search_data_catalogs:
-          variables_and_freqs: *var_and_freq
+          variables_and_freqs:
+            tasmax: D
+            tasmin: D
+            pr: D
+            dtr: D
+            tas: D
           match_hist_and_fut: True
           allow_conversion: True
           allow_resampling: False
@@ -82,30 +89,37 @@ regrid:
     intermediate_grids:
       reg1:
         cf_grid_2d:
-          lon0_b: 274.75
-          lon1_b: 305.2
+          lon0_b: 179.05
+          lon1_b: 351.2
           d_lon: 1
-          lat0_b: 39.75
-          lat1_b: 64
+          lat0_b: 9
+          lat1_b: 84
           d_lat: 1
         regridder_kwargs:
           method: bilinear
           extrap_method: inverse_dist
           locstream_out: False
           reuse_weights: False
+          output_chunks:
+            lat: -1
+            lon: -1
       reg2:
         cf_grid_2d:
-          lon0_b: 274.74
-          lon1_b: 305.2
+          lon0_b: 179.04
+          lon1_b: 351.2
           d_lon: 0.5
-          lat0_b: 39.74
-          lat1_b: 64
+          lat0_b: 8.9
+          lat1_b: 84
           d_lat: 0.5
         regridder_kwargs:
           method: bilinear
           extrap_method: inverse_dist
           locstream_out: False
           reuse_weights: False
+          output_chunks:
+            lat: -1
+            lon: -1
+
 
 biasadjust_mbcn:
   maximal_calendar: noleap
@@ -123,7 +137,7 @@ biasadjust_mbcn:
     xsdba_train_args:
       base_kws:
         nquantiles: 50
-      n_iter: 20
+      n_iter: 20 #TODO: are we sure ?
       adj_kws:
         interp: nearest
         extrapolation: constant
@@ -190,34 +204,35 @@ clean_up:
       tasmin: *attrs_to_keep
       pr: *attrs_to_keep
       dtr: *attrs_to_keep
+      tas: *attrs_to_keep
     add_attrs:
       global:
         version: "v10"
-        code: https://github.com/Ouranosinc/info-crue-cmip6/tree/mbcn-stacked
+        code: https://github.com/Ouranosinc/ESPO-G/blob/main #TODO: put most up-to-date info
         contact: lavoie.juliette@ouranos.ca
         organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca
         avertissement : Ouranos ne donne aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande et d'adéquation à un usage particulier. Toutes les responsabilités découlant de la fourniture des informations (y compris toute responsabilité découlant d'une négligence) sont exclues dans toute la mesure permise par la loi.
         license:  Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/)
-      tasmax:
-          standard_name: air_temperature
-          long_name: Maximal daily temperature
-          cell_methods: "time: maximum within days"
-      tasmin:
-          standard_name: air_temperature
-          long_name: Minimal daily temperature
-          cell_methods: "time: minimum within days"
-      pr:
-          standard_name: precipitation_flux
-          long_name: Mean daily precipitation flux
-          cell_methods: "time: mean within days"
-      dtr:
-          standard_name: air_temperature
-          long_name: Mean diurnal temperature range
-          cell_methods: "time range within days"
-      tas:
-          standard_name: air_temperature
-          long_name: Mean daily temperature
-          cell_methods: "time: mean within days"
+      # tasmax: #TODO: test if this is necessary
+      #     standard_name: air_temperature
+      #     long_name: Maximal daily temperature
+      #     cell_methods: "time: maximum within days"
+      # tasmin:
+      #     standard_name: air_temperature
+      #     long_name: Minimal daily temperature
+      #     cell_methods: "time: minimum within days"
+      # pr:
+      #     standard_name: precipitation_flux
+      #     long_name: Mean daily precipitation flux
+      #     cell_methods: "time: mean within days"
+      # dtr:
+      #     standard_name: air_temperature
+      #     long_name: Mean diurnal temperature range
+      #     cell_methods: "time range within days"
+      # tas:
+      #     standard_name: air_temperature
+      #     long_name: Mean daily temperature
+      #     cell_methods: "time: mean within days"
 
 diagregion:   
   Magtogoek:
@@ -250,7 +265,7 @@ diagnostics:
       pr: mm d-1
       dtr: K
       tas: degC
-    properties: config/properties_info-crue-6.yml
+    properties: config/properties.yml
   health_checks:
     start_date: "1951-01-01"
     end_date: "2100-12-30"
@@ -283,7 +298,7 @@ diagnostics:
       pr:
         negative_accumulation_values:
         very_large_precipitation_events:
-          thresh: '300 mm/d'
+          thresh: '1650 mm/d'
       #TODO: add right flag for your variables
     return_flags: True
     raise_on:
