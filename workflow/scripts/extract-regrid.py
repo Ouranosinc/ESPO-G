@@ -21,7 +21,7 @@ if __name__ == '__main__':
     # buffer is need to take a bit larger than actual domain, to avoid weird effect at the edge
     # domain will be cut to the right shape during the regrid
     region_dict=CONFIG['full_region']
-    region_dict['tile_buffer']=5
+    region_dict['tile_buffer']=3
     ds_sim = xs.extract_dataset(catalog=dc_id,
                                 region=region_dict,
                                 **CONFIG['extraction']['simulation']['extract_dataset'],

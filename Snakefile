@@ -81,9 +81,10 @@ rule extractregrid:
         noleap=finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
     output: temp(wdir/"{sim_id}_{dom}_{subregion}/{sim_id}_{subregion}_regridded.zarr.zip")
     params:
-        mem="10GB",
+        #mem="10GB", #2100
+        mem="20GB", # 2300
         cpus_per_task=1,
-        time="00:15:00",
+        time="00:20:00",
     script:
         "workflow/scripts/extract-regrid.py"
 
@@ -110,9 +111,11 @@ rule adjust:
         train= wdir/"{sim_id}_{dom}_{subregion}/{sim_id}_{subregion}_training.zarr.zip",
     output: temp(wdir/"{sim_id}_{dom}_{subregion}/{sim_id}_{subregion}_adjusted.zarr.zip"),
     params:
-        mem="80GB",
+        #mem="80GB", # 2100
+        #time="12:00:00", # 2100
+        time="24:00:00", #2300
+        mem="160GB", # 2300
         cpus_per_task=1,
-        time="12:00:00",
     script:
         "workflow/scripts/adjust.py"
 
