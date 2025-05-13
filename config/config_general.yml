@@ -38,10 +38,10 @@ extraction:
           match_hist_and_fut: True
           allow_conversion: True
           allow_resampling: False
-          # periods: &sim_period
-          #   - '1951'
-          #   #- '2100' #TODO: passé 2100 ?
-          #   - '2300'
+          periods: &sim_period
+            - '1951'
+            - '2100' 
+          #   - '2300' #FIXME: can use this when xscen #587 is fixed
           restrict_members: 
             ordered: 1
           other_search_criteria:
@@ -74,11 +74,10 @@ extraction:
             #  - CanESM5-1
             #member: r1i1p2f1
         extract_dataset:
-            periods: &sim_period
-              - '1951' #TODO: tmp
-              #- '2100' #TODO: passé 2100 ?
-              - '2300'
-            #periods : *sim_period
+            # periods: &sim_period  #FIXME: can use this until xscen #587 is fixed
+            #   - '1951' 
+            #   - '2300'
+            periods : *sim_period
             xr_combine_kwargs:
               combine_attrs: override
             xr_open_kwargs:
