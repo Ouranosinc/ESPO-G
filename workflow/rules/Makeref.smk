@@ -9,23 +9,25 @@ home=Path(config["paths"]["home"]) # needed because scripts looks in workflow/ru
 
 rule ref_default:
     output:
-        directory(finaldir/"reference/{ref_source}+{region}+default.zarr")
+        directory(finaldir/"reference/{ref_source}+{dom}+{region}+default.zarr")
     params:
         n_workers=2,
         mem='50GB',
         cpus_per_task=10,
+        time="00:20:00",
     script:
         home/"workflow/scripts/ref_default.py"
 
 rule reference_calendar:
     input:
-        finaldir/"reference/{ref_source}+{region}+default.zarr"
+        finaldir/"reference/{ref_source}+{dom}+{region}+default.zarr"
     output:
-        directory(finaldir/"reference/{ref_source}+{region}+{calendar}.zarr")
+        directory(finaldir/"reference/{ref_source}+{dom}+{region}+{calendar}.zarr")
     params:
         n_workers=2,
         mem='50GB',
         cpus_per_task=10,
+        time="00:20:00",
     script:
         home/"workflow/scripts/ref_calendar.py"
         

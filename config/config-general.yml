@@ -1,57 +1,15 @@
-#Configuration file for ESPO-G6-E5L v1.0.0
+#Configuration file for ESPO-G6
+test:
+  a: 1
 project:
-  name: ESPO-G6-E5L
+  name: ESPO-G6
   version: 1.0.0
   description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6
   id: eg6
 
 custom:
-    regions:
-        south:
-            name: south
-            method: bbox
-#            lon_bnds: [ -70,-60] # fake smaller region for testing
-#            lat_bnds: [ 45, 47.05 ]
-            lon_bnds: [ -179.95, -10 ]
-            lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
-        middle:
-            name: middle
-            method: bbox
-#            lon_bnds: [ -70,-60 ] # fake smaller region for testing
-#            lat_bnds: [47.05, 49.05]
-            lon_bnds: [ -179.95, -10 ]
-            lat_bnds: [ 40.05, 65.05 ]
-        north:
-            name: north
-            method: bbox
-#            lon_bnds: [ -70,-60 ] # fake smaller region for testing
-#            lat_bnds: [ 49.05, 53 ]
-            lon_bnds: [-179.95, -10]
-            lat_bnds: [65.05, 83.3] # changed from 83.4 to make it fit with other files
-    amno_region:
-      name: &nam-name
-        NAM
-      method: bbox
-      tile_buffer: 1.5
-#      lon_bnds: [ -70,-60 ] # fake smaller region for testing
-#      lat_bnds: [ 45, 53 ]
-      lon_bnds: [ -179.95, -10 ]
-      lat_bnds: [ 10, 83.4 ]
     stack_drop_nans: &stack # goal is to drop Nan to make it faster
         True
-    working_chunks:
-        lat: 20
-        lon: 20
-        loc: 600
-        time: -1
-    final_chunks:
-#        lat: 10 # for fake regions
-#        lon: 10 # for fake regions
-        lat: 50
-        lon: 50
-    ref_period : &ref_period
-        - '1991'
-        - '2020'
     sim_period: &sim_period
         - '1950'
         - '2100'
@@ -59,60 +17,58 @@ custom:
         noleap
 
 extraction:
-    reference:
-        search_data_catalogs:
-            variables_and_freqs: &var_and_freq
-                tasmax: D
-                tasmin: D
-                pr: D
-                dtr: D
-            allow_resampling: False
-            allow_conversion: True
-            periods : *ref_period
-            other_search_criteria:
-                source: &ref_source
-                    "ERA5-Land"
-        extract_dataset:
-            xr_combine_kwargs: {} # bc of xscen bug. Should be removed in the future
-    simulation:
-        search_data_catalogs:
-            variables_and_freqs: *var_and_freq
-            match_hist_and_fut: True
-            allow_conversion: True
-            allow_resampling: False
-            restrict_members:
-              ordered: 1
-            periods: *sim_period
-            other_search_criteria:
-               processing_level: raw
-               experiment:
-                 - ssp585
-               source:
-                - TaiESM1
-                - CanESM5
-                - CNRM-CM6-1
-                - EC-Earth3-CC
-                - EC-Earth3
-                - EC-Earth3-Veg
-                - INM-CM4-8
-                - IPSL-CM6A-LR
-                - UKESM1-0-LL
-                - NorESM2-MM
-                - NESM3
-        extract_dataset:
-            periods : *sim_period
-            xr_combine_kwargs:
-              combine_attrs: override
-            xr_open_kwargs:
-              drop_variables:
-                - height
-        chunks: {'time': 365, 'lat':-1, 'lon':-1}
-    ref_source: *ref_source
+  reference:
+      search_data_catalogs:
+        variables_and_freqs: &var_and_freq
+          tasmax: D
+          tasmin: D
+          pr: D
+          dtr: D
+        allow_resampling: False
+        allow_conversion: True
+      extract_dataset:
+        xr_combine_kwargs: {} # bc of xscen bug. Should be removed in the future
+  simulation:
+      search_data_catalogs:
+        variables_and_freqs: *var_and_freq
+        match_hist_and_fut: True
+        allow_conversion: True
+        allow_resampling: False
+        restrict_members:
+          ordered: 1
+        periods: *sim_period
+        other_search_criteria:
+          processing_level: raw
+          experiment:
+            - ssp370
+          source:
+            - ACCESS-CM2 
+            - ACCESS-ESM1-5 
+            - BCC-CSM2-MR
+            - CMCC-ESM2 
+            - CNRM-ESM2-1 
+            - CNRM-CM6-1
+            #- FGOALS-g3
+            - GFDL-ESM4 
+            - INM-CM5-0
+            - MIROC6
+            - MIROC-ES2L 
+            - MPI-ESM1-2-HR
+            - MPI-ESM1-2-LR 
+            #- MRI-ESM2-0 
+            - NorESM2-LM
+          member:
+            - r1i1p1f1
+      extract_dataset:
+        periods : *sim_period
+        xr_combine_kwargs:
+          combine_attrs: override
+        xr_open_kwargs:
+          drop_variables:
+            - height
+      chunks: {'time': 365, 'lat':-1, 'lon':-1}
 
 regrid:
-  target:
-    source: *ref_source
-    calendar: noleap
   regrid_dataset:
       regridder_kwargs:
         method: bilinear
@@ -151,7 +107,6 @@ biasadjust:
     variables:
         dtr:
             training_args:
-                period: *ref_period
                 method: DetrendedQuantileMapping
                 group:
                     group: time.dayofyear
@@ -174,11 +129,8 @@ biasadjust:
                     extrapolation: constant
                 bias_adjust_institution: &b_a_inst
                   Ouranos
-                bias_adjust_project: &b_a_pro
-                  ESPO-G6
         tasmax:
             training_args:
-                period: *ref_period
                 method: DetrendedQuantileMapping
                 group:
                     group: time.dayofyear
@@ -198,21 +150,23 @@ biasadjust:
                   interp: nearest
                   extrapolation: constant
                 bias_adjust_institution: *b_a_inst
-                bias_adjust_project: *b_a_pro
         pr:
             training_args:
-                period: *ref_period
                 method: DetrendedQuantileMapping
                 group:
                     group: time.dayofyear
                     window: 31
                 adapt_freq:
-                    thresh: 1 mm d-1
+                   thresh: "1.1574e-05 kg m^-2 s^-1"
                 jitter_under:
                     thresh: 0.01 mm d-1
-                xclim_train_args:
+                xclim_train_args: #TODO
                     kind: "*"
                     nquantiles: 50
+                # xsdba_train_args:
+                #     kind: "*"
+                #     nquantiles: 50
+                #     adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1"
             adjusting_args:
                 periods: *sim_period
                 xclim_adjust_args:
@@ -225,7 +179,6 @@ biasadjust:
                   interp: nearest
                   extrapolation: constant
                 bias_adjust_institution: *b_a_inst
-                bias_adjust_project: *b_a_pro
 
 clean_up:
   search_data_catalogs:
@@ -245,23 +198,11 @@ clean_up:
   xscen_clean_up:
       maybe_unstack_dict:
         stack_drop_nans: *stack
-        rechunk:
-          lat: 20
-          lon: 20
-          time: -1
       round_var:
         pr: 10
       to_level: cleaned_up
       add_attrs:
         global:
-          dataset: ESPO-G6-E5L v1.0.0
-          Notes: |
-            Regridded on the grid of ERA5-Land, then bias-adjusted with detrended
-            quantile mapping on a day-of-year basis with a window of 31 days, LOESS
-            detrending and 50 quantiles. The reference was ERA5-Land over the
-            1991-2020 period. Tasmax, dtr and pr were adjusted, tasmin was computed
-            from tasmax and dtr after the adjustment.
-          code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake
           contact-ouranos: lavoie.juliette@ouranos.ca
           organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca
           avertissement : Ouranos ne donne aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande et d'adéquation à un usage particulier. Toutes les responsabilités découlant de la fourniture des informations (y compris toute responsabilité découlant d'une négligence) sont exclues dans toute la mesure permise par la loi.
@@ -296,15 +237,6 @@ clean_up:
             cell_methods: "time: mean within days"
 
 health_checks:
-    structure:
-      coords:
-        - lat
-        - lon
-        - time
-      dims:
-        - lat
-        - lon
-        - time
     start_date: "1950-01-01"
     end_date: "2100-12-30"
     variables_and_units:
@@ -372,7 +304,6 @@ off-diag:
         Dene: middle
         Magtogoek: middle
       properties_and_measures:
-        period: *ref_period
         properties: &off-properties
           config/off-properties_ESPO-G.yml
         to_level_prop: off-diag-ref-prop
@@ -386,7 +317,6 @@ off-diag:
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
-        period: *ref_period
         properties: *off-properties
         to_level_prop: off-diag-sim-prop
         to_level_meas: off-diag-sim-meas
@@ -400,7 +330,6 @@ off-diag:
       dref_for_measure:
         processing_level: off-diag-ref-prop
       properties_and_measures:
-        period: *ref_period
         properties: *off-properties
         to_level_prop: off-diag-scen-prop
         to_level_meas: off-diag-scen-meas

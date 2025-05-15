@@ -3,7 +3,7 @@ import xscen as xs
 from xscen import CONFIG
 from workflow.scripts.utils import dask_cluster
 
-xs.load_config("config/config.yml","config/paths.yml")
+xs.load_config("config/config-general.yml", "config/config-region.yml", "config/paths.yml")
 
 if __name__ == '__main__':
     

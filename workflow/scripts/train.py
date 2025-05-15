@@ -4,7 +4,7 @@ from xscen import CONFIG
 import xclim as xc
 from workflow.scripts.utils import dask_cluster
 
-xs.load_config("config/config.yml","config/paths.yml")
+xs.load_config("config/config-general.yml", "config/config-region.yml", "config/paths.yml")
 
 if __name__ == '__main__':
 
@@ -32,5 +32,9 @@ if __name__ == '__main__':
 
     ds_tr = ds_tr.chunk({d: CONFIG['custom']['working_chunks'][d] for d in ds_tr.dims
                             if d in CONFIG['custom']['working_chunks'].keys()})
+    
+    #TODO: nunavik
+    for v in ['lat','lon']:
+        del ds_tr[v].encoding['chunks']
 
     xs.save_to_zarr(ds_tr, str(snakemake.output[0]))

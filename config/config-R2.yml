@@ -1,0 +1,115 @@
+#Configuration file R2
+
+custom:
+    regions:
+        south-rot:
+            name: south-rot
+            method: sel
+            rlon: [ 324.5, 388.2 ]
+            rlat: [ -47, -23 ]
+        middle-rot:
+            name: middle-rot
+            method: sel
+            rlon: [ 324.5, 388.2 ]
+            rlat: [ -23, 1 ]
+        north-rot:
+            name: north-rot
+            method: sel
+            rlon: [ 324.5, 388.2 ]
+            rlat: [ 1, 26 ]
+    amno_region:
+      name: &nam-name
+        NAM-R2
+      method: bbox
+      tile_buffer: 1.5
+      lon_bnds: [ -179.95, -10 ]
+      lat_bnds: [ 10, 83.4 ]
+    working_chunks:
+        rlat: 20
+        rlon: 20
+        loc: 600
+        time: -1
+    final_chunks:
+        rlat: 50
+        rlon: 50
+    ref_period : &ref_period
+        - '1989'
+        - '2018'
+
+
+extraction:
+    reference:
+        search_data_catalogs:
+            periods : *ref_period
+            other_search_criteria:
+                source: &ref_source
+                    "RDRS"
+    ref_source: *ref_source
+
+regrid:
+  target:
+    source: *ref_source
+
+biasadjust:
+    variables:
+        dtr:
+            training_args:
+                period: *ref_period
+            adjusting_args:
+                bias_adjust_project: &b_a_pro
+                  ESPO-G6-R2
+        tasmax:
+            training_args:
+                period: *ref_period
+            adjusting_args:
+                bias_adjust_project: *b_a_pro
+        pr:
+            training_args:
+                period: *ref_period
+            adjusting_args:
+                bias_adjust_project: *b_a_pro
+
+clean_up:
+  xscen_clean_up:
+      maybe_unstack_dict:
+        rechunk:
+          rlat: 20
+          rlon: 20
+          time: -1
+      add_attrs:
+        global:
+          dataset: ESPO-G6-R2 v1.0.0
+          Notes: |
+            Regridded on the grid of RDRS, then bias-adjusted with detrended
+            quantile mapping on a day-of-year basis with a window of 31 days, LOESS
+            detrending and 50 quantiles. The reference was RDRS over the
+            1989-2018 period. Tasmax, dtr and pr were adjusted, tasmin was computed
+            from tasmax and dtr after the adjustment.
+          code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake
+
+health_checks:
+    structure:
+      coords:
+        - rlat
+        - rlon
+        - time
+        - lat 
+        - lon
+        - rotated_pole
+      dims:
+        - rlat
+        - rlon
+        - time
+    
+
+off-diag:
+  steps:
+    ref:
+      properties_and_measures:
+        period: *ref_period
+    sim:
+      properties_and_measures:
+        period: *ref_period
+    scen:
+      properties_and_measures:
+        period: *ref_period

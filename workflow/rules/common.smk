@@ -9,12 +9,12 @@ def wildcards_sim_id():
 
 def official_diags_inputfiles_ref(wildcards):
     step_dict=config['off-diag']['steps']["ref"]
-    ref=finaldir/f"reference/{ref_source[0]}+{step_dict['domain'][wildcards.diag_domain]}+default.zarr"
+    ref=finaldir/f"reference/{ref_source[0]}+{wildcards.dom}+{step_dict['domain'][wildcards.diag_domain]}+default.zarr"
     return ref
 
 def official_diags_inputfiles_sim(wildcards):
     step_dict = config['off-diag']['steps']["sim"]
-    sim= finaldir/f"regridded/day+{wildcards.sim_id}+{step_dict['domain'][wildcards.diag_domain]}+regchunked.zarr.zip"
+    sim= finaldir/f"regridded/day+{wildcards.sim_id}+{wildcards.dom}+{step_dict['domain'][wildcards.diag_domain]}+regchunked.zarr.zip"
     return sim
 
 

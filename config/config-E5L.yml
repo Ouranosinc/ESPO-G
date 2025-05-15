@@ -1,0 +1,128 @@
+#Configuration file E5L
+
+custom:
+    regions:
+        south:
+            name: south
+            method: bbox
+            lon_bnds: [ -67, -64 ]
+            lat_bnds: [ 56.35, 58.05 ] # nunavik
+#            lon_bnds: [ -70,-60] # fake smaller region for testing
+#            lat_bnds: [ 45, 47.05 ]
+            #lon_bnds: [ -179.95, -10 ]
+            #lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
+        middle:
+            name: middle
+            method: bbox
+            lon_bnds: [ -67, -64 ]
+            lat_bnds: [ 58.05, 60.45 ] # nunavik
+#            lon_bnds: [ -70,-60 ] # fake smaller region for testing
+#            lat_bnds: [47.05, 49.05]
+            #lon_bnds: [ -179.95, -10 ]
+            #lat_bnds: [ 40.05, 65.05 ]
+#         north:
+#             name: north
+#             method: bbox
+# #            lon_bnds: [ -70,-60 ] # fake smaller region for testing
+# #            lat_bnds: [ 49.05, 53 ]
+#             lon_bnds: [-179.95, -10]
+#             lat_bnds: [65.05, 83.3] # changed from 83.4 to make it fit with other files
+    amno_region:
+      name: &nam-name
+        NAM-E5L
+      method: bbox
+      tile_buffer: 1.5
+      lon_bnds: [ -67, -64 ]
+      lat_bnds: [ 56.35, 60.45 ] # nunavik
+#      lon_bnds: [ -70,-60 ] # fake smaller region for testing
+#      lat_bnds: [ 45, 53 ]
+      #lon_bnds: [ -179.95, -10 ]
+      #lat_bnds: [ 10, 83.4 ]
+    working_chunks:
+        lat: 20
+        lon: 20
+        loc: 300 #600 #TODO: 500 for nunavik
+        time: -1
+    final_chunks:
+        lat: 10 # for fake regions #TODO:for nunavik
+        lon: 10 # for fake regions
+        #lat: 50
+        #lon: 50
+    ref_period : &ref_period
+        - '1991'
+        - '2020'
+
+
+extraction:
+    reference:
+        search_data_catalogs:
+            periods : *ref_period
+            other_search_criteria:
+                source: &ref_source
+                    "ERA5-Land"
+    ref_source: *ref_source
+
+regrid:
+  target:
+    source: *ref_source
+
+biasadjust:
+    variables:
+        dtr:
+            training_args:
+              period: *ref_period
+            adjusting_args:
+                bias_adjust_project: &b_a_pro
+                  ESPO-G6-E5L
+        tasmax:
+            training_args:
+              period: *ref_period
+            adjusting_args:
+                bias_adjust_project: *b_a_pro
+        pr:
+            training_args:
+              period: *ref_period
+            adjusting_args:
+                bias_adjust_project: *b_a_pro
+
+clean_up:
+  xscen_clean_up:
+      maybe_unstack_dict:
+        rechunk:
+          lat: 20
+          lon: 20
+          time: -1
+      add_attrs:
+        global:
+          dataset: ESPO-G6-E5L v1.0.0
+          Notes: |
+            Regridded on the grid of ERA5-Land, then bias-adjusted with detrended
+            quantile mapping on a day-of-year basis with a window of 31 days, LOESS
+            detrending and 50 quantiles. The reference was ERA5-Land over the
+            1991-2020 period. Tasmax, dtr and pr were adjusted, tasmin was computed
+            from tasmax and dtr after the adjustment.
+          code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake
+
+health_checks:
+    structure:
+      coords:
+        - lat
+        - lon
+        - time
+      dims:
+        - lat
+        - lon
+        - time
+    
+
+off-diag:
+  steps:
+    ref:
+      properties_and_measures:
+        period: *ref_period
+    sim:
+      properties_and_measures:
+        period: *ref_period
+    scen:
+      properties_and_measures:
+        period: *ref_period
