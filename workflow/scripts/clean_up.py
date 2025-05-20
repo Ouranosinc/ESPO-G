@@ -5,6 +5,8 @@ import numpy as np
 xr.set_options(keep_attrs=True)
 from workflow.scripts.utils import dask_cluster
 from xscen.xclim_modules import conversions
+if 1==0: #trick vscode
+    import snakemake
 
 xs.load_config("config/config-general.yml", "config/config-region.yml", "config/paths.yml")
 

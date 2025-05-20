@@ -4,6 +4,8 @@ import os
 import xscen as xs
 from xscen import CONFIG
 from zipfile import ZipFile
+if 1==0: #trick vscode
+    import snakemake
 
 xs.load_config("config/config-general.yml", "config/config-region.yml", "config/paths.yml")
 
@@ -30,3 +32,12 @@ def zip_directory(root, zipfile, **zip_args):
     with ZipFile(zipfile, "w", **zip_args) as zf:
         for file in root.iterdir():
             _add_to_zip(zf, file, root)
+
+
+def create_tmp_path(path):
+    return f"{os.environ['SLURM_TMPDIR']}/{Path(path).name.replace('.zip','')}"
+
+def tmp_zarr_and_zip(ds, p):
+    tmp_path=create_tmp_path(p)
+    xs.save_to_zarr(ds, tmp_path)
+    xs.io.zip_directory(tmp_path, p)

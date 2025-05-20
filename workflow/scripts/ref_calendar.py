@@ -3,6 +3,8 @@ from xscen import CONFIG
 import xclim as xc
 import xarray as xr
 from workflow.scripts.utils import dask_cluster
+if 1==0: #trick vscode
+    import snakemake
 
 xs.load_config("config/config-general.yml", "config/config-region.yml", "config/paths.yml")
 

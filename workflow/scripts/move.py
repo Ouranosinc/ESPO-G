@@ -1,5 +1,7 @@
 import xscen as xs
 from xscen import CONFIG
+if 1==0: #trick vscode
+    import snakemake
 
 from workflow.scripts.utils import zip_directory
 

@@ -3,6 +3,8 @@ import xscen as xs
 from xscen import CONFIG
 from workflow.scripts.utils import dask_cluster
 import copy
+if 1==0: #trick vscode
+    import snakemake
 
 xs.load_config("config/config-general.yml", "config/config-region.yml", "config/paths.yml")
 
@@ -18,7 +20,7 @@ if __name__ == '__main__':
     # extract
     dc_id = cat_sim_id.popitem()[1]
     ds_sim = xs.extract_dataset(catalog=dc_id,
-                                region=CONFIG['custom']['amno_region'],
+                                region=CONFIG['custom']['full_region'],
                                 **CONFIG['extraction']['simulation']['extract_dataset'],
                                 )['D']
 

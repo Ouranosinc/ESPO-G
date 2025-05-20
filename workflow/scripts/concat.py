@@ -2,7 +2,9 @@ import xarray as xr
 import xscen as xs
 import xclim as xc
 from xscen import  CONFIG
-from workflow.scripts.utils import zip_directory
+from workflow.scripts.utils import zip_directory, tmp_zarr_and_zip
+if 1==0: #trick vscode
+    import snakemake
 
 xs.load_config("config/config-general.yml", "config/config-region.yml", "config/paths.yml")
 
@@ -20,7 +22,7 @@ if __name__ == '__main__':
     else:
         dsC = xr.concat(list_dsR, 'lat')
 
-    dsC.attrs['cat:domain'] = CONFIG['custom']['amno_region']['name']
+    dsC.attrs['cat:domain'] = CONFIG['custom']['full_region']['name']
     dsC.attrs['cat:processing_level']= 'final'
     dsC.attrs.pop('intake_esm_dataset_key')
     dsC.attrs.pop('cat:path')
@@ -32,7 +34,7 @@ if __name__ == '__main__':
             dsC.time.size)| CONFIG['custom']['final_chunks']
                                )
     
-    
+
 
     xs.save_to_zarr(
         ds=dsC,
@@ -40,4 +42,8 @@ if __name__ == '__main__':
         )
     
     zip_directory(snakemake.output.tmp, snakemake.output.final)
+
+    # TODO: when future improvement MBCn
+    #    for var in dsC.data_vars:
+    #     tmp_zarr_and_zip(dsC[[var]],snakemake.output[var])
 

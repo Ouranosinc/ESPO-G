@@ -4,6 +4,8 @@ import os
 import xclim as xc
 from xscen import CONFIG
 from workflow.scripts.utils import dask_cluster
+if 1==0: #trick vscode
+    import snakemake
 
 xs.load_config("config/config-general.yml", "config/config-region.yml", "config/paths.yml")
 

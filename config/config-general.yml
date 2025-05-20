@@ -3,7 +3,7 @@ test:
   a: 1
 project:
   name: ESPO-G6
-  version: 1.0.0
+  version: v20
   description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6
   id: eg6
 
@@ -11,7 +11,7 @@ custom:
     stack_drop_nans: &stack # goal is to drop Nan to make it faster
         True
     sim_period: &sim_period
-        - '1950'
+        - '1951' # TODO: pour adapt freq dans adjust
         - '2100'
     maximal_calendar:
         noleap
@@ -213,6 +213,7 @@ clean_up:
           cat:date_end: 2100-12-30
           cat:date_start: 1950-01-01
           cat:variables: tasmax, tasmin, pr
+          cat:version: v10
         lat:
           standard_name: latitude
           units: degrees_north
@@ -237,7 +238,7 @@ clean_up:
             cell_methods: "time: mean within days"
 
 health_checks:
-    start_date: "1950-01-01"
+    start_date: "1951-01-01" #TODO: adpat freq adjust
     end_date: "2100-12-30"
     variables_and_units:
       tasmax: "K"

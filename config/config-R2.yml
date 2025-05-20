@@ -17,7 +17,7 @@ custom:
             method: sel
             rlon: [ 324.5, 388.2 ]
             rlat: [ 1, 26 ]
-    amno_region:
+    full_region:
       name: &nam-name
         NAM-R2
       method: bbox
@@ -105,11 +105,26 @@ health_checks:
 off-diag:
   steps:
     ref:
+      domain:
+        Haudenosaunee: middlerot
+        Ute: southrot
+        Dene: middlerot
+        Magtogoek: middlerot
       properties_and_measures:
         period: *ref_period
     sim:
+      domain:
+        Haudenosaunee: middlerot
+        Ute: southrot
+        Dene: middlerot
+        Magtogoek: middlerot
       properties_and_measures:
         period: *ref_period
     scen:
+      domain:
+        Haudenosaunee: NAM-R2
+        Ute: NAM-R2
+        Dene: NAM-R2
+        Magtogoek: NAM-R2
       properties_and_measures:
         period: *ref_period

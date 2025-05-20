@@ -27,7 +27,7 @@ custom:
 # #            lat_bnds: [ 49.05, 53 ]
 #             lon_bnds: [-179.95, -10]
 #             lat_bnds: [65.05, 83.3] # changed from 83.4 to make it fit with other files
-    amno_region:
+    full_region:
       name: &nam-name
         NAM-E5L
       method: bbox
@@ -118,11 +118,26 @@ health_checks:
 off-diag:
   steps:
     ref:
+      domain:
+        Haudenosaunee: middle
+        Ute: south
+        Dene: middle
+        Magtogoek: middle
       properties_and_measures:
         period: *ref_period
     sim:
+      domain:
+        Haudenosaunee: middle
+        Ute: south
+        Dene: middle
+        Magtogoek: middle
       properties_and_measures:
         period: *ref_period
     scen:
+      domain:
+        Haudenosaunee: NAM-E5L
+        Ute: NAM-E5L
+        Dene: NAM-E5L
+        Magtogoek: NAM-E5L
       properties_and_measures:
         period: *ref_period
