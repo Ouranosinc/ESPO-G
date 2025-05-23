@@ -24,10 +24,18 @@ extraction:
           tasmin: D
           pr: D
           dtr: D
+          #tas: D
         allow_resampling: False
         allow_conversion: True
       extract_dataset:
         xr_combine_kwargs: {} # bc of xscen bug. Should be removed in the future
+      clean_up:
+        variables_and_units:
+          tasmax: K
+          tasmin: K
+          pr: kg m-2 s-1
+          #tas: K
+          dtr: K
   simulation:
       search_data_catalogs:
         variables_and_freqs: *var_and_freq
@@ -66,7 +74,7 @@ extraction:
         xr_open_kwargs:
           drop_variables:
             - height
-      chunks: {'time': 365, 'lat':-1, 'lon':-1}
+      #chunks: {'time': 365, 'lat':-1, 'lon':-1}
 
 regrid:
   regrid_dataset:
@@ -237,6 +245,16 @@ clean_up:
             long_name: Mean daily precipitation flux
             cell_methods: "time: mean within days"
 
+diagnostics:
+  properties_and_measures:
+    change_units_arg:
+      tasmax: degC
+      tasmin: degC
+      pr: mm d-1
+      dtr: K
+      tas: degC
+    properties: config/properties.yml
+
 health_checks:
     start_date: "1951-01-01" #TODO: adpat freq adjust
     end_date: "2100-12-30"
@@ -308,7 +326,7 @@ off-diag:
         properties: &off-properties
           config/off-properties_ESPO-G.yml
         to_level_prop: off-diag-ref-prop
-      unstack: *stack
+      #unstack: *stack
     sim:
       domain:
         Haudenosaunee: middle
@@ -335,6 +353,28 @@ off-diag:
         to_level_prop: off-diag-scen-prop
         to_level_meas: off-diag-scen-meas
       unstack: False
+
+diagregion:   
+  Magtogoek:
+    name: Magtogoek
+    method: bbox
+    lat_bnds:  [ 41.4, 49.4] 
+    lon_bnds: [ -92.2, -59.8 ]
+  Cree:
+    name: Cree
+    method: bbox
+    lat_bnds: [ 46.9, 53.8 ]
+    lon_bnds: [ -115, -97.1 ]
+  Ute:
+    name: Ute
+    method: bbox
+    lat_bnds:  [ 35.5, 43]
+    lon_bnds: [ -109.6, -95.5 ]
+  Tlicho:
+    name: Tlicho
+    method: bbox
+    lat_bnds:  [ 61.3, 66.75]
+    lon_bnds: [ -130, -103.8 ]
 
 io:
   rechunk:
@@ -367,3 +407,10 @@ tdd:
   xarray_open_kwargs:
     decode_timedelta: False
 
+
+
+chunks:
+  pre-regrid: &pre-regrid
+    time: 365
+    lat: -1 # always lat,lon
+    lon: -1

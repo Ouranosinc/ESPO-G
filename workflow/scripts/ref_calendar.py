@@ -2,7 +2,7 @@ import xscen as xs
 from xscen import CONFIG
 import xclim as xc
 import xarray as xr
-from workflow.scripts.utils import dask_cluster
+from workflow.scripts.utils import dask_cluster, tmp_zarr_and_zip
 if 1==0: #trick vscode
     import snakemake
 
@@ -15,4 +15,5 @@ if __name__ == '__main__':
     
     ds_ref =ds_ref.convert_calendar(snakemake.wildcards.calendar, align_on="year")
 
-    xs.save_to_zarr(ds_ref, snakemake.output[0])
+    #xs.save_to_zarr(ds_ref, snakemake.output[0])
+    tmp_zarr_and_zip(ds_ref, snakemake.output[0])

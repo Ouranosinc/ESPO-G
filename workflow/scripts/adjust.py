@@ -22,24 +22,24 @@ if __name__ == '__main__':
 
     #TODO: test adapt
      # load ref ds
-    # choose right calendar
-    ds_sim=ds_sim.sel(time=slice('1951','2100'))
-    simcal = xc.core.calendar.get_calendar(ds_sim)
-    refcal = xs.utils.minimum_calendar(simcal, CONFIG['custom']['maximal_calendar'])
-    input_cal = 'noleap' if refcal == 'noleap' else  'day360' if refcal == '360_day' else 'unknown'
-    ds_ref = xr.open_zarr(getattr(snakemake.input, input_cal), decode_timedelta=False)
-    ds_ref=ds_ref.convert_calendar(input_cal, align_on="year")
-    ds_sim=ds_sim.convert_calendar(input_cal, align_on="year")
-    group=xc.sdba.Grouper.from_kwargs(**CONFIG['biasadjust']['variables']['pr']['training_args']['group'])["group"]
+    # # choose right calendar
+    # ds_sim=ds_sim.sel(time=slice('1951','2100'))
+    # simcal = xc.core.calendar.get_calendar(ds_sim)
+    # refcal = xs.utils.minimum_calendar(simcal, CONFIG['custom']['maximal_calendar'])
+    # input_cal = 'noleap' if refcal == 'noleap' else  'day360' if refcal == '360_day' else 'unknown'
+    # ds_ref = xr.open_zarr(getattr(snakemake.input, input_cal), decode_timedelta=False)
+    # ds_ref=ds_ref.convert_calendar(input_cal, align_on="year")
+    # ds_sim=ds_sim.convert_calendar(input_cal, align_on="year")
+    # group=xc.sdba.Grouper.from_kwargs(**CONFIG['biasadjust']['variables']['pr']['training_args']['group'])["group"]
 
-    #extend ref artificially to have same time has sim
-    ds_extended = xr.concat([ds_ref]*5, dim='time')
-    ds_extended['time']=ds_sim['time']
+    # #extend ref artificially to have same time has sim
+    # ds_extended = xr.concat([ds_ref]*5, dim='time')
+    # ds_extended['time']=ds_sim['time']
 
-    ds_extended=ds_extended.chunk({'time':-1})
-    ds_sim=ds_sim.chunk({'time':-1})
+    # ds_extended=ds_extended.chunk({'time':-1})
+    # ds_sim=ds_sim.chunk({'time':-1})
 
-    ds_sim['pr'],_,_ = xc.sdba.processing.adapt_freq(ds_extended['pr'], ds_sim['pr'], thresh="1 mm d-1",group=group)
+    # ds_sim['pr'],_,_ = xc.sdba.processing.adapt_freq(ds_extended['pr'], ds_sim['pr'], thresh="1 mm d-1",group=group)
 
     # adjust
     ds_scen = xs.adjust(

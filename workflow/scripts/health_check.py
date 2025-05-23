@@ -12,7 +12,7 @@ xs.load_config("config/config-general.yml", "config/config-region.yml", "config/
 if __name__ == '__main__':
     client=dask_cluster(snakemake.params)
     
-    ds_input = xr.open_zarr(snakemake.input[0], decode_timedelta=False)
+    ds_input = xr.open_mfdataset(snakemake.input, engine='zarr', decode_timedelta=False)
 
     hc = xs.diagnostics.health_checks(
         ds=ds_input,

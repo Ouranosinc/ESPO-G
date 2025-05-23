@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # clean up time
     ds_sim['time'] = ds_sim.time.dt.floor('D') 
 
-    ds_sim = ds_sim.chunk(CONFIG['extraction']['simulation']['chunks'])
+    ds_sim = ds_sim.chunk(CONFIG['chunks']['pre-regrid'])
     
     # trick to fix CanESM5
     if 'CMIP6_ScenarioMIP_CCCma_CanESM5_ssp585_r1i1p1f1_global' == snakemake.wildcards.sim_id:

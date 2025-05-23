@@ -32,8 +32,8 @@ if __name__ == '__main__':
         **CONFIG['biasadjust']['variables'][snakemake.wildcards.var]['training_args']
         )
 
-    ds_tr = ds_tr.chunk({d: CONFIG['custom']['working_chunks'][d] for d in ds_tr.dims
-                            if d in CONFIG['custom']['working_chunks'].keys()})
+    ds_tr = ds_tr.chunk({d: CONFIG['chunks']['working'][d] for d in ds_tr.dims
+                            if d in CONFIG['chunks']['working'].keys()})
     
     #TODO: nunavik
     for v in ['lat','lon']:

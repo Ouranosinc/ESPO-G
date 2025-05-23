@@ -12,12 +12,12 @@ xs.load_config("config/config-general.yml", "config/config-region.yml", "config/
 
 if __name__ == '__main__':
 
-    client=dask_cluster(snakemake.params)
+    #client=dask_cluster(snakemake.params)
     
     # get all adjusted data
     ds = xr.open_mfdataset(snakemake.input, engine='zarr', decode_timedelta=False)
     ds = ds.assign(tasmin=conversions.tasmin_from_dtr(dtr=ds.dtr, tasmax=ds.tasmax))
-    ds = ds.drop_vars('dtr')
+    #ds = ds.drop_vars('dtr')
 
     ds = xs.clean_up(ds=ds,**CONFIG['clean_up']['xscen_clean_up'])
 

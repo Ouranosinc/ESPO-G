@@ -1,37 +1,24 @@
-#Configuration file R2
+#Configuration file R2- nunavik
 
 custom:
     regions:
-        south-rot:
-            name: south-rot
+        southrot:
+            name: southrot
             method: sel
-            rlon: [ 324.5, 388.2 ]
-            rlat: [ -47, -23 ]
-        middle-rot:
-            name: middle-rot
+            rlat: [0, 2.5]
+            rlon: [372.3, 375.25] #TODO: nunavik
+        middlerot:
+            name: middlerot
             method: sel
-            rlon: [ 324.5, 388.2 ]
-            rlat: [ -23, 1 ]
-        north-rot:
-            name: north-rot
-            method: sel
-            rlon: [ 324.5, 388.2 ]
-            rlat: [ 1, 26 ]
+            rlat: [2.5, 5.1]
+            rlon: [372.3, 375.25] #TODO: nunavik
     full_region:
       name: &nam-name
-        NAM-R2
+        NAMnunavikR2
       method: bbox
       tile_buffer: 1.5
-      lon_bnds: [ -179.95, -10 ]
-      lat_bnds: [ 10, 83.4 ]
-    working_chunks:
-        rlat: 20
-        rlon: 20
-        loc: 600
-        time: -1
-    final_chunks:
-        rlat: 50
-        rlon: 50
+      lon_bnds: [ -67, -64 ]
+      lat_bnds: [ 56.35, 60.45 ] # nunavik
     ref_period : &ref_period
         - '1989'
         - '2018'
@@ -122,9 +109,23 @@ off-diag:
         period: *ref_period
     scen:
       domain:
-        Haudenosaunee: NAM-R2
-        Ute: NAM-R2
-        Dene: NAM-R2
-        Magtogoek: NAM-R2
+        Haudenosaunee: NAMnunavikR2
+        Ute: NAMnunavikR2
+        Dene: NAMnunavikR2
+        Magtogoek: NAMnunavikR2
       properties_and_measures:
         period: *ref_period
+
+chunks:
+  working:
+    rlat: 20
+    rlon: 20
+    loc: 600
+    time: -1
+  diag:
+    rlat: -1
+    rlon: -1
+  final: 
+    rlat: 10
+    rlon: 10
+    time: 4year

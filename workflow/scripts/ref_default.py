@@ -1,6 +1,6 @@
 import xscen as xs
 from xscen import CONFIG
-from workflow.scripts.utils import dask_cluster
+from workflow.scripts.utils import dask_cluster, tmp_zarr_and_zip
 if 1==0: #trick vscode
     import snakemake
 
@@ -16,7 +16,7 @@ if __name__ == '__main__':
     dc = cat_ref.popitem()[1]
 
     ds_ref = xs.extract_dataset(catalog=dc,
-                                region= CONFIG['custom']['regions'][snakemake.wildcards.region],
+                                region= CONFIG['custom']['regions'][snakemake.wildcards.subregion],
                                 **CONFIG['extraction']['reference']['extract_dataset']
                                 )['D']
 
@@ -30,4 +30,5 @@ if __name__ == '__main__':
     # chunk
     ds_ref = ds_ref.chunk({d: CONFIG['custom']['working_chunks'][d] for d in ds_ref.dims})
 
-    xs.save_to_zarr(ds_ref, snakemake.output[0])
+    #xs.save_to_zarr(ds_ref, snakemake.output[0])
+    tmp_zarr_and_zip(ds_ref, snakemake.output[0])

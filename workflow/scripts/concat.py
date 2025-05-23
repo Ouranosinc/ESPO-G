@@ -27,23 +27,27 @@ if __name__ == '__main__':
     dsC.attrs.pop('intake_esm_dataset_key')
     dsC.attrs.pop('cat:path')
 
-    dsC = dsC.chunk(
-        xs.utils.translate_time_chunk(
-            {'time': '4year'},
-            xc.core.calendar.get_calendar(dsC),
-            dsC.time.size)| CONFIG['custom']['final_chunks']
-                               )
+    # dsC = dsC.chunk(
+    #     xs.utils.translate_time_chunk(
+    #         {'time': '4year'},
+    #         xc.core.calendar.get_calendar(dsC),
+    #         dsC.time.size)| CONFIG['custom']['final_chunks']
+    #                            )
+    chunks=xs.utils.translate_time_chunk(
+        CONFIG['chunks']['final'],
+        calendar=dsC.time.dt.calendar,
+        timesize=dsC.time.size,)
+    dsC=dsC.chunk(chunks)
     
 
 
-    xs.save_to_zarr(
-        ds=dsC,
-        filename=snakemake.output.tmp,
-        )
+    # xs.save_to_zarr(
+    #     ds=dsC,
+    #     filename=snakemake.output.tmp,
+    #     )
     
-    zip_directory(snakemake.output.tmp, snakemake.output.final)
+    # zip_directory(snakemake.output.tmp, snakemake.output.final)
 
-    # TODO: when future improvement MBCn
-    #    for var in dsC.data_vars:
-    #     tmp_zarr_and_zip(dsC[[var]],snakemake.output[var])
+    for var in dsC.data_vars:
+        tmp_zarr_and_zip(dsC[[var]],snakemake.output[var])
 

@@ -16,8 +16,8 @@ if __name__ == '__main__':
     xs.io.rechunk(
           path_in=snakemake.input[0],
           path_out=snakemake.output[0],
-          chunks_over_dim=CONFIG['custom']['final_chunks']|{'time': '4year'} ,
-          temp_store=f"{os.environ['SLURM_TMPDIR']}/{snakemake.wildcards.sim_id}+{snakemake.wildcards.region}/",
+          chunks_over_dim=CONFIG['chunks']['final'] ,
+          temp_store=f"{os.environ['SLURM_TMPDIR']}/{snakemake.wildcards.sim_id}+{snakemake.wildcards.subregion}/",
           overwrite=True)
 
 
