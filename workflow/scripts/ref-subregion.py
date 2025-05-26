@@ -17,12 +17,11 @@ if __name__ == '__main__':
     ds_ref = xs.spatial.subset(ds_ref, **CONFIG['custom']['regions'][snakemake.wildcards.subregion])
 
     # stack
-    if CONFIG['custom']['stack_drop_nans']:
-        var = list(ds_ref.data_vars)[0]
-        ds_ref = xs.utils.stack_drop_nans(
-            ds_ref,
-            ds_ref[var].isel(time=0, drop=True).notnull().compute(),
-        )
+    var = list(ds_ref.data_vars)[0]
+    ds_ref = xs.utils.stack_drop_nans(
+        ds_ref,
+        ds_ref[var].isel(time=0, drop=True).notnull().compute(),
+    )
     # chunk
     ds_ref = ds_ref.chunk({d: CONFIG['chunks']['working'][d] for d in ds_ref.dims})
     

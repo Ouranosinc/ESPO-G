@@ -28,4 +28,10 @@ if __name__ == '__main__':
     if snakemake.wildcards.sim_id in CONFIG['clean_up']['problems']:
         ds = ds.where(ds.tasmin > 100)
 
+    chunks=xs.utils.translate_time_chunk(
+        CONFIG['chunks']['final'],
+        calendar=ds.time.dt.calendar,
+        timesize=ds.time.size,)
+    ds=ds.chunk(chunks)
+
     xs.save_to_zarr(ds, snakemake.output[0], itervar=True)

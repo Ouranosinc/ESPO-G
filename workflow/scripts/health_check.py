@@ -2,7 +2,7 @@ import xarray as xr
 import os
 import xscen as xs
 from xscen import CONFIG
-from workflow.scripts.utils import dask_cluster
+from workflow.scripts.utils import dask_cluster, tmp_zarr_and_zip
 if 1==0: #trick vscode
     import snakemake
 
@@ -20,6 +20,6 @@ if __name__ == '__main__':
 
     hc.attrs.update(ds_input.attrs)
 
-    xs.save_to_zarr(hc, snakemake.output[0])
+    tmp_zarr_and_zip(hc, snakemake.output[0])
 
 

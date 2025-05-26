@@ -1,8 +1,6 @@
 #Configuration file for ESPO-G6-E5L v1.0.0
 # TODO: replace with your own paths in /project and /scratch and rename file to paths.yml.
 paths:
-  project_catalog: &pcat
-   <PROJECT-ESPO-DIR>/cat_ESPO-G6.json
   tmpdir: <SCRATCH-ESPO-DIR>
   home: <FULL-PATH-TO-THIS-REPO>
   final: <PROJECT-ESPO-DIR>

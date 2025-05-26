@@ -18,7 +18,7 @@ if __name__ == '__main__':
     # load ref ds
     # choose right calendar
     simcal = xc.core.calendar.get_calendar(ds_hist)
-    refcal = xs.utils.minimum_calendar(simcal, CONFIG['custom']['maximal_calendar'])
+    refcal = xs.utils.minimum_calendar(simcal, 'noleap')
 
     # snakemake can't have 360_day as a keyword..
     input_cal = 'noleap' if refcal == 'noleap' else  'day360' if refcal == '360_day' else 'unknown'

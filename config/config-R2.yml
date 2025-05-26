@@ -1,24 +1,29 @@
-#Configuration file R2- nunavik
+#Configuration file R2
 
 custom:
     regions:
-        southrot:
-            name: southrot
+        south-rot:
+            name: south-rot
             method: sel
-            rlat: [0, 2.5]
-            rlon: [372.3, 375.25] #TODO: nunavik
-        middlerot:
-            name: middlerot
+            rlon: [ 324.5, 388.2 ]
+            rlat: [ -47, -23 ]
+        middle-rot:
+            name: middle-rot
             method: sel
-            rlat: [2.5, 5.1]
-            rlon: [372.3, 375.25] #TODO: nunavik
+            rlon: [ 324.5, 388.2 ]
+            rlat: [ -23, 1 ]
+        north-rot:
+            name: north-rot
+            method: sel
+            rlon: [ 324.5, 388.2 ]
+            rlat: [ 1, 26 ]
     full_region:
       name: &nam-name
-        NAMnunavikR2
+        NAM-R2
       method: bbox
       tile_buffer: 1.5
-      lon_bnds: [ -67, -64 ]
-      lat_bnds: [ 56.35, 60.45 ] # nunavik
+      lon_bnds: [ -179.95, -10 ]
+      lat_bnds: [ 10, 83.4 ]
     ref_period : &ref_period
         - '1989'
         - '2018'
@@ -88,6 +93,7 @@ health_checks:
         - rlon
         - time
     
+
 chunks:
   working:
     rlat: 20
@@ -98,6 +104,6 @@ chunks:
     rlat: -1
     rlon: -1
   final: 
-    rlat: 10
-    rlon: 10
+    rlat: 50
+    rlon: 50
     time: 4year

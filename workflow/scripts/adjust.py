@@ -25,7 +25,7 @@ if __name__ == '__main__':
     # # choose right calendar
     # ds_sim=ds_sim.sel(time=slice('1951','2100'))
     # simcal = xc.core.calendar.get_calendar(ds_sim)
-    # refcal = xs.utils.minimum_calendar(simcal, CONFIG['custom']['maximal_calendar'])
+    # refcal = xs.utils.minimum_calendar(simcal, 'noleap')
     # input_cal = 'noleap' if refcal == 'noleap' else  'day360' if refcal == '360_day' else 'unknown'
     # ds_ref = xr.open_zarr(getattr(snakemake.input, input_cal), decode_timedelta=False)
     # ds_ref=ds_ref.convert_calendar(input_cal, align_on="year")

@@ -21,6 +21,11 @@ if __name__ == '__main__':
     ds_ref['pr'] = xc.core.units.convert_units_to(ds_ref['pr'],
                                                     'kg m-2 s-1',
                                                     context='hydro')
+    #fix encoding chunks issue
+    for var in ds_ref.data_vars:
+        if 'chunks' in ds_ref[var].encoding:
+            del ds_ref[var].encoding['chunks']
+            
     ds_ref= ds_ref.chunk({d: CONFIG['chunks']['working'][d] for d in ds_ref.dims})
     print(snakemake.output.ref)
     tmp_zarr_and_zip(ds_ref, snakemake.output.ref)

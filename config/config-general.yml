@@ -1,20 +1,8 @@
 #Configuration file for ESPO-G6
-test:
-  a: 1
-project:
-  name: ESPO-G6
-  version: v20
-  description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6
-  id: eg6
-
 custom:
-    stack_drop_nans: &stack # goal is to drop Nan to make it faster
-        True
     sim_period: &sim_period
         - '1951' # TODO: pour adapt freq dans adjust
         - '2100'
-    maximal_calendar:
-        noleap
 
 extraction:
   reference:
@@ -24,7 +12,6 @@ extraction:
           tasmin: D
           pr: D
           dtr: D
-          #tas: D
         allow_resampling: False
         allow_conversion: True
       extract_dataset:
@@ -34,7 +21,6 @@ extraction:
           tasmax: K
           tasmin: K
           pr: kg m-2 s-1
-          #tas: K
           dtr: K
   simulation:
       search_data_catalogs:
@@ -56,14 +42,14 @@ extraction:
             - CMCC-ESM2 
             - CNRM-ESM2-1 
             - CNRM-CM6-1
-            #- FGOALS-g3
+            - FGOALS-g3
             - GFDL-ESM4 
             - INM-CM5-0
             - MIROC6
             - MIROC-ES2L 
             - MPI-ESM1-2-HR
             - MPI-ESM1-2-LR 
-            #- MRI-ESM2-0 
+            - MRI-ESM2-0 
             - NorESM2-LM
           member:
             - r1i1p1f1
@@ -74,14 +60,13 @@ extraction:
         xr_open_kwargs:
           drop_variables:
             - height
-      #chunks: {'time': 365, 'lat':-1, 'lon':-1}
 
 regrid:
   regrid_dataset:
       regridder_kwargs:
         method: bilinear
         extrap_method: inverse_dist
-        locstream_out: *stack
+        locstream_out: True
         reuse_weights: False
       intermediate_grids:
         reg1:
@@ -205,7 +190,7 @@ clean_up:
     - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp585_r1i1p1f1_global
   xscen_clean_up:
       maybe_unstack_dict:
-        stack_drop_nans: *stack
+        stack_drop_nans: True
       round_var:
         pr: 10
       to_level: cleaned_up
@@ -255,6 +240,29 @@ diagnostics:
       tas: degC
     properties: config/properties.yml
 
+
+diagregion:   
+  Magtogoek:
+    name: Magtogoek
+    method: bbox
+    lat_bnds:  [ 41.4, 49.4] 
+    lon_bnds: [ -92.2, -59.8 ]
+  Cree:
+    name: Cree
+    method: bbox
+    lat_bnds: [ 46.9, 53.8 ]
+    lon_bnds: [ -115, -97.1 ]
+  Ute:
+    name: Ute
+    method: bbox
+    lat_bnds:  [ 35.5, 43]
+    lon_bnds: [ -109.6, -95.5 ]
+  Tlicho:
+    name: Tlicho
+    method: bbox
+    lat_bnds:  [ 61.3, 66.75]
+    lon_bnds: [ -130, -103.8 ]
+
 health_checks:
     start_date: "1951-01-01" #TODO: adpat freq adjust
     end_date: "2100-12-30"
@@ -291,97 +299,11 @@ health_checks:
       - cfchecks
       - freq
 
-off-diag:
-  domains:
-    Haudenosaunee:
-        name: Haudenosaunee
-        method: bbox
-        lat_bnds: [ 42.0, 47.0 ]
-        lon_bnds: [ -79.0, -71.0 ]
-    Ute:
-        name: Ute
-        method: bbox
-        lat_bnds: [ 35.0, 40.0 ]
-        lon_bnds: [ -111.0, -103.0 ]
-    Dene:
-        name: Dene
-        method: bbox
-        lat_bnds: [ 60.0, 65.0 ]
-        lon_bnds: [ -124.0, -116.0 ]
-    Magtogoek:
-      name: Magtogoek
-      method: bbox
-#      lat_bnds:  [ 48, 49] # small fake region
-#      lon_bnds: [ -68, -62 ] # small fake region
-      lat_bnds:  [ 41.4, 49.4]  #[ 41, 49]
-      lon_bnds: [ -92.2, -59.8 ] #[ -92, -68 ]
-  steps:
-    ref:
-      domain:
-        Haudenosaunee: middle
-        Ute: south
-        Dene: middle
-        Magtogoek: middle
-      properties_and_measures:
-        properties: &off-properties
-          config/off-properties_ESPO-G.yml
-        to_level_prop: off-diag-ref-prop
-      #unstack: *stack
-    sim:
-      domain:
-        Haudenosaunee: middle
-        Ute: south
-        Dene: middle
-        Magtogoek: middle
-      dref_for_measure:
-        processing_level: off-diag-ref-prop
-      properties_and_measures:
-        properties: *off-properties
-        to_level_prop: off-diag-sim-prop
-        to_level_meas: off-diag-sim-meas
-      unstack: *stack
-    scen:
-      domain:
-        Haudenosaunee: NAM
-        Ute: NAM
-        Dene: NAM
-        Magtogoek: NAM
-      dref_for_measure:
-        processing_level: off-diag-ref-prop
-      properties_and_measures:
-        properties: *off-properties
-        to_level_prop: off-diag-scen-prop
-        to_level_meas: off-diag-scen-meas
-      unstack: False
-
-diagregion:   
-  Magtogoek:
-    name: Magtogoek
-    method: bbox
-    lat_bnds:  [ 41.4, 49.4] 
-    lon_bnds: [ -92.2, -59.8 ]
-  Cree:
-    name: Cree
-    method: bbox
-    lat_bnds: [ 46.9, 53.8 ]
-    lon_bnds: [ -115, -97.1 ]
-  Ute:
-    name: Ute
-    method: bbox
-    lat_bnds:  [ 35.5, 43]
-    lon_bnds: [ -109.6, -95.5 ]
-  Tlicho:
-    name: Tlicho
-    method: bbox
-    lat_bnds:  [ 61.3, 66.75]
-    lon_bnds: [ -130, -103.8 ]
-
 io:
   rechunk:
     worker_mem: 2GB
   save_to_zarr:
     mode: o
-
 
 
 logging:
@@ -406,7 +328,6 @@ dask:
 tdd:
   xarray_open_kwargs:
     decode_timedelta: False
-
 
 
 chunks:
