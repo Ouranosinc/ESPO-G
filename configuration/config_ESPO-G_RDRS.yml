@@ -1,10 +1,10 @@
-# Configuration file for ESPO-G6-R2 v1.0.0
+# Configuration file for ESPO-G6E-R3 v1.0.0
 
 project:
-    name: ESPO-G6-R2
+    name: ESPO-G6E-R3
     version: 1.0.0
-    description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6
-    id: eg6
+    description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6 Étendu - RCaSv3
+    id: eg6+
 
 tasks:
   ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
@@ -49,7 +49,7 @@ custom:
             rlat: [ 1, 26 ]
     amno_region:
       name:  &nam-name
-        NAM-rdrs
+        NAM-CaSR
       method: bbox
       tile_buffer: 1.5
       lon_bnds: [ -179.95, -10 ]
@@ -66,11 +66,11 @@ custom:
         rlon: 50
         time: 4year
     ref_period : &ref_period
-        - '1989'
-        - '2018'
+        - '1991'
+        - '2020'
     sim_period: &sim_period
-        - '1950'
-        - '2100'
+        - '1971'
+        - '2300'
     maximal_calendar:
         noleap
     rechunk:
@@ -110,7 +110,7 @@ extraction:
             match_hist_and_fut: True
             allow_conversion: True
             allow_resampling: False
-            restrict_members:
+            restrict_members: # Does restrict_members does the same thing as member in other_search_criteria ?
               ordered: 1
             periods: *sim_period
             exclusions:
@@ -119,25 +119,22 @@ extraction:
             other_search_criteria:
               processing_level: raw
               experiment:
+                # - ssp126
                 - ssp245
                 - ssp370
-                - ssp585
-#              source: &hausfather-source    # in the TCR likely range (15) #chunking
-#                - BCC-CSM2-MR
-#                - FGOALS-g3 # None, but 1 file per year
-#                - CMCC-ESM2 # [1, 192, 288]
-#                - CNRM-ESM2-1 # [1, 128, 256] # cut didnt work here for some reason.. (x2)
-#                - ACCESS-CM2 #  [1, 145, 192]
-#                - ACCESS-ESM1-5 # [1, 96, 144]
-#                - MPI-ESM1-2-HR # [1, 192, 384]
-#                - INM-CM5-0 # [1, 120, 180]
-#                - MIROC6 # [1, 96, 192]
-#                - MPI-ESM1-2-LR #[1, 96, 192]
-#                - MRI-ESM2-0 #[1, 160, 320]
-#                - NorESM2-LM #[1, 96, 144]
-#                - KACE-1-0-G #[1, 144, 192] time out extract
-#                - GFDL-ESM4 #[1, 180, 288]
-#                - MIROC-ES2L # new one!
+                # - ssp585
+              source: &G6E-source  # Models that have simulations going beyond 2100 (up to 2300 except for CanESM5).
+#                - ACCESS-CM2       # SSP: 126                    # Other: N/A
+#                - ACCESS-ESM1-5    # SSP: 126, 585               # Other: 534-OS
+#                - CNRM-ESM2-1      # SSP: N/A                    # Other: 534-OS
+#                - CanESM5          # SSP: 126. 585 up to 2200.   # Other: 534-OS
+                - EC-Earth3-Veg    # SSP: All                    # Other: All (119, 434, 460, 534-OS)
+                - GISS-E2-1-G      # SSP: All                    # Other: 119, 534-OS
+#                - IPSL-CM6A-LR     # SSP: 126, 585               # Other: 534-OS
+#                - MIROC-ES2L       # SSP: 126, 585               # Other: 534-OS
+#                - MRI-ESM2-0       # SSP: 126, 585               # Other: 534-OS
+#                - NorESM2-MM       # SSP: 585                    # Other: N/A
+#                - UKESM1-0-LL      # SSP: 126, 585               # Other: N/A
         extract_dataset:
             periods : *sim_period
             xr_combine_kwargs:
@@ -308,10 +305,10 @@ clean_up:
       add_attrs:
         global:
           Notes: |
-            Regridded on the grid of RDRS v2.1, then bias-adjusted with detrended
+            Regridded on the grid of CaSR v3.1, then bias-adjusted with detrended
             quantile mapping on a day-of-year basis with a window of 31 days, LOESS
             detrending and 50 quantiles. The reference was RDRS v2.1 over the
-            1989-2018 period. The variables tasmax, dtr and pr were adjusted, tasmin was computed
+            1991-2020 period. The variables tasmax, dtr and pr were adjusted, tasmin was computed
             from tasmax and dtr after the adjustment.
           redistribution: Redistribution prohibited. For internal use only.
           version: "1.0.0"
@@ -418,7 +415,7 @@ aggregate:
   climatological_mean:
     window: 30
     interval: 10
-    periods: [['1951', '2100']]
+    periods: [['1971', '2300']]
     to_level: climatology
   compute_deltas:
     reference_horizon: "1991-2020"
@@ -545,7 +542,7 @@ off-diag:
 scripting:
     measure_time:
         cpu: True
-    subject: ESPO-G6
+    subject: ESPO-G6E
     send_mail_on_exit:
         msg_ok: Toutes les étapes demandées ont été complétées.
         msg_err: Une erreur est survenue durant le traitement.
