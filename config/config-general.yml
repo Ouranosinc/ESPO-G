@@ -36,21 +36,21 @@ extraction:
           experiment:
             - ssp370
           source:
-            - ACCESS-CM2 
-            - ACCESS-ESM1-5 
-            - BCC-CSM2-MR
-            - CMCC-ESM2 
-            - CNRM-ESM2-1 
-            - CNRM-CM6-1
-            - FGOALS-g3
-            - GFDL-ESM4 
-            - INM-CM5-0
-            - MIROC6
-            - MIROC-ES2L 
-            - MPI-ESM1-2-HR
-            - MPI-ESM1-2-LR 
-            - MRI-ESM2-0 
-            - NorESM2-LM
+            #- ACCESS-CM2 
+             - ACCESS-ESM1-5  #TODO: put right models
+            # - BCC-CSM2-MR
+            # - CMCC-ESM2 
+            # - CNRM-ESM2-1 
+            # - CNRM-CM6-1
+            # - FGOALS-g3
+            # - GFDL-ESM4 
+            # - INM-CM5-0
+            # - MIROC6
+            # - MIROC-ES2L 
+            # - MPI-ESM1-2-HR
+            # - MPI-ESM1-2-LR 
+            # - MRI-ESM2-0 
+            # - NorESM2-LM
           member:
             - r1i1p1f1
       extract_dataset:
@@ -153,7 +153,7 @@ biasadjust:
                    thresh: "1.1574e-05 kg m^-2 s^-1"
                 jitter_under:
                     thresh: 0.01 mm d-1
-                xclim_train_args: #TODO
+                xclim_train_args: #TODO: figure out dry day issue
                     kind: "*"
                     nquantiles: 50
                 # xsdba_train_args:

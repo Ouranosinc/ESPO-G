@@ -34,3 +34,7 @@ dask:
         dashboard_address: <YOUR-RANDOM-PORT-NUMBER>
 
 
+#For create_hurstasmax
+reccat: <PATH-TO-RECONSTRUCTION-CAT>
+data: <PATH-TO-DATA>
+espoinput: <PATH-TO-PERSONNAL-CAT>/ESPO-input.json

@@ -40,4 +40,5 @@ def create_tmp_path(path):
 def tmp_zarr_and_zip(ds, p):
     tmp_path=create_tmp_path(p)
     xs.save_to_zarr(ds, tmp_path)
+    Path(p).parent.mkdir(parents=True, exist_ok=True)
     xs.io.zip_directory(tmp_path, p)

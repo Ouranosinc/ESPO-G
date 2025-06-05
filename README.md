@@ -20,14 +20,10 @@ This version of the workflow is meant to be run on a HPC such as Narval. It uses
 
 To run the workflow:
 
-1) On narval, build a virtual env:
+1) On narval, activate the  virtual env:
 
 ```bash
-$ module load StdEnv/2023 gcc openmpi python/3.11 arrow/16.1.0 openmpi netcdf proj esmf geos mpi4py/3.1.4 ipykernel/2023b scipy-stack/2023b
-$ virtualenv --no-download espo
-$ source espo/bin/activate
-$ pip install --no-index --upgrade pip 
-$ pip install  --no-index -r requirements.txt
+$ pyact dqm
 ```
 
 2) Specify the output files wanted in the rule `all:input` of the `Snakefile`. (Final files are input of checks and diagnostics. Hence, no need to explicitely ask for them, they will be created.)
