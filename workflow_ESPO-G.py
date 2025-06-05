@@ -10,7 +10,9 @@ from dask.diagnostics import ProgressBar
 import xscen as xs
 import glob
 from itertools import product
-from xclim.core.calendar import convert_calendar, get_calendar, date_range_like,doy_to_days_since
+from xclim.core.calendar import get_calendar, doy_to_days_since
+from xarray.core.dataset import convert_calendar
+from xarray import date_range_like
 from xclim.sdba import properties
 import xclim as xc
 from xscen.xclim_modules import conversions
