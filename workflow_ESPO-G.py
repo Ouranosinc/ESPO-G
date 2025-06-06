@@ -10,8 +10,7 @@ from dask.diagnostics import ProgressBar
 import xscen as xs
 import glob
 from itertools import product
-from xclim.core.calendar import get_calendar, doy_to_days_since
-from xarray.core.dataset import convert_calendar # We should not import from xarray.core 
+from xclim.core.calendar import get_calendar, doy_to_days_since 
 from xarray import date_range_like
 from xclim.sdba import properties
 import xclim as xc
@@ -113,7 +112,7 @@ if __name__ == '__main__':
                     ds_ref = pcat.search(source=ref_source,calendar='default',domain=region_name).to_dask()
 
                     # convert calendars
-                    ds_refnl = convert_calendar(ds_ref, "noleap")
+                    ds_refnl = ds_ref.convert_calendar("noleap")
                     save_move_update(ds=ds_refnl,
                                      pcat=pcat,
                                      init_path=f"{exec_wdir}/ref_{region_name}_noleap.zarr",
@@ -125,7 +124,7 @@ if __name__ == '__main__':
 
                     ds_ref = pcat.search(source=ref_source,calendar='default',domain=region_name).to_dask()
 
-                    ds_ref360 = convert_calendar(ds_ref, "360_day", align_on="year")
+                    ds_ref360 = ds_ref.convert_calendar("360_day", align_on="year")
                     save_move_update(ds=ds_ref360,
                                      pcat=pcat,
                                      init_path=f"{exec_wdir}/ref_{region_name}_360_day.zarr",
