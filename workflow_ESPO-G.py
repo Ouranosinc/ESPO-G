@@ -11,7 +11,7 @@ import xscen as xs
 import glob
 from itertools import product
 from xclim.core.calendar import get_calendar, doy_to_days_since
-from xarray.core.dataset import convert_calendar
+from xarray.core.dataset import convert_calendar # We should not import from xarray.core 
 from xarray import date_range_like
 from xclim.sdba import properties
 import xclim as xc
