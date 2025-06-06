@@ -1,39 +1,43 @@
-#config_NAM-E5L
+#config_NAM-R2
 
 full_region:
-  name: NAM-E5L
+  name: NAM-R2
   method: bbox
   lon_bnds: [-179.95, -10  ]
   lat_bnds: [ 10, 83.4 ]
 
 subregions:
   n: 7500 # number of loc in one region
-  #num_of_regions: ? # can be calculated if we don't know it
+  num_of_regions: 75 # can be calculated if we don't know it
 
 extraction:
     reference:
         search_data_catalogs:
+            variables_and_freqs: &var_and_freq
+                #mask: fx #TODO: add mask
             other_search_criteria:
                 source: &ref_source
-                  ERA5-Land
+                  RDRS
             periods : &ref_period
-                  - '1991'
-                  - '2020'
+                  - '1989'
+                  - '2018'
+        extract_dataset:
+             #mask: True #TODO: when we have mask
 
 
 biasadjust_mbcn:
   train:
     period: *ref_period
   attrs:
-    bias_adjust_project: MBCn-E5L
+    bias_adjust_project: MBCn-R2
 
 clean_up:
   xscen_clean_up:
     add_attrs:
       global:
         Notes: |
-          Regridded on the grid of ERA5-Land, then bias-adjusted with MBCn.
-          The reference was ERA5-Land over the 1991-2020 period.
+          Regridded on the grid of RDRS, then bias-adjusted with MBCn.
+          The reference was RDRS over the 1989-2018 period.
  
 diagnostics:
   properties_and_measures:
@@ -55,14 +59,14 @@ diagnostics:
 
 chunks:
   working:
-    lat: 15
-    lon: 15
+    rlat: 15
+    rlon: 15
     loc: 10
     time: -1
   diag:
-    lat: -1
-    lon: -1
+    rlat: -1
+    rlon: -1
   final: 
-    lat: 30
-    lon: 30
+    rlat: 30
+    rlon: 30
     time: 4year

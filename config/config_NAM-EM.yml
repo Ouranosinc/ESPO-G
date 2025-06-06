@@ -24,6 +24,8 @@ extraction:
 biasadjust_mbcn:
   train:
     period: *ref_period
+  attrs:
+    bias_adjust_project: MBCn-EM
 
 clean_up:
   xscen_clean_up:

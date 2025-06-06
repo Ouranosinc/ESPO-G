@@ -13,47 +13,40 @@ extraction:
                 tasmin: D
                 pr: D
                 dtr: D
-                tas: D
-                #mask: fx #TODO: add mask
+                hurs: D
+                hursTasmax: D
             allow_resampling: False
             allow_conversion: True
-        extract_dataset:
-          #mask: True #TODO: when we have mask
-          xr_combine_kwargs: {} # FIXME:  remove when bug is fixed in xscen
+        #extract_dataset:
+          #xr_combine_kwargs: {} # FIXME:  remove when bug is fixed in xscen
         clean_up:
           variables_and_units:
             tasmax: K
             tasmin: K
             pr: kg m-2 s-1
-            tas: K
             dtr: K
+            hurs: "%"
+            hursTasmax: "%"
     simulation:
         search_data_catalogs:
-          variables_and_freqs:
-            tasmax: D
-            tasmin: D
-            pr: D
-            dtr: D
-            tas: D
+          variables_and_freqs: *var_and_freq
           match_hist_and_fut: True
           allow_conversion: True
           allow_resampling: False
           periods: &sim_period
             - '1951'
             - '2100' 
-          #   - '2300' #FIXME: can use this when xscen #587 is fixed
           restrict_members: 
-            ordered: 1
+            ordered: 1 #TODO: check members chosen against PCIC
           other_search_criteria:
             processing_level: raw
             experiment:
               #- ssp245
-              #- ssp370
-              - ssp126
+              - ssp370
+              #- ssp126
             source: # in the TCR likely range (14) 
-              - CanESM5
               # - ACCESS-CM2 
-              # - ACCESS-ESM1-5 
+               - ACCESS-ESM1-5 
               # - BCC-CSM2-MR
               # - CMCC-ESM2 
               # - CNRM-ESM2-1 
@@ -74,9 +67,6 @@ extraction:
             #  - CanESM5-1
             #member: r1i1p2f1
         extract_dataset:
-            # periods: &sim_period  #FIXME: can use this until xscen #587 is fixed
-            #   - '1951' 
-            #   - '2300'
             periods : *sim_period
             xr_combine_kwargs:
               combine_attrs: override
@@ -138,12 +128,18 @@ biasadjust_mbcn:
       - tasmax
       - dtr
       - pr
-      - tasmin
-      - tas
+      - hurs
+      - hursTasmax
     method: MBCn
     group:
-      group: 5D
+      group: 5D #TODO: put same group in DQM and MBCn
       window: 7
+    additive_space:
+      hurs: &logit
+        lower_bound: "0 %"
+        upper_bound: "100 %"
+        trans: "logit"
+      hursTasmax: *logit
     xsdba_train_args:
       base_kws:
         nquantiles: 50
@@ -160,23 +156,22 @@ biasadjust_mbcn:
         pr:
           kind: "*"
           jitter_under_thresh_value: "1.1574e-07 kg m^-2 s^-1" #"0.01 mm d-1" #FIXME: when xscen/xsda can handle units correctly
-          adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" #"1 mm d-1"
+          adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" #"1 mm d-1" #TODO: issue https://github.com/Ouranosinc/ESPO-G/issues/8
         dtr:
           kind: "*"
           jitter_under_thresh_value: "1e-4 K"
-        tasmin:
-          kind: "+"
         tasmax:
           kind: "+"
-        tas: 
-          kind: "+"
+        hurs:
+          kind: "+" # because we do logit trans
+        hursTasmax: 
+          kind: "+" # because we do logit trans
       adj_kws:
         interp: nearest
         extrapolation: constant
   attrs:
-    processing_level: biasadjusted
     bias_adjust_institution: Ouranos
-    bias_adjust_project: MBCn-EM
+    bias_adjust_project: MBCn-EM #TODO: put in reg
     version: v10
 
 clean_up:
@@ -218,10 +213,12 @@ clean_up:
     add_attrs:
       global:
         version: "v10"
-        code: https://github.com/Ouranosinc/ESPO-G/blob/main #TODO: put most up-to-date info
+        code: https://github.com/Ouranosinc/ESPO-G/tree/MBCn #TODO: put most up-to-date info
         contact: lavoie.juliette@ouranos.ca
         organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca
         avertissement : Ouranos ne donne aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande et d'adéquation à un usage particulier. Toutes les responsabilités découlant de la fourniture des informations (y compris toute responsabilité découlant d'une négligence) sont exclues dans toute la mesure permise par la loi.
+        organization: Scenarios and Climate Services Group, Ouranos Consortium, Montreal, QC; www.ouranos.ca
+        disclaimer: Ouranos make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.
         license:  Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/)
       # tasmax: #TODO: test if this is necessary
       #     standard_name: air_temperature
@@ -274,7 +271,8 @@ diagnostics:
       tasmin: degC
       pr: mm d-1
       dtr: K
-      tas: degC
+      hurs: "%"
+      hursTasmax: "%"
     properties: config/properties.yml
   health_checks:
     start_date: "1951-01-01"
@@ -284,7 +282,8 @@ diagnostics:
       tasmin: K
       pr: kg m-2 s-1
       dtr: K
-      tas: K
+      hurs: "%"
+      hursTasmax: "%"
     cfchecks:
       tasmax:
         cfcheck_from_name: {}
@@ -292,8 +291,12 @@ diagnostics:
         cfcheck_from_name: {}
       pr:
         cfcheck_from_name: {}
-      # dtr:
-      #   cfcheck_from_name: {} #FIXME: put back if using xclim >=0.57
+      dtr:
+        cfcheck_from_name: {}
+      hurs:
+        cfcheck_from_name: {}
+      hursTasmax:
+        cfcheck_from_name: {}
       tas:
         cfcheck_from_name: {}
     freq: D
@@ -309,7 +312,12 @@ diagnostics:
         negative_accumulation_values:
         very_large_precipitation_events:
           thresh: '1650 mm/d'
-      #TODO: add right flag for your variables
+      dtr:
+        negative_accumulation_values:
+      hurs:
+        percentage_values_outside_of_bounds:
+      hursTasmax:
+        percentage_values_outside_of_bounds:
     return_flags: True
     raise_on:
       - structure
