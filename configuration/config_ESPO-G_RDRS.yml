@@ -1,9 +1,9 @@
-# Configuration file for ESPO-G6E-R3 v1.0.0
+# Configuration file for ESPO-G6E-C3 v1.0.0
 
 project:
-    name: ESPO-G6E-R3
+    name: ESPO-G6E-C3
     version: 1.0.0
-    description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6 Étendu - RCaSv3
+    description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6 Étendu - CaRSv3
     id: eg6+
 
 tasks:
@@ -19,7 +19,7 @@ tasks:
   - diagnostics
   - concat
   - health_checks
-  - official-diag
+  # - official-diag
 #  - indicators
 #  - climatological_mean
 #  - abs-delta
@@ -92,6 +92,8 @@ extraction:
             other_search_criteria:
                 source: &ref_source
                     CaSR
+                version:
+                    v31
         extract_dataset:
           mask: True
         properties_and_measures:
