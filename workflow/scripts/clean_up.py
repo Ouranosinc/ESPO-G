@@ -34,4 +34,4 @@ if __name__ == '__main__':
         timesize=ds.time.size,)
     ds=ds.chunk(chunks)
 
-    xs.save_to_zarr(ds, snakemake.output[0], itervar=True)
+    xs.save_to_zarr(ds, snakemake.output[0], itervar=True, **CONFIG['clean_up']['save'])

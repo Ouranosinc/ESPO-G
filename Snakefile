@@ -1,5 +1,6 @@
 #TODO: before next run, check final attrs and final destination (maybe put direct in staging)
-
+#TODO: add hurs diags
+#TODO: figure out naming and versioning of ESPO
 from snakemake.utils import min_version
 from pathlib import Path
 import pandas as pd
@@ -15,11 +16,8 @@ configfile: "config/paths.yml"
 # choose the simulations to process
 dict_sim_id = xs.search_data_catalogs(**copy.deepcopy(config['extraction']['simulation']['search_data_catalogs'],))
 sim_ids= list(dict_sim_id.keys())
-sim_ids=sim_ids[:1] 
 
 subregions = list(config["custom"]["regions"].keys())
-#diag_domain = config['off-diag']['domains'].keys()
-diagregions=['Ute']#TODO: test
 ref_source = [config['extraction']['reference']['search_data_catalogs']['other_search_criteria']['source']]
 level=['improvement', 'diag_sim_prop','diag_sim_meas','diag_scen_prop','diag_scen_meas']
 # trick, use dom as wildcard so it can be defined in the config
@@ -120,9 +118,8 @@ rule adjust:
     input:
         train = tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr",
         rechunk = tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr",
-
-        noleap = finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip", #TODO: test adapt
-        day360 = finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip", #TODO: test adapt
+        noleap = finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip", #TODO: for test adapt
+        day360 = finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip", #TODO: for test adapt
     output:
         temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr"))
     params:
@@ -135,9 +132,8 @@ rule adjust:
 
 rule clean_up:
     input:
-        expand(tmpdir/"{{sim_id}}+{{dom}}+{{subregion}}+{var}+adjusted.zarr",var=["pr", "dtr", "tasmax"])
+        expand(tmpdir/"{{sim_id}}+{{dom}}+{{subregion}}+{var}+adjusted.zarr",var=list(config['biasadjust']['variables'].keys()))
     output:
-        #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+cleaned_up.zarr"))
         temp(directory(tmpdir/"day+{sim_id}+{dom}+{subregion}+1950-2100.zarr"))
     params:
         n_workers=2,
@@ -147,18 +143,6 @@ rule clean_up:
     script:
         "workflow/scripts/clean_up.py"
 
-# rule final_zarr:
-#     input:
-#         tmpdir/"{sim_id}+{dom}+{subregion}+cleaned_up.zarr",
-#     output:
-#         temp(directory(tmpdir/"day+{sim_id}+{dom}+{subregion}+1950-2100.zarr"))
-#     params:
-#         n_workers=2,
-#         mem='50GB',
-#         cpus_per_task=10,
-#         time="00:30:00",
-#     script:
-#         "workflow/scripts/final_zarr.py"
 
 def final_path(id):
     path='test'
@@ -176,12 +160,13 @@ def final_path(id):
          version=config['clean_up']['xscen_clean_up']['add_attrs']['global']['cat:version'],
          frequency='day',
          xrfreq='D',
-         date_start=config['custom']['sim_period'][0], 
-         date_end=config['custom']['sim_period'][1])))
+         date_start=config['extraction']['simulation']['search_data_catalogs']['periods'][0], 
+         date_end=config['extraction']['simulation']['search_data_catalogs']['periods'][1])))
     return str(os.path.dirname(os.path.dirname(path)))
 
 
 #sim_id HAS to be in output, so can't use only params
+#TODO: put right variables
 rule concatenation_final:
     input: 
        final = expand(tmpdir/"day+{{sim_id}}+{{dom}}+{subregion}+1950-2100.zarr",  subregion=subregions)
@@ -190,6 +175,9 @@ rule concatenation_final:
         tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip",
         tasmin=finaldir/"staging/{path}/tasmin/tasmin_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip",
         dtr=finaldir/"staging/{path}/dtr/dtr_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip", 
+        hurs=finaldir/"staging/{path}/hurs/hurs_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip", 
+        hursTasmaz=finaldir/"staging/{path}/hursTasmax/hursTasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip", 
+
     params:
         path=lambda wildcards: final_path(wildcards.sim_id),
         mem="60GB",
@@ -206,6 +194,9 @@ rule health_checks:
         tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
         tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
         dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/dtr/dtr_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        hurs=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hurs/hurs_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        hursTasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hursTasmax/hursTasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
+
     output:
         finaldir/"checks/{dom}/{sim_id}+{dom}_checks.zarr.zip"
     params:
@@ -239,6 +230,8 @@ rule diag:
         scen_tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
         scen_tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
         scen_dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/dtr/dtr_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        scen_hurs=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hurs/hurs_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        scen_hursTasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hursTasmax/hursTasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
     output: 
         sim_prop=finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_sim-prop.zarr.zip",
         sim_meas=finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_sim-meas.zarr.zip",

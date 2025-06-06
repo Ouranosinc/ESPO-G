@@ -1,9 +1,4 @@
 #Configuration file for ESPO-G6
-custom:
-    sim_period: &sim_period
-        - '1951' # TODO: pour adapt freq dans adjust
-        - '2100'
-
 extraction:
   reference:
       search_data_catalogs:
@@ -12,16 +7,18 @@ extraction:
           tasmin: D
           pr: D
           dtr: D
+          hurs: D
+          hursTasmax: D
         allow_resampling: False
         allow_conversion: True
-      extract_dataset:
-        xr_combine_kwargs: {} # bc of xscen bug. Should be removed in the future
       clean_up:
         variables_and_units:
           tasmax: K
           tasmin: K
           pr: kg m-2 s-1
           dtr: K
+          hurs: "%"
+          hursTasmax: "%"
   simulation:
       search_data_catalogs:
         variables_and_freqs: *var_and_freq
@@ -29,8 +26,10 @@ extraction:
         allow_conversion: True
         allow_resampling: False
         restrict_members:
-          ordered: 1
-        periods: *sim_period
+          ordered: 1 #TODO: check members chosen against PCIC
+        periods: &sim_period
+          - '1951' # TODO: pour adapt freq dans adjust
+          - '2100'
         other_search_criteria:
           processing_level: raw
           experiment:
@@ -51,8 +50,11 @@ extraction:
             # - MPI-ESM1-2-LR 
             # - MRI-ESM2-0 
             # - NorESM2-LM
-          member:
-            - r1i1p1f1
+            #TODO: rerun for CanESM5 r1i1p2f1 (meme membre que MRCC5) and CanESM5-1 (TCR =2.26 according to ESMValTool) to be less hot
+            #source: 
+            #  - CanESM5
+            #  - CanESM5-1
+            #member: r1i1p2f1
       extract_dataset:
         periods : *sim_period
         xr_combine_kwargs:
@@ -60,6 +62,10 @@ extraction:
         xr_open_kwargs:
           drop_variables:
             - height
+            - bnds
+            - time_bnds
+            - lat_bnds
+            - lon_bnds
 
 regrid:
   regrid_dataset:
@@ -101,17 +107,17 @@ biasadjust:
         dtr:
             training_args:
                 method: DetrendedQuantileMapping
-                group:
+                group: &group #TODO: put same group in DQM and MBCn
                     group: time.dayofyear
                     window: 31
                 jitter_under: # to avoid negative dtr (when temperature inversion GFDL)
                    thresh: 1e-4 K
-                xclim_train_args:
+                xsdba_train_args:
                     kind: "*"
                     nquantiles: 50
             adjusting_args:
                 periods: *sim_period
-                xclim_adjust_args:
+                xsdba_adjust_args: &adj-args
                     detrend:
                         LoessDetrend:
                           f: 0.2
@@ -125,35 +131,23 @@ biasadjust:
         tasmax:
             training_args:
                 method: DetrendedQuantileMapping
-                group:
-                    group: time.dayofyear
-                    window: 31
-                xclim_train_args:
+                group: *group
+                xsdba_train_args:
                     kind: "+"
                     nquantiles: 50
             adjusting_args:
                 periods: *sim_period
-                xclim_adjust_args:
-                  detrend:
-                    LoessDetrend:
-                      f: 0.2
-                      niter: 1
-                      d: 0
-                      weights: tricube
-                  interp: nearest
-                  extrapolation: constant
+                xsdba_adjust_args: *adj-args
                 bias_adjust_institution: *b_a_inst
         pr:
             training_args:
                 method: DetrendedQuantileMapping
-                group:
-                    group: time.dayofyear
-                    window: 31
+                group: *group
                 adapt_freq:
                    thresh: "1.1574e-05 kg m^-2 s^-1"
                 jitter_under:
                     thresh: 0.01 mm d-1
-                xclim_train_args: #TODO: figure out dry day issue
+                xsdba_train_args: #TODO: issue https://github.com/Ouranosinc/ESPO-G/issues/8
                     kind: "*"
                     nquantiles: 50
                 # xsdba_train_args:
@@ -162,73 +156,113 @@ biasadjust:
                 #     adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1"
             adjusting_args:
                 periods: *sim_period
-                xclim_adjust_args:
-                  detrend:
-                    LoessDetrend:
-                      f: 0.2
-                      niter: 1
-                      d: 0
-                      weights: tricube
-                  interp: nearest
-                  extrapolation: constant
+                xsdba_adjust_args: *adj-args
+                bias_adjust_institution: *b_a_inst
+        hurs:
+            training_args:
+                method: DetrendedQuantileMapping
+                group: *group
+                xsdba_train_args:
+                    kind: "+"
+                    nquantiles: 50
+                additive_space:
+                  hurs: &logit
+                    lower_bound: "0 %"
+                    upper_bound: "100 %"
+                    trans: "logit"
+            adjusting_args:
+                periods: *sim_period
+                xsdba_adjust_args: *adj-args
+                bias_adjust_institution: *b_a_inst
+        hursTasmax:
+            training_args:
+                method: DetrendedQuantileMapping
+                group: *group
+                xsdba_train_args:
+                    kind: "+"
+                    nquantiles: 50
+                additive_space:
+                  hursTasmax: *logit
+            adjusting_args:
+                periods: *sim_period
+                xsdba_adjust_args: *adj-args
                 bias_adjust_institution: *b_a_inst
 
 clean_up:
-  search_data_catalogs:
-    variables_and_freqs:
-      tasmax: D
-      tasmin: D
-      pr: D
-    allow_conversion: True
-    allow_resampling: False
-  problems:
-    - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp245_r1i1p1f1_global
-    - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp370_r1i1p1f1_global
-    - CMIP6_ScenarioMIP_BCC_BCC-CSM2-MR_ssp585_r1i1p1f1_global
-    - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp245_r1i1p1f1_global
-    - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp370_r1i1p1f1_global
-    - CMIP6_ScenarioMIP_NOAA-GFDL_GFDL-ESM4_ssp585_r1i1p1f1_global
+  save:
+    bitround: 12
   xscen_clean_up:
       maybe_unstack_dict:
         stack_drop_nans: True
       round_var:
         pr: 10
-      to_level: cleaned_up
+      change_attr_prefix: ''
+      remove_all_attrs_except:
+        global:
+          - history
+          - "cat:id"
+          - "cat:source"
+          - "cat:member"
+          - "cat:experiment"
+          - "cat:institution"
+          - "cat:activity"
+          - "cat:bias_adjust_project"
+          - "cat:bias_adjust_institution"
+          - "cat:domain"
+          - "cat:mip_era"
+          - "cat:type"
+        tasmax: &attrs_to_keep
+          - bias_adjustment
+          - cell_methods
+          - coordinates
+          - history
+          - long_name
+          - standard_name
+          - units
+        tasmin: *attrs_to_keep
+        pr: *attrs_to_keep
+        dtr: *attrs_to_keep
+        tas: *attrs_to_keep
       add_attrs:
         global:
-          contact-ouranos: lavoie.juliette@ouranos.ca
+          version: v10
+          code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake
+          contact: lavoie.juliette@ouranos.ca
           organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca
           avertissement : Ouranos ne donne aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande et d'adéquation à un usage particulier. Toutes les responsabilités découlant de la fourniture des informations (y compris toute responsabilité découlant d'une négligence) sont exclues dans toute la mesure permise par la loi.
           organization: Scenarios and Climate Services Group, Ouranos Consortium, Montreal, QC; www.ouranos.ca
           disclaimer: Ouranos make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.
           license:  Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/)
-          cat:_data_format_: zarr
-          cat:date_end: 2100-12-30
-          cat:date_start: 1950-01-01
-          cat:variables: tasmax, tasmin, pr
-          cat:version: v10
-        lat:
-          standard_name: latitude
-          units: degrees_north
-          axis: Y
-          long_name: latitude
-        lon:
-          standard_name: longitude
-          units: degrees_east
-          axis: X
-          long_name: longitude
-        tasmax:
-            standard_name: air_temperature
-            long_name: Maximal daily temperature
-            cell_methods: "time: maximum within days"
-        tasmin:
-            standard_name: air_temperature
-            long_name: Minimal daily temperature
-            cell_methods: "time: minimum within days"
-        pr:
-            standard_name: precipitation_flux
-            long_name: Mean daily precipitation flux
-            cell_methods: "time: mean within days"
+        # lat:
+        #   standard_name: latitude
+        #   units: degrees_north
+        #   axis: Y
+        #   long_name: latitude
+        # lon:
+        #   standard_name: longitude
+        #   units: degrees_east
+        #   axis: X
+        #   long_name: longitude
+        # tasmax:
+        #     standard_name: air_temperature
+        #     long_name: Maximal daily temperature
+        #     cell_methods: "time: maximum within days"
+        # tasmin:
+        #     standard_name: air_temperature
+        #     long_name: Minimal daily temperature
+        #     cell_methods: "time: minimum within days"
+        # pr:
+        #     standard_name: precipitation_flux
+        #     long_name: Mean daily precipitation flux
+        #     cell_methods: "time: mean within days"
+        # hurs:
+        #     standard_name: relative_humidity
+        #     long_name: Relative humidity
+        #     cell_methods: "time: mean within days"
+        # hursTasmax:
+        #     standard_name: relative_humidity
+        #     long_name: Relative humidity at maximal daily temperature
+        #     cell_methods: "time: point"
 
 diagnostics:
   properties_and_measures:
@@ -238,6 +272,8 @@ diagnostics:
       pr: mm d-1
       dtr: K
       tas: degC
+      hurs: "%"
+      hursTasmax: "%"
     properties: config/properties.yml
 
 
@@ -270,12 +306,21 @@ health_checks:
       tasmax: "K"
       tasmin: "K"
       pr: "kg m-2 s-1"
+      dtr: "K"
+      hurs: "%"
+      hursTasmax: "%"
     cfchecks:
       tasmax:
         cfcheck_from_name: {}
       tasmin:
         cfcheck_from_name: {}
       pr:
+        cfcheck_from_name: {}
+      dtr:
+        cfcheck_from_name: {}
+      hurs:
+        cfcheck_from_name: {}
+      hursTasmax:
         cfcheck_from_name: {}
     freq: D
     flags:
@@ -290,6 +335,12 @@ health_checks:
         negative_accumulation_values:
         very_large_precipitation_events:
           thresh: '1650 mm/d'
+      dtr:
+        negative_accumulation_values:
+      hurs:
+        percentage_values_outside_of_bounds:
+      hursTasmax:
+        percentage_values_outside_of_bounds:
     return_flags: True
     raise_on:
       - structure

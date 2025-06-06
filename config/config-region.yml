@@ -25,15 +25,13 @@ custom:
       lon_bnds: [ -179.95, -10 ]
       lat_bnds: [ 10, 83.4 ]
 
-    ref_period : &ref_period
-        - '1991'
-        - '2020'
-
 
 extraction:
     reference:
         search_data_catalogs:
-            periods : *ref_period
+            periods : &ref_period
+              - '1991'
+              - '2020'
             other_search_criteria:
                 source: &ref_source
                     "ERA5-Land"
@@ -45,22 +43,16 @@ regrid:
 
 biasadjust:
     variables:
-        dtr:
+        dtr: &generic-ba
             training_args:
               period: *ref_period
             adjusting_args:
                 bias_adjust_project: &b_a_pro
                   ESPO-G6-E5L
-        tasmax:
-            training_args:
-              period: *ref_period
-            adjusting_args:
-                bias_adjust_project: *b_a_pro
-        pr:
-            training_args:
-              period: *ref_period
-            adjusting_args:
-                bias_adjust_project: *b_a_pro
+        tasmax: *generic-ba
+        pr: *generic-ba
+        hurs: *generic-ba
+        hursTasmax: *generic-ba
 
 clean_up:
   xscen_clean_up:
