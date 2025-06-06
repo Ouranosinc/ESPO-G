@@ -7,7 +7,7 @@ from zipfile import ZipFile
 if 1==0: #trick vscode
     import snakemake
 
-xs.load_config("config/config-general.yml", "config/config-region.yml", "config/paths.yml")
+xs.load_config("config/config_general.yml", "config/config_region.yml", "config/paths.yml")
 
 
 def dask_cluster(params):

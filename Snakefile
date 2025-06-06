@@ -9,8 +9,8 @@ import xscen as xs
 
 min_version("8.12.0") #set minimum snakemake version
 
-configfile: "config/config-general.yml"
-configfile: "config/config-region.yml"
+configfile: "config/config_general.yml"
+configfile: "config/config_region.yml"
 configfile: "config/paths.yml"
 
 # choose the simulations to process
