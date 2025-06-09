@@ -3,7 +3,7 @@
 project:
     name: ESPO-G6E-C3
     version: 1.0.0
-    description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6 Étendu - CaRSv3
+    description: Ensemble de simulations post-traités d'Ouranos - Global - CMIP6 Étendu - CaRS v3.1
     id: eg6+
 
 tasks:
