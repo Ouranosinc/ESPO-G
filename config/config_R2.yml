@@ -65,6 +65,9 @@ clean_up:
           rlat: 20
           rlon: 20
           time: -1
+      attrs_to_remove:
+        rlat: original_shape
+        rlon: original_shape
       add_attrs:
         global:
           dataset: ESPO-G6-R2 v1.0.0
@@ -75,6 +78,10 @@ clean_up:
             1989-2018 period. Tasmax, hurs, hursTasmax, dtr and pr were adjusted, tasmin was computed
             from tasmax and dtr after the adjustment.
           code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake
+        rlat:
+          axis: Y
+        rlon:
+          axis: X
 
 health_checks:
     structure:

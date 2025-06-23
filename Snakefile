@@ -1,6 +1,7 @@
 #TODO: add hurs diags
 #TODO: figure out naming and versioning of ESPO
 #TODO: correct adapt_freq
+#TODO: optimize params
 from snakemake.utils import min_version
 from pathlib import Path
 import pandas as pd
@@ -28,7 +29,6 @@ domain=[config['custom']['full_region']['name']]
 tmpdir= Path(config['paths']['tmpdir'])
 finaldir=Path(config['paths']['final'])
 
-#TODO: optimize params
 
 rule all:
     input:
@@ -121,8 +121,8 @@ rule adjust:
     input:
         train = tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr",
         rechunk = tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr",
-        noleap = finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip", #TODO: for test adapt
-        day360 = finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip", #TODO: for test adapt
+        noleap = finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip", #FIXME: check if still need this when new adapt_freq
+        day360 = finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip", #FIXME: check if still need this when new adapt_freq
     output:
         temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr"))
     params:

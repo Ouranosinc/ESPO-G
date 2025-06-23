@@ -11,14 +11,6 @@ extraction:
           hursTasmax: D
         allow_resampling: False
         allow_conversion: True
-      clean_up:
-        variables_and_units:
-          tasmax: K
-          tasmin: K
-          pr: kg m-2 s-1
-          dtr: K
-          hurs: "%"
-          hursTasmax: "%"
   simulation:
       search_data_catalogs:
         variables_and_freqs:
@@ -34,7 +26,7 @@ extraction:
         restrict_members:
           ordered: 1 #TODO: check members chosen against PCIC
         periods: &sim_period
-          - '1951' # TODO: pour adapt freq dans adjust
+          - '1951' #pour adapt freq dans adjust
           - '2100'
         other_search_criteria:
           processing_level: raw
@@ -72,6 +64,14 @@ extraction:
             - time_bnds
             - lat_bnds
             - lon_bnds
+  clean_up:
+    variables_and_units:
+      tasmax: K
+      tasmin: K
+      pr: kg m-2 s-1
+      dtr: K
+      hurs: "%"
+      hursTasmax: "%"
 
 regrid:
   regrid_dataset:
@@ -154,7 +154,7 @@ biasadjust:
                 xsdba_train_args:
                     kind: "*"
                     nquantiles: 50
-                    adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" # new version adapt_freq inside train,still need to fix https://github.com/Ouranosinc/ESPO-G/issues/8
+                    adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" #new version adapt_freq inside train, #FIXME: still need to fix https://github.com/Ouranosinc/ESPO-G/issues/8
             adjusting_args:
                 periods: *sim_period
                 xsdba_adjust_args: *adj-args
@@ -236,37 +236,27 @@ clean_up:
           organization: Scenarios and Climate Services Group, Ouranos Consortium, Montreal, QC; www.ouranos.ca
           disclaimer: Ouranos make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.
           license:  Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/)
-        # lat: #TODO: test if necessary
-        #   standard_name: latitude
-        #   units: degrees_north
-        #   axis: Y
-        #   long_name: latitude
-        # lon:
-        #   standard_name: longitude
-        #   units: degrees_east
-        #   axis: X
-        #   long_name: longitude
-        # tasmax:
-        #     standard_name: air_temperature
-        #     long_name: Maximal daily temperature
-        #     cell_methods: "time: maximum within days"
-        # tasmin:
-        #     standard_name: air_temperature
-        #     long_name: Minimal daily temperature
-        #     cell_methods: "time: minimum within days"
-        # pr:
-        #     standard_name: precipitation_flux
-        #     long_name: Mean daily precipitation flux
-        #     cell_methods: "time: mean within days"
-        # hurs:
-        #     standard_name: relative_humidity
-        #     long_name: Relative humidity
-        #     cell_methods: "time: mean within days"
-        # dtr:
-        #   cell_methods: "time: range within days"
-        #   description: Diurnal temperature range from tasmax and tasmin.
-        #   standard_name: air_temperature
-        #   long_name: Diurnal temperature range.
+        tasmax:
+            standard_name: air_temperature
+            long_name: Maximal daily temperature
+            cell_methods: "time: maximum within days"
+        tasmin:
+            standard_name: air_temperature
+            long_name: Minimal daily temperature
+            cell_methods: "time: minimum within days"
+        pr:
+            standard_name: precipitation_flux
+            long_name: Mean daily precipitation flux
+            cell_methods: "time: mean within days"
+        hurs:
+            standard_name: relative_humidity
+            long_name: Relative humidity
+            cell_methods: "time: mean within days"
+        dtr:
+          cell_methods: "time: range within days"
+          description: Diurnal temperature range from tasmax and tasmin.
+          standard_name: air_temperature
+          long_name: Diurnal temperature range.
         hursTasmax:
           standard_name: relative_humidity
           long_name: Relative humidity at maximal daily temperature
@@ -327,10 +317,8 @@ health_checks:
         cfcheck_from_name: {}
       dtr:
         cfcheck_from_name: {}
-          #attrs: ['cell_methods'] #FIXME: put pack to default when standard_name is in xscen
       hurs:
         cfcheck_from_name: {}
-      #TODO: add hursTasmax to xclim ?
     freq: D
     flags:
       tasmax:

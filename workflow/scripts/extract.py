@@ -1,6 +1,7 @@
 import os
 import xscen as xs
 from xscen import CONFIG
+import xclim as xc
 from workflow.scripts.utils import dask_cluster
 import copy
 if 1==0: #trick vscode
@@ -26,6 +27,10 @@ if __name__ == '__main__':
 
     # clean up time
     ds_sim['time'] = ds_sim.time.dt.floor('D') 
+
+    ds_sim = xs.clean_up(ds_sim, **CONFIG['extraction']['clean_up'])
+    #FIXME: when xscen/xsda can handle units correctly, just use clean_up
+    ds_sim['pr'] = xc.core.units.convert_units_to(ds_sim['pr'],'kg m-2 s-1',context='hydro')
 
     ds_sim = ds_sim.chunk(CONFIG['chunks']['pre-regrid'])
     

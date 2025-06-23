@@ -62,6 +62,9 @@ clean_up:
           lat: 20
           lon: 20
           time: -1
+      attrs_to_remove:
+        lat: original_shape
+        lon: original_shape
       add_attrs:
         global:
           dataset: ESPO-G6-E5L v1.0.0
@@ -72,6 +75,16 @@ clean_up:
             1991-2020 period. Tasmax, dtr and pr were adjusted, tasmin was computed
             from tasmax and dtr after the adjustment.
           code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake
+        lat:
+          standard_name: latitude
+          units: degrees_north
+          axis: Y
+          long_name: latitude
+        lon:
+          standard_name: longitude
+          units: degrees_east
+          axis: X
+          long_name: longitude
 
 health_checks:
     structure:

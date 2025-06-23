@@ -4,7 +4,6 @@ from xscen import CONFIG
 import xclim as xc
 import datetime
 from dask.distributed import Client
-#from workflow.scripts.utils import tmp_zarr_and_zip
 import os
 import sys
 
@@ -102,6 +101,5 @@ if __name__ == '__main__':
             
             xs.save_to_zarr(out, path.replace('.zip', ''))
             xs.io.zip_directory(path.replace('.zip', ''), path, delete=True)
-            #tmp_zarr_and_zip(out,path )
 
             pcat.update_from_ds(out, path)

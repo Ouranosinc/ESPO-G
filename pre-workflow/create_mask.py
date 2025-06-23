@@ -44,10 +44,9 @@ if __name__ == '__main__':
 
     # save
     path=f"{xs.build_path(mask, root=CONFIG['data'])}.zip"
-    print(mask)
-    print(path)
+
     xs.save_to_zarr(mask, path.replace('.zip', ''))
     xs.io.zip_directory(path.replace('.zip', ''), path, delete=True)
-    #tmp_zarr_and_zip(mask,path )
+
     pcat.update_from_ds(mask, path)
 

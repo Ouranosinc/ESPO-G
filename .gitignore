@@ -136,11 +136,9 @@ report.html
 dag.dot
 Untitled.ipynb
 workflow/scripts/__pycache__/
-/workflow/scripts/__pycache__/
 Untitled1.ipynb
 Untitled2.ipynb
 slurm*
 pre-workflow/create_mask.sh
 pre-workflow/create_hurstasmax.sh
-workflow/scripts/__pycache__/utils.cpython-312.pyc
 Untitled3.ipynb
