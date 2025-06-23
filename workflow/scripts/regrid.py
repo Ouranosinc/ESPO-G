@@ -24,7 +24,6 @@ if __name__ == '__main__':
     )
 
     # chunk time dim
-    #TODO: really ?
     ds_regrid = ds_regrid.chunk(
         xs.utils.translate_time_chunk({'time': '4year'},
                              xc.core.calendar.get_calendar(ds_regrid),

@@ -38,7 +38,7 @@ extraction:
                 source: &ref_source
                     "RDRS"
         extract_dataset:
-            #mask: True #TODO: when we have mask
+            {} #mask: True #TODO: when we have mask
     ref_source: *ref_source
 
 regrid:

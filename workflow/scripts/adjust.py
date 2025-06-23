@@ -2,7 +2,9 @@ import xarray as xr
 import xscen as xs
 import xclim as xc
 from xscen import CONFIG
-from workflow.scripts.utils import dask_cluster
+import shutil as sh
+import numpy as np
+from workflow.scripts.utils import dask_cluster, create_tmp_path
 if 1==0: #trick vscode
     import snakemake
 
@@ -15,10 +17,16 @@ if __name__ == '__main__':
     # load sim ds
     ds_sim = xr.open_zarr(snakemake.input.rechunk, decode_timedelta=False)
     ds_tr = xr.open_zarr(snakemake.input.train, decode_timedelta=False)
-    
+
+    # trick for biasadjustement of hursmin (sim) on hursTasmax (ref)
+    ds_sim = ds_sim.rename({'hursmin': 'hursTasmax'})
 
     # there are some negative dtr in the data (GFDL-ESM4). This puts is back to a very small positive.
     ds_sim['dtr'] = xc.sdba.processing.jitter_under_thresh(ds_sim.dtr, "1e-4 K")
+
+    #FIXME: temporarily add clip here, until it is in xscen
+    #ds_sim['hurs']=  ds_sim['hurs'].clip(None, np.nextafter(100,0, dtype=ds_sim['hurs'].dtype))
+    #ds_sim['hursTasmax']=  ds_sim['hursTasmax'].clip(None, np.nextafter(100,0, dtype=ds_sim['hursTasmax'].dtype))
 
     #TODO: test adapt
      # load ref ds

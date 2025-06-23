@@ -35,6 +35,7 @@ extraction:
             other_search_criteria:
                 source: &ref_source
                     "ERA5-Land"
+        extract_dataset: {}
     ref_source: *ref_source
 
 regrid:

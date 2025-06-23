@@ -1,6 +1,6 @@
-#TODO: before next run, check final attrs and final destination (maybe put direct in staging)
 #TODO: add hurs diags
 #TODO: figure out naming and versioning of ESPO
+#TODO: correct adapt_freq
 from snakemake.utils import min_version
 from pathlib import Path
 import pandas as pd
@@ -17,11 +17,14 @@ configfile: "config/paths.yml"
 dict_sim_id = xs.search_data_catalogs(**copy.deepcopy(config['extraction']['simulation']['search_data_catalogs'],))
 sim_ids= list(dict_sim_id.keys())
 
-subregions = list(config["custom"]["regions"].keys())
+subregions = list(config["custom"]["regions"].keys()) # for parallelisation of computation
+diagregions=[d for d in config['diagregion'].keys()] # for diags
 ref_source = [config['extraction']['reference']['search_data_catalogs']['other_search_criteria']['source']]
 level=['improvement', 'diag_sim_prop','diag_sim_meas','diag_scen_prop','diag_scen_meas']
 # trick, use dom as wildcard so it can be defined in the config
 domain=[config['custom']['full_region']['name']]
+
+#paths
 tmpdir= Path(config['paths']['tmpdir'])
 finaldir=Path(config['paths']['final'])
 
@@ -114,7 +117,7 @@ rule train:
     script:
         "workflow/scripts/train.py"
 
-rule adjust:
+rule adjust: 
     input:
         train = tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr",
         rechunk = tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr",
@@ -124,9 +127,9 @@ rule adjust:
         temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr"))
     params:
         n_workers=3,
-        mem='200GB',
+        mem='50GB',
         cpus_per_task=15,
-        time="01:00:00",
+        time="1:00:00", 
     script:
         "workflow/scripts/adjust.py"
 
@@ -139,7 +142,7 @@ rule clean_up:
         n_workers=2,
         mem='50GB',
         cpus_per_task=6,
-        time="00:20:00",
+        time="00:45:00",
     script:
         "workflow/scripts/clean_up.py"
 
@@ -157,7 +160,7 @@ def final_path(id):
          processing_level='biasadjusted',
          bias_adjust_project=config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_project'],
          bias_adjust_institution=config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_institution'],
-         version=config['clean_up']['xscen_clean_up']['add_attrs']['global']['cat:version'],
+         version=config['clean_up']['xscen_clean_up']['add_attrs']['global']['version'],
          frequency='day',
          xrfreq='D',
          date_start=config['extraction']['simulation']['search_data_catalogs']['periods'][0], 
@@ -166,7 +169,6 @@ def final_path(id):
 
 
 #sim_id HAS to be in output, so can't use only params
-#TODO: put right variables
 rule concatenation_final:
     input: 
        final = expand(tmpdir/"day+{{sim_id}}+{{dom}}+{subregion}+1950-2100.zarr",  subregion=subregions)
@@ -176,12 +178,12 @@ rule concatenation_final:
         tasmin=finaldir/"staging/{path}/tasmin/tasmin_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip",
         dtr=finaldir/"staging/{path}/dtr/dtr_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip", 
         hurs=finaldir/"staging/{path}/hurs/hurs_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip", 
-        hursTasmaz=finaldir/"staging/{path}/hursTasmax/hursTasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip", 
+        hursTasmax=finaldir/"staging/{path}/hursTasmax/hursTasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip", 
 
     params:
         path=lambda wildcards: final_path(wildcards.sim_id),
         mem="60GB",
-        time="01:00:00", 
+        time="02:00:00", 
         cpus_per_task=12,
     script:
         "workflow/scripts/concat.py"
@@ -203,9 +205,10 @@ rule health_checks:
         n_workers=8,
         mem='40GB',
         cpus_per_task=40,
-        time="00:20:00",
+        time="00:30:00",
     script:
         "workflow/scripts/health_check.py"
+
 
 #try diag
 rule diag_ref:

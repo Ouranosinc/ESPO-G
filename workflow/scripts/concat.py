@@ -24,8 +24,8 @@ if __name__ == '__main__':
 
     dsC.attrs['cat:domain'] = CONFIG['custom']['full_region']['name']
     dsC.attrs['cat:processing_level']= 'final'
-    dsC.attrs.pop('intake_esm_dataset_key')
-    dsC.attrs.pop('cat:path')
+    dsC.attrs.pop('intake_esm_dataset_key', None)
+    dsC.attrs.pop('cat:path', None)
 
     # dsC = dsC.chunk(
     #     xs.utils.translate_time_chunk(

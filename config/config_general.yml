@@ -2,7 +2,7 @@
 extraction:
   reference:
       search_data_catalogs:
-        variables_and_freqs: &var_and_freq
+        variables_and_freqs:
           tasmax: D
           tasmin: D
           pr: D
@@ -21,7 +21,13 @@ extraction:
           hursTasmax: "%"
   simulation:
       search_data_catalogs:
-        variables_and_freqs: *var_and_freq
+        variables_and_freqs:
+          tasmax: D
+          tasmin: D
+          pr: D
+          dtr: D
+          hurs: D
+          hursmin: D
         match_hist_and_fut: True
         allow_conversion: True
         allow_resampling: False
@@ -34,12 +40,12 @@ extraction:
           processing_level: raw
           experiment:
             - ssp370
-          source:
+          source: #TODO: put right models
             #- ACCESS-CM2 
-             - ACCESS-ESM1-5  #TODO: put right models
+            # - ACCESS-ESM1-5  
             # - BCC-CSM2-MR
             # - CMCC-ESM2 
-            # - CNRM-ESM2-1 
+             - CNRM-ESM2-1 
             # - CNRM-CM6-1
             # - FGOALS-g3
             # - GFDL-ESM4 
@@ -107,7 +113,7 @@ biasadjust:
         dtr:
             training_args:
                 method: DetrendedQuantileMapping
-                group: &group #TODO: put same group in DQM and MBCn
+                group: &group
                     group: time.dayofyear
                     window: 31
                 jitter_under: # to avoid negative dtr (when temperature inversion GFDL)
@@ -143,17 +149,12 @@ biasadjust:
             training_args:
                 method: DetrendedQuantileMapping
                 group: *group
-                adapt_freq:
-                   thresh: "1.1574e-05 kg m^-2 s^-1"
                 jitter_under:
                     thresh: 0.01 mm d-1
-                xsdba_train_args: #TODO: issue https://github.com/Ouranosinc/ESPO-G/issues/8
+                xsdba_train_args:
                     kind: "*"
                     nquantiles: 50
-                # xsdba_train_args:
-                #     kind: "*"
-                #     nquantiles: 50
-                #     adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1"
+                    adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" # new version adapt_freq inside train,still need to fix https://github.com/Ouranosinc/ESPO-G/issues/8
             adjusting_args:
                 periods: *sim_period
                 xsdba_adjust_args: *adj-args
@@ -170,6 +171,7 @@ biasadjust:
                     lower_bound: "0 %"
                     upper_bound: "100 %"
                     trans: "logit"
+                    clip_next_to_bounds: True
             adjusting_args:
                 periods: *sim_period
                 xsdba_adjust_args: *adj-args
@@ -222,18 +224,19 @@ clean_up:
         tasmin: *attrs_to_keep
         pr: *attrs_to_keep
         dtr: *attrs_to_keep
-        tas: *attrs_to_keep
+        hurs: *attrs_to_keep
+        hursTasmax: *attrs_to_keep
       add_attrs:
         global:
           version: v10
-          code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake
+          code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake #TODO: put most up-to-date info
           contact: lavoie.juliette@ouranos.ca
           organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca
           avertissement : Ouranos ne donne aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande et d'adéquation à un usage particulier. Toutes les responsabilités découlant de la fourniture des informations (y compris toute responsabilité découlant d'une négligence) sont exclues dans toute la mesure permise par la loi.
           organization: Scenarios and Climate Services Group, Ouranos Consortium, Montreal, QC; www.ouranos.ca
           disclaimer: Ouranos make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.
           license:  Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/)
-        # lat:
+        # lat: #TODO: test if necessary
         #   standard_name: latitude
         #   units: degrees_north
         #   axis: Y
@@ -259,10 +262,16 @@ clean_up:
         #     standard_name: relative_humidity
         #     long_name: Relative humidity
         #     cell_methods: "time: mean within days"
-        # hursTasmax:
-        #     standard_name: relative_humidity
-        #     long_name: Relative humidity at maximal daily temperature
-        #     cell_methods: "time: point"
+        # dtr:
+        #   cell_methods: "time: range within days"
+        #   description: Diurnal temperature range from tasmax and tasmin.
+        #   standard_name: air_temperature
+        #   long_name: Diurnal temperature range.
+        hursTasmax:
+          standard_name: relative_humidity
+          long_name: Relative humidity at maximal daily temperature
+          cell_methods: "time: point"
+          note: The bias adjustement was computed from hursmin of the simulation and hursTasmax of the reference.
 
 diagnostics:
   properties_and_measures:
@@ -300,7 +309,7 @@ diagregion:
     lon_bnds: [ -130, -103.8 ]
 
 health_checks:
-    start_date: "1951-01-01" #TODO: adpat freq adjust
+    start_date: "1951-01-01" # 51 pour adapt freq adjust
     end_date: "2100-12-30"
     variables_and_units:
       tasmax: "K"
@@ -318,10 +327,10 @@ health_checks:
         cfcheck_from_name: {}
       dtr:
         cfcheck_from_name: {}
+          #attrs: ['cell_methods'] #FIXME: put pack to default when standard_name is in xscen
       hurs:
         cfcheck_from_name: {}
-      hursTasmax:
-        cfcheck_from_name: {}
+      #TODO: add hursTasmax to xclim ?
     freq: D
     flags:
       tasmax:

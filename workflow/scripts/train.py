@@ -2,6 +2,7 @@ import xarray as xr
 import xscen as xs
 from xscen import CONFIG
 import xclim as xc
+import numpy as np
 from workflow.scripts.utils import dask_cluster
 if 1==0: #trick vscode
     import snakemake
@@ -14,6 +15,9 @@ if __name__ == '__main__':
 
     # load hist ds (simulation)
     ds_hist = xr.open_zarr(snakemake.input.rechunk, decode_timedelta=False)
+    
+    # trick for biasadjustement of hursmin (sim) on hursTasmax (ref)
+    ds_hist = ds_hist.rename({'hursmin': 'hursTasmax'})
 
     # load ref ds
     # choose right calendar
@@ -23,6 +27,13 @@ if __name__ == '__main__':
     # snakemake can't have 360_day as a keyword..
     input_cal = 'noleap' if refcal == 'noleap' else  'day360' if refcal == '360_day' else 'unknown'
     ds_ref = xr.open_zarr(getattr(snakemake.input, input_cal), decode_timedelta=False)
+
+    #FIXME: temporarily add clip here, until it is in xscen
+    # ds_ref['hurs']=  ds_ref['hurs'].clip(None, np.nextafter(100,0, dtype=ds_ref['hurs'].dtype))
+    # ds_ref['hursTasmax']=  ds_ref['hursTasmax'].clip(None, np.nextafter(100,0, dtype=ds_ref['hursTasmax'].dtype))
+    # ds_hist['hurs']=  ds_hist['hurs'].clip(None, np.nextafter(100,0, dtype=ds_hist['hurs'].dtype))
+    # ds_hist['hursTasmax']=  ds_hist['hursTasmax'].clip(None, np.nextafter(100,0, dtype=ds_hist['hursTasmax'].dtype))
+
 
     # training
     ds_tr = xs.train(
@@ -35,7 +46,6 @@ if __name__ == '__main__':
     ds_tr = ds_tr.chunk({d: CONFIG['chunks']['working'][d] for d in ds_tr.dims
                             if d in CONFIG['chunks']['working'].keys()})
     
-    #TODO: nunavik
     for v in ['lat','lon']:
         del ds_tr[v].encoding['chunks']
 
