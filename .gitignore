@@ -139,6 +139,8 @@ workflow/scripts/__pycache__/
 /workflow/scripts/__pycache__/
 Untitled1.ipynb
 Untitled2.ipynb
-workflow/scripts/__pycache__/utils.cpython-312.pyc
-workflow/scripts/__pycache__/utils.cpython-312.pyc
 slurm*
+pre-workflow/create_mask.sh
+pre-workflow/create_hurstasmax.sh
+workflow/scripts/__pycache__/utils.cpython-312.pyc
+Untitled3.ipynb
