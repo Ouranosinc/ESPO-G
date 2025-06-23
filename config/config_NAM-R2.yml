@@ -8,7 +8,7 @@ full_region:
 
 subregions:
   n: 7500 # number of loc in one region
-  num_of_regions: 75 # can be calculated if we don't know it
+  #num_of_regions: 75 # can be calculated if we don't know it #TODO: still valid with mask ?
 
 extraction:
     reference:
@@ -33,11 +33,18 @@ biasadjust_mbcn:
 
 clean_up:
   xscen_clean_up:
+    attrs_to_remove:
+      rlat: original_shape
+      rlon: original_shape
     add_attrs:
       global:
         Notes: |
           Regridded on the grid of RDRS, then bias-adjusted with MBCn.
           The reference was RDRS over the 1989-2018 period.
+      rlat:
+        axis: Y
+      rlon:
+        axis: X
  
 diagnostics:
   properties_and_measures:

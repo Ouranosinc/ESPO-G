@@ -54,7 +54,7 @@ if __name__ == '__main__':
         weights_location= f"{os.environ['SLURM_TMPDIR']}/weights/",
         **args
     )
-    #mask nan #TODO: why ?
+    #mask nan
     mask=ds_target['tasmax'].isel(time=130, drop=True).notnull().compute()
     ds_sim=ds_sim.where(mask)
 

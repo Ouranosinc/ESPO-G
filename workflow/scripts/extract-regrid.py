@@ -3,6 +3,7 @@ import copy
 import xarray as xr
 import xscen as xs
 from xscen import CONFIG
+import xclim as xc
 from workflow.scripts.utils import  tmp_zarr_and_zip
 if 1==0: #trick vscode
     import snakemake
@@ -28,6 +29,11 @@ if __name__ == '__main__':
                                 )['D']
     ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
 
+    ds_sim = xs.clean_up(ds_sim, **CONFIG['extraction']['clean_up'])
+    #FIXME: when xscen/xsda can handle units correctly, use clean_up only
+    ds_sim['pr'] = xc.core.units.convert_units_to(ds_sim['pr'],
+                                                    'kg m-2 s-1',
+                                                    context='hydro')
     # need lat and lon -1 for the regrid
     ds_sim = ds_sim.chunk(CONFIG['chunks']['pre-regrid'])
 

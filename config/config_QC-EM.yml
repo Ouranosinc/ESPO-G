@@ -8,7 +8,7 @@ full_region:
 
 subregions:
   n: 7500 # number of loc in one region
-  num_of_regions: 6 # can be calculated if we don't know it
+  #num_of_regions: 6 # can be calculated if we don't know it
 
 extraction:
     reference:
@@ -20,6 +20,7 @@ extraction:
             periods: &ref_period
               - '1989'
               - '2018'
+        extract_dataset: {}
 
 biasadjust_mbcn:
   train:
@@ -29,11 +30,24 @@ biasadjust_mbcn:
 
 clean_up:
   xscen_clean_up:
+    attrs_to_remove:
+      lat: original_shape
+      lon: original_shape
     add_attrs:
       global:
         Notes: |
           Regridded on the grid of EMDNA, then bias-adjusted with MBCn.
           The reference was EMDNA over the 1989-2018 period.
+      lat:
+        standard_name: latitude
+        units: degrees_north
+        axis: Y
+        long_name: latitude
+      lon:
+        standard_name: longitude
+        units: degrees_east
+        axis: X
+        long_name: longitude
 
 diagnostics:
   properties_and_measures:

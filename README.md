@@ -28,6 +28,8 @@ $ echo "module load StdEnv/2023 gcc openmpi python/3.12.4 arrow/18.1.0 openmpi n
 ```
  or just activate it: `pyact mbcn-stacked`
 
+ #TODO:latest env that works is dqm
+
 2) Specify the `sim_id` wanted in the `Snakefile`. 
 
 3) Create your own `config/paths.yml` based on `paths-template.yml`.

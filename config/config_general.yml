@@ -8,7 +8,7 @@ project:
 extraction:
     reference:
         search_data_catalogs:
-            variables_and_freqs: &var_and_freq
+            variables_and_freqs:
                 tasmax: D
                 tasmin: D
                 pr: D
@@ -17,19 +17,15 @@ extraction:
                 hursTasmax: D
             allow_resampling: False
             allow_conversion: True
-        #extract_dataset:
-          #xr_combine_kwargs: {} # FIXME:  remove when bug is fixed in xscen
-        clean_up:
-          variables_and_units:
-            tasmax: K
-            tasmin: K
-            pr: kg m-2 s-1
-            dtr: K
-            hurs: "%"
-            hursTasmax: "%"
     simulation:
         search_data_catalogs:
-          variables_and_freqs: *var_and_freq
+          variables_and_freqs:
+                tasmax: D
+                tasmin: D
+                pr: D
+                dtr: D
+                hurs: D
+                hursmin: D
           match_hist_and_fut: True
           allow_conversion: True
           allow_resampling: False
@@ -46,11 +42,11 @@ extraction:
               #- ssp126
             source: # in the TCR likely range (14) 
               # - ACCESS-CM2 
-               - ACCESS-ESM1-5 
+              # - ACCESS-ESM1-5 
               # - BCC-CSM2-MR
               # - CMCC-ESM2 
               # - CNRM-ESM2-1 
-              # - CNRM-CM6-1
+               - CNRM-CM6-1
               # - FGOALS-g3
               # - GFDL-ESM4 
               # - INM-CM5-0
@@ -78,6 +74,14 @@ extraction:
                 - time_bnds
                 - lat_bnds
                 - lon_bnds
+    clean_up:
+      variables_and_units:
+        tasmax: K
+        tasmin: K
+        pr: kg m-2 s-1
+        dtr: K
+        hurs: "%"
+        hursTasmax: "%"
 
 regrid:
   regrid_dataset:
@@ -132,18 +136,19 @@ biasadjust_mbcn:
       - hursTasmax
     method: MBCn
     group:
-      group: 5D #TODO: put same group in DQM and MBCn
+      group: 5D
       window: 7
     additive_space:
       hurs: &logit
         lower_bound: "0 %"
         upper_bound: "100 %"
         trans: "logit"
+        clip_next_to_bounds: True
       hursTasmax: *logit
     xsdba_train_args:
       base_kws:
         nquantiles: 50
-      n_iter: 20 #TODO: are we sure ?
+      n_iter: 20
       adj_kws:
         interp: nearest
         extrapolation: constant
@@ -156,7 +161,7 @@ biasadjust_mbcn:
         pr:
           kind: "*"
           jitter_under_thresh_value: "1.1574e-07 kg m^-2 s^-1" #"0.01 mm d-1" #FIXME: when xscen/xsda can handle units correctly
-          adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" #"1 mm d-1" #TODO: issue https://github.com/Ouranosinc/ESPO-G/issues/8
+          adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" #"1 mm d-1" #FIXME: issue adapt_freq https://github.com/Ouranosinc/ESPO-G/issues/8
         dtr:
           kind: "*"
           jitter_under_thresh_value: "1e-4 K"
@@ -171,7 +176,6 @@ biasadjust_mbcn:
         extrapolation: constant
   attrs:
     bias_adjust_institution: Ouranos
-    bias_adjust_project: MBCn-EM #TODO: put in reg
     version: v10
 
 clean_up:
@@ -209,7 +213,8 @@ clean_up:
       tasmin: *attrs_to_keep
       pr: *attrs_to_keep
       dtr: *attrs_to_keep
-      tas: *attrs_to_keep
+      hurs: *attrs_to_keep
+      hursTasmax: *attrs_to_keep
     add_attrs:
       global:
         version: "v10"
@@ -220,26 +225,33 @@ clean_up:
         organization: Scenarios and Climate Services Group, Ouranos Consortium, Montreal, QC; www.ouranos.ca
         disclaimer: Ouranos make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.
         license:  Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/)
-      # tasmax: #TODO: test if this is necessary
-      #     standard_name: air_temperature
-      #     long_name: Maximal daily temperature
-      #     cell_methods: "time: maximum within days"
-      # tasmin:
-      #     standard_name: air_temperature
-      #     long_name: Minimal daily temperature
-      #     cell_methods: "time: minimum within days"
-      # pr:
-      #     standard_name: precipitation_flux
-      #     long_name: Mean daily precipitation flux
-      #     cell_methods: "time: mean within days"
-      # dtr:
-      #     standard_name: air_temperature
-      #     long_name: Mean diurnal temperature range
-      #     cell_methods: "time range within days"
-      # tas:
-      #     standard_name: air_temperature
-      #     long_name: Mean daily temperature
-      #     cell_methods: "time: mean within days"
+      tasmax:
+        standard_name: air_temperature
+        long_name: Maximal daily temperature
+        cell_methods: "time: maximum within days"
+      tasmin:
+        standard_name: air_temperature
+        long_name: Minimal daily temperature
+        cell_methods: "time: minimum within days"
+      pr:
+        standard_name: precipitation_flux
+        long_name: Mean daily precipitation flux
+        cell_methods: "time: mean within days"
+      hurs:
+        standard_name: relative_humidity
+        long_name: Relative humidity
+        cell_methods: "time: mean within days"
+      dtr:
+        cell_methods: "time: range within days"
+        description: Diurnal temperature range from tasmax and tasmin.
+        standard_name: air_temperature
+        long_name: Diurnal temperature range.
+      hursTasmax:
+        standard_name: relative_humidity
+        long_name: Relative humidity at maximal daily temperature
+        cell_methods: "time: point"
+        note: The bias adjustement was computed from hursmin of the simulation and hursTasmax of the reference.
+
 
 diagregion:   
   Magtogoek:
@@ -295,10 +307,6 @@ diagnostics:
         cfcheck_from_name: {}
       hurs:
         cfcheck_from_name: {}
-      hursTasmax:
-        cfcheck_from_name: {}
-      tas:
-        cfcheck_from_name: {}
     freq: D
     flags:
       tasmax:
@@ -338,8 +346,6 @@ io:
     mode: o
 
 dask:
-    client:
-        dashboard_address: 6785
     array.slicing.split_large_chunks: False
 
 logging:

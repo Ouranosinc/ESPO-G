@@ -4,6 +4,7 @@ import xscen as xs
 from xscen import CONFIG
 from xscen.xclim_modules import conversions
 from workflow.scripts.utils import create_tmp_path
+from pathlib import Path
 if 1==0: #trick vscode
     import snakemake
 
@@ -20,10 +21,12 @@ if __name__ == '__main__':
 
     ds= xr.concat(list_dsR, 'loc')
 
+    conv_mod= xs.indicators.load_xclim_module(Path(conversions.__file__).with_suffix(""))
+
     if 'tasmin' not in ds:
-        ds['tasmin']=conversions.tasmin_from_dtr(dtr=ds.dtr, tasmax=ds.tasmax)
+        ds['tasmin']=conv_mod.tasmin_from_dtr(dtr=ds.dtr, tasmax=ds.tasmax)
     elif 'dtr' not in ds:
-        ds['dtr']=conversions.dtr_from_minmax(tasmin=ds.tasmin, tasmax=ds.tasmax)
+        ds['dtr']=conv_mod.dtr_from_minmax(tasmin=ds.tasmin, tasmax=ds.tasmax)
 
 
     ds = xs.clean_up(ds = ds.chunk({'time':-1}),

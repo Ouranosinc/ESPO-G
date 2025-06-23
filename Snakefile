@@ -1,4 +1,5 @@
-#TODO: install new wheel pip install --no-deps xscen-0.12.4.dev0-py3-none-any.whl
+#TODO: add hurs diags
+#TODO: figure out naming and versioning of ESPO
 
 from pathlib import Path
 import xscen as xs
@@ -18,12 +19,16 @@ sim_ids= list(dict_sim_id.keys())
 
 # define subregions on which to split the computation based on n (size of each subregion) and the full region
 if 'num_of_regions' not in config['subregions']:
-    cat=xs.DataCatalog(config['extraction']['reference']['search_data_catalogs']['data_catalogs'][0])
-    dref=cat.search(**config['extraction']['reference']['search_data_catalogs']['other_search_criteria']).to_dataset()
-    dref=xs.spatial.subset(dref, **config['full_region'])
+    # cat=xs.DataCatalog(config['extraction']['reference']['search_data_catalogs']['data_catalogs'][0])
+    # dref=cat.search(**config['extraction']['reference']['search_data_catalogs']['other_search_criteria']).to_dataset()
+    cat_ref = xs.search_data_catalogs(**config['extraction']['reference']['search_data_catalogs'])
+    dc = cat_ref.popitem()[1]
+    dref = xs.extract_dataset(catalog=dc,
+                                region=config['full_region'],
+                                **config['extraction']['reference']['extract_dataset']
+                                )['D']
     dref = xs.utils.stack_drop_nans(dref,dref.pr.isel(time=0, drop=True).notnull().compute(),)
     num_of_regions= int(np.ceil(dref.sizes['loc']/config['subregions']['n']))
-    print(num_of_regions)
 else:
     num_of_regions=config['subregions']['num_of_regions']
 subregions=[f"sr-{i}" for i in range(num_of_regions)]
@@ -145,23 +150,21 @@ def final_path(id):
 
 
 #sim_id HAS to be in output, so can't use only params
-#TODO: fix MBCn-E5L for whatever name is needed
-#TODO: put the right vars
 rule concat_scen_clean:
     input: expand(wdir/"{{sim_id}}_{{dom}}_{subregion}/{{sim_id}}_{subregion}_adjusted.zarr.zip",subregion=subregions)
     output: 
-        pr=finaldir/"staging/{path}/pr/pr_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip", 
-        tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip",
-        tasmin=finaldir/"staging/{path}/tasmin/tasmin_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip",
-        dtr=finaldir/"staging/{path}/dtr/dtr_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip", 
-        hurs=finaldir/"staging/{path}/hurs/hurs_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip",
-        hursTasmax=finaldir/"staging/{path}/hursTasmax/hursTasmax_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip",
+        pr=finaldir/"staging/{path}/pr/pr_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip", 
+        tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip",
+        tasmin=finaldir/"staging/{path}/tasmin/tasmin_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip",
+        dtr=finaldir/"staging/{path}/dtr/dtr_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip", 
+        hurs=finaldir/"staging/{path}/hurs/hurs_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip",
+        hursTasmax=finaldir/"staging/{path}/hursTasmax/hursTasmax_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip",
     params:
         path=lambda wildcards: final_path(wildcards.sim_id),
         #mem="45GB", #QC
         #time="00:20:00", #QC
         mem="300GB", #NAM
-        time="03:00:00", # NAM
+        time="06:00:00", # NAM
         cpus_per_task=1,
     script:
         "workflow/scripts/concat_clean.py"
@@ -169,12 +172,12 @@ rule concat_scen_clean:
 
 rule health:
     input:
-        pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/pr/pr_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/dtr/dtr_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        hurs=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hurs/hurs_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        hursTasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hursTasmax/hursTasmax_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/pr/pr_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/dtr/dtr_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        hurs=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hurs/hurs_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        hursTasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hursTasmax/hursTasmax_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
     output: 
         finaldir/"health/{sim_id}_{dom}_health.zarr.zip"
     params:
@@ -183,7 +186,7 @@ rule health:
         #time="00:10:00", # QC
         n_workers=6, #NAM
         mem="200GB", #NAM
-        time="01:00:00", # NAM
+        time="02:00:00", # NAM
         cpus_per_task=4,
     script:
         "workflow/scripts/health.py"
@@ -209,12 +212,12 @@ rule diag:
     input:
         ref=finaldir/ "reference/{dom}_default.zarr.zip",
         ref_prop=finaldir/"diagnostics/{dom}/{dregion}/prop_ref.zarr.zip",
-        scen_pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/pr/pr_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        scen_tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        scen_tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        scen_dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/dtr/dtr_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        scen_hurs=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hurs/hurs_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        scen_hursTasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hursTasmax/hursTasmax_day_MBCn-E5L_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        scen_pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/pr/pr_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        scen_tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        scen_tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        scen_dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/dtr/dtr_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        scen_hurs=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hurs/hurs_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        scen_hursTasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hursTasmax/hursTasmax_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
     output: 
         sim_prop=finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_sim-prop.zarr.zip",
         sim_meas=finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_sim-meas.zarr.zip",
