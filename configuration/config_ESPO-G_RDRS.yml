@@ -7,7 +7,7 @@ project:
     id: eg6+
 
 tasks:
-  ####- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
+#  - initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
   - makeref
   - extract
   - regrid
@@ -35,17 +35,18 @@ custom:
         south-rdrs-rot:
             name: south-rdrs-rot
             method: sel
-            rlon: [ 324.5, 388.2 ]
-            rlat: [ -47, -23 ]
+            rlon: &rlon
+              [1,5] #[-35.4, 28.1] #[ 324.5, 388.2 ]
+            rlat: [-44.1,-23] #[ -47, -23 ]
         middle-rdrs-rot:
             name: middle-rdrs-rot
             method: sel
-            rlon: [ 324.5, 388.2 ]
+            rlon: *rlon
             rlat: [ -23, 1 ]
         north-rdrs-rot:
             name: north-rdrs-rot
             method: sel
-            rlon: [ 324.5, 388.2 ]
+            rlon: *rlon
             rlat: [ 1, 26 ]
     amno_region:
       name:  &nam-name
@@ -69,8 +70,8 @@ custom:
         - '1991'
         - '2020'
     sim_period: &sim_period
-        - '1971'
-        - '2300'
+        - '1991' #'1971'
+        - '2020' #'2300'
     maximal_calendar:
         noleap
     rechunk:
@@ -258,13 +259,14 @@ biasadjust:
                 group:
                     group: time.dayofyear
                     window: 31
-                adapt_freq:
-                    thresh: 1 mm d-1
+#                adapt_freq:
+#                    thresh: 1 mm d-1
                 jitter_under:
                     thresh: 0.01 mm d-1
                 xclim_train_args:
                     kind: "*"
                     nquantiles: 50
+                    adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1"
             adjusting_args:
                 periods: *sim_period
                 xclim_adjust_args:
@@ -359,8 +361,8 @@ health_checks:
         - rlat
         - rlon
         - time
-    start_date: "1971-01-01"
-    end_date: "2300-12-30"
+    start_date: "1991-01-01" #"1971-01-01"
+    end_date: "2020-12-30" #"2300-12-30"
     variables_and_units:
       tasmax: "K"
       tasmin: "K"
@@ -417,7 +419,7 @@ aggregate:
   climatological_mean:
     window: 30
     interval: 10
-    periods: [['1971', '2300']]
+    periods: [['1991','2020']] #[['1971', '2300']]
     to_level: climatology
   compute_deltas:
     reference_horizon: "1991-2020"
