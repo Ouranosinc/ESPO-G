@@ -119,7 +119,7 @@ rule adjust:
     output: temp(wdir/"{sim_id}_{dom}_{subregion}/{sim_id}_{subregion}_adjusted.zarr.zip"),
     params:
         mem="80GB", # 2100
-        time="12:00:00", # 2100
+        time="24:00:00", # 2100
         #time="24:00:00", #2300
         #mem="160GB", # 2300
         cpus_per_task=1,
