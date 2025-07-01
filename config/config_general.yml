@@ -37,8 +37,8 @@ extraction:
             # - ACCESS-ESM1-5  
             # - BCC-CSM2-MR
             # - CMCC-ESM2 
-             - CNRM-ESM2-1 
-            # - CNRM-CM6-1
+            # - CNRM-ESM2-1 
+             - CNRM-CM6-1
             # - FGOALS-g3
             # - GFDL-ESM4 
             # - INM-CM5-0
