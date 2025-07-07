@@ -51,7 +51,6 @@ rule all:
         sim_id=sim_ids, dregion=diagregions, dom=domain)
 
 
-
 rule makeref:
     output:
         ref=finaldir/ "reference/{dom}_default.zarr.zip",
@@ -195,7 +194,7 @@ rule diag_ref:
     input:
         ref=finaldir/ "reference/{dom}_default.zarr.zip",
     output: 
-        prop=finaldir/"diagnostics/{dom}/{dregion}/prop_ref.zarr.zip"
+        prop=finaldir/"diagnostics/{dom}/{dregion}/ref-prop.zarr.zip" #TODO: fix name
     params:
         #n_workers=2,# QC
         #mem="30GB", #QC
@@ -211,7 +210,7 @@ rule diag_ref:
 rule diag:
     input:
         ref=finaldir/ "reference/{dom}_default.zarr.zip",
-        ref_prop=finaldir/"diagnostics/{dom}/{dregion}/prop_ref.zarr.zip",
+        ref_prop=finaldir/"diagnostics/{dom}/{dregion}/ref-prop.zarr.zip",
         scen_pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/pr/pr_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
         scen_tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
         scen_tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_MBCn_v10_{sim_id}_{dom}_1951-2100.zarr.zip"),
@@ -235,6 +234,4 @@ rule diag:
     script:
         "workflow/scripts/diag.py"
 
-
-    
 

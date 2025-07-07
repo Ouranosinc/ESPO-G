@@ -1,9 +1,9 @@
 realm: generic
 variables:
-  dtr:
-    standard_name: air_temperature_range
-    canonical_units: K
-    description: The difference between the daily maximum and minimum temperature.
+  hursTasmax:
+    standard_name: relative_humidity
+    description: Relative humidity at maximal daily temperature
+    canonical_units: "%"
 indicators:
   mean_tasmax:
     base: xsdba.properties.mean
@@ -111,6 +111,14 @@ indicators:
       standard_name: precipitation_flux
     input:
       da: pr
+  aca_hurs:
+    base: xsdba.properties.annual_cycle_amplitude
+    input:
+      da: hurs
+  aca_hursTasmax:
+    base: xsdba.properties.annual_cycle_amplitude
+    input:
+      da: hursTasmax
   corr_tasmax_tasmin:
     base: xsdba.properties.corr_btw_var
     cf_attrs:
@@ -125,6 +133,21 @@ indicators:
     input:
       da1: tasmax
       da2: pr
+  corr_tasmax_hurs:
+    base: xsdba.properties.corr_btw_var
+    input:
+      da1: tasmax
+      da2: hurs
+  corr_tasmax_hursTasmax:
+    base: xsdba.properties.corr_btw_var
+    input:
+      da1: tasmax
+      da2: hursTasmax
+  corr_pr_hurs:
+    base: xsdba.properties.corr_btw_var
+    input:
+      da1: pr
+      da2: hurs
   max_dry_spell:
     base: xsdba.properties.spell_length_distribution
     cf_attrs:
@@ -178,12 +201,47 @@ indicators:
       standard_name: air_temperature_range
     input:
       da: dtr
-  q99_dtr:
+  q01_dtr:
     base: xsdba.properties.quantile
-    cf_attrs:
-      long_name: 99th quantile of diurnal temperature range
-      standard_name: air_temperature_range
     input:
       da: dtr
+    parameters:
+      q: 0.01
+  q99_dtr:
+    base: xsdba.properties.quantile
+    input:
+      da: dtr
+    parameters:
+      q: 0.99
+  mean_hurs:
+    base: xsdba.properties.mean
+    input:
+      da: hurs
+  q01_hurs:
+    base: xsdba.properties.quantile
+    input:
+      da: hurs
+    parameters:
+      q: 0.01
+  q99_hurs:
+    base: xsdba.properties.quantile
+    input:
+      da: hurs
+    parameters:
+      q: 0.99
+  mean_hursTasmax:
+    base: xsdba.properties.mean
+    input:
+      da: hursTasmax
+  q01_hursTasmax:
+    base: xsdba.properties.quantile
+    input:
+      da: hursTasmax
+    parameters:
+      q: 0.01
+  q99_hursTasmax:
+    base: xsdba.properties.quantile
+    input:
+      da: hursTasmax
     parameters:
       q: 0.99
