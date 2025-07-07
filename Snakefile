@@ -140,7 +140,7 @@ rule clean_up:
         temp(directory(tmpdir/"day+{sim_id}+{dom}+{subregion}+1950-2100.zarr"))
     params:
         n_workers=2,
-        mem='50GB',
+        mem='100GB',
         cpus_per_task=6,
         time="00:45:00",
     script:
@@ -183,7 +183,7 @@ rule concatenation_final:
     params:
         path=lambda wildcards: final_path(wildcards.sim_id),
         mem="60GB",
-        time="02:00:00", 
+        time="03:00:00", 
         cpus_per_task=12,
     script:
         "workflow/scripts/concat.py"
@@ -205,7 +205,7 @@ rule health_checks:
         n_workers=8,
         mem='40GB',
         cpus_per_task=40,
-        time="00:30:00",
+        time="01:00:00",
     script:
         "workflow/scripts/health_check.py"
 
@@ -215,7 +215,7 @@ rule diag_ref:
     input:
         ref=finaldir/ "reference/{dom}_default.zarr.zip"
     output: 
-        prop=finaldir/"diagnostics/{dom}/{dregion}/prop_ref.zarr.zip"
+        prop=finaldir/"diagnostics/{dom}/{dregion}/ref-prop.zarr.zip"
     params:
         n_workers=6,
         mem="90GB",
@@ -228,7 +228,7 @@ rule diag_ref:
 rule diag:
     input:
         ref=finaldir/ "reference/{dom}_default.zarr.zip",
-        ref_prop=finaldir/"diagnostics/{dom}/{dregion}/prop_ref.zarr.zip",
+        ref_prop=finaldir/"diagnostics/{dom}/{dregion}/ref-prop.zarr.zip",
         scen_pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/pr/pr_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
         scen_tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
         scen_tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
@@ -245,6 +245,7 @@ rule diag:
         n_workers=2, 
         mem="100GB", 
         cpus_per_task=4,
-        time="1:00:00", 
+        time="2:00:00", 
     script:
         "workflow/scripts/diag.py"
+

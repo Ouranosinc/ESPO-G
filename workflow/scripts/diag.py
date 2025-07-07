@@ -16,10 +16,8 @@ if __name__ == '__main__':
     # load data that we already have
     ref_prop=xr.open_zarr(snakemake.input.ref_prop,decode_timedelta=False)
 
-    ds_scen=xr.open_mfdataset([snakemake.input.scen_pr,
-                               snakemake.input.scen_tasmax,
-                               snakemake.input.scen_tasmin,
-                               snakemake.input.scen_dtr],
+    ds_scen=xr.open_mfdataset([snakemake.input[f'scen_{v}'] for v 
+                               in CONFIG['diagnostics']['properties_and_measures']['change_units_arg'].keys()],
                                engine='zarr',
                                decode_timedelta=False)
     ds_scen = xs.spatial.subset(ds_scen, **CONFIG['diagregion'][snakemake.wildcards.dregion])
@@ -39,6 +37,7 @@ if __name__ == '__main__':
     ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
     # need lat and lon -1 for the regrid
     ds_sim = ds_sim.chunk(CONFIG['chunks']['pre-regrid'])
+    ds_sim = ds_sim.rename({'hursmin': 'hursTasmax'})
 
 
     # get target ref grid
