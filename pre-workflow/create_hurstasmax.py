@@ -6,11 +6,13 @@ import datetime
 from dask.distributed import Client
 import os
 import sys
+import time
 
 xs.load_config("../config/config_general.yml", "../config/config_region.yml", "../config/paths.yml")
 
 
 if __name__ == '__main__':
+    #time.sleep(3600 *5)
     client = Client(
         n_workers=2, threads_per_worker=1, memory_limit="250GB",
         local_directory=os.environ['SLURM_TMPDIR'],dashboard_address= 6785
@@ -32,10 +34,12 @@ if __name__ == '__main__':
             # trick to avoid nan
             ds = xs.utils.stack_drop_nans(ds,ds['tas'].isel(time=0, drop=True).notnull().compute(),)
 
+
             # get hurs 
             if 'hurs' not in ds.data_vars:
                 print("Computing hurs from tas and tdps")
-                ds['hurs']=xc.atmos.relative_humidity_from_dewpoint(tas=ds.tas,tdps=ds.tdps )
+                ds['hurs']=xc.atmos.relative_humidity_from_dewpoint(tas=ds.tas,tdps=ds.tdps, invalid_values='clip', 
+                                                                     method= 'tetens30', ice_thresh='0 degC' )
 
             # cut the computation in 150 parts
             n = int(ds.sizes['loc']/150)
