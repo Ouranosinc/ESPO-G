@@ -55,6 +55,8 @@ biasadjust:
         hurs: *generic-ba
         hursTasmax: *generic-ba
 
+
+
 clean_up:
   xscen_clean_up:
       maybe_unstack_dict:
@@ -85,6 +87,10 @@ clean_up:
           units: degrees_east
           axis: X
           long_name: longitude
+
+diagnostics:
+  properties_and_measures:
+    period: *ref_period
 
 health_checks:
     structure:

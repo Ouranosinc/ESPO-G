@@ -23,11 +23,12 @@ extraction:
         match_hist_and_fut: True
         allow_conversion: True
         allow_resampling: False
-        restrict_members:
-          ordered: 1 #TODO: check members chosen against PCIC
         periods: &sim_period
           - '1951' #pour adapt freq dans adjust
           - '2100'
+        restrict_members:
+          ordered: 1 #TODO: check members chosen against PCIC
+
         other_search_criteria:
           processing_level: raw
           experiment:
@@ -263,18 +264,6 @@ clean_up:
           cell_methods: "time: point"
           note: The bias adjustement was computed from hursmin of the simulation and hursTasmax of the reference.
 
-diagnostics:
-  properties_and_measures:
-    change_units_arg:
-      tasmax: degC
-      tasmin: degC
-      pr: mm d-1
-      dtr: K
-      tas: degC
-      hurs: "%"
-      hursTasmax: "%"
-    properties: config/properties.yml
-
 
 diagregion:   
   Magtogoek:
@@ -297,6 +286,17 @@ diagregion:
     method: bbox
     lat_bnds:  [ 61.3, 66.75]
     lon_bnds: [ -130, -103.8 ]
+
+diagnostics:
+  properties_and_measures:
+    change_units_arg:
+      tasmax: degC
+      tasmin: degC
+      pr: mm d-1
+      dtr: K
+      hurs: "%"
+      hursTasmax: "%"
+    properties: config/properties.yml
 
 health_checks:
     start_date: "1951-01-01" # 51 pour adapt freq adjust
