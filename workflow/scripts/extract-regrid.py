@@ -31,9 +31,10 @@ if __name__ == '__main__':
 
     ds_sim = xs.clean_up(ds_sim, **CONFIG['extraction']['clean_up'])
     #FIXME: when xscen/xsda can handle units correctly, use clean_up only
-    ds_sim['pr'] = xc.core.units.convert_units_to(ds_sim['pr'],
-                                                    'kg m-2 s-1',
-                                                    context='hydro')
+    if 'pr' in ds_sim.data_vars:
+        ds_sim['pr'] = xc.core.units.convert_units_to(ds_sim['pr'],
+                                                        'kg m-2 s-1',
+                                                        context='hydro')
     # need lat and lon -1 for the regrid
     ds_sim = ds_sim.chunk(CONFIG['chunks']['pre-regrid'])
 

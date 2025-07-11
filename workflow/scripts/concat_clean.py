@@ -23,9 +23,9 @@ if __name__ == '__main__':
 
     conv_mod= xs.indicators.load_xclim_module(Path(conversions.__file__).with_suffix(""))
 
-    if 'tasmin' not in ds:
+    if 'tasmin' not in ds and 'dtr' in ds:
         ds['tasmin']=conv_mod.tasmin_from_dtr(dtr=ds.dtr, tasmax=ds.tasmax)
-    elif 'dtr' not in ds:
+    elif 'dtr' not in ds and 'tasmin' in ds:
         ds['dtr']=conv_mod.dtr_from_minmax(tasmin=ds.tasmin, tasmax=ds.tasmax)
 
 

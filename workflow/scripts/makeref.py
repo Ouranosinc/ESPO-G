@@ -18,9 +18,8 @@ if __name__ == '__main__':
                                 )['D']
     ds_ref = xs.clean_up(ds_ref, **CONFIG['extraction']['clean_up'])
     #FIXME: when xscen/xsda can handle units correctly
-    ds_ref['pr'] = xc.core.units.convert_units_to(ds_ref['pr'],
-                                                    'kg m-2 s-1',
-                                                    context='hydro')
+    if 'pr' in ds_ref.data_vars:
+        ds_ref['pr'] = xc.core.units.convert_units_to(ds_ref['pr'],'kg m-2 s-1',context='hydro')
     # clean old encoding
     for var in ds_ref.data_vars:
         if 'chunks' in ds_ref[var].encoding:
