@@ -35,7 +35,8 @@ from xscen import (
 from utils import  save_move_update,move_then_delete, save_and_update, large_move
 
 # Load configuration
-load_config('configuration/paths_ESPO-G_j.yml', 'configuration/config_ESPO-G_RDRS.yml', verbose=(__name__ == '__main__'), reset=True)
+path_config = 'configuration/config_ESPO-G_RDRS.yml'
+load_config('configuration/mypaths.yml', path_config, verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
 
 workdir = Path(CONFIG['paths']['workdir'])
@@ -61,9 +62,17 @@ if __name__ == '__main__':
 
     # initialize Project Catalog
     if "initialize_pcat" in CONFIG["tasks"]:
-        pcat = ProjectCatalog.create(CONFIG['paths']['project_catalog'], project=CONFIG['project'], overwrite=True)
+        answer = input("Initializing Project Catalog ? Yes [y] / No, Exit [n] / Skip [any]) : ")
+        if answer.lower() == "y":
+            print("Project Catalog initialization.")
+            pcat = ProjectCatalog.create(CONFIG['paths']['project_catalog'], project=CONFIG['project'], overwrite=True)
+        elif answer.lower() == "n":
+            print("Exiting workflow.")
+            exit()
+        else:
+            print("Continue without initialization.")
 
-    # load project catalog
+    # load project catalog*
     pcat = ProjectCatalog(CONFIG['paths']['project_catalog'])
 
 
@@ -75,6 +84,7 @@ if __name__ == '__main__':
                 "makeref" in CONFIG["tasks"]
                 and not pcat.exists_in_cat(domain=region_name, processing_level='nancount', source=ref_source)
         ):
+            print(f"Creating reference for {region_name}.")
             # default
             if not pcat.exists_in_cat(domain=region_name, source=ref_source):
                 with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
@@ -98,8 +108,14 @@ if __name__ == '__main__':
                     #chunk
                     ds_ref = ds_ref.chunk({d: CONFIG['custom']['chunks'][d] for d in ds_ref.dims})
 
+                    if ds_ref.rotated_pole.dtype == np.dtype('|S1'):
+                        attrs_ref = ds_ref.coords['rotated_pole'].attrs
+                        ds_ref = ds_ref.reset_coords('rotated_pole', drop=True)
+                        rotated_pole = xr.DataArray(np.float32(np.nan), attrs=attrs_ref, name='rotated_pole')
+                        ds_ref = ds_ref.assign_coords(rotated_pole=rotated_pole)
+
                     save_move_update(ds=ds_ref,
-                                     pcat = pcat,
+                                     pcat=pcat,
                                      init_path=f"{exec_wdir}/ref_{region_name}_default.zarr",
                                      final_path=f"{refdir}/ref_{region_name}_default.zarr",
                                      info_dict={'calendar': 'default'
@@ -120,7 +136,7 @@ if __name__ == '__main__':
                                      info_dict={'calendar': 'noleap'})
             # 360_day
             if not pcat.exists_in_cat(domain=region_name, calendar='360_day', source=ref_source):
-                with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)) :
+                with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
 
                     ds_ref = pcat.search(source=ref_source,calendar='default',domain=region_name).to_dask()
 
@@ -135,6 +151,7 @@ if __name__ == '__main__':
             if (not pcat.exists_in_cat(domain=region_name, processing_level='diag-ref-prop',
                                       source=ref_source)) and ('diagnostics' in CONFIG['tasks']):
                 with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
+                    print(f"Creating diagnostics reference for {region_name}.")
 
                     ds_ref = pcat.search(source=ref_source, calendar='default',
                                          domain=region_name).to_dask()
@@ -157,12 +174,14 @@ if __name__ == '__main__':
                                                                            level= prop.attrs['cat:processing_level']))
                     path_diag_exec = f"{workdir}/{path_diag.name}"
 
+                    # save and update catalog
+                    print(f"Saving diagnostics reference for {region_name} to {path_diag_exec} then move to {path_diag}.")
                     save_move_update(ds=prop,
                                      pcat=pcat,
                                      init_path=path_diag_exec,
                                      final_path=path_diag,
                                      )
-
+    # End of loop over regions for makeref
 
     # concat diag-ref-prop
     if (
@@ -206,6 +225,7 @@ if __name__ == '__main__':
     for sim_id, dc_id in cat_sim.items():
         if not pcat.exists_in_cat(domain=CONFIG['custom']['amno_region']['name'],
                                  id =sim_id, processing_level='final'):
+            print(f"Processing simulation {sim_id}.")
             for region_name, region_dict in CONFIG['custom']['regions'].items():
                 # depending on the final tasks, check that the final file doesn't already exists
                 final = {'final_zarr': dict(domain=region_name, processing_level='final', id=sim_id),
@@ -224,6 +244,7 @@ if __name__ == '__main__':
                             and not pcat.exists_in_cat(domain=CONFIG['custom']['amno_region']['name'],
                                                        processing_level='extracted', id=sim_id)
                     ):
+                        print(f"Extracting {sim_id} in {region_name}.")
                         with (
                                 Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws),
                                 #Client(n_workers=1, threads_per_worker=5,memory_limit="50GB", **daskkws), # only for CNRM-ESM2-1
@@ -232,7 +253,7 @@ if __name__ == '__main__':
                         ):
                             logger.info('Adding config to log file')
                             f1 = open(CONFIG['logging']['handlers']['file']['filename'],'a+')
-                            f2 = open('configuration/config_ESPO-G.yml', 'r')
+                            f2 = open(path_config, 'r')  # f2 = open('configuration/config_ESPO-G.yml', 'r')
                             f1.write(f2.read())
                             f1.close()
                             f2.close()
@@ -257,6 +278,7 @@ if __name__ == '__main__':
                             "regrid" in CONFIG["tasks"]
                             and not pcat.exists_in_cat(domain=region_name, processing_level='regridded', id=sim_id)
                     ):
+                        print(f"Regridding {sim_id} in {region_name}.")
                         with (
                             # Client(n_workers=2, threads_per_worker=5,
                             #        memory_limit="32GB", **daskkws),
@@ -296,6 +318,7 @@ if __name__ == '__main__':
                             "rechunk" in CONFIG["tasks"]
                             and not pcat.exists_in_cat(domain=region_name, processing_level='regridded_and_rechunked',id=sim_id)
                     ):
+                        print(f"Rechunking {sim_id} in {region_name}.")
                         with (
                                 Client(n_workers=2, threads_per_worker=5, memory_limit="18GB", **daskkws),
                                 measure_time(name=f'rechunk', logger=logger),
@@ -323,6 +346,7 @@ if __name__ == '__main__':
                                 "train" in CONFIG["tasks"]
                                 and not pcat.exists_in_cat(domain=region_name,id=f'{sim_id}', processing_level =f'training_{var}')
                         ):
+                            print(f"Training {var} for {sim_id} in {region_name}.")
                             while True: # if code bugs forever, it will be stopped by the timeout and then tried again
                                 try:
                                     with (
@@ -375,6 +399,7 @@ if __name__ == '__main__':
                                 and not pcat.exists_in_cat(domain=region_name, id=sim_id, processing_level='biasadjusted',
                                                            variable=var)
                         ):
+                            print(f"Adjusting {var} for {sim_id} in {region_name}.")
                             with (
                                 Client(n_workers=5, threads_per_worker=3,
                                        memory_limit="12GB", **daskkws),
@@ -408,6 +433,7 @@ if __name__ == '__main__':
                             "clean_up" in CONFIG["tasks"]
                             and not pcat.exists_in_cat(domain=region_name, id=sim_id, processing_level='cleaned_up')
                     ):
+                        print(f"Cleaning up {sim_id} in {region_name}.")
                         with (
                                 Client(n_workers=2, threads_per_worker=3, memory_limit="30GB", **daskkws),
                                 measure_time(name=f'cleanup', logger=logger),
@@ -445,6 +471,7 @@ if __name__ == '__main__':
                             and not pcat.exists_in_cat(domain=region_name, id=sim_id, processing_level='final',
                                                        format='zarr')
                     ):
+                        print(f"Creating final zarr for {sim_id} in {region_name}.")
                         with (
                                 Client(n_workers=4, threads_per_worker=3, memory_limit="15GB", **daskkws),
                                 measure_time(name=f'final zarr rechunk', logger=logger),
@@ -488,6 +515,7 @@ if __name__ == '__main__':
                                                        id=sim_id,
                                                        processing_level='diag-improved')
                     ):
+                        print(f"Running diagnostics for {sim_id} in {region_name}.")
                         with (
                                 Client(n_workers=3, threads_per_worker=5,
                                        memory_limit="20GB", **daskkws),
@@ -497,6 +525,7 @@ if __name__ == '__main__':
 
 
                             for step, step_dict in CONFIG['diagnostics'].items():
+                                print(f"Running diagnostics step {step} for {sim_id} in {region_name}.")
                                 ds_input = pcat.search(
                                     id=sim_id,
                                     domain=region_name,
@@ -587,6 +616,7 @@ if __name__ == '__main__':
                                 subject=f"{sim_id}/{region_name} - Succès",
                                 msg=f"Toutes les étapes demandées pour la simulation {sim_id}/{region_name} ont été accomplies.",
                             )
+                            print(f"Toutes les étapes demandées pour la simulation {sim_id}/{region_name} ont été accomplies.")
 
             if (
                     "concat" in CONFIG["tasks"]
@@ -595,12 +625,14 @@ if __name__ == '__main__':
                                                processing_level='final',
                                                format='zarr')
             ):
+                print(f"Concatenating {sim_id} in {CONFIG['custom']['amno_region']['name']}.")
                 dskconf.set(num_workers=12)
                 ProgressBar().register()
                 levels = [
                     'diag-sim-prop', 'diag-scen-prop', 'diag-sim-meas','diag-scen-meas',
                     'final']
                 for level in levels:
+                    print(f'Concatenating {sim_id} {level}.')
                     logger.info(f'Contenating {sim_id} {level}.')
 
                     list_dsR = []
@@ -646,6 +678,7 @@ if __name__ == '__main__':
                 domain=CONFIG['custom']['amno_region']['name'], id=sim_id,
                 processing_level='health_checks')
             ):
+                print(f"Running health checks for {sim_id} in {CONFIG['custom']['amno_region']['name']}.")
                 with (
                         Client(n_workers=8, threads_per_worker=5,
                                memory_limit="5GB", **daskkws),

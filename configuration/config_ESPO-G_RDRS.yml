@@ -7,20 +7,20 @@ project:
     id: eg6+
 
 tasks:
-#  - initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
-  - makeref
-  - extract
-  - regrid
-  - rechunk
-  - train
-  - adjust
-  - clean_up
-  - final_zarr
-  - diagnostics
-  - concat
-  - health_checks
-  # - official-diag
-#  - indicators
+ # - initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
+ # - makeref
+ # - extract
+ # - regrid
+ # - rechunk
+ # - train
+ # - adjust
+ # - clean_up
+ # - final_zarr
+ # - diagnostics
+ # - concat
+ # - health_checks
+#  - official-diag
+  - indicators
 #  - climatological_mean
 #  - abs-delta
 #  - per-delta
@@ -36,8 +36,8 @@ custom:
             name: south-rdrs-rot
             method: sel
             rlon: &rlon
-              [1,5] #[-35.4, 28.1] #[ 324.5, 388.2 ]
-            rlat: [-44.1,-23] #[ -47, -23 ]
+                [-35, 28]  # CaSR : [-35.4, 28.1] # RDRS : [ 324.5, 388.2 ]  # Minimum 50 rlon pour chunker.
+            rlat: [-44.1,-23]  # CaSR  # RDRS : [ -47, -23 ]
         middle-rdrs-rot:
             name: middle-rdrs-rot
             method: sel
@@ -70,8 +70,8 @@ custom:
         - '1991'
         - '2020'
     sim_period: &sim_period
-        - '1991' #'1971'
-        - '2020' #'2300'
+        - '1971' #'1991' #'1971'
+        - '2300' #'2020' #'2300'
     maximal_calendar:
         noleap
     rechunk:
@@ -122,17 +122,17 @@ extraction:
             other_search_criteria:
               processing_level: raw
               experiment:
-                # - ssp126
-                - ssp245
-                - ssp370
+                 - ssp126
+#                - ssp245
+#                - ssp370
                 # - ssp585
               source: &G6E-source  # Models that have simulations going beyond 2100 (up to 2300 except for CanESM5).
 #                - ACCESS-CM2       # SSP: 126                    # Other: N/A
 #                - ACCESS-ESM1-5    # SSP: 126, 585               # Other: 534-OS
 #                - CNRM-ESM2-1      # SSP: N/A                    # Other: 534-OS
-#                - CanESM5          # SSP: 126. 585 up to 2200.   # Other: 534-OS
-                - EC-Earth3-Veg    # SSP: All                    # Other: All (119, 434, 460, 534-OS)
-                - GISS-E2-1-G      # SSP: All                    # Other: 119, 534-OS
+                - CanESM5          # SSP: 126. 585 up to 2200.   # Other: 534-OS
+#                - EC-Earth3-Veg    # SSP: All                    # Other: All (119, 434, 460, 534-OS)
+#                - GISS-E2-1-G      # SSP: All                    # Other: 119, 534-OS
 #                - IPSL-CM6A-LR     # SSP: 126, 585               # Other: 534-OS
 #                - MIROC-ES2L       # SSP: 126, 585               # Other: 534-OS
 #                - MRI-ESM2-0       # SSP: 126, 585               # Other: 534-OS
@@ -153,47 +153,47 @@ regrid:
   target:
     source: *ref_source
     calendar: noleap
-  regrid_dataset:
-      regridder_kwargs:
-        method: bilinear
-        extrap_method: inverse_dist
-        locstream_out: *stack
-        reuse_weights: False
-        output_chunks:
-          loc: -1
-      intermediate_grids:
-        reg1:
-          cf_grid_2d:
-            lon0_b: 179.05
-            lon1_b: 351.2
-            d_lon: 1
-            lat0_b: 9
-            lat1_b: 84
-            d_lat: 1
-          regridder_kwargs:
-            method: bilinear
-            extrap_method: inverse_dist
-            locstream_out: False
-            reuse_weights: False
-            output_chunks:
-              lat: -1
-              lon: -1
-        reg2:
-          cf_grid_2d:
-            lon0_b: 179.04
-            lon1_b: 351.2
-            d_lon: 0.5
-            lat0_b: 8.9
-            lat1_b: 84
-            d_lat: 0.5
-          regridder_kwargs:
-            method: bilinear
-            extrap_method: inverse_dist
-            locstream_out: False
-            reuse_weights: False
-            output_chunks:
-              lat: -1
-              lon: -1
+  regrid_dataset:  # I believe this section is not used because there is no **CONFIG['regrid']['regrid_dataset'] in the workflow. In the case this is used, perhaps we need to change the lon0_b and lon1_b values to match CaSR.
+     regridder_kwargs:
+       method: bilinear
+       extrap_method: inverse_dist
+       locstream_out: *stack
+       reuse_weights: False
+       output_chunks:
+         loc: -1
+     intermediate_grids:
+       reg1:
+         cf_grid_2d:
+           lon0_b: 179.05
+           lon1_b: 351.2
+           d_lon: 1
+           lat0_b: 9
+           lat1_b: 84
+           d_lat: 1
+         regridder_kwargs:
+           method: bilinear
+           extrap_method: inverse_dist
+           locstream_out: False
+           reuse_weights: False
+           output_chunks:
+             lat: -1
+             lon: -1
+       reg2:
+         cf_grid_2d:
+           lon0_b: 179.04
+           lon1_b: 351.2
+           d_lon: 0.5
+           lat0_b: 8.9
+           lat1_b: 84
+           d_lat: 0.5
+         regridder_kwargs:
+           method: bilinear
+           extrap_method: inverse_dist
+           locstream_out: False
+           reuse_weights: False
+           output_chunks:
+             lat: -1
+             lon: -1
 
 io:
   rechunk:
@@ -361,8 +361,8 @@ health_checks:
         - rlat
         - rlon
         - time
-    start_date: "1991-01-01" #"1971-01-01"
-    end_date: "2020-12-30" #"2300-12-30"
+    start_date: "1971-01-01" #"1991-01-01" #"1971-01-01"
+    end_date: "2300-12-30" #"2020-12-30" #"2300-12-30"
     variables_and_units:
       tasmax: "K"
       tasmin: "K"
@@ -419,7 +419,7 @@ aggregate:
   climatological_mean:
     window: 30
     interval: 10
-    periods: [['1991','2020']] #[['1971', '2300']]
+    periods: [['1971', '2300']] #[['1991','2020']] #[['1971', '2300']]
     to_level: climatology
   compute_deltas:
     reference_horizon: "1991-2020"
