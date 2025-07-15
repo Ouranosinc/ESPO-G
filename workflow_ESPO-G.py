@@ -258,10 +258,19 @@ if __name__ == '__main__':
                             f1.close()
                             f2.close()
 
-                            ds_sim = extract_dataset(catalog=dc_id,
-                                                     region= CONFIG['custom']['amno_region'],
-                                                     **CONFIG['extraction']['simulation']['extract_dataset'],
-                                                     )['D']
+                            try:
+                                ds_sim = extract_dataset(catalog=dc_id,
+                                                        region= CONFIG['custom']['amno_region'],
+                                                        **CONFIG['extraction']['simulation']['extract_dataset'],
+                                                        )['D']
+                            except:
+                                print('Error while extracting the dataset. Trying again with use_cftime=True')
+                                ds_sim = extract_dataset(catalog=dc_id,
+                                                        region= CONFIG['custom']['amno_region'],
+                                                        **CONFIG['extraction']['simulation']['extract_dataset'],
+                                                        xr_open_kwargs={'use_cftime':True},
+                                                        )['D']
+
                             ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
 
                             ds_sim = ds_sim.chunk(CONFIG['extraction']['simulation']['chunks'])
@@ -809,6 +818,7 @@ if __name__ == '__main__':
     if "indicators" in CONFIG["tasks"]:
         dict_input = pcat.search(**CONFIG['indicators']['input']).to_dataset_dict()
         for id_input, ds_input in dict_input.items():
+            print(f'Computing indicators {id_input}')
             sim_id = ds_input.attrs['cat:id']
             domain = ds_input.attrs['cat:domain']
             if not pcat.exists_in_cat(id = sim_id, processing_level = 'indicators',
@@ -897,6 +907,7 @@ if __name__ == '__main__':
             ds =xr.open_zarr(f)
             final_path = CONFIG['paths']['indicators'].format( **xs.utils.get_cat_attrs(ds))
             moving.append([f, final_path])
+        print(f'Moving indicators from {exec_wdir} to {final_path}')
         move_then_delete(dirs_to_delete=[exec_wdir],moving_files=moving,pcat=pcat)
 
     # --- CLIMATOLOGICAL MEAN ---
