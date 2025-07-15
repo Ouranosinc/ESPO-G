@@ -265,10 +265,15 @@ if __name__ == '__main__':
                                                         )['D']
                             except:
                                 print('Error while extracting the dataset. Trying again with use_cftime=True')
+                                # xr_open_kwargs already defined in config.yml so we need to copy it before adding cftime
+                                extraction_config = CONFIG['extraction']['simulation']['extract_dataset'].copy()
+                                open_kwargs = extraction_config.get('xr_open_kwargs', {}).copy()
+                                open_kwargs['use_cftime'] = True
+                                extraction_config['xr_open_kwargs'] = open_kwargs
+                                # Then we can extract the dataset with the modified extraction config.
                                 ds_sim = extract_dataset(catalog=dc_id,
                                                         region= CONFIG['custom']['amno_region'],
-                                                        **CONFIG['extraction']['simulation']['extract_dataset'],
-                                                        xr_open_kwargs={'use_cftime':True},
+                                                        **extraction_config,
                                                         )['D']
 
                             ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
