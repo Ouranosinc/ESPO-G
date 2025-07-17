@@ -1,0 +1,390 @@
+#config_NAM-R2
+project:
+    name: MBCn
+    version: 1.0.0
+    description: Ajustement multivarié MBCn
+    id: mbcn
+
+extraction:
+    reference:
+        search_data_catalogs:
+            variables_and_freqs:
+                tasmax: D
+                tasmin: D
+                pr: D
+                dtr: D
+                hurs: D
+                hursTasmax: D
+            allow_resampling: False
+            allow_conversion: True
+    simulation:
+        search_data_catalogs:
+          variables_and_freqs:
+                tasmax: D
+                tasmin: D
+                pr: D
+                dtr: D
+                hurs: D
+                hursmin: D
+          match_hist_and_fut: True
+          allow_conversion: True
+          allow_resampling: False
+          periods: &sim_period
+            - '1951'
+            - '2100' 
+          restrict_members: 
+            ordered: 1 #TODO: check members chosen against PCIC
+          other_search_criteria:
+            processing_level: raw
+            experiment:
+              #- ssp245
+              - ssp370
+              #- ssp126
+            source: # in the TCR likely range (14) 
+              # - ACCESS-CM2 
+              # - ACCESS-ESM1-5 
+              # - BCC-CSM2-MR
+              # - CMCC-ESM2 
+              # - CNRM-ESM2-1 
+               - CNRM-CM6-1
+              # - FGOALS-g3
+              # - GFDL-ESM4 
+              # - INM-CM5-0
+              # - MIROC6
+              # - MIROC-ES2L 
+              # - MPI-ESM1-2-HR
+              # - MPI-ESM1-2-LR 
+              # - MRI-ESM2-0 
+              # - NorESM2-LM
+            mip_era: CMIP6
+            #TODO: rerun for CanESM5 r1i1p2f1 (meme membre que MRCC5) and CanESM5-1 (TCR =2.26 according to ESMValTool) to be less hot
+            #source: 
+            #  - CanESM5
+            #  - CanESM5-1
+            #member: r1i1p2f1
+        extract_dataset:
+            periods : *sim_period
+            xr_combine_kwargs:
+              combine_attrs: override
+            xr_open_kwargs:
+              engine: h5netcdf
+              drop_variables:
+                - height
+                - bnds
+                - time_bnds
+                - lat_bnds
+                - lon_bnds
+    clean_up:
+      variables_and_units:
+        tasmax: K
+        tasmin: K
+        pr: kg m-2 s-1
+        dtr: K
+        hurs: "%"
+        hursTasmax: "%"
+
+regrid:
+  regrid_dataset:
+    regridder_kwargs:
+      method: bilinear
+      extrap_method: inverse_dist
+      locstream_out: True
+      reuse_weights: False
+    intermediate_grids:
+      reg1:
+        cf_grid_2d:
+          lon0_b: 179.05
+          lon1_b: 351.2
+          d_lon: 1
+          lat0_b: 9
+          lat1_b: 84
+          d_lat: 1
+        regridder_kwargs:
+          method: bilinear
+          extrap_method: inverse_dist
+          locstream_out: False
+          reuse_weights: False
+          output_chunks:
+            lat: -1
+            lon: -1
+      reg2:
+        cf_grid_2d:
+          lon0_b: 179.04
+          lon1_b: 351.2
+          d_lon: 0.5
+          lat0_b: 8.9
+          lat1_b: 84
+          d_lat: 0.5
+        regridder_kwargs:
+          method: bilinear
+          extrap_method: inverse_dist
+          locstream_out: False
+          reuse_weights: False
+          output_chunks:
+            lat: -1
+            lon: -1
+
+
+biasadjust_mbcn:
+  maximal_calendar: noleap
+  train:
+    var:
+      - tasmax
+      - dtr
+      - pr
+      - hurs
+      - hursTasmax
+    method: MBCn
+    group:
+      group: 5D
+      window: 7
+    additive_space:
+      hurs: &logit
+        lower_bound: "0 %"
+        upper_bound: "100 %"
+        trans: "logit"
+        clip_next_to_bounds: True
+      hursTasmax: *logit
+    xsdba_train_args:
+      base_kws:
+        nquantiles: 50
+      n_iter: 20
+      adj_kws:
+        interp: nearest
+        extrapolation: constant
+        n_escore: -1
+  adjust:
+    periods: *sim_period
+    xsdba_adjust_args:
+      period_dim: period # stacking
+      base_kws_vars:
+        pr:
+          kind: "*"
+          jitter_under_thresh_value: "1.1574e-07 kg m^-2 s^-1" #"0.01 mm d-1" #FIXME: when xscen/xsda can handle units correctly
+          adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" #"1 mm d-1" #FIXME: issue adapt_freq https://github.com/Ouranosinc/ESPO-G/issues/8
+        dtr:
+          kind: "*"
+          jitter_under_thresh_value: "1e-4 K"
+        tasmax:
+          kind: "+"
+        hurs:
+          kind: "+" # because we do logit trans
+        hursTasmax: 
+          kind: "+" # because we do logit trans
+      adj_kws:
+        interp: nearest
+        extrapolation: constant
+  attrs:
+    bias_adjust_institution: Ouranos
+    version: v10
+
+clean_up:
+  save:
+    bitround: 12
+  xscen_clean_up:
+    maybe_unstack_dict:
+      stack_drop_nans: True
+      dim: loc
+    round_var:
+      pr: 10
+    change_attr_prefix: ''
+    remove_all_attrs_except:
+      global:
+        - history
+        - "cat:id"
+        - "cat:source"
+        - "cat:member"
+        - "cat:experiment"
+        - "cat:institution"
+        - "cat:activity"
+        - "cat:bias_adjust_project"
+        - "cat:bias_adjust_institution"
+        - "cat:domain"
+        - "cat:mip_era"
+        - "cat:type"
+      tasmax: &attrs_to_keep
+        - bias_adjustment
+        - cell_methods
+        - coordinates
+        - history
+        - long_name
+        - standard_name
+        - units
+      tasmin: *attrs_to_keep
+      pr: *attrs_to_keep
+      dtr: *attrs_to_keep
+      hurs: *attrs_to_keep
+      hursTasmax: *attrs_to_keep
+    add_attrs:
+      global:
+        version: "v10"
+        code: https://github.com/Ouranosinc/ESPO-G/tree/MBCn #TODO: put most up-to-date info
+        contact: lavoie.juliette@ouranos.ca
+        organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca
+        avertissement : Ouranos ne donne aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande et d'adéquation à un usage particulier. Toutes les responsabilités découlant de la fourniture des informations (y compris toute responsabilité découlant d'une négligence) sont exclues dans toute la mesure permise par la loi.
+        organization: Scenarios and Climate Services Group, Ouranos Consortium, Montreal, QC; www.ouranos.ca
+        disclaimer: Ouranos make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.
+        license:  Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/)
+      tasmax:
+        standard_name: air_temperature
+        long_name: Maximal daily temperature
+        cell_methods: "time: maximum within days"
+      tasmin:
+        standard_name: air_temperature
+        long_name: Minimal daily temperature
+        cell_methods: "time: minimum within days"
+      pr:
+        standard_name: precipitation_flux
+        long_name: Mean daily precipitation flux
+        cell_methods: "time: mean within days"
+      hurs:
+        standard_name: relative_humidity
+        long_name: Relative humidity
+        cell_methods: "time: mean within days"
+      dtr:
+        cell_methods: "time: range within days"
+        description: Diurnal temperature range from tasmax and tasmin.
+        standard_name: air_temperature
+        long_name: Diurnal temperature range.
+      hursTasmax:
+        standard_name: relative_humidity
+        long_name: Relative humidity at maximal daily temperature
+        cell_methods: "time: point"
+        note: The bias adjustement was computed from hursmin of the simulation and hursTasmax of the reference.
+
+
+diagregion:   
+  Magtogoek:
+    name: Magtogoek
+    method: bbox
+    lat_bnds:  [ 41.4, 49.4] 
+    lon_bnds: [ -92.2, -59.8 ]
+  Cree:
+    name: Cree
+    method: bbox
+    lat_bnds: [ 46.9, 53.8 ]
+    lon_bnds: [ -115, -97.1 ]
+  Ute:
+    name: Ute
+    method: bbox
+    lat_bnds:  [ 35.5, 43]
+    lon_bnds: [ -109.6, -95.5 ]
+  Tlicho:
+    name: Tlicho
+    method: bbox
+    lat_bnds:  [ 61.3, 66.75]
+    lon_bnds: [ -130, -103.8 ]
+
+diagnostics:
+  properties_and_measures:
+    unstack: False
+    change_units_arg:
+      tasmax: degC
+      tasmin: degC
+      pr: mm d-1
+      dtr: K
+      hurs: "%"
+      hursTasmax: "%"
+    properties: config/properties.yml
+  health_checks:
+    start_date: "1951-01-01"
+    end_date: "2100-12-30"
+    variables_and_units:
+      tasmax: K
+      tasmin: K
+      pr: kg m-2 s-1
+      dtr: K
+      hurs: "%"
+      hursTasmax: "%"
+    cfchecks:
+      tasmax:
+        cfcheck_from_name: {}
+      tasmin:
+        cfcheck_from_name: {}
+      pr:
+        cfcheck_from_name: {}
+      dtr:
+        cfcheck_from_name: {}
+      hurs:
+        cfcheck_from_name: {}
+    freq: D
+    flags:
+      tasmax:
+        temperature_extremely_high:
+          thresh: '60 degC'
+        tasmax_below_tasmin:
+      tasmin:
+        temperature_extremely_low:
+          thresh: '-70 degC'
+      pr:
+        negative_accumulation_values:
+        very_large_precipitation_events:
+          thresh: '1650 mm/d'
+      dtr:
+        negative_accumulation_values:
+      hurs:
+        percentage_values_outside_of_bounds:
+      hursTasmax:
+        percentage_values_outside_of_bounds:
+    return_flags: True
+    raise_on:
+      - structure
+      - start_date
+      - end_date
+      - variables_and_units
+      - cfchecks
+      - freq
+
+chunks:
+  pre-regrid: &pre-regrid
+    time: 365
+    lat: -1 # always lat,lon
+    lon: -1
+
+io:
+  save_to_zarr:
+    mode: o
+
+dask:
+    array.slicing.split_large_chunks: False
+
+logging:
+  formatters:
+    default:
+      format: '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
+      datefmt: '%Y-%m-%d %H:%M:%S'
+  handlers:
+    console:
+      class : logging.StreamHandler
+      formatter: default
+      level : DEBUG
+  loggers:
+    xscen:
+      propagate: False
+      level: INFO
+      handlers: [console] 
+    workflow:
+      propagate: False
+      level: INFO
+      handlers: [console]
+    distributed.worker:
+      propagate: False
+      level: INFO
+      handlers: [console]
+    distributed.scheduler:
+      propagate: False
+      level: INFO
+      handlers: [console]
+    distributed.nanny:
+      propagate: False
+      level: DEBUG
+      handlers: [console]
+    distributed.client:
+      propagate: INFO
+      level: INFO
+      handlers: [console]
+
+tdd:
+  xarray_open_kwargs:
+    decode_timedelta: False
+
