@@ -1,0 +1,79 @@
+#config_NAM-E5L
+
+full_region:
+  name: NAM-E5L
+  method: bbox
+  lon_bnds: [-179.95, -10  ]
+  lat_bnds: [ 10, 83.4 ]
+
+subregions:
+  n: 7500 # number of loc in one region
+  num_of_regions: 52 # can be calculated if we don't know it
+
+extraction:
+    reference:
+        search_data_catalogs:
+            other_search_criteria:
+                source: &ref_source
+                  ERA5-Land
+            periods : &ref_period
+                  - '1991'
+                  - '2020'
+        extract_dataset: {}
+
+
+biasadjust_mbcn:
+  train:
+    period: *ref_period
+  attrs:
+    bias_adjust_project: MBCn-E5L
+
+clean_up:
+  xscen_clean_up:
+    attrs_to_remove:
+      lat: original_shape
+      lon: original_shape
+    add_attrs:
+      global:
+        Notes: |
+          Regridded on the grid of ERA5-Land, then bias-adjusted with MBCn.
+          The reference was ERA5-Land over the 1991-2020 period.
+      lat:
+        standard_name: latitude
+        units: degrees_north
+        axis: Y
+        long_name: latitude
+      lon:
+        standard_name: longitude
+        units: degrees_east
+        axis: X
+        long_name: longitude
+ 
+diagnostics:
+  properties_and_measures:
+    period: *ref_period
+  health_checks:
+    structure:
+      coords:
+        - lat
+        - lon
+        - time
+      dims:
+        - lat
+        - lon
+        - time
+  
+
+chunks:
+  working:
+    lat: 15
+    lon: 15
+    loc: 10
+    time: -1
+  diag:
+    lat: -1
+    lon: -1
+  final: 
+    lat: 30
+    lon: 30
+    time: 4year

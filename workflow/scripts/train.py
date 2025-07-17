@@ -20,7 +20,8 @@ if __name__ == '__main__':
     xs.io.unzip_directory(snakemake.input.sim,f"{os.environ['SLURM_TMPDIR']}/dsim.zarr" )
     dsim= xr.open_zarr(f"{os.environ['SLURM_TMPDIR']}/dsim.zarr",decode_timedelta=False)
     # trick for biasadjustement of hursmin (sim) on hursTasmax (ref)
-    dsim = dsim.rename({'hursmin': 'hursTasmax'})
+    if 'hursmin' in dsim:
+        dsim = dsim.rename({'hursmin': 'hursTasmax'})
 
     # load ref ds
     refcal = minimum_calendar(get_calendar(dsim),CONFIG['biasadjust_mbcn']['maximal_calendar'])

@@ -37,7 +37,8 @@ if __name__ == '__main__':
     ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
     # need lat and lon -1 for the regrid
     ds_sim = ds_sim.chunk(CONFIG['chunks']['pre-regrid'])
-    ds_sim = ds_sim.rename({'hursmin': 'hursTasmax'})
+    if 'hursmin' in ds_sim:
+        ds_sim = ds_sim.rename({'hursmin': 'hursTasmax'})
 
 
     # get target ref grid

@@ -19,7 +19,8 @@ if __name__ == '__main__':
     dsim= xr.open_zarr(snakemake.input.sim,decode_timedelta=False).load()
     
     # trick for biasadjustement of hursmin (sim) on hursTasmax (ref)
-    dsim = dsim.rename({'hursmin': 'hursTasmax'})
+    if 'hursmin' in dsim:
+        dsim = dsim.rename({'hursmin': 'hursTasmax'})
 
     refcal = minimum_calendar(get_calendar(dsim),CONFIG['biasadjust_mbcn']['maximal_calendar'])
     dref= xr.open_zarr(snakemake.input[f'ref_{refcal}'],decode_timedelta=False).load()
