@@ -1,9 +1,10 @@
 doc: |
   ====================================
-  Indicators for Portraits Climatiques
+  Indicators for Post-2100 Analysis
   ====================================
-  Indices for the Portraits Climatiques website.
+  
 indicators:
+
   dry_spell_max_length_annual:
     base: dry_spell_max_length
     cf_attrs:
@@ -186,14 +187,6 @@ indicators:
     parameters:
       freq: QS-DEC
 
-  #growing_degree_days_gt_4_annual:
-  #  base: growing_degree_days
-  #  cf_attrs:
-  #    var_name: growing_degree_days_gt_4
-  #  parameters:
-  #    thresh: 4 degC
-  #    freq: YS
-
   max_n_day_precipitation_amount_n_5_annual:
     base: max_n_day_precipitation_amount
     cf_attrs:
@@ -202,75 +195,6 @@ indicators:
       window: 5
       freq: YS
     keywords: rolling
-
-  #max_n_day_precipitation_amount_n_5_biannual:
-  #  base: max_n_day_precipitation_amount
-  #  cf_attrs:
-  #    var_name: rx5day
-  #  parameters:
-  #    window: 5
-  #    freq: 2QS-OCT
-  #  keywords: rolling
-
-  #heat_wave_total_length_class1:
-  #  base: heat_wave_total_length
-  #  cf_attrs:
-  #    var_name: heat_wave_total_length_class1
-  #  parameters:
-  #    thresh_tasmin: 20 degC
-  #    thresh_tasmax: 33 degC
-  #    freq: YS
-  #  keywords: rolling
-
-  #heat_wave_total_length_class2:
-  #  base: heat_wave_total_length
-  #  cf_attrs:
-  #    var_name: heat_wave_total_length_class2
-  #  parameters:
-  #    thresh_tasmin: 18 degC
-  #    thresh_tasmax: 31 degC
-  #    freq: YS
-  #  keywords: rolling
-
-  #heat_wave_total_length_class3:
-  #  base: heat_wave_total_length
-  #  cf_attrs:
-  #    var_name: heat_wave_total_length_class3
-  #  parameters:
-  #    thresh_tasmin: 16 degC
-  #    thresh_tasmax: 31 degC
-  #    freq: YS
-  #  keywords: rolling
-
-  #heat_wave_frequency_class1:
-  #  base: heat_wave_frequency
-  #  cf_attrs:
-  #    var_name: heat_wave_frequency_class1
-  #  parameters:
-  #    thresh_tasmin: 20 degC
-  #    thresh_tasmax: 33 degC
-  #    freq: YS
-  #  keywords: rolling
-
-  #heat_wave_frequency_class2:
-  #  base: heat_wave_frequency
-  #  cf_attrs:
-  #    var_name: heat_wave_frequency_class2
-  #  parameters:
-  #    thresh_tasmin: 18 degC
-  #    thresh_tasmax: 31 degC
-  #    freq: YS
-  #  keywords: rolling
-
-  #heat_wave_frequency_class3:
-  #  base: heat_wave_frequency
-  #  cf_attrs:
-  #    var_name: heat_wave_frequency_class3
-  #  parameters:
-  #    thresh_tasmin: 16 degC
-  #    thresh_tasmax: 31 degC
-  #    freq: YS
-  #  keywords: rolling
 
   degree_days_below_0_annual_start_july:
     base: freezing_degree_days
@@ -287,46 +211,6 @@ indicators:
     parameters:
       thresh: 0 degC
       freq: QS-DEC
-
-  #tn_days_below_m25_seasonal:
-  #  base: tn_days_below
-  #  cf_attrs:
-  #    var_name: tn_days_below_m25
-  #  parameters:
-  #    thresh: -25 degC
-  #    freq: QS-DEC
-
-  #tx_days_above_30_annual:
-  #  base: tx_days_above
-  #  cf_attrs:
-  #    var_name: tx_days_above_30
-  #  parameters:
-  #    thresh: 30 degC
-  #    freq: YS
-
-  #tx_days_above_32_annual:
-  #  base: tx_days_above
-  #  cf_attrs:
-  #    var_name: tx_days_above_32
-  #  parameters:
-  #    thresh: 32 degC
-  #    freq: YS
-
-  #tropical_nights_gt_22_annual:
-  #  base: tn_days_above
-  #  cf_attrs:
-  #    var_name: tn_days_above_22
-  #  parameters:
-  #    thresh: 22 degC
-  #    freq: YS
-
-  #tropical_nights_gt_20_annual:
-  #  base: tn_days_above
-  #  cf_attrs:
-  #    var_name: tn_days_above_20
-  #  parameters:
-  #    thresh: 20 degC
-  #    freq: YS
 
   tn_min: # for plat_comp
     base: tn_min

@@ -12,7 +12,7 @@ import glob
 from itertools import product
 from xclim.core.calendar import get_calendar, doy_to_days_since 
 from xarray import date_range_like
-from xclim.sdba import properties
+from xclim.sdba import properties  # UserWarning: The `xclim.sdba` module has been split into its own package `xsdba`. Users are encouraged to use `xsdba` directly. For the time being, `xclim.sdba` will import `xsdba` to allow for API compatibility.
 import xclim as xc
 from xscen.xclim_modules import conversions
 
@@ -43,6 +43,7 @@ workdir = Path(CONFIG['paths']['workdir'])
 exec_wdir = Path(CONFIG['paths']['exec_workdir'])
 regriddir = Path(CONFIG['paths']['regriddir'])
 refdir = Path(CONFIG['paths']['refdir'])
+#experiment = CONFIG['extraction']['simulation']['search_data_catalogs']['other_search_criteria']['experiment']
 
 mode = 'o'
 
@@ -821,6 +822,7 @@ if __name__ == '__main__':
 
     # ---INDICATORS---
     if "indicators" in CONFIG["tasks"]:
+        print('Computing Indicators')
         dict_input = pcat.search(**CONFIG['indicators']['input']).to_dataset_dict()
         for id_input, ds_input in dict_input.items():
             print(f'Computing indicators {id_input}')
@@ -917,6 +919,7 @@ if __name__ == '__main__':
 
     # --- CLIMATOLOGICAL MEAN ---
     if "climatological_mean" in CONFIG["tasks"]:
+        print('Computing Climatological Mean')
         ind_dict = pcat.search( **CONFIG['aggregate']['input']['clim']).to_dataset_dict(**tdd)
         for id_input, ds_input in ind_dict.items():
 
