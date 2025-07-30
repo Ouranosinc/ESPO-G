@@ -8,22 +8,22 @@ project:
 
 tasks:
  #- initialize_pcat # only activate this task the first time you run the workflow to create the ProjectCatalog
-# - makeref
-# - extract
-# - regrid
-# - rechunk
-# - train
-# - adjust
-# - clean_up
-# - final_zarr
-# - diagnostics
-# - concat
-# - health_checks
+ #- makeref
+ #- extract
+ #- regrid
+ #- rechunk
+ #- train
+ #- adjust
+ #- clean_up
+ #- final_zarr
+ #- diagnostics
+ #- concat
+ #- health_checks
 #  - official-diag
  - indicators
- - climatological_mean
- - abs-delta
- - per-delta
+# - climatological_mean
+# - abs-delta
+# - per-delta
 #  - ensemble
 
 
@@ -70,8 +70,8 @@ custom:
         - '1991'
         - '2020'
     sim_period: &sim_period
-        - '1971' #'1991' #'1971'
-        - '2300' #'2020' #'2300'
+        - '1971' 
+        - '2300' # 2180 for CanESM5 ssp585
     maximal_calendar:
         noleap
     rechunk:
@@ -122,20 +122,20 @@ extraction:
             other_search_criteria:
               processing_level: raw
               experiment:
-#                 - ssp126
+                 - ssp126
 #                - ssp245
 #                - ssp370
-                 - ssp585
+#                 - ssp585
               source: &G6E-source  # Models that have simulations going beyond 2100 (up to 2300 except for CanESM5).
 # NoData - maybe don't: no pr - ACCESS-CM2       # SSP: 126 (only tas not pr!)   # Other: N/A                           # Not downloaded
-                - ACCESS-ESM1-5    # SSP: 126, 585                 # Other: 534-OS                        # Downloaded (except 535-OS)
+                  - ACCESS-ESM1-5    # SSP: 126, 585                 # Other: 534-OS                        # Downloaded (except 535-OS)
 # NoData               - CNRM-ESM2-1      # SSP: N/A                      # Other: 534-OS                        # Not downloaded
-# Done!               - CanESM5          # SSP: 126. 585 up to 2180.     # Other: 534-OS                        # Downloaded
+                  - CanESM5          # SSP: 126. 585 up to 2180.     # Other: 534-OS                        # Downloaded
 # NoData               - EC-Earth3-Veg    # SSP: All                      # Other: All (119, 434, 460, 534-OS)   # Not downloaded
 # NoData               - GISS-E2-1-G      # SSP: All                      # Other: 119, 534-OS                   # Not downloaded
-#                - IPSL-CM6A-LR     # SSP: 126, 585                 # Other: 534-OS                        # Downloaded
+                  - IPSL-CM6A-LR     # SSP: 126, 585                 # Other: 534-OS                        # Downloaded # ssp585 done 
 # NoData               - MIROC-ES2L       # SSP: 126, 585                 # Other: 534-OS                        # Not downloaded
-# Done!                - MRI-ESM2-0       # SSP: 126, 585                 # Other: 534-OS                        # Downloaded (except 534-OS)
+                  - MRI-ESM2-0       # SSP: 126, 585                 # Other: 534-OS                        # Downloaded (except 534-OS)
 # NoData               - NorESM2-MM       # SSP: 585                      # Other: N/A                           # Not downloaded
 # NoData               - UKESM1-0-LL      # SSP: 126, 585                 # Other: N/A                           # Not downloaded
         extract_dataset:

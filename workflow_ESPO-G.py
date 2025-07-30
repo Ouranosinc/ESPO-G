@@ -35,21 +35,37 @@ from xscen import (
 from utils import  save_move_update,move_then_delete, save_and_update, large_move
 
 # Load configuration
+
+## Note - mypaths 
+## It would be best to have all simulations in the same directory BUT I have them separated.
+## I have two yaml files for paths (mypaths_[experiment].yml) - with experiment names hardcoded in both files. Not the best, I know.
+## Thus, the code snippet below decide which yaml file to use based on the experiment name in the config yaml file.
+## Only one experiment name can be specified in the config file at the time.
+import yaml
 path_config = 'configuration/config_ESPO-G_RDRS.yml'
-load_config('configuration/mypaths.yml', path_config, verbose=(__name__ == '__main__'), reset=True)
+with open(path_config) as f:
+    config_dict = yaml.safe_load(f) ## I use yaml.safe_load() to read the config because it has a line where it uses a paths in mypaths.
+experiment = config_dict['extraction']['simulation']['search_data_catalogs']['other_search_criteria']['experiment']
+path_paths  = 'configuration/mypaths_'+experiment[0]+'.yml' 
+## 
+
+load_config(path_paths, path_config, verbose=(__name__ == '__main__'), reset=True)
 logger = logging.getLogger('xscen')
 
+# Directories
 workdir = Path(CONFIG['paths']['workdir'])
 exec_wdir = Path(CONFIG['paths']['exec_workdir'])
 regriddir = Path(CONFIG['paths']['regriddir'])
 refdir = Path(CONFIG['paths']['refdir'])
-#experiment = CONFIG['extraction']['simulation']['search_data_catalogs']['other_search_criteria']['experiment']
 
-mode = 'o'
-
+mode = 'o' # Variable not used. 
+# Is specified in every 'save_to_zarr' AND it is not always 'o' (sometimes it is 'a')
+# 'o' : removes the existing variables.
+# 'a' : skip existing variables, writes the others.
 
 
 if __name__ == '__main__':
+    # Dask setup
     daskkws = CONFIG['dask'].get('client', {})
     dskconf.set(**{k: v for k, v in CONFIG['dask'].items() if k != 'client'})
     atexit.register(send_mail_on_exit, subject=CONFIG['scripting']['subject'])
@@ -62,6 +78,10 @@ if __name__ == '__main__':
     tdd = CONFIG['tdd']
 
     # initialize Project Catalog
+    ## You want the SAME catalog for all your simulations. 
+    ## Unfortunately, I have two catalogs (one for each SSP) 
+    ## AND CanESM5 SSP126 is not yet in the catalog even if its data is in the same folder as the other models.
+    ## To do: Try to add CanESM5 SSP126 to the SSP126 catalog without rerunnig the workflow.
     if "initialize_pcat" in CONFIG["tasks"]:
         answer = input("Initializing Project Catalog ? Yes [y] / No, Exit [n] / Skip [any]) : ")
         if answer.lower() == "y":
@@ -77,17 +97,16 @@ if __name__ == '__main__':
     pcat = ProjectCatalog(CONFIG['paths']['project_catalog'])
 
 
-
-
     # ---MAKEREF---
+    print('MAKEREF')
     for region_name, region_dict in CONFIG['custom']['regions'].items():
         if (
                 "makeref" in CONFIG["tasks"]
                 and not pcat.exists_in_cat(domain=region_name, processing_level='nancount', source=ref_source)
         ):
-            print(f"Creating reference for {region_name}.")
             # default
             if not pcat.exists_in_cat(domain=region_name, source=ref_source):
+                print(f"Creating reference for {region_name}.")
                 with (Client(n_workers=2, threads_per_worker=5, memory_limit="25GB", **daskkws)):
                     # search
                     cat_ref = search_data_catalogs(**CONFIG['extraction']['reference']['search_data_catalogs'])
@@ -223,9 +242,11 @@ if __name__ == '__main__':
     cat_sim = search_data_catalogs(
         **CONFIG['extraction']['simulation']['search_data_catalogs'])
                 #periods = ['1950','2100'],  # only for CNRM-ESM2-1
+    print('Simulations')
     for sim_id, dc_id in cat_sim.items():
         if not pcat.exists_in_cat(domain=CONFIG['custom']['amno_region']['name'],
                                  id =sim_id, processing_level='final'):
+            
             print(f"Processing simulation {sim_id}.")
             for region_name, region_dict in CONFIG['custom']['regions'].items():
                 # depending on the final tasks, check that the final file doesn't already exists
@@ -259,6 +280,8 @@ if __name__ == '__main__':
                             f1.close()
                             f2.close()
 
+                            # try/except : I was getting a TypeError: Cannot combine along dimension 'time' with mixed types. 
+                            # 'use_cftime' solve this issue, but it is slower (thus the try before)
                             try:
                                 ds_sim = extract_dataset(catalog=dc_id,
                                                         region= CONFIG['custom']['amno_region'],
@@ -686,43 +709,50 @@ if __name__ == '__main__':
 
                 logger.info('Concatenation done.')
 
-            # --- HEALTH CHECKS ---
-            if (
-                    "health_checks" in CONFIG["tasks"]
-                    and not pcat.exists_in_cat(
-                domain=CONFIG['custom']['amno_region']['name'], id=sim_id,
-                processing_level='health_checks')
-            ):
-                print(f"Running health checks for {sim_id} in {CONFIG['custom']['amno_region']['name']}.")
-                with (
-                        Client(n_workers=8, threads_per_worker=5,
-                               memory_limit="5GB", **daskkws),
-                        measure_time(name=f'health_checks', logger=logger)
+        # To be able to do the health checks even if FINAL is done, I have separated the health checks 
+        # from the for-loop of sim_id that creates the final bias-adjusted dataset.
+        for sim_id, dc_id in cat_sim.items():
+            if pcat.exists_in_cat(domain=CONFIG['custom']['amno_region']['name'],
+                                    id =sim_id, processing_level='final'):
+                print(f"{sim_id} exist.")
+
+                # --- HEALTH CHECKS ---
+                if (
+                        "health_checks" in CONFIG["tasks"]
+                        and not pcat.exists_in_cat(
+                    domain=CONFIG['custom']['amno_region']['name'], id=sim_id,
+                    processing_level='health_checks')
                 ):
-                    ds_input = pcat.search(
-                        id=sim_id, processing_level='final',
-                        domain=CONFIG['custom']['amno_region']['name']
-                    ).to_dataset(**tdd)
+                    print(f"Running health checks for {sim_id} in {CONFIG['custom']['amno_region']['name']}.")
+                    with (
+                            Client(n_workers=8, threads_per_worker=5,
+                                memory_limit="5GB", **daskkws),
+                            measure_time(name=f'health_checks', logger=logger)
+                    ):
+                        ds_input = pcat.search(
+                            id=sim_id, processing_level='final',
+                            domain=CONFIG['custom']['amno_region']['name']
+                        ).to_dataset(**tdd)
 
-                    hc = xs.diagnostics.health_checks(
-                        ds=ds_input,
-                        **CONFIG['health_checks'])
+                        hc = xs.diagnostics.health_checks(
+                            ds=ds_input,
+                            **CONFIG['health_checks'])
 
-                    hc.attrs.update(ds_input.attrs)
-                    hc.attrs['cat:processing_level'] = 'health_checks'
-                    path = CONFIG['paths']['checks'].format(
-                        sim_id=sim_id,
-                        region_name=CONFIG['custom']['amno_region']['name'])
-                    xs.save_and_update(ds=hc, path=path, pcat=pcat)
+                        hc.attrs.update(ds_input.attrs)
+                        hc.attrs['cat:processing_level'] = 'health_checks'
+                        path = CONFIG['paths']['checks'].format(
+                            sim_id=sim_id,
+                            region_name=CONFIG['custom']['amno_region']['name'])
+                        xs.save_and_update(ds=hc, path=path, pcat=pcat)
 
-                    send_mail(
-                        subject=f"{sim_id} - Succès",
-                        msg=f"{sim_id} est terminé. \n Health checks:"+ "".join(
-                            [f"\n{var}: {hc[var].values}" for var in hc.data_vars]),
-                    )
+                        send_mail(
+                            subject=f"{sim_id} - Succès",
+                            msg=f"{sim_id} est terminé. \n Health checks:"+ "".join(
+                                [f"\n{var}: {hc[var].values}" for var in hc.data_vars]),
+                        )
 
 
-
+    ## I did not ran the official diagnostics and don't plan to.
     # ---OFFICIAL-DIAGNOSTICS---
     if "official-diag" in CONFIG["tasks"]:
         # iter over small domain
