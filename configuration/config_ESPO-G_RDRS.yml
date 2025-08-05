@@ -20,11 +20,11 @@ tasks:
  #- concat
  #- health_checks
 #  - official-diag
- - indicators
-# - climatological_mean
-# - abs-delta
-# - per-delta
-#  - ensemble
+# - indicators
+ - climatological_mean
+ - abs-delta
+ - per-delta
+  - ensemble
 
 
 
@@ -119,23 +119,28 @@ extraction:
             exclusions:
               id:
                 - CMIP6_ScenarioMIP_KIOST_KIOST-ESM_ssp245_r1i1p1f1_global # time axis is broken. but anyway ssp370 doesn't exist for KIOST
-            other_search_criteria:
+            other_search_criteria: 
               processing_level: raw
-              experiment:
-                 - ssp126
+              experiment: &experiment
+                - ssp126
 #                - ssp245
 #                - ssp370
-#                 - ssp585
-              source: &G6E-source  # Models that have simulations going beyond 2100 (up to 2300 except for CanESM5).
+#                - ssp585
+              source: &G6E-source
+                - ACCESS-ESM1-5
+                - MRI-ESM2-0
+                - CanESM5 
+
+# Models that have simulations going beyond 2100 (up to 2300 except for CanESM5).
 # NoData - maybe don't: no pr - ACCESS-CM2       # SSP: 126 (only tas not pr!)   # Other: N/A                           # Not downloaded
-                  - ACCESS-ESM1-5    # SSP: 126, 585                 # Other: 534-OS                        # Downloaded (except 535-OS)
+#                  - ACCESS-ESM1-5    # SSP: 126, 585                 # Other: 534-OS                        # Downloaded (except 535-OS)
 # NoData               - CNRM-ESM2-1      # SSP: N/A                      # Other: 534-OS                        # Not downloaded
-                  - CanESM5          # SSP: 126. 585 up to 2180.     # Other: 534-OS                        # Downloaded
+#                  - CanESM5          # SSP: 126. 585 up to 2180.     # Other: 534-OS                        # Downloaded
 # NoData               - EC-Earth3-Veg    # SSP: All                      # Other: All (119, 434, 460, 534-OS)   # Not downloaded
 # NoData               - GISS-E2-1-G      # SSP: All                      # Other: 119, 534-OS                   # Not downloaded
-                  - IPSL-CM6A-LR     # SSP: 126, 585                 # Other: 534-OS                        # Downloaded # ssp585 done 
+#                  - IPSL-CM6A-LR     # SSP: 126, 585                 # Other: 534-OS                        # Downloaded # ssp585 done 
 # NoData               - MIROC-ES2L       # SSP: 126, 585                 # Other: 534-OS                        # Not downloaded
-                  - MRI-ESM2-0       # SSP: 126, 585                 # Other: 534-OS                        # Downloaded (except 534-OS)
+#                  - MRI-ESM2-0       # SSP: 126, 585                 # Other: 534-OS                        # Downloaded (except 534-OS)
 # NoData               - NorESM2-MM       # SSP: 585                      # Other: N/A                           # Not downloaded
 # NoData               - UKESM1-0-LL      # SSP: 126, 585                 # Other: N/A                           # Not downloaded
         extract_dataset:
@@ -398,6 +403,7 @@ health_checks:
 
 indicators:
   input:
+    source: *G6E-source  
     processing_level: final
     domain:
      - *nam-name
@@ -418,7 +424,7 @@ aggregate:
       domain: *nam-name
   climatological_mean:
     window: 30
-    interval: 10
+    stride: 10
     periods: [['1971', '2300']] #[['1991','2020']] #[['1971', '2300']]
     to_level: climatology
   compute_deltas:

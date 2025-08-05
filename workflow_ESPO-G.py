@@ -98,12 +98,12 @@ if __name__ == '__main__':
 
 
     # ---MAKEREF---
-    print('MAKEREF')
     for region_name, region_dict in CONFIG['custom']['regions'].items():
         if (
                 "makeref" in CONFIG["tasks"]
                 and not pcat.exists_in_cat(domain=region_name, processing_level='nancount', source=ref_source)
         ):
+            print('MAKEREF')
             # default
             if not pcat.exists_in_cat(domain=region_name, source=ref_source):
                 print(f"Creating reference for {region_name}.")
@@ -854,12 +854,15 @@ if __name__ == '__main__':
     if "indicators" in CONFIG["tasks"]:
         print('Computing Indicators')
         dict_input = pcat.search(**CONFIG['indicators']['input']).to_dataset_dict()
+        print(dict_input.items())
         for id_input, ds_input in dict_input.items():
             print(f'Computing indicators {id_input}')
             sim_id = ds_input.attrs['cat:id']
             domain = ds_input.attrs['cat:domain']
             if not pcat.exists_in_cat(id = sim_id, processing_level = 'indicators',
                                       xrfreq='AS-JUL', domain=domain ):
+                
+                print('xrfreq=AS-JUL \n Simulation: '+sim_id)
 
                 ds_input = ds_input.assign(tas=xc.atmos.tg(ds=ds_input))
                 mod = xs.indicators.load_xclim_module(**CONFIG['indicator']['load_xclim_module'])
@@ -922,6 +925,7 @@ if __name__ == '__main__':
                                             domain=domain,
                                            processing_level='indicators',
                                            xrfreq=xrfreq):
+                        print('xrfreq='+xrfreq+' \n Simulation: '+sim_id)
                         # merge all indicators of this freq in one dataset
                         logger.info(f"Merge {xrfreq} indicators.")
                         with ProgressBar():
@@ -964,12 +968,15 @@ if __name__ == '__main__':
 
 
                 ):
-                    ds_mean = xs.climatological_mean(ds=ds_input)
+                    cfclim = CONFIG['aggregate']['climatological_mean']
+                    # xs.climatological_mean don't exist anymore
+                    # changed to climatological_op with some args to have 30-years clim for each 10 years
+                    ds_mean = xs.climatological_op(ds=ds_input,stride=cfclim['stride'],to_level=cfclim['to_level'],window=cfclim['window'],periods=cfclim['periods'])
                     save_and_update(
                         ds=ds_mean,
                         pcat=pcat,
                         itervar=True,
-                        rechunk={'time': 4}|CONFIG['custom']['rechunk'],
+                        #rechunk={'time': 4}|CONFIG['custom']['rechunk'], # I don't see why there should be a rechunk here.
                         path=f"{exec_wdir}/{sim_id}_{domain}_{xrfreq_input}_climatology.zarr",
                     )
 
