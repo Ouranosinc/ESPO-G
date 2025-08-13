@@ -57,6 +57,13 @@ Description of the tasks:
  - concat: Concatenate scenario and diagnostics of the three regions into the complete NAM domain.  
  - official-diag: Compute diagnostics (defined in configuration/off-properties_ESPO-G.yml) on smaller regions to assess the performance.
  - move: Move files to final location and zip.
+#TODO: update the readme.
+ ## Changelog
+
+ ### Version 1.1
+ Ran for lait-e in 2025-08 on narval with xclim-0.57.1.dev10, xscen-0.12.4.dev5 and xsdba 0.5.0 wheels and numpy 1.26.4 (env dqm-np2)
+ * Add hurs and hursTasmax
+ * Improved adapt-freq
 
 
 ## Context

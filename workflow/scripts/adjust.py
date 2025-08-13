@@ -3,6 +3,7 @@ import xscen as xs
 import xclim as xc
 import xsdba as xa
 from xscen import CONFIG
+import numpy as np
 from workflow.scripts.utils import dask_cluster, create_tmp_path
 if 1==0: #trick vscode
     import snakemake
@@ -22,6 +23,10 @@ if __name__ == '__main__':
 
     # there are some negative dtr in the data (GFDL-ESM4). This puts is back to a very small positive.
     ds_sim['dtr'] = xa.processing.jitter_under_thresh(ds_sim.dtr, "1e-4 K")
+
+    #FIXME: needed until we can use numpy>2
+    ds_sim['hursTasmax'] = ds_sim['hursTasmax'].astype(float)
+    ds_sim['hurs'] = ds_sim['hurs'].astype(float)
 
     # adjust
     ds_scen = xs.adjust(

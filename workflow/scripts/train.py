@@ -2,6 +2,7 @@ import xarray as xr
 import xscen as xs
 from xscen import CONFIG
 import xclim as xc
+import numpy as np
 from workflow.scripts.utils import dask_cluster
 if 1==0: #trick vscode
     import snakemake
@@ -17,6 +18,10 @@ if __name__ == '__main__':
     
     # trick for biasadjustement of hursmin (sim) on hursTasmax (ref)
     ds_hist = ds_hist.rename({'hursmin': 'hursTasmax'})
+
+    #FIXME: needed until we can use numpy>2
+    ds_hist['hursTasmax'] = ds_hist['hursTasmax'].astype(float)
+    ds_hist['hurs'] = ds_hist['hurs'].astype(float)
 
     # load ref ds
     # choose right calendar

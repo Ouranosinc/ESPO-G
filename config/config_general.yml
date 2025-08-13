@@ -32,23 +32,24 @@ extraction:
         other_search_criteria:
           processing_level: raw
           experiment:
+            - ssp245
             - ssp370
-          source: #TODO: put right models
-            #- ACCESS-CM2 
-            # - ACCESS-ESM1-5  
-            # - BCC-CSM2-MR
-            # - CMCC-ESM2 
-            # - CNRM-ESM2-1 
-             - CNRM-CM6-1
-            # - FGOALS-g3
-            # - GFDL-ESM4 
-            # - INM-CM5-0
-            # - MIROC6
-            # - MIROC-ES2L 
-            # - MPI-ESM1-2-HR
-            # - MPI-ESM1-2-LR 
-            # - MRI-ESM2-0 
-            # - NorESM2-LM
+          source: # but actually on 8 have hurs (and there was a bug with MPI-ESM1-2-HR )
+            - ACCESS-CM2 
+            - ACCESS-ESM1-5  
+            - BCC-CSM2-MR
+            - CMCC-ESM2 
+            - CNRM-ESM2-1 
+            - CNRM-CM6-1
+            - FGOALS-g3
+            - GFDL-ESM4 
+            - INM-CM5-0
+            - MIROC6
+            - MIROC-ES2L 
+            - MPI-ESM1-2-HR
+            - MPI-ESM1-2-LR 
+            - MRI-ESM2-0 
+            - NorESM2-LM
             #TODO: rerun for CanESM5 r1i1p2f1 (meme membre que MRCC5) and CanESM5-1 (TCR =2.26 according to ESMValTool) to be less hot
             #source: 
             #  - CanESM5
@@ -172,7 +173,7 @@ biasadjust:
                     lower_bound: "0 %"
                     upper_bound: "100 %"
                     trans: "logit"
-                    clip_next_to_bounds: True
+                    clip_next_to_bounds: permissive #TODO: check if this is what we really want
             adjusting_args:
                 periods: *sim_period
                 xsdba_adjust_args: *adj-args
@@ -229,7 +230,7 @@ clean_up:
         hursTasmax: *attrs_to_keep
       add_attrs:
         global:
-          version: v10
+          version: v11
           code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake #TODO: put most up-to-date info
           contact: lavoie.juliette@ouranos.ca
           organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca

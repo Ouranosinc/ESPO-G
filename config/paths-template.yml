@@ -38,3 +38,4 @@ dask:
 reccat: <PATH-TO-RECONSTRUCTION-CAT>
 data: <PATH-TO-DATA>
 espoinput: <PATH-TO-PERSONNAL-CAT>/ESPO-input.json
+tmppath: <SCRATCH-TMP>

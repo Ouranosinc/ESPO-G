@@ -38,8 +38,8 @@ if __name__ == '__main__':
             # get hurs 
             if 'hurs' not in ds.data_vars:
                 print("Computing hurs from tas and tdps")
-                ds['hurs']=xc.atmos.relative_humidity_from_dewpoint(tas=ds.tas,tdps=ds.tdps, invalid_values='clip', 
-                                                                     method= 'tetens30', ice_thresh='0 degC' )
+                ds['hurs']=xc.atmos.relative_humidity_from_dewpoint(tas=ds.tas,tdps=ds.tdps,
+                 invalid_values='clip', method = 'buck81')
 
             # cut the computation in 150 parts
             n = int(ds.sizes['loc']/150)

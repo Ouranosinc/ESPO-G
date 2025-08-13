@@ -1,19 +1,29 @@
-#Configuration file QC-E5L
+#Configuration file E5L
 
 custom:
     regions:
-      QC-E5L:
-        name: QC-E5L
-        method: bbox
-        lon_bnds: [ -83, -55 ]
-        lat_bnds: [ 42, 63 ]
+        southE5L:
+            name: southE5L
+            method: bbox
+            lon_bnds: [ -179.95, -10 ]
+            lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
+        middleE5L:
+            name: middleE5L
+            method: bbox
+            lon_bnds: [ -179.95, -10 ]
+            lat_bnds: [ 40.05, 65.05 ]
+        northE5L:
+            name: northE5L
+            method: bbox
+            lon_bnds: [-179.95, -10]
+            lat_bnds: [65.05, 83.4]
     full_region:
       name: &nam-name
-        QC-E5L
+        NAM-E5L
       method: bbox
       tile_buffer: 1.5
-      lon_bnds: [ -83, -55 ]
-      lat_bnds: [ 42, 63 ]
+      lon_bnds: [ -179.95, -10 ]
+      lat_bnds: [ 10, 83.4 ]
 
 
 extraction:
@@ -59,7 +69,7 @@ clean_up:
         lon: original_shape
       add_attrs:
         global:
-          dataset: ESPO-G6-E5L v1.1.0
+          dataset: ESPO-G6-E5L v1.0.0
           Notes: |
             Regridded on the grid of ERA5-Land, then bias-adjusted with detrended
             quantile mapping on a day-of-year basis with a window of 31 days, LOESS
