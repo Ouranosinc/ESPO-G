@@ -33,7 +33,7 @@ finaldir=Path(config['paths']['final'])
 rule all:
     input:
         expand(finaldir/"checks/{dom}/{sim_id}+{dom}_checks.zarr.zip", sim_id=sim_ids, dom=domain),
-        #expand(finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain)
+        expand(finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain)
 
 
 rule makeref:

@@ -28,11 +28,19 @@ if __name__ == '__main__':
     ds_sim['hursTasmax'] = ds_sim['hursTasmax'].astype(float)
     ds_sim['hurs'] = ds_sim['hurs'].astype(float)
 
+    #TODO: clip tmp
+    #ds_sim['hurs'] = ds_sim['hurs'].clip(0,100)
+    #ds_sim['hursTasmax'] = ds_sim['hursTasmax'].clip(0,100)
+
     # adjust
     ds_scen = xs.adjust(
         dsim=ds_sim,
         dtrain=ds_tr,
         **CONFIG['biasadjust']['variables'][snakemake.wildcards.var]['adjusting_args']
         )
+
+    #final clip
+    if 'hurs' in ds_scen:
+        ds_scen['hurs'] = ds_scen['hurs'].clip(0,100)
 
     xs.save_to_zarr(ds_scen, str(snakemake.output[0]))

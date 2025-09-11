@@ -166,14 +166,14 @@ biasadjust:
                 method: DetrendedQuantileMapping
                 group: *group
                 xsdba_train_args:
-                    kind: "+"
+                    kind: "*"
                     nquantiles: 50
-                additive_space:
-                  hurs: &logit
-                    lower_bound: "0 %"
-                    upper_bound: "100 %"
-                    trans: "logit"
-                    clip_next_to_bounds: permissive #TODO: check if this is what we really want
+                # additive_space:
+                #   hurs: &logit
+                #     lower_bound: "0 %"
+                #     upper_bound: "100 %"
+                #     trans: "logit"
+                #     clip_next_to_bounds: permissive #TODO: check if this is what we really want
             adjusting_args:
                 periods: *sim_period
                 xsdba_adjust_args: *adj-args
@@ -183,10 +183,10 @@ biasadjust:
                 method: DetrendedQuantileMapping
                 group: *group
                 xsdba_train_args:
-                    kind: "+"
+                    kind: "*"
                     nquantiles: 50
-                additive_space:
-                  hursTasmax: *logit
+                # additive_space:
+                #   hursTasmax: *logit
             adjusting_args:
                 periods: *sim_period
                 xsdba_adjust_args: *adj-args

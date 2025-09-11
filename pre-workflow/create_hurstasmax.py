@@ -25,7 +25,7 @@ if __name__ == '__main__':
         project={'title': 'ESPO-input', 'description': ' Inputs for ESPO'}
     )
 
-    ds_dict= cat.search(source=['ERA5-Land', 'CaSR'], variable=['tas','tdps', 'hurs'], frequency='1hr').to_dataset_dict()
+    ds_dict= cat.search(source=['ERA5-Land', 'CaSR'], variable=['tas','tdps', ], frequency='1hr').to_dataset_dict()
     for rid, ds in ds_dict.items():
         if not pcat.exists_in_cat(id=rid.split('.')[0], variable='hursTasmax'):
             print(rid)
@@ -36,10 +36,9 @@ if __name__ == '__main__':
 
 
             # get hurs 
-            if 'hurs' not in ds.data_vars:
-                print("Computing hurs from tas and tdps")
-                ds['hurs']=xc.atmos.relative_humidity_from_dewpoint(tas=ds.tas,tdps=ds.tdps,
-                 invalid_values='clip', method = 'buck81')
+            print("Computing hurs from tas and tdps")
+            ds['hurs']=xc.atmos.relative_humidity_from_dewpoint(tas=ds.tas,tdps=ds.tdps,
+                invalid_values='clip', method = 'buck81')
 
             # cut the computation in 150 parts
             n = int(ds.sizes['loc']/150)
