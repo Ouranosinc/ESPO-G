@@ -27,7 +27,7 @@ extraction:
           - '1950' 
           - '2100'
         restrict_members:
-          ordered: 1 #TODO: check members chosen against PCIC
+          ordered: 1
         other_search_criteria:
           processing_level: raw
           mip_era: CMIP6
@@ -50,7 +50,7 @@ extraction:
             - MPI-ESM1-2-LR 
             - MRI-ESM2-0 
             - NorESM2-LM
-            #TODO: rerun for CanESM5 r1i1p2f1 (meme membre que MRCC5) and CanESM5-1 (TCR =2.26 according to ESMValTool) to be less hot
+            # rerun for CanESM5 r1i1p2f1 (meme membre que MRCC5) and CanESM5-1 (TCR =2.26 according to ESMValTool) to be less hot
             #source: 
             #  - CanESM5
             #  - CanESM5-1
@@ -70,7 +70,7 @@ extraction:
     variables_and_units:
       tasmax: K
       tasmin: K
-      pr: kg m-2 s-1
+      pr: kg m-2 s-1 # xscen should work if standard_name is 'precipitation_flux'
       dtr: K
       hurs: "%"
       hursTasmax: "%"
@@ -159,7 +159,7 @@ biasadjust:
                 xsdba_train_args:
                     kind: "*"
                     nquantiles: 50
-                    adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" #new version adapt_freq inside train, #FIXME: still need to fix https://github.com/Ouranosinc/ESPO-G/issues/8
+                    adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" # xsdba cant convert mm/day automatically
             adjusting_args:
                 periods: *sim_period
                 xsdba_adjust_args: *adj-args
@@ -177,7 +177,7 @@ biasadjust:
                 #     lower_bound: "0 %"
                 #     upper_bound: "100 %"
                 #     trans: "logit"
-                #     clip_next_to_bounds: permissive #TODO: check if this is what we really want
+                #     clip_next_to_bounds: permissive
             adjusting_args:
                 periods: *sim_period
                 xsdba_adjust_args: *adj-args
@@ -206,6 +206,9 @@ clean_up:
         stack_drop_nans: True
       round_var:
         pr: 10
+      # clip_var: #FIXME: add when xscen>=0.13.1
+      #   hurs: [0, 100]
+      #   hursTasmax: [0, 100]
       change_attr_prefix: ''
       remove_all_attrs_except:
         global:

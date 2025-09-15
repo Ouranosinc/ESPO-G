@@ -1,7 +1,3 @@
-#TODO: add hurs diags
-#TODO: figure out naming and versioning of ESPO
-#TODO: correct adapt_freq
-#TODO: optimize params
 from snakemake.utils import min_version
 from pathlib import Path
 import pandas as pd
@@ -23,6 +19,7 @@ diagregions=[d for d in config['diagregion'].keys()] # for diags
 level=['improvement', 'diag_sim_prop','diag_sim_meas','diag_scen_prop','diag_scen_meas']
 # trick, use dom as wildcard so it can be defined in the config
 domain=[config['custom']['full_region']['name']]
+reference = [config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_reference']]
 
 #paths
 tmpdir= Path(config['paths']['tmpdir'])
@@ -32,8 +29,8 @@ print(list(config['biasadjust']['variables'].keys()))
 
 rule all:
     input:
-        expand(finaldir/"checks/{dom}/{sim_id}+{dom}_checks.zarr.zip", sim_id=sim_ids, dom=domain),
-        expand(finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain)
+        expand(finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
+        expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
 
 
 rule makeref:
@@ -86,7 +83,7 @@ rule regrid:
           cpus_per_task=9,
         #   mem='48GB',
         #   time="00:20:00",
-          mem='200GB',# 2300 # TODO: come back put 500 here and try to put back local scratch
+          mem='500GB',# 2300 # TODO: come back put 500 here and try to put back local scratch
           time= "01:00:00",# 2300 #
      script:
           "workflow/scripts/regrid.py"
@@ -164,6 +161,7 @@ def final_path(id):
          processing_level='biasadjusted',
          bias_adjust_project=config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_project'],
          bias_adjust_institution=config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_institution'],
+         bias_adjust_reference=config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_reference'],
          version=config['clean_up']['xscen_clean_up']['add_attrs']['global']['version'],
          frequency='day',
          xrfreq='D',
@@ -177,12 +175,12 @@ rule concatenation_final:
     input: 
        final = expand(tmpdir/"day+{{sim_id}}+{{dom}}+{subregion}+1950-2100.zarr",  subregion=subregions)
     output: 
-        pr=finaldir/"staging/{path}/pr/pr_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip", 
-        tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip",
-        tasmin=finaldir/"staging/{path}/tasmin/tasmin_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip",
-        dtr=finaldir/"staging/{path}/dtr/dtr_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip", 
-        #hurs=finaldir/"staging/{path}/hurs/hurs_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip", 
-        #hursTasmax=finaldir/"staging/{path}/hursTasmax/hursTasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip", 
+        pr=finaldir/"staging/{path}/pr/pr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip",
+        tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip",
+        tasmin=finaldir/"staging/{path}/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip",
+        dtr=finaldir/"staging/{path}/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
+        #hurs=finaldir/"staging/{path}/hurs/hurs_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
+        #hursTasmax=finaldir/"staging/{path}/hursTasmax/hursTasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
 
     params:
         path=lambda wildcards: final_path(wildcards.sim_id),
@@ -196,15 +194,15 @@ rule concatenation_final:
 
 rule health_checks:
     input:
-        pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/pr/pr_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/dtr/dtr_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        #hurs=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hurs/hurs_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        #hursTasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hursTasmax/hursTasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/pr/pr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
+        tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
+        tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
+        dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
+        #hurs=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hurs/hurs_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
+        #hursTasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hursTasmax/hursTasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
 
     output:
-        finaldir/"checks/{dom}/{sim_id}+{dom}_checks.zarr.zip"
+        finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip"
     params:
         n_workers=8,
         mem='40GB',
@@ -219,7 +217,7 @@ rule diag_ref:
     input:
         ref=finaldir/ "reference/{dom}_default.zarr.zip"
     output: 
-        prop=finaldir/"diagnostics/{dom}/{dregion}/ref-prop.zarr.zip"
+        prop=finaldir/"diagnostics/{ref}/{dom}/{dregion}/ref-prop.zarr.zip"
     params:
         n_workers=6,
         mem="90GB",
@@ -232,24 +230,25 @@ rule diag_ref:
 rule diag:
     input:
         ref=finaldir/ "reference/{dom}_default.zarr.zip",
-        ref_prop=finaldir/"diagnostics/{dom}/{dregion}/ref-prop.zarr.zip",
-        scen_pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/pr/pr_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        scen_tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        scen_tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        scen_dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/dtr/dtr_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        #scen_hurs=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hurs/hurs_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        #scen_hursTasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hursTasmax/hursTasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        ref_prop=finaldir/"diagnostics/{ref}/{dom}/{dregion}/ref-prop.zarr.zip",
+        scen_pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/pr/pr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
+        scen_tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
+        scen_tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
+        scen_dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
+        #scen_hurs=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hurs/hurs_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
+        #scen_hursTasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hursTasmax/hursTasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
     output: 
-        sim_prop=finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_sim-prop.zarr.zip",
-        sim_meas=finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_sim-meas.zarr.zip",
-        scen_prop=finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_scen-prop.zarr.zip",
-        scen_meas=finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_scen-meas.zarr.zip",
-        imp=finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",
+        sim_prop=finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_sim-prop.zarr.zip",
+        sim_meas=finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_sim-meas.zarr.zip",
+        scen_prop=finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_scen-prop.zarr.zip",
+        scen_meas=finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_scen-meas.zarr.zip",
+        imp=finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",
     params:
         n_workers=2, 
-        mem="100GB", 
         cpus_per_task=4,
-        time="2:00:00", 
+        mem="100GB", 
+        #time="2:00:00", 
+        time="3:00:00", #2300
     script:
         "workflow/scripts/diag.py"
 

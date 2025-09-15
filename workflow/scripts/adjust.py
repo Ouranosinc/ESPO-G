@@ -21,11 +21,11 @@ if __name__ == '__main__':
     if 'hursmin' in ds_sim:
         # trick for biasadjustement of hursmin (sim) on hursTasmax (ref)
         ds_sim = ds_sim.rename({'hursmin': 'hursTasmax'})
-        #FIXME: needed until we can use numpy>2
-        ds_sim['hursTasmax'] = ds_sim['hursTasmax'].astype(float)
-        ds_sim['hurs'] = ds_sim['hurs'].astype(float)
+        #needed until we can use numpy>2, useful for clip in additive transform
+        #ds_sim['hursTasmax'] = ds_sim['hursTasmax'].astype(float)
+        #ds_sim['hurs'] = ds_sim['hurs'].astype(float)
 
-    #TODO: clip tmp
+    #clip before
     #ds_sim['hurs'] = ds_sim['hurs'].clip(0,100)
     #ds_sim['hursTasmax'] = ds_sim['hursTasmax'].clip(0,100)
 
@@ -39,8 +39,13 @@ if __name__ == '__main__':
         **CONFIG['biasadjust']['variables'][snakemake.wildcards.var]['adjusting_args']
         )
 
-    #final clip
+    #FIXME: until xscen>=0.13.1, add ba_ref by hand
+    ds_scen.attrs['cat:bias_adjust_reference']=CONFIG['biasadjust']['variables'][snakemake.wildcards.var]['adjusting_args'].get('bias_adjust_reference','unknown')
+
+    #FIXME: until xscen>=0.13.1,   final clip here instead of with xscen.clean_up
     if 'hurs' in ds_scen:
         ds_scen['hurs'] = ds_scen['hurs'].clip(0,100)
+        ds_scen['hursTasmax'] = ds_scen['hursTasmax'].clip(0,100)
+
 
     xs.save_to_zarr(ds_scen, str(snakemake.output[0]))

@@ -8,11 +8,16 @@ https://www.nature.com/articles/s41597-023-02855-z
 ## Versions
 
  ### v2.0
- Ran for lait-e in 2025-08 on narval with xclim-0.57.1.dev10, xscen-0.12.4.dev5 and xsdba 0.5.0 wheels and numpy 1.26.4 (env dqm-np2)
+ 
  * Add hurs and hursTasmax
  * Add possibility to run until 2300
  * Fix bug on adapt freq (:issue: #8)
  * Add CaSR v3.2
+ #### Project lait-e
+    Ran initial tests for lait-e in 2025-08 on narval with xclim-0.57.1.dev10, xscen-0.12.4.dev5 and xsdba 0.5.0 wheels and numpy 1.26.4 (env dqm-np2) using config_general-2100.yml and config_QC-E5L.yml.
+#### Project ESPO-G6e
+    Ran for ESPO6e in 2025-09 with common env xscen-0.13 using config_general-2300.yml and config_NAM-C3.yml.
+
 
 ### v1.0
 
@@ -35,7 +40,7 @@ To run the workflow:
 1) On narval, activate the  virtual env:
 
 ```bash
-$ pyact dqm-np2
+$ pyact xscen-0.13
 ```
 
 2) Specify the output files wanted in the rule `all:input` of the `Snakefile`. (Final files are input of checks and diagnostics. Hence, no need to explicitely ask for them, they will be created.)

@@ -1,5 +1,4 @@
 #Configuration file NAM-C3
-# TODO: figure out naming conventions 
 
 custom:
     regions:
@@ -32,7 +31,7 @@ extraction:
     reference:
         search_data_catalogs:
             variables_and_freqs: &var_and_freq
-                mask: fx #TODO: add mask
+                mask: fx
             periods : &ref_period
               - '1991'
               - '2020'            
@@ -41,7 +40,7 @@ extraction:
                     "CaSR"
                 version: "v31" #TODO: put 3.2 when available and change notes below as well
         extract_dataset:
-            mask: True #TODO: when we have mask
+            mask: True
 
 biasadjust:
     variables:

@@ -21,8 +21,8 @@ if __name__ == '__main__':
     ds_regrid = xs.regrid_dataset(
         ds=ds_input,
         ds_grid=ds_target,
-        #weights_location=f"{os.environ['SLURM_TMPDIR']}/weights/" # TODO: switch back 2100
-        weights_location=f"{CONFIG['tmppath']}/weights/" # 2300
+        weights_location=f"{os.environ['SLURM_TMPDIR']}/weights/" # TODO: switch back when doing 2100
+        #weights_location=f"{CONFIG['tmppath']}/weights/" # 2300
     )
 
     # chunk time dim

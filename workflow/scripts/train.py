@@ -20,9 +20,9 @@ if __name__ == '__main__':
         # trick for biasadjustement of hursmin (sim) on hursTasmax (ref)
         ds_hist = ds_hist.rename({'hursmin': 'hursTasmax'})
 
-        #FIXME: needed until we can use numpy>2
-        ds_hist['hursTasmax'] = ds_hist['hursTasmax'].astype(float)
-        ds_hist['hurs'] = ds_hist['hurs'].astype(float)
+        # needed until we can use numpy>2, for clip in additive transform
+        # ds_hist['hursTasmax'] = ds_hist['hursTasmax'].astype(float)
+        # ds_hist['hurs'] = ds_hist['hurs'].astype(float)
 
     # load ref ds
     # choose right calendar
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     input_cal = 'noleap' if refcal == 'noleap' else  'day360' if refcal == '360_day' else 'unknown'
     ds_ref = xr.open_zarr(getattr(snakemake.input, input_cal), decode_timedelta=False)
 
-    #TODO: clip tmp
+    #clip tmp
     # ds_ref['hurs'] = ds_ref['hurs'].clip(0,100)
     # ds_hist['hurs'] = ds_hist['hurs'].clip(0,100)
     # ds_ref['hursTasmax'] = ds_ref['hursTasmax'].clip(0,100)
