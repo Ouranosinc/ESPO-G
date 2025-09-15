@@ -17,10 +17,12 @@ if __name__ == '__main__':
 
     ds_target = xr.open_zarr(snakemake.input.noleap, decode_timedelta=False)
 
+
     ds_regrid = xs.regrid_dataset(
         ds=ds_input,
         ds_grid=ds_target,
-        weights_location=f"{os.environ['SLURM_TMPDIR']}/weights/"
+        #weights_location=f"{os.environ['SLURM_TMPDIR']}/weights/" # TODO: switch back 2100
+        weights_location=f"{CONFIG['tmppath']}/weights/" # 2300
     )
 
     # chunk time dim

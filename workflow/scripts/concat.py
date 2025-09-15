@@ -49,5 +49,6 @@ if __name__ == '__main__':
     # zip_directory(snakemake.output.tmp, snakemake.output.final)
 
     for var in dsC.data_vars:
-        tmp_zarr_and_zip(dsC[[var]],snakemake.output[var])
+        # delete_tmp=True to avoid going over limit  of localscratch in 2300
+        tmp_zarr_and_zip(dsC[[var]],snakemake.output[var], delete_tmp=True) 
 

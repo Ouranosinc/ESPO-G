@@ -16,12 +16,13 @@ if __name__ == '__main__':
     # load hist ds (simulation)
     ds_hist = xr.open_zarr(snakemake.input.rechunk, decode_timedelta=False)
     
-    # trick for biasadjustement of hursmin (sim) on hursTasmax (ref)
-    ds_hist = ds_hist.rename({'hursmin': 'hursTasmax'})
+    if 'hursmin' in ds_hist:
+        # trick for biasadjustement of hursmin (sim) on hursTasmax (ref)
+        ds_hist = ds_hist.rename({'hursmin': 'hursTasmax'})
 
-    #FIXME: needed until we can use numpy>2
-    ds_hist['hursTasmax'] = ds_hist['hursTasmax'].astype(float)
-    ds_hist['hurs'] = ds_hist['hurs'].astype(float)
+        #FIXME: needed until we can use numpy>2
+        ds_hist['hursTasmax'] = ds_hist['hursTasmax'].astype(float)
+        ds_hist['hurs'] = ds_hist['hurs'].astype(float)
 
     # load ref ds
     # choose right calendar

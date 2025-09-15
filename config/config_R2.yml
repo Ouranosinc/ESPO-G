@@ -39,11 +39,6 @@ extraction:
                     "RDRS"
         extract_dataset:
             {} #mask: True #TODO: when we have mask
-    ref_source: *ref_source
-
-regrid:
-  target:
-    source: *ref_source
 
 biasadjust:
     variables:
@@ -51,8 +46,8 @@ biasadjust:
             training_args:
                 period: *ref_period
             adjusting_args:
-                bias_adjust_project: &b_a_pro
-                  ESPO-G6-R2
+                bias_adjust_reference: 
+                  RDRSv21
         tasmax: *generic-ba
         pr: *generic-ba
         hurs: *generic-ba
@@ -70,7 +65,6 @@ clean_up:
         rlon: original_shape
       add_attrs:
         global:
-          dataset: ESPO-G6-R2 v1.0.0
           Notes: |
             Regridded on the grid of CaSR v2.1, then bias-adjusted with detrended
             quantile mapping on a day-of-year basis with a window of 31 days, LOESS

@@ -1,109 +1,109 @@
-#Configuration file QC-E5L
+#Configuration file NAM-C3
+# TODO: figure out naming conventions 
 
 custom:
     regions:
-      QC-E5L:
-        name: QC-E5L
-        method: bbox
-        lon_bnds: [ -83, -55 ]
-        lat_bnds: [ 42, 63 ]
+        southC3:
+            name: southC3
+            method: sel
+            rlon: &rlon
+              [-35, 28]
+            rlat: [ -47, -23 ]
+        middleC3:
+            name: middleC3
+            method: sel
+            rlon: *rlon
+            rlat:  [ -23, 1 ]
+        northC3:
+            name: northC3
+            method: sel
+            rlon: *rlon
+            rlat: [ 1, 26 ]
     full_region:
       name: &nam-name
-        QC-E5L
+        NAM-C3
       method: bbox
       tile_buffer: 1.5
-      lon_bnds: [ -83, -55 ]
-      lat_bnds: [ 42, 63 ]
+      lon_bnds: [ -179.95, -10 ]
+      lat_bnds: [ 10, 83.4 ]
 
 
 extraction:
     reference:
         search_data_catalogs:
+            variables_and_freqs: &var_and_freq
+                mask: fx #TODO: add mask
             periods : &ref_period
               - '1991'
-              - '2020'
+              - '2020'            
             other_search_criteria:
                 source: &ref_source
-                    "ERA5-Land"
-        extract_dataset: {}
-    ref_source: *ref_source
-
-regrid:
-  target:
-    source: *ref_source
+                    "CaSR"
+                version: "v31" #TODO: put 3.2 when available and change notes below as well
+        extract_dataset:
+            mask: True #TODO: when we have mask
 
 biasadjust:
     variables:
         dtr: &generic-ba
             training_args:
-              period: *ref_period
+                period: *ref_period
             adjusting_args:
-                bias_adjust_project: &b_a_pro
-                  ESPO-G6-E5L
+                bias_adjust_reference:
+                  CaSRv31 # TODO: put right version
         tasmax: *generic-ba
         pr: *generic-ba
-        hurs: *generic-ba
-        hursTasmax: *generic-ba
-
 
 
 clean_up:
   xscen_clean_up:
       maybe_unstack_dict:
         rechunk:
-          lat: 20
-          lon: 20
+          rlat: 20
+          rlon: 20
           time: -1
       attrs_to_remove:
-        lat: original_shape
-        lon: original_shape
+        rlat: original_shape
+        rlon: original_shape
       add_attrs:
         global:
-          dataset: ESPO-G6-E5L v1.1.0
           Notes: |
-            Regridded on the grid of ERA5-Land, then bias-adjusted with detrended
+            Regridded on the grid of CaSR v3.1, then bias-adjusted with detrended
             quantile mapping on a day-of-year basis with a window of 31 days, LOESS
-            detrending and 50 quantiles. The reference was ERA5-Land over the
-            1991-2020 period. Tasmax, dtr and pr were adjusted, tasmin was computed
+            detrending and 50 quantiles. The reference was CaSR v3.1 over the
+            1991-2020 period. Tasmax, hurs, hursTasmax, dtr and pr were adjusted, tasmin was computed
             from tasmax and dtr after the adjustment.
           code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake
-        lat:
-          standard_name: latitude
-          units: degrees_north
+        rlat:
           axis: Y
-          long_name: latitude
-        lon:
-          standard_name: longitude
-          units: degrees_east
+        rlon:
           axis: X
-          long_name: longitude
-
-diagnostics:
-  properties_and_measures:
-    period: *ref_period
 
 health_checks:
     structure:
       coords:
-        - lat
-        - lon
+        - rlat
+        - rlon
         - time
-      dims:
-        - lat
+        - lat 
         - lon
+        - rotated_pole
+      dims:
+        - rlat
+        - rlon
         - time
     
 
 chunks:
   working:
-    lat: 20
-    lon: 20
+    rlat: 20
+    rlon: 20
     loc: 600
     time: -1
   diag:
-    lat: -1
-    lon: -1
+    rlat: -1
+    rlon: -1
   final: 
-    lat: 50
-    lon: 50
+    rlat: 50
+    rlon: 50
     time: 4year

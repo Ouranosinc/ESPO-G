@@ -4,6 +4,7 @@ import os
 import xscen as xs
 from xscen import CONFIG
 from zipfile import ZipFile
+import shutil as sh
 if 1==0: #trick vscode
     import snakemake
 
@@ -15,8 +16,11 @@ def dask_cluster(params):
         n_workers=params.n_workers,
         threads_per_worker=params.cpus_per_task/params.n_workers,
         memory_limit=f"{int(int(params.mem.replace('GB',''))/params.n_workers)}GB",
-        local_directory=os.environ['SLURM_TMPDIR'], **CONFIG['dask'].get('client', {}))
+        #local_directory=os.environ['SLURM_TMPDIR'],
+        local_directory=f"{CONFIG['tmppath']}/dask", #3200
+         **CONFIG['dask'].get('client', {}))
     client = Client(cluster)
+    print(client.dashboard_link)
     return client
 
 # eventually take this from xscen
@@ -37,8 +41,10 @@ def zip_directory(root, zipfile, **zip_args):
 def create_tmp_path(path):
     return f"{os.environ['SLURM_TMPDIR']}/{Path(path).name.replace('.zip','')}"
 
-def tmp_zarr_and_zip(ds, p):
+def tmp_zarr_and_zip(ds, p, delete_tmp=False):
     tmp_path=create_tmp_path(p)
     xs.save_to_zarr(ds, tmp_path)
     Path(p).parent.mkdir(parents=True, exist_ok=True)
     xs.io.zip_directory(tmp_path, p)
+    if delete_tmp:
+        sh.rmtree(tmp_path)

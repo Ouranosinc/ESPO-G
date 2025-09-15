@@ -1,29 +1,19 @@
-#Configuration file E5L
+#Configuration file QC-E5L
 
 custom:
     regions:
-        southE5L:
-            name: southE5L
-            method: bbox
-            lon_bnds: [ -179.95, -10 ]
-            lat_bnds: [ 10, 40.05 ] # bound must land between 2 points
-        middleE5L:
-            name: middleE5L
-            method: bbox
-            lon_bnds: [ -179.95, -10 ]
-            lat_bnds: [ 40.05, 65.05 ]
-        northE5L:
-            name: northE5L
-            method: bbox
-            lon_bnds: [-179.95, -10]
-            lat_bnds: [65.05, 83.4]
+      QC-E5L:
+        name: QC-E5L
+        method: bbox
+        lon_bnds: [ -83, -55 ]
+        lat_bnds: [ 42, 63 ]
     full_region:
       name: &nam-name
-        NAM-E5L
+        QC-E5L
       method: bbox
       tile_buffer: 1.5
-      lon_bnds: [ -179.95, -10 ]
-      lat_bnds: [ 10, 83.4 ]
+      lon_bnds: [ -83, -55 ]
+      lat_bnds: [ 42, 63 ]
 
 
 extraction:

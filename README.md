@@ -1,5 +1,20 @@
-# ESPO-G6 : Ensemble de Simulations Post-traitées d’Ouranos - modèles Globaux CMIP6 / Ouranos Ensemble of Bias-adjusted Simulations - Global models CMIP6 (Snakemake version)
+# ESPO6 : Ensemble de Simulations Post-traitées d’Ouranos -  CMIP6 / Ouranos Ensemble of Bias-adjusted Simulations - CMIP6
 
+ESPO6 v1.0 is described in the following article:
+
+Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024).
+https://www.nature.com/articles/s41597-023-02855-z
+
+## Versions
+
+ ### v2.0
+ Ran for lait-e in 2025-08 on narval with xclim-0.57.1.dev10, xscen-0.12.4.dev5 and xsdba 0.5.0 wheels and numpy 1.26.4 (env dqm-np2)
+ * Add hurs and hursTasmax
+ * Add possibility to run until 2300
+ * Fix bug on adapt freq (:issue: #8)
+ * Add CaSR v3.2
+
+### v1.0
 
 ESPO-G6:[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764928.svg)](https://doi.org/10.5281/zenodo.7764928)
 
@@ -8,10 +23,7 @@ ESPO-G6-R2 v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7877330.s
 ESPO-G6-E5L v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764929.svg)](https://doi.org/10.5281/zenodo.7764929)
 
 
-The dataset is described in the following article:
 
-Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024).
-https://www.nature.com/articles/s41597-023-02855-z
 
 
 ## Instructions
@@ -23,12 +35,12 @@ To run the workflow:
 1) On narval, activate the  virtual env:
 
 ```bash
-$ pyact dqm
+$ pyact dqm-np2
 ```
 
 2) Specify the output files wanted in the rule `all:input` of the `Snakefile`. (Final files are input of checks and diagnostics. Hence, no need to explicitely ask for them, they will be created.)
 
-3) Specify the simulations and reference wanted in `config/config.yml` in `extraction:reference/simulation:search_data_catalogs:other_search_criteria`.
+3) Specify the simulations and reference wanted in `config/config_general.yml` and  `config/config_region.yml`.
 
 4) Create your own `paths.yml` based on `paths-template.yml`.
 
@@ -58,13 +70,9 @@ Description of the tasks:
  - official-diag: Compute diagnostics (defined in configuration/off-properties_ESPO-G.yml) on smaller regions to assess the performance.
  - move: Move files to final location and zip.
 #TODO: update the readme.
- ## Changelog
 
- ### Version 1.1
- Ran for lait-e in 2025-08 on narval with xclim-0.57.1.dev10, xscen-0.12.4.dev5 and xsdba 0.5.0 wheels and numpy 1.26.4 (env dqm-np2)
- * Add hurs and hursTasmax
- * Improved adapt-freq
 
+OLD README: # TODO: update this
 
 ## Context
 The need to adapt to climate change is present in a growing number of fields, leading to an increase in the demand for 

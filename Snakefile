@@ -20,7 +20,6 @@ sim_ids= list(dict_sim_id.keys())
 
 subregions = list(config["custom"]["regions"].keys()) # for parallelisation of computation
 diagregions=[d for d in config['diagregion'].keys()] # for diags
-ref_source = [config['extraction']['reference']['search_data_catalogs']['other_search_criteria']['source']]
 level=['improvement', 'diag_sim_prop','diag_sim_meas','diag_scen_prop','diag_scen_meas']
 # trick, use dom as wildcard so it can be defined in the config
 domain=[config['custom']['full_region']['name']]
@@ -29,6 +28,7 @@ domain=[config['custom']['full_region']['name']]
 tmpdir= Path(config['paths']['tmpdir'])
 finaldir=Path(config['paths']['final'])
 
+print(list(config['biasadjust']['variables'].keys()))
 
 rule all:
     input:
@@ -83,9 +83,11 @@ rule regrid:
           temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr"))
      params:
           n_workers=3,
-          mem='48GB',
           cpus_per_task=9,
-          time="00:20:00",
+        #   mem='48GB',
+        #   time="00:20:00",
+          mem='200GB',# 2300 # TODO: come back put 500 here and try to put back local scratch
+          time= "01:00:00",# 2300 #
      script:
           "workflow/scripts/regrid.py"
 
@@ -96,9 +98,11 @@ rule rechunk:
           temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr"))
      params:
           n_workers=2,
-          mem='50GB',
           cpus_per_task=10,
-          time="01:00:00",
+          #mem='50GB',
+          #time="01:00:00", #2300
+          mem='150GB',
+          time="02:00:00",
      script:
           "workflow/scripts/rechunk.py"
 
@@ -121,15 +125,15 @@ rule adjust:
     input:
         train = tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr",
         rechunk = tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr",
-        noleap = finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip", #FIXME: check if still need this when new adapt_freq
-        day360 = finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip", #FIXME: check if still need this when new adapt_freq
     output:
         temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr"))
     params:
         n_workers=3,
-        mem='50GB',
+        #mem='50GB', #2100
+        mem='200GB', #2300
         cpus_per_task=15,
-        time="1:00:00", 
+        #time="1:00:00", 
+        time="2:00:00", #2300
     script:
         "workflow/scripts/adjust.py"
 
@@ -177,8 +181,8 @@ rule concatenation_final:
         tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip",
         tasmin=finaldir/"staging/{path}/tasmin/tasmin_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip",
         dtr=finaldir/"staging/{path}/dtr/dtr_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip", 
-        hurs=finaldir/"staging/{path}/hurs/hurs_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip", 
-        hursTasmax=finaldir/"staging/{path}/hursTasmax/hursTasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip", 
+        #hurs=finaldir/"staging/{path}/hurs/hurs_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip", 
+        #hursTasmax=finaldir/"staging/{path}/hursTasmax/hursTasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip", 
 
     params:
         path=lambda wildcards: final_path(wildcards.sim_id),
@@ -196,8 +200,8 @@ rule health_checks:
         tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
         tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
         dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/dtr/dtr_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        hurs=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hurs/hurs_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        hursTasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hursTasmax/hursTasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        #hurs=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hurs/hurs_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        #hursTasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hursTasmax/hursTasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
 
     output:
         finaldir/"checks/{dom}/{sim_id}+{dom}_checks.zarr.zip"
@@ -233,8 +237,8 @@ rule diag:
         scen_tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
         scen_tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
         scen_dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/dtr/dtr_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        scen_hurs=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hurs/hurs_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
-        scen_hursTasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hursTasmax/hursTasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        #scen_hurs=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hurs/hurs_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
+        #scen_hursTasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hursTasmax/hursTasmax_day_DQM_{sim_id}_{dom}_1951-2100.zarr.zip"),
     output: 
         sim_prop=finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_sim-prop.zarr.zip",
         sim_meas=finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_sim-meas.zarr.zip",
