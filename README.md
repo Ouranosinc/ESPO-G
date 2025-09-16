@@ -9,16 +9,16 @@ ESPO6 v1.0 is described in the following article:
 Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024).
 https://www.nature.com/articles/s41597-023-02855-z
 
-The code and data are registered here: ESPO-G6:[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764928.svg)](https://doi.org/10.5281/zenodo.7764928)
+DOI for the code and data:[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764928.svg)](https://doi.org/10.5281/zenodo.7764928)
 
-The data is available here: https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/datasets/simulations/bias_adjusted/cmip6/ouranos/ESPO-G/catalog.html
+The data is available on [PAVICS](https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/datasets/simulations/bias_adjusted/cmip6/ouranos/ESPO-G/catalog.html).
 
 Dataset Characteristics:
 * Temporal coverage: 1950-2100
 * Temporal resolution: daily, noleap or 360_day calendar
-* Spatial coverage: North American domain from 179.9°W to 10.0°W and from 10.0°N to 83.3°N, only on land.\n",
+* Spatial coverage: North American domain from 179.9°W to 10.0°W and from 10.0°N to 83.3°N, only on land.
 * Spatial resolution: 0.1°
-* Data type:** Gridded netCDF
+* Data type: Gridded netCDF
 * License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 
@@ -29,18 +29,20 @@ Dataset Characteristics:
  Major changes:
  * Add hurs and hursTasmax
  * Add possibility to run until 2300
- * Fix bug on adapt freq (:issue: #8)
+ * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
  * Add CaSR v3.2 reference
 
 Minor changes:
-* KACE-1-0-G was excluded. (:issue: #6)
+* KACE-1-0-G was excluded. (https://github.com/Ouranosinc/ESPO-G/issues/6)
 * EC-Earth3-CC and NESM3 were excluded as they do not have SSP3-7.0 available.
-* New calculation of the TCR lead to CNRM-CM6-1/INM-CM5-0  being included/excluded in the TCR likely range. (:issue: #7)
+* New calculation of the TCR lead to CNRM-CM6-1/INM-CM5-0  being included/excluded in the TCR likely range. (https://github.com/Ouranosinc/ESPO-G/issues/7)
 
 #### Project lait-e
-    Ran initial tests for lait-e in 2025-08 on narval with xclim-0.57.1.dev10, xscen-0.12.4.dev5 and xsdba 0.5.0 wheels and numpy 1.26.4 (env dqm-np2) using config_general-2100.yml and config_QC-E5L.yml.
+    
+    Includes hurs and hursTasmax. Ran initial tests for lait-e in 2025-08 on narval with xclim-0.57.1.dev10, xscen-0.12.4.dev5 and xsdba 0.5.0 wheels and numpy 1.26.4 (env dqm-np2) using config_general-2100.yml and config_QC-E5L.yml.
 #### Project ESPO-G6e
-    Ran for ESPO6e in 2025-09 with common env xscen-0.13 using config_general-2300.yml and config_NAM-C3.yml.
+    
+    Includes simulation that reach 2300. Ran initial tests in 2025-09 with common env xscen-0.13 using config_general-2300.yml and config_NAM-C3.yml.
 
 
 ### v1.0
@@ -56,12 +58,14 @@ https://www.nature.com/articles/s41597-023-02855-z
   * ESPO-G6-E5L v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764929.svg)](https://doi.org/10.5281/zenodo.7764929)
 
 * Data availability:
-  At the time of publication, the data is stored on [Ouranos](https://www.ouranos.ca/)' THREDDS server, a part of the [PAVICS](https://pavics.ouranos.ca/) project:
-https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/datasets/simulations/bias_adjusted/cmip6/ouranos/ESPO-G/ESPO-G6-R2v1.0.0/catalog.html
 
-When new versions of ESPO-G will be released, previous versions may be pulled from the server. [Please contact us](mailto:scenarios@ouranos.ca) if you wish to obtain these.
+  At the time of publication, the data is stored on [Ouranos](https://www.ouranos.ca/)' THREDDS server, a part of the [PAVICS](https://pavics.ouranos.ca/) project:
+https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/datasets/simulations/bias_adjusted/cmip6/ouranos/ESPO-G/catalog.html
+
+  When new versions of ESPO6 will be released, previous versions may be pulled from the server. [Please contact us](mailto:scenarios@ouranos.ca) if you wish to obtain these.
 
 #### Project ESPO-G6-AHCCD
+
     * Paper coming soon.
 
 
@@ -73,7 +77,7 @@ Extra "hot models" and SSP5-8.5 are also available even if they are not in the o
 **Table 1. Members of ESPO6 v2.0.0**
 
 |**Model** |**Member** |**TCR (degC)**|**In TCR likely range**|**Status**|
-|---|---|---|---|---|---|---|
+|---|---|---|---|---|
 | ACCESS-CM2     |r1i1p1f1| 2.1 | ✓ |not started|
 | ACCESS-ESM1-5  |r1i1p1f1| 1.95 | ✓ |not started|
 | BCC-CSM2-MR    |r1i1p1f1| 1.72 | ✓ |not started|
