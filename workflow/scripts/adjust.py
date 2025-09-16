@@ -40,7 +40,7 @@ if __name__ == '__main__':
         )
 
     #FIXME: until xscen>=0.13.1, add ba_ref by hand
-    ds_scen.attrs['cat:bias_adjust_reference']=CONFIG['biasadjust']['variables'][snakemake.wildcards.var]['adjusting_args'].get('bias_adjust_reference','unknown')
+    ds_scen.attrs['cat:bias_adjust_reference']=CONFIG['bias_adjust_reference']
 
     #FIXME: until xscen>=0.13.1,   final clip here instead of with xscen.clean_up
     if 'hurs' in ds_scen:

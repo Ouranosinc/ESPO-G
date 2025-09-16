@@ -47,11 +47,14 @@ biasadjust:
         dtr: &generic-ba
             training_args:
                 period: *ref_period
-            adjusting_args:
-                bias_adjust_reference:
-                  CaSRv31 # TODO: put right version
+            # adjusting_args:
+            #     bias_adjust_reference: #FIXME: put when xscen>=0.13.1
+            #       CaSRv31 # TODO: put right version
         tasmax: *generic-ba
         pr: *generic-ba
+
+bias_adjust_reference: #in the mean time
+  CaSRv31
 
 
 clean_up:

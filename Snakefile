@@ -19,13 +19,11 @@ diagregions=[d for d in config['diagregion'].keys()] # for diags
 level=['improvement', 'diag_sim_prop','diag_sim_meas','diag_scen_prop','diag_scen_meas']
 # trick, use dom as wildcard so it can be defined in the config
 domain=[config['custom']['full_region']['name']]
-reference = [config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_reference']]
+reference = [config['bias_adjust_reference']] #FIXME: when xscen>=0.13.1 put the full config path 
 
 #paths
 tmpdir= Path(config['paths']['tmpdir'])
 finaldir=Path(config['paths']['final'])
-
-print(list(config['biasadjust']['variables'].keys()))
 
 rule all:
     input:
@@ -161,7 +159,7 @@ def final_path(id):
          processing_level='biasadjusted',
          bias_adjust_project=config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_project'],
          bias_adjust_institution=config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_institution'],
-         bias_adjust_reference=config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_reference'],
+         #bias_adjust_reference=config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_reference'], #FIXME: when xscen>=0.13.1
          version=config['clean_up']['xscen_clean_up']['add_attrs']['global']['version'],
          frequency='day',
          xrfreq='D',

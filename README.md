@@ -39,10 +39,10 @@ Minor changes:
 
 #### Project lait-e
     
-    Includes hurs and hursTasmax. Ran initial tests for lait-e in 2025-08 on narval with xclim-0.57.1.dev10, xscen-0.12.4.dev5 and xsdba 0.5.0 wheels and numpy 1.26.4 (env dqm-np2) using config_general-2100.yml and config_QC-E5L.yml.
+  Includes hurs and hursTasmax. Ran initial tests for lait-e in 2025-08 on narval with xclim-0.57.1.dev10, xscen-0.12.4.dev5 and xsdba 0.5.0 wheels and numpy 1.26.4 (env dqm-np2) using config_general-2100.yml and config_QC-E5L.yml.
 #### Project ESPO-G6e
     
-    Includes simulation that reach 2300. Ran initial tests in 2025-09 with common env xscen-0.13 using config_general-2300.yml and config_NAM-C3.yml.
+  Includes simulation that reach 2300. Ran initial tests in 2025-09 with common env xscen-0.13 using config_general-2300.yml and config_NAM-C3.yml.
 
 
 ### v1.0
@@ -66,7 +66,7 @@ https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/datasets/simulation
 
 #### Project ESPO-G6-AHCCD
 
-    * Paper coming soon.
+  Paper coming soon.
 
 
 
@@ -81,10 +81,10 @@ Extra "hot models" and SSP5-8.5 are also available even if they are not in the o
 | ACCESS-CM2     |r1i1p1f1| 2.1 | ✓ |not started|
 | ACCESS-ESM1-5  |r1i1p1f1| 1.95 | ✓ |not started|
 | BCC-CSM2-MR    |r1i1p1f1| 1.72 | ✓ |not started|
-| CMCC-ESM2     |r1i1p1f1| ? | ✓ |not started|
+| CMCC-ESM2     |r1i1p1f1| 1.92* | ✓ |not started|
 | CNRM-CM6-1     |r1i1p1f1| 2.14 | ✓ |not started|
 | CNRM-ESM2-1    |r1i1p1f1| 1.86 | ✓ |not started|
-| FGOALS-g3      |r1i1p1f1| 1.48 | ✓ |not started|
+| FGOALS-g3      |r1i1p1f1| 1.54 | ✓ |not started|
 | GFDL-ESM4      |r1i1p1f1| 1.61 | ✓ |not started|
 | MIROC-ES2L     |r1i1p1f1| 1.55 | ✓ |not started|
 | MIROC6         |r1i1p1f1| 1.55 | ✓ |not started|
@@ -93,6 +93,7 @@ Extra "hot models" and SSP5-8.5 are also available even if they are not in the o
 | MRI-ESM2-0     |r1i1p1f1| 1.64 | ✓ |not started|
 | NorESM2-LM     |r1i1p1f1| 1.48 | ✓ |not started|
 | CanESM5        |r1i1p1f1| 2.74 | x |not started|
+| CanESM5-1      |r1i1p2f1| ? | x |not started|
 | EC-Earth3      |r1i1p1f1| 2.3 | x |not started|
 | EC-Earth3-Veg  |r1i1p1f1| 2.62 | x |not started|
 | INM-CM4-8      |r1i1p1f1| 1.33 | x |not started|
@@ -105,7 +106,8 @@ Extra "hot models" and SSP5-8.5 are also available even if they are not in the o
 
 Licences: All members have a CC BY 4.0 license. https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
 
-TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/recipe_tcr.html), as done in the IPCC AR6. A previous version of this table used Hausfather et al. 2022, Climate simulations: recognize the 'hot model' problem, comment in Nature: [DOI: 10.5281/zenodo.6476375](https://doi.org/10.5281/zenodo.6476375) and gave slightly different results. See https://github.com/Ouranosinc/ESPO-G/issues/7 for discussion.
+TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/recipe_tcr.html), as done in the IPCC AR6. A previous version of this table used Hausfather et al. 2022, Climate simulations: recognize the 'hot model' problem, comment in Nature: [DOI: 10.5281/zenodo.6476375](https://doi.org/10.5281/zenodo.6476375) and gave slightly different results.   See https://github.com/Ouranosinc/ESPO-G/issues/7 for discussion.
+*Note that the CMCC-ESM2 TCR is not available with the ESMValTool method. We show the one from Hausfather et al. (2022) instead.
 
 
 
