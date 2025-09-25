@@ -81,7 +81,7 @@ rule regrid:
           cpus_per_task=9,
         #   mem='48GB',
         #   time="00:20:00",
-          mem='500GB',# 2300 # TODO: come back put 500 here and try to put back local scratch
+          mem='500GB',# 2300 
           time= "01:00:00",# 2300 #
      script:
           "workflow/scripts/regrid.py"
@@ -139,9 +139,11 @@ rule clean_up:
         temp(directory(tmpdir/"day+{sim_id}+{dom}+{subregion}+1950-2100.zarr"))
     params:
         n_workers=2,
-        mem='100GB',
         cpus_per_task=6,
-        time="00:45:00",
+        #mem='100GB',
+        #time="00:45:00",
+        mem='200GB', #2300
+        time="02:00:00",
     script:
         "workflow/scripts/clean_up.py"
 
@@ -244,9 +246,10 @@ rule diag:
     params:
         n_workers=2, 
         cpus_per_task=4,
-        mem="100GB", 
+        #mem="100GB", 
         #time="2:00:00", 
-        time="3:00:00", #2300
+        mem="200GB", 
+        time="4:00:00", #2300
     script:
         "workflow/scripts/diag.py"
 

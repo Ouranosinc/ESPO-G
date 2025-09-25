@@ -30,7 +30,7 @@ extraction:
     reference:
         search_data_catalogs:
             variables_and_freqs: &var_and_freq
-                #mask: fx #TODO: add mask
+                mask: fx 
             periods : &ref_period
               - '1989'
               - '2018'            
@@ -38,7 +38,7 @@ extraction:
                 source: &ref_source
                     "RDRS"
         extract_dataset:
-            {} #mask: True #TODO: when we have mask
+            mask: True 
 
 biasadjust:
     variables:

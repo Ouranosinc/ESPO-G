@@ -20,7 +20,7 @@ extraction:
         allow_conversion: True
         allow_resampling: False
         periods: &sim_period
-          - '1951' #pour adapt freq dans adjust
+          - '1950'
           - '2300'
         restrict_members:
           ordered: 1
@@ -28,12 +28,12 @@ extraction:
           processing_level: raw
           mip_era: CMIP6
           experiment:
-            # - ssp126
-            # - ssp245
-            # - ssp370
+            - ssp126
+            - ssp245
+            - ssp370
             - ssp585
-          source: 
-            - IPSL-CM6A-LR
+          #source: 
+          #  - ACCESS-ESM1-5
       extract_dataset:
         periods : *sim_period
         xr_combine_kwargs:
@@ -239,7 +239,7 @@ diagnostics:
     properties: config/properties.yml
 
 health_checks:
-    start_date: "1950-01-01" 
+    start_date: "1950-01-01"
     end_date: "2300-12-30"
     variables_and_units:
       tasmax: "K"
