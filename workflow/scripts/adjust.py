@@ -5,6 +5,7 @@ import xsdba as xa
 from xscen import CONFIG
 import numpy as np
 from workflow.scripts.utils import dask_cluster, create_tmp_path
+import datetime
 if 1==0: #trick vscode
     import snakemake
 
@@ -43,9 +44,13 @@ if __name__ == '__main__':
     ds_scen.attrs['cat:bias_adjust_reference']=CONFIG['bias_adjust_reference']
 
     #FIXME: until xscen>=0.13.1,   final clip here instead of with xscen.clean_up
+    new_history = f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Clipped to [0,100]"
     if 'hurs' in ds_scen:
         ds_scen['hurs'] = ds_scen['hurs'].clip(0,100)
+        ds_scen['hurs'].attrs['history'] = ds_scen['hurs'].attrs.get('history', '') + new_history
+    if 'hursTasmax' in ds_scen:
         ds_scen['hursTasmax'] = ds_scen['hursTasmax'].clip(0,100)
+        ds_scen['hursTasmax'].attrs['history'] = ds_scen['hursTasmax'].attrs.get('history', '') + new_history
 
 
     xs.save_to_zarr(ds_scen, str(snakemake.output[0]))

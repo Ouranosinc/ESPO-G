@@ -7,24 +7,24 @@ custom:
             method: sel
             rlon: &rlon
               [-35, 28]
-            rlat: [ -47, -23 ]
+            rlat: [ -34, -12 ]
         middleC3:
             name: middleC3
             method: sel
             rlon: *rlon
-            rlat:  [ -23, 1 ]
+            rlat:  [ -12, 7 ]
         northC3:
             name: northC3
             method: sel
             rlon: *rlon
-            rlat: [ 1, 26 ]
+            rlat: [ 7, 26 ]
     full_region:
-      name: &nam-name
+      name:
         NAM-C3
       method: bbox
       tile_buffer: 1.5
       lon_bnds: [ -179.95, -10 ]
-      lat_bnds: [ 10, 83.4 ]
+      lat_bnds: [ 10, 83.4 ] # TODO: fix the bottom
 
 
 extraction:
@@ -52,6 +52,8 @@ biasadjust:
             #       CaSRv31 # TODO: put right version
         tasmax: *generic-ba
         pr: *generic-ba
+        hurs: *generic-ba
+        hursTasmax: *generic-ba
 
 bias_adjust_reference: #in the mean time
   CaSRv31
