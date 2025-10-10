@@ -7,6 +7,7 @@ from xscen.utils import minimum_calendar
 from xscen import CONFIG
 from workflow.scripts.utils import tmp_zarr_and_zip
 import numpy as np
+import datetime
 if 1==0: #trick vscode
     import snakemake
 
@@ -36,5 +37,15 @@ if __name__ == '__main__':
         dref = dref,
         **CONFIG['biasadjust_mbcn']['adjust'],
     )
+
+
+    #FIXME: until xscen>=0.13.1,   final clip here instead of with xscen.clean_up
+    new_history = f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Clipped to [0,100]"
+    if 'hurs' in out:
+        out['hurs'] = out['hurs'].clip(0,100)
+        out['hurs'].attrs['history'] = out['hurs'].attrs.get('history', '') + new_history
+    if 'hursTasmax' in out:
+        out['hursTasmax'] = out['hursTasmax'].clip(0,100)
+        out['hursTasmax'].attrs['history'] = out['hursTasmax'].attrs.get('history', '') + new_history
 
     tmp_zarr_and_zip(out,snakemake.output[0])

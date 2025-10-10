@@ -1,6 +1,7 @@
 import xclim as xc
 import xscen as xs
 from xscen import CONFIG
+import xarray as xr
 from workflow.scripts.utils import dask_cluster, tmp_zarr_and_zip
 if 1==0: #trick vscode
     import snakemake
@@ -16,6 +17,8 @@ if __name__ == '__main__':
                                 region=CONFIG['full_region'],
                                 **CONFIG['extraction']['reference']['extract_dataset']
                                 )['D']
+    
+
     ds_ref = xs.clean_up(ds_ref, **CONFIG['extraction']['clean_up'])
     #FIXME: when xscen/xsda can handle units correctly
     if 'pr' in ds_ref.data_vars:
@@ -29,13 +32,18 @@ if __name__ == '__main__':
     
     tmp_zarr_and_zip(ds_ref, snakemake.output.ref)
 
-    # stack
+    # STACK
     variables = list(CONFIG['extraction']['reference']['search_data_catalogs'][
                             'variables_and_freqs'].keys())
     ds_refstacked = xs.utils.stack_drop_nans(
         ds_ref,
         ds_ref[variables[0]].isel(time=130, drop=True).notnull().compute(),
     )
+
+    for var in list(ds_refstacked.data_vars) + ['lat','lon','time']:
+        if 'chunks' in ds_refstacked[var].encoding:
+            del ds_refstacked[var].encoding['chunks']
+
     ds_refstacked= ds_refstacked.chunk({d: CONFIG['chunks']['working'][d] for d in ds_refstacked.dims})
 
     tmp_zarr_and_zip(ds_refstacked, snakemake.output.refstacked)

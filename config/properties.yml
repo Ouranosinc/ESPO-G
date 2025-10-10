@@ -228,7 +228,7 @@ indicators:
     input:
       da: hurs
     parameters:
-      q: 0.99
+      q: 0.99 #TODO: uncomment all
   mean_hursTasmax:
     base: xsdba.properties.mean
     input:

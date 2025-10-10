@@ -1,10 +1,11 @@
-#config_NAM-R2
+#config_ general MBCn partition
 project:
     name: MBCn
     version: 1.0.0
     description: Ajustement multivarié MBCn
     id: mbcn
 
+#TODO: put the right vars
 extraction:
     reference:
         search_data_catalogs:
@@ -13,8 +14,6 @@ extraction:
                 tasmin: D
                 pr: D
                 dtr: D
-                hurs: D
-                hursTasmax: D
             allow_resampling: False
             allow_conversion: True
     simulation:
@@ -24,8 +23,6 @@ extraction:
                 tasmin: D
                 pr: D
                 dtr: D
-                hurs: D
-                hursmin: D
           match_hist_and_fut: True
           allow_conversion: True
           allow_resampling: False
@@ -37,16 +34,20 @@ extraction:
           other_search_criteria:
             processing_level: raw
             experiment:
-              #- ssp245
+              - ssp245
               - ssp370
-              #- ssp126
+              - ssp126
+              - ssp585
             source: # in the TCR likely range (14) 
+              - CNRM-CM6-1
+              - NorESM2-MM
+              - UKESM1-0-LL
               # - ACCESS-CM2 
               # - ACCESS-ESM1-5 
               # - BCC-CSM2-MR
               # - CMCC-ESM2 
               # - CNRM-ESM2-1 
-               - CNRM-CM6-1
+              # - CNRM-CM6-1
               # - FGOALS-g3
               # - GFDL-ESM4 
               # - INM-CM5-0
@@ -80,8 +81,7 @@ extraction:
         tasmin: K
         pr: kg m-2 s-1
         dtr: K
-        hurs: "%"
-        hursTasmax: "%"
+
 
 regrid:
   regrid_dataset:
@@ -132,19 +132,10 @@ biasadjust_mbcn:
       - tasmax
       - dtr
       - pr
-      - hurs
-      - hursTasmax
     method: MBCn
     group:
-      group: 5D
-      window: 7
-    additive_space:
-      hurs: &logit
-        lower_bound: "0 %"
-        upper_bound: "100 %"
-        trans: "logit"
-        clip_next_to_bounds: True
-      hursTasmax: *logit
+      group: time.dayofyear
+      window: 31
     xsdba_train_args:
       base_kws:
         nquantiles: 50
@@ -167,10 +158,6 @@ biasadjust_mbcn:
           jitter_under_thresh_value: "1e-4 K"
         tasmax:
           kind: "+"
-        hurs:
-          kind: "+" # because we do logit trans
-        hursTasmax: 
-          kind: "+" # because we do logit trans
       adj_kws:
         interp: nearest
         extrapolation: constant
@@ -186,7 +173,7 @@ clean_up:
       stack_drop_nans: True
       dim: loc
     round_var:
-      pr: 10
+       pr: 10
     change_attr_prefix: ''
     remove_all_attrs_except:
       global:
@@ -213,8 +200,6 @@ clean_up:
       tasmin: *attrs_to_keep
       pr: *attrs_to_keep
       dtr: *attrs_to_keep
-      hurs: *attrs_to_keep
-      hursTasmax: *attrs_to_keep
     add_attrs:
       global:
         version: "v10"
@@ -237,21 +222,11 @@ clean_up:
         standard_name: precipitation_flux
         long_name: Mean daily precipitation flux
         cell_methods: "time: mean within days"
-      hurs:
-        standard_name: relative_humidity
-        long_name: Relative humidity
-        cell_methods: "time: mean within days"
       dtr:
         cell_methods: "time: range within days"
         description: Diurnal temperature range from tasmax and tasmin.
         standard_name: air_temperature
         long_name: Diurnal temperature range.
-      hursTasmax:
-        standard_name: relative_humidity
-        long_name: Relative humidity at maximal daily temperature
-        cell_methods: "time: point"
-        note: The bias adjustement was computed from hursmin of the simulation and hursTasmax of the reference.
-
 
 diagregion:   
   Magtogoek:
@@ -283,8 +258,6 @@ diagnostics:
       tasmin: degC
       pr: mm d-1
       dtr: K
-      hurs: "%"
-      hursTasmax: "%"
     properties: config/properties.yml
   health_checks:
     start_date: "1951-01-01"
@@ -294,8 +267,6 @@ diagnostics:
       tasmin: K
       pr: kg m-2 s-1
       dtr: K
-      hurs: "%"
-      hursTasmax: "%"
     cfchecks:
       tasmax:
         cfcheck_from_name: {}
@@ -304,8 +275,6 @@ diagnostics:
       pr:
         cfcheck_from_name: {}
       dtr:
-        cfcheck_from_name: {}
-      hurs:
         cfcheck_from_name: {}
     freq: D
     flags:
@@ -322,10 +291,6 @@ diagnostics:
           thresh: '1650 mm/d'
       dtr:
         negative_accumulation_values:
-      hurs:
-        percentage_values_outside_of_bounds:
-      hursTasmax:
-        percentage_values_outside_of_bounds:
     return_flags: True
     raise_on:
       - structure

@@ -1,4 +1,4 @@
-#config_NAM-R2
+#config MBCn ESPO
 project:
     name: MBCn
     version: 1.0.0
@@ -46,7 +46,7 @@ extraction:
               # - BCC-CSM2-MR
               # - CMCC-ESM2 
               # - CNRM-ESM2-1 
-               - CNRM-CM6-1
+              # - CNRM-CM6-1
               # - FGOALS-g3
               # - GFDL-ESM4 
               # - INM-CM5-0
@@ -54,7 +54,7 @@ extraction:
               # - MIROC-ES2L 
               # - MPI-ESM1-2-HR
               # - MPI-ESM1-2-LR 
-              # - MRI-ESM2-0 
+               - MRI-ESM2-0 
               # - NorESM2-LM
             mip_era: CMIP6
             #TODO: rerun for CanESM5 r1i1p2f1 (meme membre que MRCC5) and CanESM5-1 (TCR =2.26 according to ESMValTool) to be less hot
@@ -138,13 +138,13 @@ biasadjust_mbcn:
     group:
       group: 5D
       window: 7
-    additive_space:
-      hurs: &logit
-        lower_bound: "0 %"
-        upper_bound: "100 %"
-        trans: "logit"
-        clip_next_to_bounds: True
-      hursTasmax: *logit
+    # additive_space:
+    #   hurs: &logit
+    #     lower_bound: "0 %"
+    #     upper_bound: "100 %"
+    #     trans: "logit"
+    #     clip_next_to_bounds: True
+    #   hursTasmax: *logit
     xsdba_train_args:
       base_kws:
         nquantiles: 50
@@ -168,9 +168,11 @@ biasadjust_mbcn:
         tasmax:
           kind: "+"
         hurs:
-          kind: "+" # because we do logit trans
+          #kind: "+" # because we do logit trans
+          kind: '*' # no logit
         hursTasmax: 
-          kind: "+" # because we do logit trans
+          #kind: "+" # because we do logit trans
+          kind: '*' # no logit
       adj_kws:
         interp: nearest
         extrapolation: constant
@@ -336,7 +338,7 @@ diagnostics:
       - freq
 
 chunks:
-  pre-regrid: &pre-regrid
+  pre-regrid:
     time: 365
     lat: -1 # always lat,lon
     lon: -1

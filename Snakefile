@@ -1,11 +1,12 @@
 #TODO: add hurs diags
-#TODO: figure out naming and versioning of ESPO
+#TODO: if we continue with this, clean up like snakemake branch
 
 from pathlib import Path
 import xscen as xs
 import pandas as pd
 import os
 import numpy as np
+import xarray as xr
 
 # Load configuration
 configfile: "config/config_general.yml"
@@ -19,8 +20,6 @@ sim_ids= list(dict_sim_id.keys())
 
 # define subregions on which to split the computation based on n (size of each subregion) and the full region
 if 'num_of_regions' not in config['subregions']:
-    # cat=xs.DataCatalog(config['extraction']['reference']['search_data_catalogs']['data_catalogs'][0])
-    # dref=cat.search(**config['extraction']['reference']['search_data_catalogs']['other_search_criteria']).to_dataset()
     cat_ref = xs.search_data_catalogs(**config['extraction']['reference']['search_data_catalogs'])
     dc = cat_ref.popitem()[1]
     dref = xs.extract_dataset(catalog=dc,
@@ -29,6 +28,7 @@ if 'num_of_regions' not in config['subregions']:
                                 )['D']
     dref = xs.utils.stack_drop_nans(dref,dref.pr.isel(time=0, drop=True).notnull().compute(),)
     num_of_regions= int(np.ceil(dref.sizes['loc']/config['subregions']['n']))
+    print(num_of_regions)
 else:
     num_of_regions=config['subregions']['num_of_regions']
 subregions=[f"sr-{i}" for i in range(num_of_regions)]
@@ -48,7 +48,7 @@ rule all:
     input: 
         expand(finaldir/"health/{sim_id}_{dom}_health.zarr.zip",sim_id=sim_ids, dom=domain),
         expand(finaldir/"diagnostics/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",
-        sim_id=sim_ids, dregion=diagregions, dom=domain)
+        sim_id=sim_ids, dregion=diagregions, dom=domain) 
 
 
 rule makeref:
@@ -87,10 +87,9 @@ rule extractregrid:
         noleap=finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
     output: temp(wdir/"{sim_id}_{dom}_{subregion}/{sim_id}_{subregion}_regridded.zarr.zip")
     params:
-        mem="10GB", #2100
-        #mem="20GB", # 2300
+        mem="10GB", 
         cpus_per_task=1,
-        time="00:20:00",
+        time="00:40:00",
     script:
         "workflow/scripts/extract-regrid.py"
 
@@ -102,9 +101,9 @@ rule train:
     output: temp(wdir/"{sim_id}_{dom}_{subregion}/{sim_id}_{subregion}_training.zarr.zip"),
     params:
         n_workers=10,
-        mem="30GB",
+        mem="60GB",
         cpus_per_task=12,
-        time="01:00:00",
+        time="02:00:00",
     script:
         "workflow/scripts/train.py"
 
@@ -117,10 +116,8 @@ rule adjust:
         train= wdir/"{sim_id}_{dom}_{subregion}/{sim_id}_{subregion}_training.zarr.zip",
     output: temp(wdir/"{sim_id}_{dom}_{subregion}/{sim_id}_{subregion}_adjusted.zarr.zip"),
     params:
-        mem="80GB", # 2100
+        mem="200GB", # 2100
         time="24:00:00", # 2100
-        #time="24:00:00", #2300
-        #mem="160GB", # 2300
         cpus_per_task=1,
     script:
         "workflow/scripts/adjust.py"
@@ -194,7 +191,7 @@ rule diag_ref:
     input:
         ref=finaldir/ "reference/{dom}_default.zarr.zip",
     output: 
-        prop=finaldir/"diagnostics/{dom}/{dregion}/ref-prop.zarr.zip" #TODO: fix name
+        prop=finaldir/"diagnostics/{dom}/{dregion}/ref-prop.zarr.zip"
     params:
         #n_workers=2,# QC
         #mem="30GB", #QC
