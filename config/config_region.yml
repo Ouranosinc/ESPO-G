@@ -24,7 +24,7 @@ custom:
       method: bbox
       tile_buffer: 1.5
       lon_bnds: [ -179.95, -10 ]
-      lat_bnds: [ 10, 83.4 ] # TODO: fix the bottom
+      lat_bnds: [ 16, 83.4 ]
 
 
 extraction:
