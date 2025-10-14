@@ -90,7 +90,10 @@ health_checks:
         - rlat
         - rlon
         - time
-    
+
+diagnostics:
+  properties_and_measures:
+    period: *ref_period
 
 chunks:
   working:

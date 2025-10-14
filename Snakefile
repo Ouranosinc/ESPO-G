@@ -247,10 +247,9 @@ rule diag:
     params:
         n_workers=2, 
         cpus_per_task=4,
-        mem="100GB", 
-        time="2:00:00", 
-        # mem="200GB", # 2300
-        # time="4:00:00", #2300
+        #mem="100GB", 
+        #time="2:00:00", 
+        mem="200GB", # 2300
+        time="4:00:00", #2300
     script:
         "workflow/scripts/diag.py"
-

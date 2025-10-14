@@ -83,6 +83,10 @@ clean_up:
         rlon:
           axis: X
 
+diagnostics:
+  properties_and_measures:
+    period: *ref_period
+
 health_checks:
     structure:
       coords:
