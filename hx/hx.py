@@ -15,9 +15,50 @@ from xclim.indices import run_length as rl
 
 xs.load_config("../config/config_general.yml", "../config/config_region.yml", "../config/paths.yml")
 
-#brouillon
+
 if __name__ == '__main__':
-    pcat = xs.ProjectCatalog(f"{CONFIG['paths']['finaldir']}/compare-cat.json")
+    pcat = xs.ProjectCatalog(CONFIG['nb']['compcat'])
+
+    df = xs.parse_directory(
+    directories=[f"{CONFIG['nb']['finaldircomp']}/MBCn/staging/simulation/biasadjusted/MBCn-C3_v10/CMIP6/ScenarioMIP/NAM-C3/MRI/MRI-ESM2-0/ssp370/r1i1p1f1/day/"],
+    patterns=[
+        '{variable}/{variable}_{frequency}_{bias_adjust_project}_{version}_{mip_era}_{activity}_{institution}_{source}_{experiment}_{member}_global_{domain}_{DATES}.zarr.zip',
+    ],
+    homogenous_info={
+        "processing_level":'biasadjusted',
+        "xrfreq":'D',
+    },
+    );
+    pcat.update(df)
+
+
+    df = xs.parse_directory(
+    directories=[f"{CONFIG['nb']['finaldircomp']}/DQM/staging/simulation/biasadjusted/ESPO6_v20//CMIP6/ScenarioMIP/NAM-C3/MRI/MRI-ESM2-0/ssp370/r1i1p1f1/day/",],
+    patterns=['{variable}/{variable}_{frequency}_ESPO6_v20_CaSRv31+{mip_era}_{activity}_{institution}_{source}_{experiment}_{member}_global_{domain}_{DATES}.zarr.zip',],
+    homogenous_info={
+        "processing_level":'biasadjusted',
+        "bias_adjust_project":'DQM',
+        "xrfreq":'D',
+    },
+    );
+    pcat.update(df)
+
+
+
+    df = xs.parse_directory(
+        directories=[f"{CONFIG['nb']['finaldircomp']}/MBCn/reference/",],
+        patterns=[
+            '{domain}_default.zarr.zip',
+        ],
+        homogenous_info={
+            "source": "CaSR",
+            "version": "v31",
+            "processing_level":'raw',
+            "xrfreq":'D',
+        },
+        read_from_file=["variable","date_start","date_end"],
+    );
+    pcat.update(df)
     client = Client(
         n_workers=2, threads_per_worker=1, memory_limit="250GB",
         local_directory=os.environ['SLURM_TMPDIR'],dashboard_address= 6785
@@ -30,16 +71,15 @@ if __name__ == '__main__':
             continue
         print(i,'hx')
 
-
         ds=ds.convert_calendar('noleap')
         ds=ds.sel(time=slice('1991','2020'))
 
-
-        hx= xc.atmos.humidex(tas=ds.tasmax, hurs=ds.hursTasmax).to_dataset(name='hx')
+        hx= xc.convert.humidex(tas=ds.tasmax, hurs=ds.hursTasmax).to_dataset(name='hx')
         hx.attrs = ds.attrs
         hx.attrs['cat:variable'] = 'hx'
         hx.attrs['cat:xrfreq'] = 'D'
         hx.attrs['cat:format'] = 'zarr'
+        hx=hx.chunk({'time':-1,'rlat':50,'rlon':50})
 
         # save
         path=f"{xs.build_path(hx, root=CONFIG['paths']['hx'])}.zip"
@@ -69,6 +109,8 @@ if __name__ == '__main__':
         thi.attrs['cat:variable'] = 'thi'
         thi.attrs['cat:xrfreq'] = 'D'
         thi.attrs['cat:format'] = 'zarr'
+
+        thi=thi.chunk({'time':-1,'rlat':50,'rlon':50})
 
         # save
         path=f"{xs.build_path(thi, root=CONFIG['paths']['hx'])}.zip"
@@ -101,8 +143,8 @@ if __name__ == '__main__':
             hxN.attrs = ds.attrs
             hxN.attrs['cat:variable'] = f'hx{N}'
             hxN.attrs['cat:format'] = 'zarr'
+            hxN=hxN.chunk({'time':-1,'rlat':50,'rlon':50})
 
-            print(hxN)
             # save
             path=f"{xs.build_path(hxN, root=CONFIG['paths']['hx'])}.zip"
             
@@ -140,6 +182,7 @@ if __name__ == '__main__':
         this.attrs = ds.attrs
         this.attrs['cat:variable'] = 'thi_spell_total_length'
         this.attrs['cat:format'] = 'zarr'
+        this=this.chunk({'time':-1,'rlat':50,'rlon':50})
 
         # save
         path=f"{xs.build_path(this, root=CONFIG['paths']['hx'])}.zip"
