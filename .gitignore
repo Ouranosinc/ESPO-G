@@ -136,3 +136,4 @@ PET0.ESMF_LogFile
 config/paths.yml
 dag.dot
 hx/hx.py
+hx/hx.sh

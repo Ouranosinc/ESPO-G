@@ -1,3 +1,6 @@
+"""
+Computation for notebook DQMvsMBCn
+"""
 import xscen as xs
 import xarray as xr
 from xscen import CONFIG
@@ -191,3 +194,64 @@ if __name__ == '__main__':
         xs.io.zip_directory(path.replace('.zip', ''), path, delete=True)
 
         pcat.update_from_ds(this, path)
+
+    #rx5day
+    for i,ds in pcat.search(variable=['pr']).to_dataset_dict().items():
+        if pcat.exists_in_cat(variable='rx5day', id =ds.attrs['cat:id']):
+            print(f"Skipping {ds.attrs['cat:id']} as thi already exists.")
+            continue
+        print(i)
+
+
+        ds=ds.convert_calendar('noleap')
+        ds=ds.sel(time=slice('1991','2020'))
+
+
+        out= xc.atmos.max_n_day_precipitation_amount(ds.pr,window=5).to_dataset(name='rx5day')
+
+        out.attrs = ds.attrs
+        out.attrs['cat:variable'] = 'rx5day'
+        out.attrs['cat:format'] = 'zarr'
+        
+        for v in ['lat', 'lon']:
+            del out[v].encoding['chunks']
+        out=out.chunk({'time':-1,'rlat':50,'rlon':50})
+
+
+        # save
+        path=f"{xs.build_path(out, root=CONFIG['paths']['hx'])}.zip"
+        
+        xs.save_to_zarr(out, path.replace('.zip', ''))
+        xs.io.zip_directory(path.replace('.zip', ''), path, delete=True)
+
+        pcat.update_from_ds(out, path)
+
+    #atmos.dry_spell_max_length 
+    for i,ds in pcat.search(variable=['pr']).to_dataset_dict().items():
+        if pcat.exists_in_cat(variable='dry_spell_max_length', id =ds.attrs['cat:id']):
+            print(f"Skipping {ds.attrs['cat:id']} as thi already exists.")
+            continue
+        print(i)
+
+
+        ds=ds.convert_calendar('noleap')
+        ds=ds.sel(time=slice('1991','2020'))
+
+
+        out= xc.atmos.dry_spell_max_length(ds.pr,window=5).to_dataset(name='dry_spell_max_length')
+
+        out.attrs = ds.attrs
+        out.attrs['cat:variable'] = 'dry_spell_max_length'
+        out.attrs['cat:format'] = 'zarr'
+        
+        for v in ['lat', 'lon']:
+            del out[v].encoding['chunks']
+        out=out.chunk({'time':-1,'rlat':50,'rlon':50})
+
+        # save
+        path=f"{xs.build_path(out, root=CONFIG['paths']['hx'])}.zip"
+        
+        xs.save_to_zarr(out, path.replace('.zip', ''))
+        xs.io.zip_directory(path.replace('.zip', ''), path, delete=True)
+
+        pcat.update_from_ds(out, path)
