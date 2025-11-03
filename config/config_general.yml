@@ -1,12 +1,9 @@
-#Configuration file for ESPO-G6
+#Configuration file for ESPO v2.0 project lait-e
 extraction:
   reference:
       search_data_catalogs:
         variables_and_freqs:
           tasmax: D
-          tasmin: D
-          pr: D
-          dtr: D
           hurs: D
           hursTasmax: D
         allow_resampling: False
@@ -15,9 +12,6 @@ extraction:
       search_data_catalogs:
         variables_and_freqs:
           tasmax: D
-          tasmin: D
-          pr: D
-          dtr: D
           hurs: D
           hursmin: D
         match_hist_and_fut: True
@@ -31,30 +25,26 @@ extraction:
         other_search_criteria:
           processing_level: raw
           mip_era: CMIP6
+          source: #TCR likely (v2)
+            - ACCESS-CM2
+            - ACCESS-ESM1-5 #(not avail at Ouranos)
+            - BCC-CSM2-MR #(not avail)
+            - CMCC-ESM2
+            - CNRM-CM6-1
+            - CNRM-ESM2-1 
+            - FGOALS-g3 #(not avail at Ouranos)
+            - GFDL-ESM4 #(not avail at Ouranos)
+            - MIROC-ES2L #(not avail at Ouranos)
+            - MIROC6 #(not avail at Ouranos)
+            - MPI-ESM1-2-HR
+            - MPI-ESM1-2-LR
+            - MRI-ESM2-0
+            - NorESM2-LM #(not avail at Ouranos)
           experiment:
-            #- ssp245
+            - ssp245
             - ssp370
-          source: # but actually on 8 have hurs (and there was a bug with MPI-ESM1-2-HR )
-            # - ACCESS-CM2 
-            # - ACCESS-ESM1-5  
-            # - BCC-CSM2-MR
-            # - CMCC-ESM2 
-            # - CNRM-ESM2-1 
-            # - CNRM-CM6-1
-            # - FGOALS-g3
-            # - GFDL-ESM4 
-            # - INM-CM5-0
-            # - MIROC6
-            # - MIROC-ES2L 
-            # - MPI-ESM1-2-HR
-            # - MPI-ESM1-2-LR 
-             - MRI-ESM2-0 
-            # - NorESM2-LM
-            # rerun for CanESM5 r1i1p2f1 (meme membre que MRCC5) and CanESM5-1 (TCR =2.26 according to ESMValTool) to be less hot
-            #source: 
-            #  - CanESM5
-            #  - CanESM5-1
-            #member: r1i1p2f1
+        exclusions:
+          source: KACE-1-0-G # https://github.com/Ouranosinc/ESPO-G/issues/6
       extract_dataset:
         periods : *sim_period
         xr_combine_kwargs:
@@ -69,9 +59,6 @@ extraction:
   clean_up:
     variables_and_units:
       tasmax: K
-      tasmin: K
-      pr: kg m-2 s-1 # xscen should work if standard_name is 'precipitation_flux'
-      dtr: K
       hurs: "%"
       hursTasmax: "%"
 
@@ -112,16 +99,14 @@ regrid:
 
 biasadjust:
     variables:
-        dtr:
+        tasmax:
             training_args:
                 method: DetrendedQuantileMapping
                 group: &group
                     group: time.dayofyear
                     window: 31
-                jitter_under: # to avoid negative dtr (when temperature inversion GFDL)
-                   thresh: 1e-4 K
                 xsdba_train_args:
-                    kind: "*"
+                    kind: "+"
                     nquantiles: 50
             adjusting_args:
                 periods: *sim_period
@@ -138,33 +123,6 @@ biasadjust:
                   Ouranos
                 bias_adjust_project: &b_a_pro
                   ESPO6
-        tasmax:
-            training_args:
-                method: DetrendedQuantileMapping
-                group: *group
-                xsdba_train_args:
-                    kind: "+"
-                    nquantiles: 50
-            adjusting_args:
-                periods: *sim_period
-                xsdba_adjust_args: *adj-args
-                bias_adjust_institution: *b_a_inst
-                bias_adjust_project: *b_a_pro
-        pr:
-            training_args:
-                method: DetrendedQuantileMapping
-                group: *group
-                jitter_under:
-                    thresh: 0.01 mm d-1
-                xsdba_train_args:
-                    kind: "*"
-                    nquantiles: 50
-                    adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" # xsdba cant convert mm/day automatically
-            adjusting_args:
-                periods: *sim_period
-                xsdba_adjust_args: *adj-args
-                bias_adjust_institution: *b_a_inst
-                bias_adjust_project: *b_a_pro
         hurs:
             training_args:
                 method: DetrendedQuantileMapping
@@ -172,12 +130,6 @@ biasadjust:
                 xsdba_train_args:
                     kind: "*"
                     nquantiles: 50
-                # additive_space:
-                #   hurs: &logit
-                #     lower_bound: "0 %"
-                #     upper_bound: "100 %"
-                #     trans: "logit"
-                #     clip_next_to_bounds: permissive
             adjusting_args:
                 periods: *sim_period
                 xsdba_adjust_args: *adj-args
@@ -190,8 +142,6 @@ biasadjust:
                 xsdba_train_args:
                     kind: "*"
                     nquantiles: 50
-                # additive_space:
-                #   hursTasmax: *logit
             adjusting_args:
                 periods: *sim_period
                 xsdba_adjust_args: *adj-args
@@ -204,8 +154,6 @@ clean_up:
   xscen_clean_up:
       maybe_unstack_dict:
         stack_drop_nans: True
-      round_var:
-        pr: 10
       # clip_var: #FIXME: add when xscen>=0.13.1
       #   hurs: [0, 100]
       #   hursTasmax: [0, 100]
@@ -232,16 +180,13 @@ clean_up:
           - long_name
           - standard_name
           - units
-        tasmin: *attrs_to_keep
-        pr: *attrs_to_keep
-        dtr: *attrs_to_keep
         hurs: *attrs_to_keep
         hursTasmax: *attrs_to_keep
       add_attrs:
         global:
           dataset: ESPO6
           version: v20
-          code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake #TODO: put most up-to-date info
+          code: https://github.com/Ouranosinc/ESPO-G/tree/lait-e #TODO: put most up-to-date info
           contact: lavoie.juliette@ouranos.ca
           organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca
           avertissement : Ouranos ne donne aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande et d'adéquation à un usage particulier. Toutes les responsabilités découlant de la fourniture des informations (y compris toute responsabilité découlant d'une négligence) sont exclues dans toute la mesure permise par la loi.
@@ -252,23 +197,10 @@ clean_up:
             standard_name: air_temperature
             long_name: Maximal daily temperature
             cell_methods: "time: maximum within days"
-        tasmin:
-            standard_name: air_temperature
-            long_name: Minimal daily temperature
-            cell_methods: "time: minimum within days"
-        pr:
-            standard_name: precipitation_flux
-            long_name: Mean daily precipitation flux
-            cell_methods: "time: mean within days"
         hurs:
             standard_name: relative_humidity
             long_name: Relative humidity
             cell_methods: "time: mean within days"
-        dtr:
-          cell_methods: "time: range within days"
-          description: Diurnal temperature range from tasmax and tasmin.
-          standard_name: air_temperature
-          long_name: Diurnal temperature range.
         hursTasmax:
           standard_name: relative_humidity
           long_name: Relative humidity at maximal daily temperature
@@ -276,35 +208,17 @@ clean_up:
           note: The bias adjustement was computed from hursmin of the simulation and hursTasmax of the reference.
 
 
-diagregion:   
-  Magtogoek:
-    name: Magtogoek
+diagregion:
+  lait:
+    lat_bnds: [44.991361, 55.306617]
+    lon_bnds: [ -79.579336, -56.934953]
     method: bbox
-    lat_bnds:  [ 41.4, 49.4] 
-    lon_bnds: [ -92.2, -59.8 ]
-  Cree:
-    name: Cree
-    method: bbox
-    lat_bnds: [ 46.9, 53.8 ]
-    lon_bnds: [ -115, -97.1 ]
-  Ute:
-    name: Ute
-    method: bbox
-    lat_bnds:  [ 35.5, 43]
-    lon_bnds: [ -109.6, -95.5 ]
-  Tlicho:
-    name: Tlicho
-    method: bbox
-    lat_bnds:  [ 61.3, 66.75]
-    lon_bnds: [ -130, -103.8 ]
+    name: lait
 
 diagnostics:
   properties_and_measures:
     change_units_arg:
       tasmax: degC
-      tasmin: degC
-      pr: mm d-1
-      dtr: K
       hurs: "%"
       hursTasmax: "%"
     properties: config/properties.yml
@@ -314,19 +228,10 @@ health_checks:
     end_date: "2100-12-30"
     variables_and_units:
       tasmax: "K"
-      tasmin: "K"
-      pr: "kg m-2 s-1"
-      dtr: "K"
       hurs: "%"
       hursTasmax: "%"
     cfchecks:
       tasmax:
-        cfcheck_from_name: {}
-      tasmin:
-        cfcheck_from_name: {}
-      pr:
-        cfcheck_from_name: {}
-      dtr:
         cfcheck_from_name: {}
       hurs:
         cfcheck_from_name: {}
@@ -335,16 +240,6 @@ health_checks:
       tasmax:
         temperature_extremely_high:
           thresh: '60 degC'
-        tasmax_below_tasmin:
-      tasmin:
-        temperature_extremely_low:
-          thresh: '-70 degC'
-      pr:
-        negative_accumulation_values:
-        very_large_precipitation_events:
-          thresh: '1650 mm/d'
-      dtr:
-        negative_accumulation_values:
       hurs:
         percentage_values_outside_of_bounds:
       hursTasmax:
@@ -390,7 +285,7 @@ tdd:
 
 
 chunks:
-  pre-regrid: &pre-regrid
+  pre-regrid: 
     time: 365
     lat: -1 # always lat,lon
     lon: -1

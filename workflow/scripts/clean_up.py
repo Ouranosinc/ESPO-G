@@ -17,7 +17,8 @@ if __name__ == '__main__':
     ds = xr.open_mfdataset(snakemake.input, engine='zarr', decode_timedelta=False)
 
     conv_mod= xs.indicators.load_xclim_module(Path(conversions.__file__).with_suffix(""))
-    ds = ds.assign(tasmin=conv_mod.tasmin_from_dtr(dtr=ds.dtr, tasmax=ds.tasmax))
+    if 'tasmax' in ds and 'dtr' in ds and 'tasmin' not in ds:
+        ds = ds.assign(tasmin=conv_mod.tasmin_from_dtr(dtr=ds.dtr, tasmax=ds.tasmax))
 
     ds = xs.clean_up(ds=ds,**CONFIG['clean_up']['xscen_clean_up'])
 

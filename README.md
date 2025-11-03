@@ -38,8 +38,9 @@ Minor changes:
 * New calculation of the TCR lead to CNRM-CM6-1/INM-CM5-0  being included/excluded in the TCR likely range. (https://github.com/Ouranosinc/ESPO-G/issues/7)
 
 #### Project lait-e
-    
   Includes hurs and hursTasmax. Ran initial tests for lait-e in 2025-08 on narval with xclim-0.57.1.dev10, xscen-0.12.4.dev5 and xsdba 0.5.0 wheels and numpy 1.26.4 (env dqm-np2) using config_general-2100.yml and config_QC-E5L.yml.
+
+  2025-10-30: Ran with xscen-0.13 env for lait-E5L. (https://github.com/Ouranosinc/ESPO-G/tree/lait-e)
 #### Project ESPO-G6e
     
   Includes simulation that reach 2300. Ran initial tests in 2025-09 with common env xscen-0.13 using config_general-2300.yml and config_NAM-C3.yml.

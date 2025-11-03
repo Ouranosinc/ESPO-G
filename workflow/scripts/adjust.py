@@ -22,16 +22,10 @@ if __name__ == '__main__':
     if 'hursmin' in ds_sim:
         # trick for biasadjustement of hursmin (sim) on hursTasmax (ref)
         ds_sim = ds_sim.rename({'hursmin': 'hursTasmax'})
-        #needed until we can use numpy>2, useful for clip in additive transform
-        #ds_sim['hursTasmax'] = ds_sim['hursTasmax'].astype(float)
-        #ds_sim['hurs'] = ds_sim['hurs'].astype(float)
-
-    #clip before
-    #ds_sim['hurs'] = ds_sim['hurs'].clip(0,100)
-    #ds_sim['hursTasmax'] = ds_sim['hursTasmax'].clip(0,100)
 
     # there are some negative dtr in the data (GFDL-ESM4). This puts is back to a very small positive.
-    ds_sim['dtr'] = xa.processing.jitter_under_thresh(ds_sim.dtr, "1e-4 K")
+    if 'dtr' in ds_sim:
+        ds_sim['dtr'] = xa.processing.jitter_under_thresh(ds_sim.dtr, "1e-4 K")
 
     # adjust
     ds_scen = xs.adjust(
