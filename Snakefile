@@ -29,7 +29,7 @@ finaldir=Path(config['paths']['final'])
 rule all:
     input:
         expand(finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
-        expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
+        #expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
 
 
 rule makeref:
@@ -67,7 +67,7 @@ rule extract:
         n_workers=2,
         mem="50GB",
         cpus_per_task=10,
-        time="00:20:00",
+        time="01:00:00",
     script:
         "workflow/scripts/extract.py"
 
@@ -80,8 +80,8 @@ rule regrid:
      params:
           n_workers=3,
           cpus_per_task=9,
-          mem='48GB',
-          time="00:20:00",
+          mem='100GB',
+          time="03:00:00",
         #   mem='500GB',# 2300 
         #   time= "01:00:00",# 2300 #
      script:
@@ -95,8 +95,8 @@ rule rechunk:
      params:
           n_workers=2,
           cpus_per_task=10,
-          mem='50GB',
-          time="01:00:00",
+          mem='400GB',
+          time="06:00:00",
         #   mem='150GB', #2300
         #   time="02:00:00", #2300
      script:
@@ -124,10 +124,10 @@ rule adjust:
     output:
         temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr"))
     params:
-        n_workers=3,
+        n_workers=5,
         cpus_per_task=15,
-        mem='50GB', 
-        time="1:00:00", 
+        mem='300GB', 
+        time="4:00:00", 
         # mem='200GB', #2300
         # time="2:00:00", #2300
     script:
@@ -180,8 +180,8 @@ rule concatenation_final:
         tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip",
         tasmin=finaldir/"staging/{path}/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip",
         dtr=finaldir/"staging/{path}/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
-        hurs=finaldir/"staging/{path}/hurs/hurs_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
-        hursTasmax=finaldir/"staging/{path}/hursTasmax/hursTasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
+        # hurs=finaldir/"staging/{path}/hurs/hurs_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
+        # hursTasmax=finaldir/"staging/{path}/hursTasmax/hursTasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
 
     params:
         path=lambda wildcards: final_path(wildcards.sim_id),
@@ -199,9 +199,8 @@ rule health_checks:
         tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
         tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
         dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
-        hurs=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hurs/hurs_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
-        hursTasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hursTasmax/hursTasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
-
+        # hurs=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hurs/hurs_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
+        # hursTasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id)}"+"/hursTasmax/hursTasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
     output:
         finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip"
     params:
@@ -245,11 +244,11 @@ rule diag:
         scen_meas=finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_scen-meas.zarr.zip",
         imp=finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",
     params:
-        n_workers=2, 
+        n_workers=4, 
         cpus_per_task=4,
         #mem="100GB", 
         #time="2:00:00", 
-        mem="200GB", # 2300
-        time="4:00:00", #2300
+        mem="400GB", # 2300
+        time="12:00:00", #2300
     script:
         "workflow/scripts/diag.py"
