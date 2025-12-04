@@ -20,7 +20,7 @@ custom:
             rlat: [ 7, 26 ]
     full_region:
       name:
-        NAM-C3
+        NAM-C3 #TODO: make sure you don't want CORDEX
       method: bbox
       tile_buffer: 1.5
       lon_bnds: [ -179.95, -10 ]
@@ -30,13 +30,13 @@ custom:
 extraction:
     reference:
         search_data_catalogs:
-            variables_and_freqs: &var_and_freq
+            variables_and_freqs:
                 mask: fx
             periods : &ref_period
               - '1991'
               - '2020'            
             other_search_criteria:
-                source: &ref_source
+                source:
                     "CaSR"
                 version: "v31" #TODO: put 3.2 when available and change notes below as well
         extract_dataset:
@@ -52,8 +52,8 @@ biasadjust:
             #       CaSRv31 # TODO: put right version
         tasmax: *generic-ba
         pr: *generic-ba
-        hurs: *generic-ba
-        hursTasmax: *generic-ba
+        # hurs: *generic-ba #TODO: put back if not ESPO-R
+        # hursTasmax: *generic-ba
 
 bias_adjust_reference: #in the mean time
   CaSRv31
