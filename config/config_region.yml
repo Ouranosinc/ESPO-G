@@ -7,24 +7,24 @@ custom:
             method: sel
             rlon: &rlon
               [-35, 28]
-            rlat: [ -34, -12 ]
+            rlat: [ -44.1, -23 ]
         middleC3:
             name: middleC3
             method: sel
             rlon: *rlon
-            rlat:  [ -12, 7 ]
+            rlat:  [ -23, 1 ]
         northC3:
             name: northC3
             method: sel
             rlon: *rlon
-            rlat: [ 7, 26 ]
+            rlat: [ 1, 26 ]
     full_region:
       name:
-        NAM-C3 #TODO: make sure you don't want CORDEX
+        NAM-C3
       method: bbox
       tile_buffer: 1.5
       lon_bnds: [ -179.95, -10 ]
-      lat_bnds: [ 16, 83.4 ]
+      lat_bnds: [ 16, 83.4 ]  #we trust starting at 16N, but we compute until 10N to have the full CORDEX domain
 
 
 extraction:
@@ -38,7 +38,7 @@ extraction:
             other_search_criteria:
                 source:
                     "CaSR"
-                version: "v31" #TODO: put 3.2 when available and change notes below as well
+                version: "v32"
         extract_dataset:
             mask: True
 
@@ -49,14 +49,14 @@ biasadjust:
                 period: *ref_period
             # adjusting_args:
             #     bias_adjust_reference: #FIXME: put when xscen>=0.13.1
-            #       CaSRv31 # TODO: put right version
+            #       CaSRv32
         tasmax: *generic-ba
         pr: *generic-ba
         # hurs: *generic-ba #TODO: put back if not ESPO-R
         # hursTasmax: *generic-ba
 
 bias_adjust_reference: #in the mean time
-  CaSRv31
+  CaSRv32
 
 
 clean_up:
@@ -72,12 +72,14 @@ clean_up:
       add_attrs:
         global:
           Notes: |
-            Regridded on the grid of CaSR v3.1, then bias-adjusted with detrended
+            Regridded on the grid of CaSR v3.2, then bias-adjusted with detrended
             quantile mapping on a day-of-year basis with a window of 31 days, LOESS
-            detrending and 50 quantiles. The reference was CaSR v3.1 over the
+            detrending and 50 quantiles. The reference was CaSR v3.2 over the
             1991-2020 period. Tasmax, hurs, hursTasmax, dtr and pr were adjusted, tasmin was computed
             from tasmax and dtr after the adjustment.
-          code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake
+          warning:
+            South of 16N, the precipitations between the simulations and the reference are 
+            too different. The bias-adjustement might not be reliable.
         rlat:
           axis: Y
         rlon:

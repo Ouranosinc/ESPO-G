@@ -40,9 +40,10 @@ Minor changes:
 #### Project lait-e
     
   Includes hurs and hursTasmax. Ran initial tests for lait-e in 2025-08 on narval with xclim-0.57.1.dev10, xscen-0.12.4.dev5 and xsdba 0.5.0 wheels and numpy 1.26.4 (env dqm-np2) using config_general-2100.yml and config_QC-E5L.yml.
-#### Project ESPO-G6e
+
+#### Project post-2100
     
-  Includes simulation that reach 2300. Ran initial tests in 2025-09 with common env xscen-0.13 using config_general-2300.yml and config_NAM-C3.yml.
+  Includes simulation that reach 2300. Ran in 2025-12 with common env xscen-0.13 and branch post-2100-narval.
 
 
 ### v1.0

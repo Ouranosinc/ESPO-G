@@ -18,7 +18,7 @@ custom:
             lon_bnds: [-179.95, -10]
             lat_bnds: [65.05, 83.4]
     full_region:
-      name: &nam-name
+      name:
         NAM-E5L
       method: bbox
       tile_buffer: 1.5
@@ -33,7 +33,7 @@ extraction:
               - '1991'
               - '2020'
             other_search_criteria:
-                source: &ref_source
+                source:
                     "ERA5-Land"
         extract_dataset: {}
 
@@ -70,7 +70,6 @@ clean_up:
             detrending and 50 quantiles. The reference was ERA5-Land over the
             1991-2020 period. Tasmax, dtr and pr were adjusted, tasmin was computed
             from tasmax and dtr after the adjustment.
-          code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake
         lat:
           standard_name: latitude
           units: degrees_north

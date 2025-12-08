@@ -15,15 +15,10 @@ extraction:
             data_catalogs:
                - <PATH-TO-SIMULATION-CAT>
 
-clean_up:
-  search_data_catalogs:
-    data_catalogs:
-      - *pcat
-
 utils:
     stack_drop_nans:
         to_file: &coords
-          <PROJECT-ESPO-DIR>coords/coords_{domain}_{shape}.nc
+          <PROJECT-ESPO-DIR>/coords/coords_{domain}_{shape}.nc
     unstack_fill_nan:
       coords: *coords
     maybe_unstack:

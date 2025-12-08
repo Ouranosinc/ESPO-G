@@ -1,4 +1,4 @@
-#Configuration file for ESPO-R6
+#Configuration file for ESPO-G6, project post-2100, only 3 variables version 2.0
 extraction:
   reference:
       search_data_catalogs:
@@ -7,8 +7,6 @@ extraction:
           tasmin: D
           pr: D
           dtr: D
-          # hurs: D
-          # hursTasmax: D
         allow_resampling: False
         allow_conversion: True
   simulation:
@@ -18,28 +16,30 @@ extraction:
           tasmin: D
           pr: D
           dtr: D
-          #hurs: D
-          #hursmin: D
         match_hist_and_fut: True
         allow_conversion: True
         allow_resampling: False
         periods: &sim_period
-          - '1950' 
-          - '2100'
+          - '1950'
+          - '2300'
         restrict_members:
           ordered: 1
         other_search_criteria:
           processing_level: raw
-          experiment: ssp370
-          source: CRCM5-SN
-          driving_model: MPI-ESM1-2-LR
-          driving_member: r1i1p1f1
-          member: r1
+          mip_era: CMIP6
+          experiment:
+            - ssp126
+            - ssp245
+            - ssp370
+            - ssp585
+          #source: 
+          #  - ACCESS-ESM1-5
       extract_dataset:
         periods : *sim_period
         xr_combine_kwargs:
           combine_attrs: override
         xr_open_kwargs:
+          use_cftime: True
           drop_variables:
             - height
             - bnds
@@ -52,8 +52,6 @@ extraction:
       tasmin: K
       pr: kg m-2 s-1 # xscen should work if standard_name is 'precipitation_flux'
       dtr: K
-      # hurs: "%"
-      # hursTasmax: "%"
 
 regrid:
   regrid_dataset:
@@ -117,7 +115,7 @@ biasadjust:
                 bias_adjust_institution: &b_a_inst
                   Ouranos
                 bias_adjust_project: &b_a_pro
-                  ESPO6
+                  ESPO6-post2100
         tasmax:
             training_args:
                 method: DetrendedQuantileMapping
@@ -139,36 +137,12 @@ biasadjust:
                 xsdba_train_args:
                     kind: "*"
                     nquantiles: 50
-                    adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" # xsdba cant convert mm/day automatically
+                    adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1"  # xsdba cant convert mm/day automatically
             adjusting_args:
                 periods: *sim_period
                 xsdba_adjust_args: *adj-args
                 bias_adjust_institution: *b_a_inst
                 bias_adjust_project: *b_a_pro
-        # hurs:
-        #     training_args:
-        #         method: DetrendedQuantileMapping
-        #         group: *group
-        #         xsdba_train_args:
-        #             kind: "*"
-        #             nquantiles: 50
-        #     adjusting_args:
-        #         periods: *sim_period
-        #         xsdba_adjust_args: *adj-args
-        #         bias_adjust_institution: *b_a_inst
-        #         bias_adjust_project: *b_a_pro
-        # hursTasmax:
-        #     training_args:
-        #         method: DetrendedQuantileMapping
-        #         group: *group
-        #         xsdba_train_args:
-        #             kind: "*"
-        #             nquantiles: 50
-        #     adjusting_args:
-        #         periods: *sim_period
-        #         xsdba_adjust_args: *adj-args
-        #         bias_adjust_institution: *b_a_inst
-        #         bias_adjust_project: *b_a_pro
 
 clean_up:
   save:
@@ -178,9 +152,6 @@ clean_up:
         stack_drop_nans: True
       round_var:
         pr: 10
-      # clip_var: #FIXME: add when xscen>=0.13.1
-      #   hurs: [0, 100]
-      #   hursTasmax: [0, 100]
       change_attr_prefix: ''
       remove_all_attrs_except:
         global:
@@ -207,13 +178,10 @@ clean_up:
         tasmin: *attrs_to_keep
         pr: *attrs_to_keep
         dtr: *attrs_to_keep
-        # hurs: *attrs_to_keep
-        # hursTasmax: *attrs_to_keep
       add_attrs:
         global:
-          dataset: ESPO6
-          version: v20
-          code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake #TODO: put most up-to-date info
+          version: v2.0
+          code: https://github.com/Ouranosinc/ESPO-G/tree/post-2100-narval #TODO: put most up-to-date info
           contact: lavoie.juliette@ouranos.ca
           organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca
           avertissement : Ouranos ne donne aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande et d'adéquation à un usage particulier. Toutes les responsabilités découlant de la fourniture des informations (y compris toute responsabilité découlant d'une négligence) sont exclues dans toute la mesure permise par la loi.
@@ -237,16 +205,6 @@ clean_up:
           description: Diurnal temperature range from tasmax and tasmin.
           standard_name: air_temperature
           long_name: Diurnal temperature range.
-        # hurs:
-        #     standard_name: relative_humidity
-        #     long_name: Relative humidity
-        #     cell_methods: "time: mean within days"
-        # hursTasmax:
-        #   standard_name: relative_humidity
-        #   long_name: Relative humidity at maximal daily temperature
-        #   cell_methods: "time: point"
-        #   note: The bias adjustement was computed from hursmin of the simulation and hursTasmax of the reference.
-
 
 diagregion:   
   Magtogoek:
@@ -277,20 +235,16 @@ diagnostics:
       tasmin: degC
       pr: mm d-1
       dtr: K
-      # hurs: "%"
-      # hursTasmax: "%"
     properties: config/properties.yml
 
 health_checks:
-    start_date: "1950-01-01" 
-    end_date: "2100-12-30"
+    start_date: "1950-01-01"
+    end_date: "2300-12-30"
     variables_and_units:
       tasmax: "K"
       tasmin: "K"
       pr: "kg m-2 s-1"
       dtr: "K"
-      # hurs: "%"
-      # hursTasmax: "%"
     cfchecks:
       tasmax:
         cfcheck_from_name: {}
@@ -300,8 +254,6 @@ health_checks:
         cfcheck_from_name: {}
       dtr:
         cfcheck_from_name: {}
-      # hurs:
-      #   cfcheck_from_name: {}
     freq: D
     flags:
       tasmax:
@@ -317,10 +269,6 @@ health_checks:
           thresh: '1650 mm/d'
       dtr:
         negative_accumulation_values:
-      # hurs:
-      #   percentage_values_outside_of_bounds:
-      # hursTasmax:
-      #   percentage_values_outside_of_bounds:
     return_flags: True
     raise_on:
       - structure
@@ -364,5 +312,5 @@ tdd:
 chunks:
   pre-regrid:
     time: 365
-    rlat: -1 # dims of input
-    rlon: -1
+    lat: -1 # always lat,lon
+    lon: -1
