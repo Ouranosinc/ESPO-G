@@ -27,18 +27,24 @@ extraction:
         other_search_criteria:
           processing_level: raw
           mip_era: CMIP6
-          experiment:
-            - ssp126
-            - ssp245
-            - ssp370
-            - ssp585
-          #source: 
-          #  - ACCESS-ESM1-5
+          # experiment:
+          #   - ssp126
+          #   - ssp245
+          #   - ssp370
+          #   - ssp585
+          #TODO: add CanESM5 SSP585, until 2180
+          id: 
+            - CMIP6_ScenarioMIP_NCC_NorESM2-MM_ssp585_r1i1p1f1_global
+            - CMIP6_ScenarioMIP_IPSL_IPSL-CM6A-LR_ssp585_r1i1p1f1_global
+            - CMIP6_ScenarioMIP_CCCma_CanESM5_ssp126_r1i1p1f1_global
+            - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3-Veg_ssp370_r1i1p1f1_global # corrupted file https://github.com/Ouranosinc/data-requests/issues/46
+            - CMIP6_ScenarioMIP_MOHC_UKESM1-0-LL_ssp585_r4i1p1f2_global
       extract_dataset:
         periods : *sim_period
         xr_combine_kwargs:
           combine_attrs: override
         xr_open_kwargs:
+          engine: h5netcdf
           use_cftime: True
           drop_variables:
             - height

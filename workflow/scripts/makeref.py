@@ -24,6 +24,5 @@ if __name__ == '__main__':
             del ds_ref[var].encoding['chunks']
             
     ds_ref= ds_ref.chunk({d: CONFIG['chunks']['working'][d] for d in ds_ref.dims})
-    print(snakemake.output.ref)
     tmp_zarr_and_zip(ds_ref, snakemake.output.ref)
 

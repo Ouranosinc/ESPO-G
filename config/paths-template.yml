@@ -24,6 +24,12 @@ utils:
     maybe_unstack:
       coords: *coords
 
+# for when we remove parse_config
+clean_up:  
+    xscen_clean_up:
+      maybe_unstack_dict:
+        coords:  *coords
+
 dask:
     client:
         dashboard_address: <YOUR-RANDOM-PORT-NUMBER>

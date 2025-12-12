@@ -94,11 +94,11 @@ rule rechunk:
           temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr"))
      params:
           n_workers=2,
-          cpus_per_task=10,
+          cpus_per_task=8,
         #   mem='400GB',
         #   time="06:00:00",
-          mem='150GB', #2300
-          time="02:00:00", #2300
+          mem='400GB', #2300
+          time="04:00:00", #2300
      script:
           "workflow/scripts/rechunk.py"
 
@@ -144,7 +144,7 @@ rule clean_up:
         # mem='100GB',
         # time="00:45:00",
         mem='200GB', #2300
-        time="02:00:00",
+        time="03:00:00",
     script:
         "workflow/scripts/clean_up.py"
 
@@ -185,8 +185,8 @@ rule concatenation_final:
 
     params:
         path=lambda wildcards: final_path(wildcards.sim_id),
-        mem="60GB",
-        time="03:00:00", 
+        mem="100GB",
+        time="04:00:00", 
         cpus_per_task=12,
     script:
         "workflow/scripts/concat.py"
