@@ -1,27 +1,30 @@
-import os
+from copy import deepcopy
+from pathlib import Path
 import xscen as xs
-from xscen import CONFIG
 import xarray as xr
 from workflow.scripts.utils import dask_cluster, tmp_zarr_and_zip
 if 1==0: #trick vscode
     import snakemake
 
-xs.load_config("config/config_general.yml", "config/config_region.yml", "config/paths.yml")
 
 if __name__ == '__main__':
+    # Get Snakemake parameters
+    input = snakemake.input[0]
+    output = snakemake.output[0]
+    config = deepcopy(snakemake.config)
     
-    client=dask_cluster(snakemake.params)
+    # Start Dask cluster
+    client=dask_cluster(
+        n_workers=snakemake.params.n_workers,
+        cpus_per_task=snakemake.params.cpus_per_task,
+        mem=snakemake.params.mem,
+        local_directory=Path(config['tmppath']) / "dask",
+        **config['dask'].get('client', {})
+        )
 
-    # xs.io.rechunk(path_in=str(snakemake.input[0]),
-    #         path_out=str(snakemake.output[0]),
-    #         chunks_over_dim={k:v for k,v in CONFIG['chunks']['working'].items() if k in ['time','loc']},
-    #         temp_store=f"{os.environ['SLURM_TMPDIR']}/{snakemake.wildcards.sim_id}+{snakemake.wildcards.subregion}/",
-    #         overwrite=True)
-    # test to get rif of rechunker
-    ds = xr.open_zarr(snakemake.input[0], decode_timedelta=False)
-    ds=ds.chunk({k:v for k,v in CONFIG['chunks']['working'].items() if k in ['time','loc']})
-    #fix encoding chunks issue
-    for var in ds.data_vars:
-        if 'chunks' in ds[var].encoding:
-            del ds[var].encoding['chunks']
-    xs.save_to_zarr(ds,snakemake.output[0])
+    ds = xr.open_zarr(input, decode_timedelta=False)
+
+    if Path(output).suffix == '.zip':
+        tmp_zarr_and_zip(ds, output, rechunk=config['chunks']['working'])
+    else:
+        xs.save_to_zarr(ds, output, rechunk=config['chunks']['working'])

@@ -1,43 +1,57 @@
-import os
+from copy import deepcopy
+from pathlib import Path
+import xarray as xr
 import xscen as xs
-from xscen import CONFIG
-import xclim as xc
-from workflow.scripts.utils import dask_cluster
-import copy
+from workflow.scripts.utils import dask_cluster, tmp_zarr_and_zip
 if 1==0: #trick vscode
     import snakemake
 
-xs.load_config("config/config_general.yml", "config/config_region.yml", "config/paths.yml")
 
 if __name__ == '__main__':
+    # Get Snakemake parameters
+    sim_id = snakemake.wildcards.sim_id
+    output = snakemake.output[0]
+    config = deepcopy(snakemake.config)
     
-    client=dask_cluster(snakemake.params)
+    # Start Dask cluster
+    client=dask_cluster(
+        n_workers=snakemake.params.n_workers,
+        cpus_per_task=snakemake.params.cpus_per_task,
+        mem=snakemake.params.mem,
+        local_directory=Path(config['tmppath']) / "dask",
+        **config['dask'].get('client', {})
+        )
 
-    args=copy.deepcopy(CONFIG['extraction']['simulation']['search_data_catalogs'])
-    args['other_search_criteria'] = {'id': snakemake.wildcards.sim_id}
-    # search cat
+    args = deepcopy(config['extraction']['simulation']['search_data_catalogs'])
+    args['other_search_criteria'] = {'id': sim_id}
+    # Search catalog
     cat_sim_id = xs.search_data_catalogs(**args,)
 
-    # extract
+    # Extract
     dc_id = cat_sim_id.popitem()[1]
-    ds_sim = xs.extract_dataset(catalog=dc_id,
-                                region=CONFIG['custom']['full_region'],
-                                **CONFIG['extraction']['simulation']['extract_dataset'],
-                                )['D']
+    ds_dict = xs.extract_dataset(catalog=dc_id,
+                                 region=config['custom']['full_region'],
+                                 **config['extraction']['simulation']['extract_dataset'],  # FIXME: Rename 'custom'?
+                                 )
+    ds_sim = ds_dict["D"]
 
-    # clean up time
-    ds_sim['time'] = ds_sim.time.dt.floor('D') 
+    # Add fixed fields as coordinates
+    if 'fx' in ds_dict:
+        ds_sim = xr.merge([ds_sim, ds_dict['fx']], compat="override").assign_coords(ds_dict['fx'].data_vars)
 
-    ds_sim = xs.clean_up(ds_sim, **CONFIG['extraction']['clean_up'])
+    # Clean up time
+    ds_sim['time'] = ds_sim.time.dt.floor('D')
 
-    ds_sim = ds_sim.chunk(CONFIG['chunks']['pre-regrid'])
+    # Add the mask if not present
+    if 'mask' not in ds_sim and 'create_mask' in config['extraction']['simulation']:
+        ds_sim["mask"] = xs.regrid.create_mask(ds_sim, **config['extraction']['simulation']['create_mask'])
+        if "sftlf" in ds_sim:
+            ds_sim = ds_sim.drop_vars("sftlf")
+
+    ds_sim = xs.clean_up(ds_sim, **config['extraction']['clean_up'])
     
-    # trick to fix CanESM5
-    if 'CMIP6_ScenarioMIP_CCCma_CanESM5_ssp585_r1i1p1f1_global' == snakemake.wildcards.sim_id:
-        ds_sim['pr'] = ds_sim['pr'].astype('float32')
-        ds_sim['dtr'] = ds_sim['dtr'].astype('float32')
-        ds_sim['tasmax'] = ds_sim['tasmax'].astype('float32')
-        ds_sim['tasmin'] = ds_sim['tasmin'].astype('float32')
-    
-    # save to zarr
-    xs.save_to_zarr(ds_sim, snakemake.output[0])
+    # Save to zarr
+    if Path(output).suffix == '.zip':
+        tmp_zarr_and_zip(ds_sim, output, rechunk=config['chunks']['pre-regrid'], encoding={v: {"dtype": "float32"} for v in ds_sim.data_vars})
+    else:
+        xs.save_to_zarr(ds_sim, output, rechunk=config['chunks']['pre-regrid'], encoding={v: {"dtype": "float32"} for v in ds_sim.data_vars})

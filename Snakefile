@@ -52,6 +52,7 @@ rule refsubregion:
         default=finaldir/ "reference/split_regions/{dom}_{subregion}_default.zarr.zip",
         noleap=finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
         day360=finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip",
+        coords=finaldir/ "reference/split_regions/{dom}_{subregion}_coords.zarr.zip",
     params:
         n_workers=2,
         mem="50GB",
