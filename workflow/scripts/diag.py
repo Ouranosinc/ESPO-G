@@ -30,10 +30,17 @@ if __name__ == '__main__':
     cat_sim_id = xs.search_data_catalogs(**args,)
     dc_id = cat_sim_id.popitem()[1]
     region_dict=CONFIG['custom']['full_region']
+    #FIXME: trick to fix time until xscen13.1, PR661
+    def pre(ds):
+        ds['time']= ds.time.dt.floor('D')
+        return ds
     ds_sim = xs.extract_dataset(catalog=dc_id,
                                 region=region_dict,
+                                preprocess=pre, # FIXME: see above
                                 **CONFIG['extraction']['simulation']['extract_dataset'],
                                 )['D']
+
+
     ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
     # need lat and lon -1 for the regrid
     ds_sim = ds_sim.chunk(CONFIG['chunks']['pre-regrid'])

@@ -21,24 +21,15 @@ extraction:
         allow_resampling: False
         periods: &sim_period
           - '1950'
-          - '2300'
+          - '2300' #TODO: 2180 for CMIP6_ScenarioMIP_CCCma_CanESM5_ssp585_r1i1p1f1_global
         restrict_members:
           ordered: 1
+        #coverage_kwargs:
+        #  coverage: 0.9 # TODO: remove, only for ssp534-over, to skip the hole
         other_search_criteria:
           processing_level: raw
           mip_era: CMIP6
-          # experiment:
-          #   - ssp126
-          #   - ssp245
-          #   - ssp370
-          #   - ssp585
-          #TODO: add CanESM5 SSP585, until 2180
-          id: 
-            - CMIP6_ScenarioMIP_NCC_NorESM2-MM_ssp585_r1i1p1f1_global
-            - CMIP6_ScenarioMIP_IPSL_IPSL-CM6A-LR_ssp585_r1i1p1f1_global
-            - CMIP6_ScenarioMIP_CCCma_CanESM5_ssp126_r1i1p1f1_global
-            - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3-Veg_ssp370_r1i1p1f1_global # corrupted file https://github.com/Ouranosinc/data-requests/issues/46
-            - CMIP6_ScenarioMIP_MOHC_UKESM1-0-LL_ssp585_r4i1p1f2_global
+          #experiment: ssp534-over
       extract_dataset:
         periods : *sim_period
         xr_combine_kwargs:
@@ -50,6 +41,7 @@ extraction:
             - height
             - bnds
             - time_bnds
+            - time_bounds
             - lat_bnds
             - lon_bnds
   clean_up:
@@ -245,7 +237,7 @@ diagnostics:
 
 health_checks:
     start_date: "1950-01-01"
-    end_date: "2300-12-30"
+    #end_date: "2300-12-30" # some end earlier
     variables_and_units:
       tasmax: "K"
       tasmin: "K"
