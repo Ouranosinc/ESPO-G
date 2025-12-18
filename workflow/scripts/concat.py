@@ -27,12 +27,7 @@ if __name__ == '__main__':
     dsC.attrs.pop('intake_esm_dataset_key', None)
     dsC.attrs.pop('cat:path', None)
 
-    # dsC = dsC.chunk(
-    #     xs.utils.translate_time_chunk(
-    #         {'time': '4year'},
-    #         xc.core.calendar.get_calendar(dsC),
-    #         dsC.time.size)| CONFIG['custom']['final_chunks']
-    #                            )
+
     chunks=xs.utils.translate_time_chunk(
         CONFIG['chunks']['final'],
         calendar=dsC.time.dt.calendar,

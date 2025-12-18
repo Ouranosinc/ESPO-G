@@ -24,24 +24,60 @@ if __name__ == '__main__':
 
 
 
-    # Create ds_sim for full region
+    sim_id=snakemake.wildcards.sim_id
     args=copy.deepcopy(CONFIG['extraction']['simulation']['search_data_catalogs'])
-    args['other_search_criteria'] = {'id': snakemake.wildcards.sim_id}
+    args['other_search_criteria'] = {'id': sim_id}
+    
+    #FIXME: remove when fix https://github.com/Ouranosinc/xscen/issues/669
+    if 'ssp534-over' in sim_id:
+        args['periods'][0]='2040'
+
+
+    # search cat
     cat_sim_id = xs.search_data_catalogs(**args,)
+
+    # extract
     dc_id = cat_sim_id.popitem()[1]
-    region_dict=CONFIG['custom']['full_region']
+
+
     #FIXME: trick to fix time until xscen13.1, PR661
     def pre(ds):
-        ds['time']= ds.time.dt.floor('D')
+        if 'time' in ds:
+            ds['time']= ds.time.dt.floor('D')
         return ds
     ds_sim = xs.extract_dataset(catalog=dc_id,
-                                region=region_dict,
+                                region=CONFIG['custom']['full_region'],
                                 preprocess=pre, # FIXME: see above
                                 **CONFIG['extraction']['simulation']['extract_dataset'],
                                 )['D']
 
+    #FIXME: remove when fix https://github.com/Ouranosinc/xscen/issues/669
+    if 'ssp534-over' in sim_id:
+        
+        args=copy.deepcopy(CONFIG['extraction']['simulation']['search_data_catalogs'])
+        args['other_search_criteria'] = {'id': 
+                                        sim_id.replace('ssp534-over', 'ssp585')}
+        args['periods'][1]='2039'
+        # search cat
+        cat_sim_id = xs.search_data_catalogs(**args,)
 
-    ds_sim['time'] = ds_sim.time.dt.floor('D') # probably this wont be need when data is cleaned
+        # extract
+        dc_id = cat_sim_id.popitem()[1]
+
+        ds_filler = xs.extract_dataset(catalog=dc_id,
+                                    region=CONFIG['custom']['full_region'],
+                                    preprocess=pre, # FIXME: see above
+                                    **CONFIG['extraction']['simulation']['extract_dataset'],
+                                    )['D']
+        
+        #  put on the same time axis                                                                        
+        ds1, ds2 = xr.align(ds_sim, ds_filler, join="outer")
+        # fill the hole
+        ds_sim = ds1.combine_first(ds2)
+
+
+    # clean up time
+    ds_sim['time'] = ds_sim.time.dt.floor('D') 
     # need lat and lon -1 for the regrid
     ds_sim = ds_sim.chunk(CONFIG['chunks']['pre-regrid'])
     if 'hursmin' in ds_sim:
