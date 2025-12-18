@@ -136,6 +136,7 @@ rule adjust:
 
 rule clean_up:
     input:
+        finaldir/ "reference/split_regions/{dom}_{subregion}_coords.zarr.zip",  # to get coords
         expand(tmpdir/"{{sim_id}}+{{dom}}+{{subregion}}+{var}+adjusted.zarr",var=list(config['biasadjust']['variables'].keys()))
     output:
         temp(directory(tmpdir/"day+{sim_id}+{dom}+{subregion}+1950-2100.zarr"))

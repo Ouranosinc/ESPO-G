@@ -14,6 +14,7 @@ if __name__ == '__main__':
     var = snakemake.wildcards.var
     input_train = snakemake.input.train
     input_rechunk = snakemake.input.rechunk
+    input_scen = snakemake.input.scen
     output = snakemake.output[0]
     config = deepcopy(snakemake.config)
     
@@ -26,30 +27,21 @@ if __name__ == '__main__':
         **config['dask'].get('client', {})
         )
 
-    # load sim ds
+    # Load sim ds
     ds_sim = xr.open_zarr(input_rechunk, decode_timedelta=False)
     ds_tr = xr.open_zarr(input_train, decode_timedelta=False)
+    ds_scen = xr.open_zarr(input_scen, decode_timedelta=False)
 
-    if 'hursmin' in ds_sim:
-        # trick for biasadjustement of hursmin (sim) on hursTasmax (ref)
-        ds_sim = ds_sim.rename({'hursmin': 'hursTasmax'})
-        #needed until we can use numpy>2, useful for clip in additive transform
-        #ds_sim['hursTasmax'] = ds_sim['hursTasmax'].astype(float)
-        #ds_sim['hurs'] = ds_sim['hurs'].astype(float)
+    # Add 'scen' to adjusting args
+    args = deepcopy(config['biasadjust_extremes']['variables'][var]['adjusting_args'])
+    args["xsdba_adjust_args"] = args.get("xsdba_adjust_args", {})
+    args["xsdba_adjust_args"]["scen"] = ds_scen[var]
 
-    #clip before
-    #ds_sim['hurs'] = ds_sim['hurs'].clip(0,100)
-    #ds_sim['hursTasmax'] = ds_sim['hursTasmax'].clip(0,100)
-
-    if "dtr" in ds_sim:
-        # There are some negative dtr in the data (GFDL-ESM4). This puts is back to a very small positive.
-        ds_sim['dtr'] = xa.processing.jitter_under_thresh(ds_sim.dtr, "1e-4 K")
-
-    # adjust
+    # Adjust
     ds_scen = xs.adjust(
         dsim=ds_sim,
         dtrain=ds_tr,
-        **config['biasadjust']['variables'][var]['adjusting_args']
+        **args
         )
 
     #FIXME: until xscen>=0.13.1, add ba_ref by hand
@@ -58,15 +50,6 @@ if __name__ == '__main__':
             ds_scen.attrs['cat:bias_adjust_reference'] = ds_tr.attrs['cat:bias_adjust_reference']
         elif config.get('bias_adjust_reference') is not None:
             ds_scen.attrs['cat:bias_adjust_reference'] = config['bias_adjust_reference']
-
-    #FIXME: until xscen>=0.13.1,   final clip here instead of with xscen.clean_up
-    new_history = f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Clipped to [0,100]"
-    if 'hurs' in ds_scen:
-        ds_scen['hurs'] = ds_scen['hurs'].clip(0,100)
-        ds_scen['hurs'].attrs['history'] = ds_scen['hurs'].attrs.get('history', '') + new_history
-    if 'hursTasmax' in ds_scen:
-        ds_scen['hursTasmax'] = ds_scen['hursTasmax'].clip(0,100)
-        ds_scen['hursTasmax'].attrs['history'] = ds_scen['hursTasmax'].attrs.get('history', '') + new_history
 
     # Save
     if Path(output).suffix == '.zip':

@@ -1,25 +1,38 @@
+from copy import deepcopy
+from pathlib import Path
 import xarray as xr
-import os
 import xscen as xs
-from xscen import CONFIG
 from workflow.scripts.utils import dask_cluster, tmp_zarr_and_zip
 if 1==0: #trick vscode
     import snakemake
 
 
-xs.load_config("config/config_general.yml", "config/config_region.yml", "config/paths.yml")
-
 if __name__ == '__main__':
-    client=dask_cluster(snakemake.params)
+    # Get Snakemake parameters
+    input = snakemake.input
+    output = snakemake.output[0]
+    config = deepcopy(snakemake.config)
     
-    ds_input = xr.open_mfdataset(snakemake.input, engine='zarr', decode_timedelta=False)
+    # Start Dask cluster
+    client=dask_cluster(
+        n_workers=snakemake.params.n_workers,
+        cpus_per_task=snakemake.params.cpus_per_task,
+        mem=snakemake.params.mem,
+        local_directory=Path(config['tmppath']) / "dask",
+        **config['dask'].get('client', {})
+        )
+    
+    ds_input = xr.open_mfdataset(input, engine='zarr', decode_timedelta=False)
 
     hc = xs.diagnostics.health_checks(
         ds=ds_input,
-        **CONFIG['health_checks'])
-
+        **config['health_checks']
+        )
+    
     hc.attrs.update(ds_input.attrs)
 
-    tmp_zarr_and_zip(hc, snakemake.output[0])
-
+    if Path(output).suffix == '.zip':
+        tmp_zarr_and_zip(hc, output)
+    else:
+        xs.save_to_zarr(hc, output)
 

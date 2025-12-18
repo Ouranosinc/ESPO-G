@@ -1,34 +1,52 @@
+from copy import deepcopy
+from pathlib import Path
 import xscen as xs
 import xarray as xr
-from xscen import CONFIG
-import numpy as np
 xr.set_options(keep_attrs=True)
-from workflow.scripts.utils import dask_cluster
+from workflow.scripts.utils import tmp_zarr_and_zip
 from xscen.xclim_modules import conversions
 from pathlib import Path
 if 1==0: #trick vscode
     import snakemake
 
-xs.load_config("config/config_general.yml", "config/config_region.yml", "config/paths.yml")
 
 if __name__ == '__main__':
+    # Get Snakemake parameters
+    coords = snakemake.input[0]
+    input = snakemake.input[1:]
+    output = snakemake.output[0]
+    config = deepcopy(snakemake.config)
     
-    # get all adjusted data
-    ds = xr.open_mfdataset(snakemake.input, engine='zarr', decode_timedelta=False)
+    # Get all adjusted data
+    ds = xr.open_mfdataset(input, engine='zarr', decode_timedelta=False)
 
-    conv_mod= xs.indicators.load_xclim_module(Path(conversions.__file__).with_suffix(""))
-    ds = ds.assign(tasmin=conv_mod.tasmin_from_dtr(dtr=ds.dtr, tasmax=ds.tasmax))
+    # Compute tasmin from dtr and tasmax
+    if "tasmin" not in ds.data_vars:
+        conv_mod = xs.indicators.load_xclim_module(Path(conversions.__file__).with_suffix(""))
+        ds = ds.assign(tasmin=conv_mod.tasmin_from_dtr(dtr=ds.dtr, tasmax=ds.tasmax))
+    else:
+        attrs = ds["tasmin"].attrs
+        ds["tasmin"] = xr.where(ds["tasmin"] > ds["tasmax"], ds["tasmax"] - 0.01, ds["tasmin"])
+        ds["tasmin"].attrs = attrs
 
-    ds = xs.clean_up(ds=ds,**CONFIG['clean_up']['xscen_clean_up'])
+    args = deepcopy(config['clean_up']['xscen_clean_up'])
+    if "maybe_unstack_dict" in args and "coords" not in args["maybe_unstack_dict"]:
+        args["maybe_unstack_dict"]["coords"] = str(coords)
+
+    ds = xs.clean_up(ds=ds,**args)
+    for dim in ds.dims:
+        if "original_shape" in ds[dim].attrs:
+            del ds[dim].attrs["original_shape"]
 
     ds.attrs['cat:_data_format_'] = 'zarr'
     ds.attrs['cat:date'] = 'zarr'
 
-
     chunks=xs.utils.translate_time_chunk(
-        CONFIG['chunks']['final'],
+        config['chunks']['final'],
         calendar=ds.time.dt.calendar,
         timesize=ds.time.size,)
-    ds=ds.chunk(chunks)
 
-    xs.save_to_zarr(ds, snakemake.output[0], itervar=True, **CONFIG['clean_up']['save'])
+    if Path(output).suffix == '.zip':
+        tmp_zarr_and_zip(ds, output, itervar=True, rechunk=chunks, encoding={v: {"dtype": "float32"} for v in ds.data_vars}, **config['clean_up']['save'])
+    else:
+        xs.save_to_zarr(ds, output, itervar=True, rechunk=chunks, encoding={v: {"dtype": "float32"} for v in ds.data_vars}, **config['clean_up']['save'])
