@@ -11,25 +11,31 @@ xs.load_config("config/config_general.yml", "config/config_region.yml", "config/
 
 if __name__ == '__main__':
     
-    client=dask_cluster(snakemake.params)
+    #client=dask_cluster(snakemake.params)
 
-    ds_input = xr.open_zarr(snakemake.input.extract, decode_timedelta=False)
+    ds_input = xr.open_zarr(snakemake.input.extract, decode_timedelta=False)#.compute()
 
-    ds_target = xr.open_zarr(snakemake.input.noleap, decode_timedelta=False)
+    ds_target = xr.open_zarr(snakemake.input.noleap, decode_timedelta=False)#.compute()
 
+    #mask_nan=ds_input.isnull()
+    #xs.save_to_zarr(mask_nan, f"/scratch/julavoie/espo-workdir/mask_{snakemake.wildcards.subregion}.zarr")
+    #ds_input=ds_input.fillna(99999)
 
     ds_regrid = xs.regrid_dataset(
         ds=ds_input,
         ds_grid=ds_target,
-        weights_location=f"{os.environ['SLURM_TMPDIR']}/weights/" 
     )
+    
+    #ds_regrid=ds_regrid.where(~mask_nan)
 
     # chunk time dim
-    ds_regrid = ds_regrid.chunk(
-        xs.utils.translate_time_chunk({'time': '4year'},
-                             xc.core.calendar.get_calendar(ds_regrid),
-                             ds_regrid.time.size)
-                               )
+    # ds_regrid = ds_regrid.chunk(
+    #     xs.utils.translate_time_chunk({'time': '4year'},
+    #                          xc.core.calendar.get_calendar(ds_regrid),
+    #                          ds_regrid.time.size)
+    #                            )
+
+
 
     # save
     xs.save_to_zarr(ds_regrid, str(snakemake.output[0]))

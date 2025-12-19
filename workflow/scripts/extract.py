@@ -20,13 +20,19 @@ if __name__ == '__main__':
 
     # extract
     dc_id = cat_sim_id.popitem()[1]
-    ds_sim = xs.extract_dataset(catalog=dc_id,
+    dict_sim = xs.extract_dataset(catalog=dc_id,
                                 region=CONFIG['custom']['full_region'],
                                 **CONFIG['extraction']['simulation']['extract_dataset'],
-                                )['D']
+                                )
 
+    ds_sim=dict_sim['D']
     # clean up time
     ds_sim['time'] = ds_sim.time.dt.floor('D') 
+
+    #TODO: verify that the mask is ok
+    if 'mask' not in ds_sim and 'create_mask' in CONFIG['extraction']['simulation']:
+        ds_sim["mask"] = xs.regrid.create_mask(dict_sim['fx'], **CONFIG['extraction']['simulation']['create_mask'])
+
 
     ds_sim = xs.clean_up(ds_sim, **CONFIG['extraction']['clean_up'])
 
@@ -38,6 +44,9 @@ if __name__ == '__main__':
         ds_sim['dtr'] = ds_sim['dtr'].astype('float32')
         ds_sim['tasmax'] = ds_sim['tasmax'].astype('float32')
         ds_sim['tasmin'] = ds_sim['tasmin'].astype('float32')
+
+    # for espo-r
+    ds_sim =ds_sim.drop('crs')
     
     # save to zarr
     xs.save_to_zarr(ds_sim, snakemake.output[0])

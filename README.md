@@ -31,6 +31,7 @@ Dataset Characteristics:
  * Add possibility to run until 2300
  * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
  * Add CaSR v3.2 reference
+ * Add sftlf mask for the simulation
 
 Minor changes:
 * KACE-1-0-G was excluded. (https://github.com/Ouranosinc/ESPO-G/issues/6)
@@ -40,9 +41,10 @@ Minor changes:
 #### Project lait-e
     
   Includes hurs and hursTasmax. Ran initial tests for lait-e in 2025-08 on narval with xclim-0.57.1.dev10, xscen-0.12.4.dev5 and xsdba 0.5.0 wheels and numpy 1.26.4 (env dqm-np2) using config_general-2100.yml and config_QC-E5L.yml.
-#### Project ESPO-G6e
-    
-  Includes simulation that reach 2300. Ran initial tests in 2025-09 with common env xscen-0.13 using config_general-2300.yml and config_NAM-C3.yml.
+
+#### Project post-2100
+
+  Includes simulation that reach 2300. Ran in 2025-12 with common env xscen-0.13 and branch post-2100-narval.
 
 
 ### v1.0
