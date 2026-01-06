@@ -4,6 +4,7 @@ from xscen import CONFIG
 import xclim as xc
 from workflow.scripts.utils import dask_cluster
 import copy
+import numpy as np
 if 1==0: #trick vscode
     import snakemake
 
@@ -45,8 +46,21 @@ if __name__ == '__main__':
         ds_sim['tasmax'] = ds_sim['tasmax'].astype('float32')
         ds_sim['tasmin'] = ds_sim['tasmin'].astype('float32')
 
-    # for espo-r
-    ds_sim =ds_sim.drop('crs')
+
+    #FIXME: until data is fixed https://github.com/Ouranosinc/data-requests/issues/47
+    if 'CMIP6_CORDEX_CNRM-ESM2-1_r1i1p1f2_OURANOS_CRCM5-SN_ssp370_r1_NAM-12' == snakemake.wildcards.sim_id:
+        ds_sim['tasmin']=ds_sim['tasmin'].where(ds_sim['tasmin']!=0, np.nan)
     
     # save to zarr
-    xs.save_to_zarr(ds_sim, snakemake.output[0])
+    xs.save_to_zarr(ds_sim, snakemake.output.extract)
+
+    # check that input is fine
+    hc = xs.diagnostics.health_checks(
+    ds=ds_sim,
+    **CONFIG['health_checks']['extract'])
+
+    #TODO: add check for nan
+
+    hc.attrs.update(ds_sim.attrs)
+
+    tmp_zarr_and_zip(hc, snakemake.output.checks)

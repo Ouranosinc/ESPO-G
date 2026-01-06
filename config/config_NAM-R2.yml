@@ -78,6 +78,7 @@ clean_up:
           axis: X
 
 health_checks:
+  final:
     structure:
       coords:
         - rlat

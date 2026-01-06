@@ -64,12 +64,13 @@ rule refsubregion:
 rule extract:
     output:
         #temp(directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"))
-        directory(tmpdir/"{sim_id}+{dom}+extracted.zarr") #TODO: put back temp
+        extract=directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"), #TODO: put back temp
+        checks=finaldir/"checks/extracted/{sim_id}+extracted+{dom}_checks.zarr.zip"
     params:
         n_workers=2,
         mem="100GB",
         cpus_per_task=10,
-        time="02:00:00",
+        time="05:00:00",
     script:
         "workflow/scripts/extract.py"
 
@@ -138,7 +139,9 @@ rule adjust:
 
 rule clean_up:
     input:
-        expand(tmpdir/"{{sim_id}}+{{dom}}+{{subregion}}+{var}+adjusted.zarr",var=list(config['biasadjust']['variables'].keys()))
+        noleap = finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
+        day360 = finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip",
+        sim= expand(tmpdir/"{{sim_id}}+{{dom}}+{{subregion}}+{var}+adjusted.zarr",var=list(config['biasadjust']['variables'].keys()))
     output:
         temp(directory(tmpdir/"day+{sim_id}+{dom}+{subregion}+1950-2100.zarr"))
     params:

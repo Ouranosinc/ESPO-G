@@ -118,6 +118,7 @@ diagnostics:
     period: *ref_period
 
 health_checks:
+  final:
     structure:
       coords:
         - rlat

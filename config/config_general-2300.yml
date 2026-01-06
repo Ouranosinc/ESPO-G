@@ -239,14 +239,28 @@ diagnostics:
     properties: config/properties.yml
 
 health_checks:
-    start_date: "1950-01-01"
-    end_date: "2300-12-30"
-    variables_and_units:
+  extract: &extract
+    structure: &structure
+      coords:
+        - time
+        - lat 
+        - lon
+      dims:
+        - lat
+        - lon
+        - time
+    start_date: &start
+      "1950-01-01" 
+    end_date: &end
+      "2100-12-30"
+    variables_and_units: &varunits
       tasmax: "K"
       tasmin: "K"
       pr: "kg m-2 s-1"
       dtr: "K"
-    cfchecks:
+      # hurs: "%"
+      # hursTasmax: "%"
+    cfchecks: &cf
       tasmax:
         cfcheck_from_name: {}
       tasmin:
@@ -255,8 +269,14 @@ health_checks:
         cfcheck_from_name: {}
       dtr:
         cfcheck_from_name: {}
-    freq: D
-    flags:
+      # hurs:
+      #   cfcheck_from_name: {}
+    freq: &freq
+      D
+    # missing: &missing# FIXME: add when xscen>=0.13.2
+    #   some_but_not_all:
+    #     freq: D
+    flags: &flags
       tasmax:
         temperature_extremely_high:
           thresh: '60 degC'
@@ -270,6 +290,10 @@ health_checks:
           thresh: '1650 mm/d'
       dtr:
         negative_accumulation_values:
+      # hurs:
+      #   percentage_values_outside_of_bounds:
+      # hursTasmax:
+      #   percentage_values_outside_of_bounds:
     return_flags: True
     raise_on:
       - structure
@@ -278,6 +302,8 @@ health_checks:
       - variables_and_units
       - cfchecks
       - freq
+      #- missing
+  final: *extract # For ESPO-G checks are the same for extract and final
 
 io:
   rechunk:
