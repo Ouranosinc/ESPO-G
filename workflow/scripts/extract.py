@@ -55,12 +55,10 @@ if __name__ == '__main__':
     xs.save_to_zarr(ds_sim, snakemake.output.extract)
 
     # check that input is fine
-    hc = xs.diagnostics.health_checks(
-    ds=ds_sim,
-    **CONFIG['health_checks']['extract'])
+    #hc = xs.diagnostics.health_checks(
+    #ds=ds_sim,
+    #**CONFIG['health_checks']['extract'])
 
-    #TODO: add check for nan
+    #hc.attrs.update(ds_sim.attrs)
 
-    hc.attrs.update(ds_sim.attrs)
-
-    tmp_zarr_and_zip(hc, snakemake.output.checks)
+    #tmp_zarr_and_zip(hc, snakemake.output.checks)

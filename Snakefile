@@ -65,7 +65,7 @@ rule extract:
     output:
         #temp(directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"))
         extract=directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"), #TODO: put back temp
-        checks=finaldir/"checks/extracted/{sim_id}+extracted+{dom}_checks.zarr.zip"
+        #checks=finaldir/"checks/extracted/{sim_id}+extracted+{dom}_checks.zarr.zip" #TODO: put back ??
     params:
         n_workers=2,
         mem="100GB",

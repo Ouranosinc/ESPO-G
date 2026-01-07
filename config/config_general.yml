@@ -266,7 +266,7 @@ diagnostics:
 
 health_checks:
   extract:
-    structure: &structure
+    structure: #&structure
       coords:
         - rlat
         - rlon
@@ -336,7 +336,7 @@ health_checks:
     start_date: *start
     end_date: *end
     variables_and_units: *varunits
-    cfchecks: *cfchecks
+    cfchecks: *cf
     freq: *freq
     # missing: *missing
     flags: *flags

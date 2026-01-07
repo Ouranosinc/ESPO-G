@@ -324,7 +324,7 @@ health_checks:
       "1950-01-01" 
     end_date: &end
       "2100-12-30"
-    variables_and_units: &varunits
+    variables_and_units: #&varunits
       tasmax: "K"
       tasmin: "K"
       pr: "kg m-2 s-1"
