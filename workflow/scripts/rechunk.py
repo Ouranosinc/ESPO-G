@@ -1,27 +1,44 @@
 import os
 import xscen as xs
-from xscen import CONFIG
+from copy import deepcopy
 import xarray as xr
-from workflow.scripts.utils import dask_cluster, tmp_zarr_and_zip
+from workflow.scripts.utils import dask_cluster, save
 if 1==0: #trick vscode
     import snakemake
 
-xs.load_config("config/config_general.yml", "config/config_region.yml", "config/paths.yml")
 
 if __name__ == '__main__':
+
+    # Get Snakemake parameters
+    config = deepcopy(snakemake.config)
+    inputs=snakemake.input
+    output=snakemake.output[0]
     
+
+
     client=dask_cluster(snakemake.params)
 
     # xs.io.rechunk(path_in=str(snakemake.input[0]),
-    #         path_out=str(snakemake.output[0]),
-    #         chunks_over_dim={k:v for k,v in CONFIG['chunks']['working'].items() if k in ['time','loc']},
+    #         path_out=f"{os.environ['SLURM_TMPDIR']}/rechunked+{snakemake.wildcards.sim_id}+{snakemake.wildcards.subregion}/",
+    #         chunks_over_dim={k:v for k,v in config['chunks']['working'].items() if k in ['time','loc']},
     #         temp_store=f"{os.environ['SLURM_TMPDIR']}/{snakemake.wildcards.sim_id}+{snakemake.wildcards.subregion}/",
-    #         overwrite=True)
-    # test to get rif of rechunker
-    ds = xr.open_zarr(snakemake.input[0], decode_timedelta=False)
-    ds=ds.chunk({k:v for k,v in CONFIG['chunks']['working'].items() if k in ['time','loc']})
+    #         overwrite=True) # explicit parse_config magic if you uncomment this
+    
+    
+    # # test to get rif of rechunker
+    # ds = xr.open_zarr(f"{os.environ['SLURM_TMPDIR']}/rechunked+{snakemake.wildcards.sim_id}+{snakemake.wildcards.subregion}/",decode_timedelta=False)
+    ds = xr.open_zarr(inputs[0],decode_timedelta=False)
+    ds=ds.chunk({k:v for k,v in config['chunks']['working'].items() if k in ['time','loc']})
+
+    #patch holes
+    # ffill for the last time step.
+    ds['tasmax']= ds['tasmax'].interpolate_na("time", method="linear", max_gap=3).ffill("time")
+    ds['tasmin']= ds['tasmin'].interpolate_na("time", method="linear", max_gap=3).ffill("time")
+    ds['dtr']= ds['dtr'].interpolate_na("time", method="linear", max_gap=3).ffill("time")
+    ds['pr'] = ds['pr'].where(ds['pr'].notnull(), other=0)
+
     #fix encoding chunks issue
     for var in ds.data_vars:
         if 'chunks' in ds[var].encoding:
             del ds[var].encoding['chunks']
-    xs.save_to_zarr(ds,snakemake.output[0])
+    save(ds,output)

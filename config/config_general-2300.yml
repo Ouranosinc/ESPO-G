@@ -308,8 +308,8 @@ health_checks:
 io:
   rechunk:
     worker_mem: 2GB
-  save_to_zarr:
-    mode: o
+  # save_to_zarr:
+  #   mode: o
 
 
 logging:

@@ -1,3 +1,4 @@
+from copy import deepcopy
 from pathlib import Path
 from dask.distributed import Client, LocalCluster
 import os
@@ -10,41 +11,31 @@ if 1==0: #trick vscode
 
 xs.load_config("config/config_general.yml", "config/config_region.yml", "config/paths.yml")
 
-
+#TODO: come back to remove config from here.
 def dask_cluster(params):
     cluster = LocalCluster(
         n_workers=params.n_workers,
         threads_per_worker=params.cpus_per_task/params.n_workers,
         memory_limit=f"{int(int(params.mem.replace('GB',''))/params.n_workers)}GB",
-        #local_directory=os.environ['SLURM_TMPDIR'],
-        local_directory=f"{CONFIG['tmppath']}/dask", #3200
          **CONFIG['dask'].get('client', {}))
     client = Client(cluster)
     print(client.dashboard_link)
     return client
 
-# eventually take this from xscen
-def zip_directory(root, zipfile, **zip_args):
-    root = Path(root)
-
-    def _add_to_zip(zf, path, root):
-        zf.write(path, path.relative_to(root))
-        if path.is_dir():
-            for subpath in path.iterdir():
-                _add_to_zip(zf, subpath, root)
-
-    with ZipFile(zipfile, "w", **zip_args) as zf:
-        for file in root.iterdir():
-            _add_to_zip(zf, file, root)
 
 
 def create_tmp_path(path):
     return f"{os.environ['SLURM_TMPDIR']}/{Path(path).name.replace('.zip','')}"
 
-def tmp_zarr_and_zip(ds, p, delete_tmp=False):
+def tmp_zarr_and_zip(ds, p, delete_tmp=False, **kwargs):
     tmp_path=create_tmp_path(p)
-    xs.save_to_zarr(ds, tmp_path)
+    xs.save_to_zarr(ds, tmp_path, **kwargs)
     Path(p).parent.mkdir(parents=True, exist_ok=True)
-    xs.io.zip_directory(tmp_path, p)
-    if delete_tmp:
-        sh.rmtree(tmp_path)
+    xs.io.zip_directory(tmp_path, p, delete=delete_tmp)
+
+
+def save(ds, p, delete_tmp=False, **kwargs):
+    if Path(p).suffix == '.zip':
+        tmp_zarr_and_zip(ds, p, delete_tmp=False, **kwargs)
+    else:
+        xs.save_to_zarr(ds, p, **kwargs)

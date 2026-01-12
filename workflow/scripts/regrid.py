@@ -2,20 +2,24 @@ import xarray as xr
 import xscen as xs
 import os
 import xclim as xc
-from xscen import CONFIG
-from workflow.scripts.utils import dask_cluster
+from copy import deepcopy
+from workflow.scripts.utils import dask_cluster, save
 if 1==0: #trick vscode
     import snakemake
 
-xs.load_config("config/config_general.yml", "config/config_region.yml", "config/paths.yml")
 
 if __name__ == '__main__':
     
+    # Get Snakemake parameters
+    config = deepcopy(snakemake.config)
+    inputs=snakemake.input
+    output=snakemake.output[0]
+
     #client=dask_cluster(snakemake.params)
 
-    ds_input = xr.open_zarr(snakemake.input.extract, decode_timedelta=False)#.compute()
+    ds_input = xr.open_zarr(inputs['extract'], decode_timedelta=False)#.compute()
 
-    ds_target = xr.open_zarr(snakemake.input.noleap, decode_timedelta=False)#.compute()
+    ds_target = xr.open_zarr(inputs['noleap'], decode_timedelta=False)#.compute()
 
     #mask_nan=ds_input.isnull()
     #xs.save_to_zarr(mask_nan, f"/scratch/julavoie/espo-workdir/mask_{snakemake.wildcards.subregion}.zarr")
@@ -24,6 +28,7 @@ if __name__ == '__main__':
     ds_regrid = xs.regrid_dataset(
         ds=ds_input,
         ds_grid=ds_target,
+        **config['regrid']['regrid_dataset']
     )
     
     #ds_regrid=ds_regrid.where(~mask_nan)
@@ -38,4 +43,4 @@ if __name__ == '__main__':
 
 
     # save
-    xs.save_to_zarr(ds_regrid, str(snakemake.output[0]))
+    save(ds_regrid, output)

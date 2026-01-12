@@ -33,7 +33,11 @@ extraction:
           processing_level: raw
           experiment: ssp370
           source: CRCM5-SN
-          #driving_model: MPI-ESM1-2-LR
+          driving_model: 
+            #- MPI-ESM1-2-LR
+            - CanESM5
+            - NorESM2-MM
+            #- CNRM-ESM2-1
           #driving_member: r1i1p1f1
           #member: r1
       extract_dataset:
@@ -353,10 +357,10 @@ health_checks:
 io:
   rechunk:
     worker_mem: 2GB
-  save_to_zarr:
-    mode: o
+  # save_to_zarr:
+  #   mode: o
 
-
+#TODO: need to figure this out after reform of load_config
 logging:
     formatters:
         default:

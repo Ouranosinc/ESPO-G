@@ -1,18 +1,22 @@
+from copy import deepcopy
 import xarray as xr
 import xscen as xs
 import xclim as xc
-from xscen import  CONFIG
-from workflow.scripts.utils import zip_directory, tmp_zarr_and_zip
+from workflow.scripts.utils import  save
 if 1==0: #trick vscode
     import snakemake
 
-xs.load_config("config/config_general.yml", "config/config_region.yml", "config/paths.yml")
 
 if __name__ == '__main__':
 
+    # Get Snakemake parameters
+    final=snakemake.input.final
+    output=snakemake.output
+    config = deepcopy(snakemake.config)
+
     list_dsR = []
-    for files in range(len(snakemake.input.final)):
-        dsR = xr.open_zarr(snakemake.input.final[files], decode_timedelta=False)
+    for files in range(len(final)):
+        dsR = xr.open_zarr(final[files], decode_timedelta=False)
         dsR.lat.encoding.pop('chunks', None)
         dsR.lon.encoding.pop('chunks', None)
         list_dsR.append(dsR)
@@ -22,7 +26,7 @@ if __name__ == '__main__':
     else:
         dsC = xr.concat(list_dsR, 'lat')
 
-    dsC.attrs['cat:domain'] = CONFIG['custom']['full_region']['name']
+    dsC.attrs['cat:domain'] = config['custom']['full_region']['name']
     dsC.attrs['cat:processing_level']= 'final'
     dsC.attrs.pop('intake_esm_dataset_key', None)
     dsC.attrs.pop('cat:path', None)
@@ -34,21 +38,15 @@ if __name__ == '__main__':
     #         dsC.time.size)| CONFIG['custom']['final_chunks']
     #                            )
     chunks=xs.utils.translate_time_chunk(
-        CONFIG['chunks']['final'],
+        config['chunks']['final'],
         calendar=dsC.time.dt.calendar,
         timesize=dsC.time.size,)
     dsC=dsC.chunk(chunks)
     
 
-
-    # xs.save_to_zarr(
-    #     ds=dsC,
-    #     filename=snakemake.output.tmp,
-    #     )
-    
-    # zip_directory(snakemake.output.tmp, snakemake.output.final)
-
     for var in dsC.data_vars:
+        #history should be a global attrs only
+
         # delete_tmp=True to avoid going over limit  of localscratch in 2300
-        tmp_zarr_and_zip(dsC[[var]],snakemake.output[var], delete_tmp=True) 
+        save(dsC[[var]],output[var], delete_tmp=True) 
 

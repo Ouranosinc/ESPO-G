@@ -68,11 +68,24 @@ rule extract:
         #checks=finaldir/"checks/extracted/{sim_id}+extracted+{dom}_checks.zarr.zip" #TODO: put back ??
     params:
         n_workers=2,
-        mem="100GB",
+        mem="400GB",
         cpus_per_task=10,
         time="05:00:00",
     script:
         "workflow/scripts/extract.py"
+
+# rule patch:
+#     input:
+#         tmpdir/"{sim_id}+{dom}+extracted.zarr"
+#     output:
+#         directory(tmpdir/"{sim_id}+{dom}+extractedpatch.zarr"), #TODO: put back temp
+#     params:
+#         n_workers=2,
+#         mem="400GB",
+#         cpus_per_task=10,
+#         time="05:00:00",
+#     script:
+#         "workflow/scripts/patch_holes.py"
 
 rule regrid:
      input:
@@ -95,7 +108,7 @@ rule rechunk:
      input:
           tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr"
      output:
-          temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr"))
+          directory(tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr")
      params:
           n_workers=2,
           cpus_per_task=10,
@@ -112,7 +125,7 @@ rule train:
         day360 = finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip",
         rechunk = tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr",
     output:
-        temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr"))
+        directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr")
     params:
         n_workers=3,
         mem='100GB',
@@ -126,7 +139,7 @@ rule adjust:
         train = tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr",
         rechunk = tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr",
     output:
-        temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr"))
+        directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr")
     params:
         n_workers=5,
         cpus_per_task=15,
@@ -143,7 +156,7 @@ rule clean_up:
         day360 = finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip",
         sim= expand(tmpdir/"{{sim_id}}+{{dom}}+{{subregion}}+{var}+adjusted.zarr",var=list(config['biasadjust']['variables'].keys()))
     output:
-        temp(directory(tmpdir/"day+{sim_id}+{dom}+{subregion}+1950-2100.zarr"))
+        directory(tmpdir/"day+{sim_id}+{dom}+{subregion}+1950-2100.zarr")
     params:
         n_workers=2,
         cpus_per_task=6,
