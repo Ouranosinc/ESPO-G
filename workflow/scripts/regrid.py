@@ -15,7 +15,7 @@ if __name__ == '__main__':
     inputs=snakemake.input
     output=snakemake.output[0]
 
-    #client=dask_cluster(snakemake.params)
+    #client=dask_cluster(snakemake.params,config['dask']['client'])
 
     ds_input = xr.open_zarr(inputs['extract'], decode_timedelta=False)#.compute()
 

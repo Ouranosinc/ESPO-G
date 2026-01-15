@@ -16,7 +16,7 @@ if __name__ == '__main__':
     
 
 
-    client=dask_cluster(snakemake.params)
+    client=dask_cluster(snakemake.params, config['dask']['client'])
 
     # xs.io.rechunk(path_in=str(snakemake.input[0]),
     #         path_out=f"{os.environ['SLURM_TMPDIR']}/rechunked+{snakemake.wildcards.sim_id}+{snakemake.wildcards.subregion}/",
@@ -32,10 +32,12 @@ if __name__ == '__main__':
 
     #patch holes
     # ffill for the last time step.
-    ds['tasmax']= ds['tasmax'].interpolate_na("time", method="linear", max_gap=3).ffill("time")
-    ds['tasmin']= ds['tasmin'].interpolate_na("time", method="linear", max_gap=3).ffill("time")
-    ds['dtr']= ds['dtr'].interpolate_na("time", method="linear", max_gap=3).ffill("time")
+    ds['tasmax']= ds['tasmax'].interpolate_na("time", method="linear").ffill("time")
+    ds['tasmin']= ds['tasmin'].interpolate_na("time", method="linear").ffill("time")
+    ds['dtr']= ds['dtr'].interpolate_na("time", method="linear").ffill("time")
     ds['pr'] = ds['pr'].where(ds['pr'].notnull(), other=0)
+
+    # modify the code blabla
 
     #fix encoding chunks issue
     for var in ds.data_vars:

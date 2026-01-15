@@ -18,7 +18,7 @@ if __name__ == '__main__':
     output = snakemake.output[0]
     config = deepcopy(snakemake.config)
 
-    client=dask_cluster(snakemake.params)
+    client=dask_cluster(snakemake.params, config['dask']['client'])
 
     # load hist ds (simulation)
     ds_hist = xr.open_zarr(input_rechunk , decode_timedelta=False)
@@ -45,6 +45,7 @@ if __name__ == '__main__':
     # ds_hist['hurs'] = ds_hist['hurs'].clip(0,100)
     # ds_ref['hursTasmax'] = ds_ref['hursTasmax'].clip(0,100)
     # ds_hist['hursTasmax'] = ds_hist['hursTasmax'].clip(0,100)
+    #blba
 
     # training
     ds_tr = xs.train(
@@ -54,7 +55,7 @@ if __name__ == '__main__':
         **config['biasadjust']['variables'][var]['training_args']
         )
 
-        # Add attribute for reference
+    # Add attribute for reference
     ds_tr.attrs['cat:bias_adjust_reference'] = f"{ds_ref.attrs.get('cat:source', 'unknown')}{ds_ref.attrs.get('cat:version', '')}"
 
     ds_tr = ds_tr.chunk({d: config['chunks']['working'][d] for d in ds_tr.dims
@@ -64,3 +65,4 @@ if __name__ == '__main__':
         del ds_tr[v].encoding['chunks']
 
     save(ds_tr, output)
+

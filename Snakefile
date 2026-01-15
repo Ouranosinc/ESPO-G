@@ -21,7 +21,8 @@ diagregions=[d for d in config['diagregion'].keys()] # for diags
 level=['improvement', 'diag_sim_prop','diag_sim_meas','diag_scen_prop','diag_scen_meas']
 # trick, use dom as wildcard so it can be defined in the config
 domain=[config['custom']['full_region']['name']]
-reference = [config['bias_adjust_reference']] #FIXME: when xscen>=0.13.1 put the full config path 
+reference = [config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_reference']]
+
 
 #paths
 tmpdir= Path(config['paths']['tmpdir'])
@@ -74,18 +75,6 @@ rule extract:
     script:
         "workflow/scripts/extract.py"
 
-# rule patch:
-#     input:
-#         tmpdir/"{sim_id}+{dom}+extracted.zarr"
-#     output:
-#         directory(tmpdir/"{sim_id}+{dom}+extractedpatch.zarr"), #TODO: put back temp
-#     params:
-#         n_workers=2,
-#         mem="400GB",
-#         cpus_per_task=10,
-#         time="05:00:00",
-#     script:
-#         "workflow/scripts/patch_holes.py"
 
 rule regrid:
      input:
@@ -98,7 +87,7 @@ rule regrid:
           n_workers=2,
           cpus_per_task=8,
           mem='500GB',
-          time="03:00:00",
+          time="01:00:00",
         #   mem='500GB',# 2300 
         #   time= "01:00:00",# 2300 #
      script:
@@ -113,7 +102,7 @@ rule rechunk:
           n_workers=2,
           cpus_per_task=10,
           mem='500GB',
-          time="06:00:00",
+          time="01:00:00",
         #   mem='150GB', #2300
         #   time="02:00:00", #2300
      script:
@@ -181,7 +170,7 @@ def final_path(id):
          processing_level='biasadjusted',
          bias_adjust_project=config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_project'],
          bias_adjust_institution=config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_institution'],
-         #bias_adjust_reference=config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_reference'], #FIXME: when xscen>=0.13.1
+         bias_adjust_reference=config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_reference'],
          version=config['clean_up']['xscen_clean_up']['add_attrs']['global']['version'],
          frequency='day',
          xrfreq='D',

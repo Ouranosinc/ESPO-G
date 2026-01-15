@@ -78,16 +78,14 @@ biasadjust:
         dtr: &generic-ba
             training_args:
                 period: *ref_period
-            # adjusting_args:
-            #     bias_adjust_reference: #FIXME: put when xscen>=0.13.1
-            #       CaSRv32 # TODO: put right version
+            adjusting_args:
+                bias_adjust_reference:
+                  CaSRv32 #TODO: think of how can xscen do this automatically
         tasmax: *generic-ba
         pr: *generic-ba
         # hurs: *generic-ba #TODO: put back if not ESPO-R
         # hursTasmax: *generic-ba
 
-bias_adjust_reference: #in the mean time
-  CaSRv32
 
 
 clean_up:
@@ -135,7 +133,7 @@ health_checks:
 
 chunks:
   working:
-    rlat: 20
+    rlat: 20 #TODO: rechunk in x,y like gab
     rlon: 20
     loc: 600
     time: -1

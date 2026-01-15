@@ -3,21 +3,21 @@ from pathlib import Path
 from dask.distributed import Client, LocalCluster
 import os
 import xscen as xs
-from xscen import CONFIG
+#from xscen import CONFIG
 from zipfile import ZipFile
 import shutil as sh
 if 1==0: #trick vscode
     import snakemake
 
-xs.load_config("config/config_general.yml", "config/config_region.yml", "config/paths.yml")
+#xs.load_config("config/config_general.yml", "config/config_region.yml", "config/paths.yml")
 
-#TODO: come back to remove config from here.
-def dask_cluster(params):
+def dask_cluster(params, dask_config=None):
+    dask_config = dask_config or {}
     cluster = LocalCluster(
         n_workers=params.n_workers,
         threads_per_worker=params.cpus_per_task/params.n_workers,
         memory_limit=f"{int(int(params.mem.replace('GB',''))/params.n_workers)}GB",
-         **CONFIG['dask'].get('client', {}))
+         **dask_config)
     client = Client(cluster)
     print(client.dashboard_link)
     return client

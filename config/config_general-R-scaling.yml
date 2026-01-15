@@ -292,8 +292,8 @@ health_checks:
       #   cfcheck_from_name: {}
     freq: &freq
       D
-    # missing: &missing# FIXME: add when xscen>=0.13.2
-    #   some_but_not_all:
+    # missing: # FIXME: add when xscen>=0.13.2
+    #   missing_any:
     #     freq: D
     flags: &flags
       tasmax:
@@ -329,7 +329,9 @@ health_checks:
     variables_and_units: *varunits
     cfchecks: *cfchecks
     freq: *freq
-    # missing: *missing
+    # missing: 
+    #   mising_some_but_not_all:
+    #     freq: D
     flags: *flags
     return_flags: True
     raise_on:

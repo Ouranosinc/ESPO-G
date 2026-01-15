@@ -29,6 +29,7 @@ Dataset Characteristics:
  Major changes:
  * Add hurs and hursTasmax
  * Add possibility to run until 2300
+ * Add possibility to run ESPO-R
  * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
  * Add CaSR v3.2 reference
  * Add sftlf mask for the simulation
@@ -38,6 +39,10 @@ Minor changes:
 * EC-Earth3-CC and NESM3 were excluded as they do not have SSP3-7.0 available.
 * New calculation of the TCR lead to CNRM-CM6-1/INM-CM5-0  being included/excluded in the TCR likely range. (https://github.com/Ouranosinc/ESPO-G/issues/7)
 
+- 2026-01: initial tests ran with xscen-0.13
+- 2026-01-13: initial tests ran with espojan2026: xclim-0.59.2.dev4-py3-none-any.whl (main), xscen-0.13.2.dev4-py3-none-any.whl (add-nan-check),  xsdba-0.5.1.dev8-py3-none-any.whl (main).
+ needed to revert to xscen-0.13 for some regrid.
+ 
 #### Project lait-e
     
   Includes hurs and hursTasmax. Ran initial tests for lait-e in 2025-08 on narval with xclim-0.57.1.dev10, xscen-0.12.4.dev5 and xsdba 0.5.0 wheels and numpy 1.26.4 (env dqm-np2) using config_general-2100.yml and config_QC-E5L.yml.

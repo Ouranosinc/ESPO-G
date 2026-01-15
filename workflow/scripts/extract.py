@@ -18,7 +18,7 @@ if __name__ == '__main__':
     sim_id=snakemake.wildcards.sim_id
     output=snakemake.output
     
-    client=dask_cluster(snakemake.params)
+    client=dask_cluster(snakemake.params, config['dask']['client'])
 
     args=deepcopy(config['extraction']['simulation']['search_data_catalogs'])
     args['other_search_criteria'] = {'id': sim_id}
@@ -61,6 +61,10 @@ if __name__ == '__main__':
         ds_sim['dtr'] = ds_sim['dtr'].astype('float32')
         ds_sim['tasmax'] = ds_sim['tasmax'].astype('float32')
         ds_sim['tasmin'] = ds_sim['tasmin'].astype('float32')
+
+    #FIXME: remove when data is fixed
+    if "CMIP6_CORDEX_NorESM2-MM_r1i1p1f1_OURANOS_CRCM5-SN_historical_r1_NAM-12" == sim_id:
+         ds_sim['tasmin']=ds_sim['tasmin'].where(ds_sim['tasmin']!=0, np.nan)
 
 
     # save to zarr

@@ -18,7 +18,7 @@ if __name__ == '__main__':
     output = snakemake.output[0]
     config = deepcopy(snakemake.config)
 
-    client=dask_cluster(snakemake.params)
+    client=dask_cluster(snakemake.params, config['dask']['client'])
 
     # load sim ds
     ds_sim = xr.open_zarr(input_rechunk, decode_timedelta=False)
@@ -46,17 +46,14 @@ if __name__ == '__main__':
         **config['biasadjust']['variables'][var]['adjusting_args']
         )
 
-    #FIXME: until xscen>=0.13.1, add ba_ref by hand
-    ds_scen.attrs['cat:bias_adjust_reference']=config['bias_adjust_reference']
-
-    #FIXME: until xscen>=0.13.1,   final clip here instead of with xscen.clean_up
-    new_history = f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Clipped to [0,100]"
-    if 'hurs' in ds_scen:
-        ds_scen['hurs'] = ds_scen['hurs'].clip(0,100)
-        ds_scen['hurs'].attrs['history'] = ds_scen['hurs'].attrs.get('history', '') + new_history
-    if 'hursTasmax' in ds_scen:
-        ds_scen['hursTasmax'] = ds_scen['hursTasmax'].clip(0,100)
-        ds_scen['hursTasmax'].attrs['history'] = ds_scen['hursTasmax'].attrs.get('history', '') + new_history
+    # until xscen>=0.13.1,   final clip here instead of with xscen.clean_up
+    # new_history = f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Clipped to [0,100]"
+    # if 'hurs' in ds_scen:
+    #     ds_scen['hurs'] = ds_scen['hurs'].clip(0,100)
+    #     ds_scen['hurs'].attrs['history'] = ds_scen['hurs'].attrs.get('history', '') + new_history
+    # if 'hursTasmax' in ds_scen:
+    #     ds_scen['hursTasmax'] = ds_scen['hursTasmax'].clip(0,100)
+    #     ds_scen['hursTasmax'].attrs['history'] = ds_scen['hursTasmax'].attrs.get('history', '') + new_history
 
 
     save(ds_scen, output)

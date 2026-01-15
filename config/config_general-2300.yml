@@ -274,7 +274,7 @@ health_checks:
     freq: &freq
       D
     # missing: &missing# FIXME: add when xscen>=0.13.2
-    #   some_but_not_all:
+    #   missing_some_but_not_all:
     #     freq: D
     flags: &flags
       tasmax:

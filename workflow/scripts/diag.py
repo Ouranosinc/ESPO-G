@@ -16,7 +16,7 @@ if __name__ == '__main__':
     sim_id=snakemake.wildcards.sim_id
     output=snakemake.output
 
-    client=dask_cluster(snakemake.params)
+    client=dask_cluster(snakemake.params, config['dask']['client'])
 
     # load data that we already have
     ref_prop=xr.open_zarr(inputs['ref_prop'],decode_timedelta=False)

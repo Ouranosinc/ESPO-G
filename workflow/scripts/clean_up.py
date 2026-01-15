@@ -39,7 +39,7 @@ if __name__ == '__main__':
     # input_cal = input_noleap if refcal == 'noleap' else  input_360_day if refcal == '360_day' else 'unknown'
     # fill_nan_ds = xr.open_zarr(input_cal, decode_timedelta=False)
     
-    # #FIXME: until this is in xscen
+    #  until this is in xscen
     # # check if any non-time dimension are different
     # if (np.array([ds.sizes[d] != fill_nan_ds.sizes[d] 
     #                 for d in ds.dims if d !='time']).any())  or (

@@ -14,7 +14,7 @@ if __name__ == '__main__':
     dregion=snakemake.wildcards.dregion
     config = deepcopy(snakemake.config)
 
-    client=dask_cluster(snakemake.params)
+    client=dask_cluster(snakemake.params, config['dask']['client'])
 
     ds_ref= xr.open_zarr(input_ref,decode_timedelta=False)
     ds_ref = xs.spatial.subset(ds_ref, **config['diagregion'][dregion])

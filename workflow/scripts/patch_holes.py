@@ -18,7 +18,7 @@ if __name__ == '__main__':
     inputs=snakemake.input
     output=snakemake.output[0]
     
-    client=dask_cluster(snakemake.params)
+    client=dask_cluster(snakemake.params,config['dask']['client'])
 
 
     ds_sim = xr.open_zarr(inputs[0], decode_timedelta=False)
@@ -47,5 +47,4 @@ if __name__ == '__main__':
 
     #tmp_zarr_and_zip(hc, snakemake.output.checks)
 
-    #TODO: check if mask is really added
     

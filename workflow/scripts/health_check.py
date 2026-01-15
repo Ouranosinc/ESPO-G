@@ -15,21 +15,10 @@ if __name__ == '__main__':
     output = snakemake.output[0]
     config = deepcopy(snakemake.config)
 
-    client=dask_cluster(snakemake.params)
+    client=dask_cluster(snakemake.params,config['dask']['client'])
     
     ds = xr.open_mfdataset(inputs, engine='zarr', decode_timedelta=False)
 
-
-    #FIXME: until this check is in xscen
-    # check if number of nan along time is different from total or 0.
-    for var in ds.data_vars:
-        da = ds[var]
-        l = da.sizes["time"]
-        valid = da.notnull().sum(dim="time")
-        if (~((valid== l) | (valid == 0))).any():
-            raise ValueError(
-                f"Variable {var} has at least one gridpoint with some (but not all) missing values along time dimension."
-            )
 
     hc = xs.diagnostics.health_checks(
         ds=ds,

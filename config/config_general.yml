@@ -34,7 +34,7 @@ extraction:
           experiment: ssp370
           source: CRCM5-SN
           driving_model: 
-            #- MPI-ESM1-2-LR
+            - MPI-ESM1-2-LR
             - CanESM5
             - NorESM2-MM
             #- CNRM-ESM2-1
@@ -165,7 +165,7 @@ clean_up:
         stack_drop_nans: True
       round_var:
         pr: 10
-      # clip_var: #FIXME: add when xscen>=0.13.1
+      # clip_var:
       #   hurs: [0, 100]
       #   hursTasmax: [0, 100]
       change_attr_prefix: ''
@@ -305,9 +305,9 @@ health_checks:
       #   cfcheck_from_name: {}
     freq: &freq
       D
-    # missing: &missing# FIXME: add when xscen>=0.13.2
-    #   some_but_not_all:
-    #     freq: D
+    missing: # warn but don't raise
+      mising_any:
+        freq: D
     flags: &flags
       tasmax:
         temperature_extremely_high:
@@ -342,7 +342,9 @@ health_checks:
     variables_and_units: *varunits
     cfchecks: *cf
     freq: *freq
-    # missing: *missing
+    missing:
+      missing_some_but_not_all:
+        freq: D
     flags: *flags
     return_flags: True
     raise_on:
@@ -352,7 +354,7 @@ health_checks:
       - variables_and_units
       - cfchecks
       - freq
-      #- missing #FIXME: xscen 13.2
+      - missing
 
 io:
   rechunk:
