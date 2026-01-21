@@ -19,6 +19,7 @@ if __name__ == '__main__':
     
     ds = xr.open_mfdataset(inputs, engine='zarr', decode_timedelta=False)
 
+     # compute health checks
 
     hc = xs.diagnostics.health_checks(
         ds=ds,

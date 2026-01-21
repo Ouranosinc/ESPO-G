@@ -144,3 +144,4 @@ pre-workflow/create_hurstasmax.sh
 Untitled3.ipynb
 PET0.ESMF_LogFile
 pre-workflow/mrcc5-checks.sh
+logs/

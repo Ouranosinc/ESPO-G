@@ -1,4 +1,4 @@
-#Configuration file for ESPO-G6 CNRM patch. CNRM vers MRCC5-CNRM
+#Configuration file for ESPO-R6 DQM
 extraction:
   reference:
       search_data_catalogs:
@@ -7,6 +7,8 @@ extraction:
           tasmin: D
           pr: D
           dtr: D
+          # hurs: D
+          # hursTasmax: D
         allow_resampling: False
         allow_conversion: True
   simulation:
@@ -16,36 +18,56 @@ extraction:
           tasmin: D
           pr: D
           dtr: D
+          sftlf: fx
+          #hurs: D
+          #hursmin: D
+        match_hist_and_fut: True
         allow_conversion: True
         allow_resampling: False
         periods: &sim_period
           - '1950' 
-          - '2014'
+          - '2100'
         restrict_members:
           ordered: 1
         other_search_criteria:
           processing_level: raw
-          mip_era: CMIP6
-          experiment: historical
-          source: 
-            - CNRM-ESM2-1 
+          experiment: ssp370
+          source: CRCM5-SN
+          driving_model: 
+            - MPI-ESM1-2-LR
+            - CanESM5
+            - NorESM2-MM
+            #- CNRM-ESM2-1
+          #driving_member: r1i1p1f1
+          #member: r1
       extract_dataset:
         periods : *sim_period
         xr_combine_kwargs:
           combine_attrs: override
         xr_open_kwargs:
+          engine: h5netcdf
           drop_variables:
             - height
             - bnds
             - time_bnds
+            - time_bounds
             - lat_bnds
             - lon_bnds
+            - crs
+            - quantization_info
+      create_mask:
+        variable: sftlf
+        where_operator: ">="
+        where_threshold: 0.25
+        mask_nans: True
   clean_up:
     variables_and_units:
       tasmax: K
       tasmin: K
       pr: kg m-2 s-1 # xscen should work if standard_name is 'precipitation_flux'
       dtr: K
+      # hurs: "%"
+      # hursTasmax: "%"
 
 regrid:
   regrid_dataset:
@@ -54,33 +76,6 @@ regrid:
         extrap_method: inverse_dist
         locstream_out: True
         reuse_weights: False
-      intermediate_grids:
-        reg1:
-          cf_grid_2d:
-            lon0_b: 179.05
-            lon1_b: 351.2
-            d_lon: 1
-            lat0_b: 9
-            lat1_b: 84
-            d_lat: 1
-          regridder_kwargs:
-            method: bilinear
-            extrap_method: inverse_dist
-            locstream_out: False
-            reuse_weights: False
-        reg2:
-          cf_grid_2d:
-            lon0_b: 179.04
-            lon1_b: 351.2
-            d_lon: 0.5
-            lat0_b: 8.9
-            lat1_b: 84
-            d_lat: 0.5
-          regridder_kwargs:
-            method: bilinear
-            extrap_method: inverse_dist
-            locstream_out: False
-            reuse_weights: False
 
 biasadjust:
     variables:
@@ -137,7 +132,31 @@ biasadjust:
                 xsdba_adjust_args: *adj-args
                 bias_adjust_institution: *b_a_inst
                 bias_adjust_project: *b_a_pro
-        
+        # hurs:
+        #     training_args:
+        #         method: DetrendedQuantileMapping
+        #         group: *group
+        #         xsdba_train_args:
+        #             kind: "*"
+        #             nquantiles: 50
+        #     adjusting_args:
+        #         periods: *sim_period
+        #         xsdba_adjust_args: *adj-args
+        #         bias_adjust_institution: *b_a_inst
+        #         bias_adjust_project: *b_a_pro
+        # hursTasmax:
+        #     training_args:
+        #         method: DetrendedQuantileMapping
+        #         group: *group
+        #         xsdba_train_args:
+        #             kind: "*"
+        #             nquantiles: 50
+        #     adjusting_args:
+        #         periods: *sim_period
+        #         xsdba_adjust_args: *adj-args
+        #         bias_adjust_institution: *b_a_inst
+        #         bias_adjust_project: *b_a_pro
+
 clean_up:
   save:
     bitround: 12
@@ -146,6 +165,9 @@ clean_up:
         stack_drop_nans: True
       round_var:
         pr: 10
+      # clip_var:
+      #   hurs: [0, 100]
+      #   hursTasmax: [0, 100]
       change_attr_prefix: ''
       remove_all_attrs_except:
         global:
@@ -158,7 +180,6 @@ clean_up:
           - "cat:activity"
           - "cat:bias_adjust_project"
           - "cat:bias_adjust_institution"
-          - "cat:bias_adjust_reference"
           - "cat:domain"
           - "cat:mip_era"
           - "cat:type"
@@ -173,11 +194,13 @@ clean_up:
         tasmin: *attrs_to_keep
         pr: *attrs_to_keep
         dtr: *attrs_to_keep
+        # hurs: *attrs_to_keep
+        # hursTasmax: *attrs_to_keep
       add_attrs:
         global:
-          dataset: ESPO-patch
+          dataset: ESPO6
           version: v20
-          code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake-halia #TODO: put most up-to-date info
+          code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake #TODO: put most up-to-date info
           contact: lavoie.juliette@ouranos.ca
           organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca
           avertissement : Ouranos ne donne aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande et d'adéquation à un usage particulier. Toutes les responsabilités découlant de la fourniture des informations (y compris toute responsabilité découlant d'une négligence) sont exclues dans toute la mesure permise par la loi.
@@ -201,6 +224,15 @@ clean_up:
           description: Diurnal temperature range from tasmax and tasmin.
           standard_name: air_temperature
           long_name: Diurnal temperature range.
+        # hurs:
+        #     standard_name: relative_humidity
+        #     long_name: Relative humidity
+        #     cell_methods: "time: mean within days"
+        # hursTasmax:
+        #   standard_name: relative_humidity
+        #   long_name: Relative humidity at maximal daily temperature
+        #   cell_methods: "time: point"
+        #   note: The bias adjustement was computed from hursmin of the simulation and hursTasmax of the reference.
 
 
 diagregion:   
@@ -232,28 +264,34 @@ diagnostics:
       tasmin: degC
       pr: mm d-1
       dtr: K
+      # hurs: "%"
+      # hursTasmax: "%"
     properties: config/properties.yml
 
 health_checks:
   extract:
-    structure: &structure
+    structure: #&structure
       coords:
+        - rlat
+        - rlon
         - time
         - lat 
         - lon
       dims:
-        - lat
-        - lon
+        - rlat
+        - rlon
         - time
     start_date: &start
       "1950-01-01" 
     end_date: &end
-      "2014-12-30"
+      "2100-12-30"
     variables_and_units: &varunits
       tasmax: "K"
       tasmin: "K"
       pr: "kg m-2 s-1"
       dtr: "K"
+      # hurs: "%"
+      # hursTasmax: "%"
     cfchecks: &cf
       tasmax:
         cfcheck_from_name: {}
@@ -263,10 +301,12 @@ health_checks:
         cfcheck_from_name: {}
       dtr:
         cfcheck_from_name: {}
+      # hurs:
+      #   cfcheck_from_name: {}
     freq: &freq
       D
-    missing: &missing
-      missing_some_but_not_all:
+    missing: # warn but don't raise
+      mising_any:
         freq: D
     flags: &flags
       tasmax:
@@ -282,6 +322,10 @@ health_checks:
           thresh: '1650 mm/d'
       dtr:
         negative_accumulation_values:
+      # hurs:
+      #   percentage_values_outside_of_bounds:
+      # hursTasmax:
+      #   percentage_values_outside_of_bounds:
     return_flags: True
     raise_on:
       - structure
@@ -290,14 +334,17 @@ health_checks:
       - variables_and_units
       - cfchecks
       - freq
-      - missing
+      # dont raise on missing here 
   final:
+    #structure is in config_region
     start_date: *start
     end_date: *end
     variables_and_units: *varunits
     cfchecks: *cf
     freq: *freq
-    missing: *missing
+    missing:
+      missing_some_but_not_all:
+        freq: D
     flags: *flags
     return_flags: True
     raise_on:
@@ -312,8 +359,10 @@ health_checks:
 io:
   rechunk:
     worker_mem: 2GB
+  # save_to_zarr:
+  #   mode: o
 
-
+#TODO: need to figure this out after reform of load_config
 logging:
     formatters:
         default:
@@ -339,7 +388,7 @@ tdd:
 
 
 chunks:
-  pre-regrid: &pre-regrid
+  pre-regrid:
     time: 365
-    lat: -1 # always lat,lon
-    lon: -1
+    rlat: -1 # dims of input
+    rlon: -1

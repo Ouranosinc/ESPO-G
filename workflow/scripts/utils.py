@@ -6,6 +6,7 @@ import xscen as xs
 #from xscen import CONFIG
 from zipfile import ZipFile
 import shutil as sh
+import tempfile
 if 1==0: #trick vscode
     import snakemake
 
@@ -25,7 +26,12 @@ def dask_cluster(params, dask_config=None):
 
 
 def create_tmp_path(path):
-    return f"{os.environ['SLURM_TMPDIR']}/{Path(path).name.replace('.zip','')}"
+    if 'SLURM_TMPDIR' in os.environ:
+        return f"{os.environ['SLURM_TMPDIR']}/{Path(path).name.replace('.zip','')}"
+    else:
+        #TODO: figure out how to put this in config, but not load config here..
+        with tempfile.TemporaryDirectory(dir='/exec/jlavoie/tmpdir') as tmpdirname:
+            return f"{tmpdirname}/{Path(path).name.replace('.zip','')}"
 
 def tmp_zarr_and_zip(ds, p, delete_tmp=False, **kwargs):
     tmp_path=create_tmp_path(p)

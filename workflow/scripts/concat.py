@@ -46,7 +46,8 @@ if __name__ == '__main__':
 
     for var in dsC.data_vars:
         #history should be a global attrs only
-
+        if 'chunks' in dsC[var].encoding:
+            del dsC[var].encoding['chunks']
         # delete_tmp=True to avoid going over limit  of localscratch in 2300
         save(dsC[[var]],output[var], delete_tmp=True) 
 

@@ -1,13 +1,29 @@
-#Configuration file CNRMpatch, roll ESPO sim: GCM, ref: RCM, to fill holes in RCM.
+#Configuration file NAM-C3
 
 custom:
     regions:
+        # southC3:
+        #     name: southC3
+        #     method: sel
+        #     rlon: &rlon
+        #       [-35, 28]
+        #     rlat: [ -41, -23 ]
+        # middleC3:
+        #     name: middleC3
+        #     method: sel
+        #     rlon: *rlon
+        #     rlat:  [ -23, 1 ]
+        # northC3:
+        #     name: northC3
+        #     method: sel
+        #     rlon: *rlon
+        #     rlat: [ 1, 26 ]
         aC3:
             name: aC3
             method: sel
             rlon: &rlon
-              [-35, 38]
-            rlat: [ -34, -30 ]
+              [-35, 28]
+            rlat: [ -41, -30 ]
         bC3:
             name: bC3
             method: sel
@@ -32,36 +48,30 @@ custom:
           name: fC3
           method: sel
           rlon: *rlon
-          rlat:  [ 15, 36 ]
+          rlat:  [ 15, 26 ]
     full_region:
       name:
-        NAM-M3
+        NAM-C3
       method: bbox
-      tile_buffer: 3.5
-      lon_bnds: [-180, -7]
-      lat_bnds:  [ 6,84 ]
-
-
+      tile_buffer: 1.5
+      lon_bnds: [ -179.95, -10 ]
+      lat_bnds: [ 10, 83.4 ]
 
 
 extraction:
     reference:
         search_data_catalogs:
+            variables_and_freqs:
+                mask: fx
             periods : &ref_period
-              - '1985'
-              - '2014'            
+              - '1991'
+              - '2020'            
             other_search_criteria:
-                driving_model:
-                    - "CNRM-ESM2-1"
                 source:
-                    "CRCM5-SN"
+                    "CaSR"
+                version: "v32"
         extract_dataset:
-          xr_combine_kwargs:
-            combine_attrs: override
-          xr_open_kwargs:
-            engine: h5netcdf
-            drop_variables:
-              - height
+            mask: True
 
 biasadjust:
     variables:
@@ -70,9 +80,11 @@ biasadjust:
                 period: *ref_period
             adjusting_args:
                 bias_adjust_reference:
-                  "CRCM5-SN-CNRM-ESM2-1"
+                  CaSRv32 #TODO: think of how can xscen do this automatically
         tasmax: *generic-ba
         pr: *generic-ba
+        # hurs: *generic-ba #TODO: put back if not ESPO-R
+        # hursTasmax: *generic-ba
 
 
 
@@ -89,10 +101,10 @@ clean_up:
       add_attrs:
         global:
           Notes: |
-            Regridded on the grid of CRCM5-SN driven by CNRM-ESM2-1, then bias-adjusted with detrended
+            Regridded on the grid of CaSR v3.2, then bias-adjusted with detrended
             quantile mapping on a day-of-year basis with a window of 31 days, LOESS
-            detrending and 50 quantiles. The reference was CRCM5-SN driven by CNRM-ESM2-1 over the
-            1985-2014 period. Tasmax, dtr and pr were adjusted, tasmin was computed
+            detrending and 50 quantiles. The reference was CaSR v3.2 over the
+            1991-2020 period. Tasmax, hurs, hursTasmax, dtr and pr were adjusted, tasmin was computed
             from tasmax and dtr after the adjustment.
         rlat:
           axis: Y
@@ -112,7 +124,7 @@ health_checks:
         - time
         - lat 
         - lon
-        - crs
+        - rotated_pole
       dims:
         - rlat
         - rlon

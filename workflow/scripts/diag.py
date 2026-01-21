@@ -53,10 +53,11 @@ if __name__ == '__main__':
     # regrid
     args=config['regrid']['regrid_dataset'].copy()
     args['regridder_kwargs']['locstream_out']=False
+    wl= f"{os.environ['SLURM_TMPDIR']}/weights/" if 'SLURM_TMPDIR' in os.environ else f"{config['paths']['tmpdir']}/weights/"
     ds_sim = xs.regrid_dataset(
         ds=ds_sim,
         ds_grid=ds_target,
-        weights_location= f"{os.environ['SLURM_TMPDIR']}/weights/",
+        weights_location= wl ,
         **args
     )
     #mask nan
