@@ -1,4 +1,4 @@
-#Configuration file for ESPO-G6e, extension 2300, only 3 variables version 2.0
+#Configuration file for CNRMpatch, roll ESPO sim: GCM, ref: RCM, to fill holes in RCM.
 extraction:
   reference:
       search_data_catalogs:
@@ -16,30 +16,24 @@ extraction:
           tasmin: D
           pr: D
           dtr: D
-        match_hist_and_fut: True
+        match_hist_and_fut: False
         allow_conversion: True
         allow_resampling: False
         periods: &sim_period
-          - '1950'
-          - '2300'
+          - '1950' 
+          - '2014'
         restrict_members:
           ordered: 1
         other_search_criteria:
           processing_level: raw
           mip_era: CMIP6
-          experiment:
-            - ssp126
-            - ssp245
-            - ssp370
-            - ssp585
-          #source: 
-          #  - ACCESS-ESM1-5
+          experiment: historical
+          source: CNRM-ESM2-1
       extract_dataset:
         periods : *sim_period
         xr_combine_kwargs:
           combine_attrs: override
         xr_open_kwargs:
-          use_cftime: True
           drop_variables:
             - height
             - bnds
@@ -115,7 +109,7 @@ biasadjust:
                 bias_adjust_institution: &b_a_inst
                   Ouranos
                 bias_adjust_project: &b_a_pro
-                  ESPO6e
+                  CNRMpatch
         tasmax:
             training_args:
                 method: DetrendedQuantileMapping
@@ -137,12 +131,13 @@ biasadjust:
                 xsdba_train_args:
                     kind: "*"
                     nquantiles: 50
-                    adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1"  # xsdba cant convert mm/day automatically
+                    adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" # xsdba cant convert mm/day automatically
             adjusting_args:
                 periods: *sim_period
                 xsdba_adjust_args: *adj-args
                 bias_adjust_institution: *b_a_inst
                 bias_adjust_project: *b_a_pro
+
 
 clean_up:
   save:
@@ -178,10 +173,11 @@ clean_up:
         tasmin: *attrs_to_keep
         pr: *attrs_to_keep
         dtr: *attrs_to_keep
+        hurs: *attrs_to_keep
+        hursTasmax: *attrs_to_keep
       add_attrs:
         global:
-          dataset: ESPO6e
-          version: v20
+          dataset: CNRMpatch
           code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake #TODO: put most up-to-date info
           contact: lavoie.juliette@ouranos.ca
           organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca
@@ -236,11 +232,13 @@ diagnostics:
       tasmin: degC
       pr: mm d-1
       dtr: K
+      hurs: "%"
+      hursTasmax: "%"
     properties: config/properties.yml
 
 health_checks:
-  extract: &extract
-    structure: &structure
+  extract: 
+    structure: 
       coords:
         - time
         - lat 
@@ -252,14 +250,12 @@ health_checks:
     start_date: &start
       "1950-01-01" 
     end_date: &end
-      "2100-12-30"
+      "2014-12-30"
     variables_and_units: &varunits
       tasmax: "K"
       tasmin: "K"
       pr: "kg m-2 s-1"
       dtr: "K"
-      # hurs: "%"
-      # hursTasmax: "%"
     cfchecks: &cf
       tasmax:
         cfcheck_from_name: {}
@@ -269,13 +265,11 @@ health_checks:
         cfcheck_from_name: {}
       dtr:
         cfcheck_from_name: {}
-      # hurs:
-      #   cfcheck_from_name: {}
     freq: &freq
       D
-    # missing: &missing# FIXME: add when xscen>=0.13.2
-    #   missing_some_but_not_all:
-    #     freq: D
+    missing:
+      missing_any:
+        freq: D
     flags: &flags
       tasmax:
         temperature_extremely_high:
@@ -290,10 +284,6 @@ health_checks:
           thresh: '1650 mm/d'
       dtr:
         negative_accumulation_values:
-      # hurs:
-      #   percentage_values_outside_of_bounds:
-      # hursTasmax:
-      #   percentage_values_outside_of_bounds:
     return_flags: True
     raise_on:
       - structure
@@ -302,14 +292,41 @@ health_checks:
       - variables_and_units
       - cfchecks
       - freq
-      #- missing
-  final: *extract # For ESPO-G checks are the same for extract and final
+      - missing
+  final:
+    structure:
+      coords:
+        - time
+        - lat 
+        - lon
+        - rlat
+        - rlon
+      dims:
+        - rlat
+        - rlon
+        - time
+    start_date: *start
+    end_date: *end
+    variables_and_units: *varunits
+    cfchecks: *cf
+    freq: *freq
+    missing: 
+      missing_some_but_not_all:
+        freq: D
+    flags: *flags
+    return_flags: True
+    raise_on:
+      - structure
+      - start_date
+      - end_date
+      - variables_and_units
+      - cfchecks
+      - freq
+      - missing
 
 io:
   rechunk:
     worker_mem: 2GB
-  # save_to_zarr:
-  #   mode: o
 
 
 logging:
@@ -337,7 +354,7 @@ tdd:
 
 
 chunks:
-  pre-regrid: &pre-regrid
+  pre-regrid:
     time: 365
     lat: -1 # always lat,lon
     lon: -1

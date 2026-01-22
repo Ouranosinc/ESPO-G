@@ -64,8 +64,8 @@ rule refsubregion:
 
 rule extract:
     output:
-        #temp(directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"))
-        extract=directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"), #TODO: put back temp
+        extract=temp(directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"))
+        #extract=directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"),
         #checks=finaldir/"checks/extracted/{sim_id}+extracted+{dom}_checks.zarr.zip" #TODO: put back ??
     params:
         n_workers=2,
@@ -81,8 +81,8 @@ rule regrid:
           noleap = finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
           extract = tmpdir/"{sim_id}+{dom}+extracted.zarr"
      output:
-          #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr"))
-          directory(tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr") #TODO: put back temp
+          temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr"))
+          #directory(tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr") 
      params:
           n_workers=2,
           cpus_per_task=8,
@@ -97,7 +97,8 @@ rule rechunk:
      input:
           tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr"
      output:
-          directory(tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr")
+          #directory(tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr")
+          temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr"))
      params:
           n_workers=2,
           cpus_per_task=10,
@@ -114,7 +115,8 @@ rule train:
         day360 = finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip",
         rechunk = tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr",
     output:
-        directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr")
+        #directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr")
+        temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr"))
     params:
         n_workers=3,
         mem='100GB',
@@ -128,7 +130,8 @@ rule adjust:
         train = tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr",
         rechunk = tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr",
     output:
-        directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr")
+        temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr"))
+        #directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr")
     params:
         n_workers=5,
         cpus_per_task=15,
@@ -145,7 +148,8 @@ rule clean_up:
         day360 = finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip",
         sim= expand(tmpdir/"{{sim_id}}+{{dom}}+{{subregion}}+{var}+adjusted.zarr",var=list(config['biasadjust']['variables'].keys()))
     output:
-        directory(tmpdir/"day+{sim_id}+{dom}+{subregion}+1950-2100.zarr")
+        temp(directory(tmpdir/"day+{sim_id}+{dom}+{subregion}+1950-2100.zarr"))
+        #directory(tmpdir/"day+{sim_id}+{dom}+{subregion}+1950-2100.zarr")
     params:
         n_workers=2,
         cpus_per_task=6,
@@ -156,13 +160,17 @@ rule clean_up:
     script:
         "workflow/scripts/clean_up.py"
 
-
 def final_path(id):
     path='test'
+    # facets from id 
+    if 'CORDEX' in id:
+        f= dict(zip(['mip_era','activity','driving_model','driving_member', 'institution','source','experiment', 'member', ''],id.split('_')))
+    else:
+        f= dict(zip(['mip_era','activity','institution','source', 'experiment','member'],id.split('_')))
     path= xs.build_path(
         data=pd.Series(
-            dict(zip(['mip_era','activity','institution','source', 'experiment','member'],id.split('_'))
-     )|dict(
+           f
+     |dict(
         domain=config['custom']['full_region']['name'],
         format='zarr.zip',
          variable='foo',

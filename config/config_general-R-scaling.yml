@@ -170,6 +170,8 @@ clean_up:
           - "cat:domain"
           - "cat:mip_era"
           - "cat:type"
+          - "cat:driving_model"
+          - "cat:driving_member"
         tasmax: &attrs_to_keep
           - bias_adjustment
           - cell_methods

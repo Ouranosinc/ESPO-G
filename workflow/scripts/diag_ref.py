@@ -20,6 +20,7 @@ if __name__ == '__main__':
     ds_ref = xs.spatial.subset(ds_ref, **config['diagregion'][dregion])
 
     # diagnostics
-    ds_ref_prop, _ = xs.properties_and_measures(ds=ds_ref, **config['diagnostics']['properties_and_measures'])
+    with xr.set_options(keep_attrs=True): #FIXME: until xclim changes behavior, issue xclim #2308
+        ds_ref_prop, _ = xs.properties_and_measures(ds=ds_ref, **config['diagnostics']['properties_and_measures'])
     ds_ref_prop = ds_ref_prop.chunk(config['chunks']['diag'])
     save(ds_ref_prop, output_prop)

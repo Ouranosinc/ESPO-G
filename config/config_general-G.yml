@@ -310,7 +310,7 @@ diagnostics:
     properties: config/properties.yml
 
 health_checks:
-  extract: &extract
+  extract:
     structure: &structure
       coords:
         - time
@@ -324,7 +324,7 @@ health_checks:
       "1950-01-01" 
     end_date: &end
       "2100-12-30"
-    variables_and_units: #&varunits
+    variables_and_units: &varunits
       tasmax: "K"
       tasmin: "K"
       pr: "kg m-2 s-1"
@@ -374,8 +374,25 @@ health_checks:
       - cfchecks
       - freq
       #- missing
-  final: *extract # For ESPO-G checks are the same for extract and final
-
+  final:
+    start_date: *start
+    end_date: *end
+    variables_and_units: *varunits
+    cfchecks: *cf
+    freq: *freq
+    missing: 
+      missing_some_but_not_all:
+        freq: D
+    flags: *flags
+    return_flags: True
+    raise_on:
+      - structure
+      - start_date
+      - end_date
+      - variables_and_units
+      - cfchecks
+      - freq
+      - missing
 io:
   rechunk:
     worker_mem: 2GB

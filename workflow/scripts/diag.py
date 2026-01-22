@@ -67,17 +67,18 @@ if __name__ == '__main__':
     ds_sim = ds_sim.chunk({d: config['chunks']['working'][d] for d in ds_sim.dims})
     ds_scen = ds_scen.chunk({d: config['chunks']['working'][d] for d in ds_scen.dims})
 
-    sim_prop, sim_meas = xs.properties_and_measures(
-                                ds=ds_sim,
+    with xr.set_options(keep_attrs=True): #FIXME: until xclim changes behavior, issue xclim #2308
+        sim_prop, sim_meas = xs.properties_and_measures(
+                                    ds=ds_sim,
+                                    dref_for_measure=ref_prop,
+                                    **config['diagnostics']['properties_and_measures']
+                                )
+        
+        scen_prop, scen_meas = xs.properties_and_measures(
+                                ds=ds_scen,
                                 dref_for_measure=ref_prop,
                                 **config['diagnostics']['properties_and_measures']
                             )
-    
-    scen_prop, scen_meas = xs.properties_and_measures(
-                            ds=ds_scen,
-                            dref_for_measure=ref_prop,
-                            **config['diagnostics']['properties_and_measures']
-                        )
     for out, name in zip([sim_prop, sim_meas, scen_prop, scen_meas],['sim_prop','sim_meas','scen_prop','scen_meas']):
         out = out.chunk(config['chunks']['diag'])
         save(out, output[name])

@@ -180,9 +180,12 @@ clean_up:
           - "cat:activity"
           - "cat:bias_adjust_project"
           - "cat:bias_adjust_institution"
+          - "cat:bias_adjust_reference"
           - "cat:domain"
           - "cat:mip_era"
           - "cat:type"
+          - "cat:driving_model"
+          - "cat:driving_member"
         tasmax: &attrs_to_keep
           - bias_adjustment
           - cell_methods
@@ -191,6 +194,7 @@ clean_up:
           - long_name
           - standard_name
           - units
+          - grid_mapping
         tasmin: *attrs_to_keep
         pr: *attrs_to_keep
         dtr: *attrs_to_keep
