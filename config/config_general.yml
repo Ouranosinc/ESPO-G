@@ -170,6 +170,7 @@ clean_up:
           - long_name
           - standard_name
           - units
+          - grid_mapping
         tasmin: *attrs_to_keep
         pr: *attrs_to_keep
         dtr: *attrs_to_keep
