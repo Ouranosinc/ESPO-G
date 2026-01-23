@@ -26,6 +26,6 @@ if __name__ == '__main__':
 
     hc.attrs.update(ds.attrs)
 
-    save(hc, output)
+    xs.save_to_zarr(hc, output, **config['save_to_zarr'])
 
 

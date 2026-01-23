@@ -68,6 +68,5 @@ if __name__ == '__main__':
         config['chunks']['final'],
         calendar=ds.time.dt.calendar,
         timesize=ds.time.size,)
-    ds=ds.chunk(chunks)
 
-    save(ds, output, itervar=True, **config['clean_up']['save'])
+    xs.save_to_zarr(ds,   output,itervar=True, **config['clean_up']['save'], **config['save_to_zarr'], rechunk=chunks)

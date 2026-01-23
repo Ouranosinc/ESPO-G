@@ -26,27 +26,24 @@ if __name__ == '__main__':
     else:
         dsC = xr.concat(list_dsR, 'lat')
 
-    dsC.attrs['cat:domain'] = config['custom']['full_region']['name']
+    dsC.attrs['cat:domain'] = config['full_region']['name']
     dsC.attrs['cat:processing_level']= 'final'
     dsC.attrs.pop('intake_esm_dataset_key', None)
     dsC.attrs.pop('cat:path', None)
 
-    # dsC = dsC.chunk(
-    #     xs.utils.translate_time_chunk(
-    #         {'time': '4year'},
-    #         xc.core.calendar.get_calendar(dsC),
-    #         dsC.time.size)| CONFIG['custom']['final_chunks']
-    #                            )
+                        
     chunks=xs.utils.translate_time_chunk(
         config['chunks']['final'],
         calendar=dsC.time.dt.calendar,
         timesize=dsC.time.size,)
-    dsC=dsC.chunk(chunks)
+    
     
 
     for var in dsC.data_vars:
         #history should be a global attrs only
 
         # delete_tmp=True to avoid going over limit  of localscratch in 2300
-        save(dsC[[var]],output[var], delete_tmp=True) 
+        xs.save_to_zarr(dsC[[var]], output[var], **config['save_to_zarr'],
+         zip_kwargs=dict(delete=True),
+         rechunk=chunks)
 

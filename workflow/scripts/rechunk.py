@@ -25,10 +25,9 @@ if __name__ == '__main__':
     #         overwrite=True) # explicit parse_config magic if you uncomment this
     
     
-    # # test to get rif of rechunker
-    # ds = xr.open_zarr(f"{os.environ['SLURM_TMPDIR']}/rechunked+{snakemake.wildcards.sim_id}+{snakemake.wildcards.subregion}/",decode_timedelta=False)
+    # # test to get rif of rechunker    
     ds = xr.open_zarr(inputs[0],decode_timedelta=False)
-    ds=ds.chunk({k:v for k,v in config['chunks']['working'].items() if k in ['time','loc']})
+    ds = xs.io.rechunk_for_saving(ds, rechunk=config['chunks']['workingloc'])
 
     #patch holes
     # ffill for the last time step.
@@ -37,10 +36,10 @@ if __name__ == '__main__':
     ds['dtr']= ds['dtr'].interpolate_na("time", method="linear").ffill("time")
     ds['pr'] = ds['pr'].where(ds['pr'].notnull(), other=0)
 
-    # modify the code blabla
 
     #fix encoding chunks issue
     for var in ds.data_vars:
         if 'chunks' in ds[var].encoding:
             del ds[var].encoding['chunks']
-    save(ds,output)
+
+    xs.save_to_zarr(ds, output, **config['save_to_zarr'])

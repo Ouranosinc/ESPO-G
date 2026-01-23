@@ -1,4 +1,16 @@
 #Configuration file for ESPO-R6 DQM
+subregions:
+  n: 50000 # number of loc in each subregions
+
+
+full_region:
+  name: &domain
+    NAM
+  method: bbox
+  tile_buffer: 1.5
+  lon_bnds: [ -179.95, -10 ]
+  lat_bnds: [ 10, 83.4 ]
+
 extraction:
   reference:
       search_data_catalogs:
@@ -35,8 +47,8 @@ extraction:
           source: CRCM5-SN
           driving_model: 
             - MPI-ESM1-2-LR
-            - CanESM5
-            - NorESM2-MM
+            #- CanESM5
+            #- NorESM2-MM
             #- CNRM-ESM2-1
           #driving_member: r1i1p1f1
           #member: r1
@@ -104,7 +116,7 @@ biasadjust:
                 bias_adjust_institution: &b_a_inst
                   Ouranos
                 bias_adjust_project: &b_a_pro
-                  ESPO6
+                  DQM
         tasmax:
             training_args:
                 method: DetrendedQuantileMapping
@@ -161,16 +173,13 @@ clean_up:
   save:
     bitround: 12
   xscen_clean_up:
-      maybe_unstack_dict:
+    tasmax:
+      maybe_unstack_dict: &maybe
         stack_drop_nans: True
-      round_var:
-        pr: 10
-      # clip_var:
-      #   hurs: [0, 100]
-      #   hursTasmax: [0, 100]
-      change_attr_prefix: ''
-      remove_all_attrs_except:
-        global:
+      change_attr_prefix: &prefix
+        '' 
+      remove_all_attrs_except: 
+        global: &gattrs_to_keep
           - history
           - "cat:id"
           - "cat:source"
@@ -195,13 +204,8 @@ clean_up:
           - standard_name
           - units
           - grid_mapping
-        tasmin: *attrs_to_keep
-        pr: *attrs_to_keep
-        dtr: *attrs_to_keep
-        # hurs: *attrs_to_keep
-        # hursTasmax: *attrs_to_keep
       add_attrs:
-        global:
+        global: &gattrs_to_add
           dataset: ESPO6
           version: v20
           code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake #TODO: put most up-to-date info
@@ -211,32 +215,82 @@ clean_up:
           organization: Scenarios and Climate Services Group, Ouranos Consortium, Montreal, QC; www.ouranos.ca
           disclaimer: Ouranos make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.
           license:  Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/)
+          "cat:domain": *domain
+          "cat:_data_format_": "zarr"
+          Notes: |
+            Regridded on the grid of the reference, then bias-adjusted with detrended
+            quantile mapping on a day-of-year basis with a window of 31 days, LOESS
+            detrending and 50 quantiles. The reference period was 1991-2020. Tasmax,
+            dtr and pr were adjusted, tasmin was computed
+            from tasmax and dtr after the adjustment.
         tasmax:
             standard_name: air_temperature
             long_name: Maximal daily temperature
             cell_methods: "time: maximum within days"
-        tasmin:
-            standard_name: air_temperature
-            long_name: Minimal daily temperature
-            cell_methods: "time: minimum within days"
+    pr:
+      maybe_unstack_dict: *maybe
+      round_var:
+        pr: 10
+      change_attr_prefix: *prefix
+      remove_all_attrs_except: 
+        global: *gattrs_to_keep
+        pr: *attrs_to_keep
+      add_attrs:
+        global: *gattrs_to_add
         pr:
             standard_name: precipitation_flux
             long_name: Mean daily precipitation flux
             cell_methods: "time: mean within days"
+    dtr:
+      maybe_unstack_dict: *maybe
+      change_attr_prefix: *prefix
+      remove_all_attrs_except: 
+        global: *gattrs_to_keep
+        dtr: *attrs_to_keep
+      add_attrs:
+        global: *gattrs_to_add
         dtr:
           cell_methods: "time: range within days"
           description: Diurnal temperature range from tasmax and tasmin.
           standard_name: air_temperature
           long_name: Diurnal temperature range.
-        # hurs:
-        #     standard_name: relative_humidity
-        #     long_name: Relative humidity
-        #     cell_methods: "time: mean within days"
-        # hursTasmax:
-        #   standard_name: relative_humidity
-        #   long_name: Relative humidity at maximal daily temperature
-        #   cell_methods: "time: point"
-        #   note: The bias adjustement was computed from hursmin of the simulation and hursTasmax of the reference.
+    tasmin: # a lot already done in tasmax and dtr
+      remove_all_attrs_except: 
+        tasmin: *attrs_to_keep
+      add_attrs:
+        tasmin:
+            standard_name: air_temperature
+            long_name: Minimal daily temperature
+            cell_methods: "time: minimum within days"
+      # hurs:
+      #   maybe_unstack_dict: *maybe
+      #   change_attr_prefix: *prefix
+      #   clip_var:
+      #     hurs: [0, 100]
+      #   remove_all_attrs_except: 
+      #     global: *gattrs_to_keep
+      #     hurs: *attrs_to_keep
+      #   add_attrs:
+      #     global: *gattrs_to_add
+      #     hurs:
+      #           standard_name: relative_humidity
+      #           long_name: Relative humidity
+      #           cell_methods: "time: mean within days"
+      # hursTasmax:
+      #   maybe_unstack_dict: *maybe
+      #   change_attr_prefix: *prefix
+      #   clip_var:
+      #     hursTasmax: [0, 100]
+      #   remove_all_attrs_except: 
+      #     global: *gattrs_to_keep
+      #     hursTasmax: *attrs_to_keep
+      #   add_attrs:
+      #     global: *gattrs_to_add
+      #     hursTasmax:
+      #       standard_name: relative_humidity
+      #       long_name: Relative humidity at maximal daily temperature
+      #       cell_methods: "time: point"
+      #       note: The bias adjustement was computed from hursmin of the simulation and hursTasmax of the reference.
 
 
 diagregion:   

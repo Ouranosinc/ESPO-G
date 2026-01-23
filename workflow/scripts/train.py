@@ -58,11 +58,9 @@ if __name__ == '__main__':
     # Add attribute for reference
     ds_tr.attrs['cat:bias_adjust_reference'] = f"{ds_ref.attrs.get('cat:source', 'unknown')}{ds_ref.attrs.get('cat:version', '')}"
 
-    ds_tr = ds_tr.chunk({d: config['chunks']['working'][d] for d in ds_tr.dims
-                            if d in config['chunks']['working'].keys()})
     
     for v in ['lat','lon']:
         del ds_tr[v].encoding['chunks']
 
-    save(ds_tr, output)
+    xs.save_to_zarr(ds_tr, output, **config['save_to_zarr'], rechunk=config['chunks']['workingloc'])
 

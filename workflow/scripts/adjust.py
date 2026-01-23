@@ -56,4 +56,4 @@ if __name__ == '__main__':
     #     ds_scen['hursTasmax'].attrs['history'] = ds_scen['hursTasmax'].attrs.get('history', '') + new_history
 
 
-    save(ds_scen, output)
+    xs.save_to_zarr(ds_scen, output, **config['save_to_zarr'], rechunk=config['chunks']['workingloc'])

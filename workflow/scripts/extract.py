@@ -28,7 +28,7 @@ if __name__ == '__main__':
     # extract
     dc_id = cat_sim_id.popitem()[1]
     dict_sim = xs.extract_dataset(catalog=dc_id,
-                                region=config['custom']['full_region'],
+                                region=config['full_region'],
                                 **config['extraction']['simulation']['extract_dataset'],
                                 )
 
@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
 
     # save to zarr
-    save(ds_sim,output['extract'])
+    xs.save_to_zarr(ds_sim, output['extract'], **config['save_to_zarr'])
 
     # check that input is fine
     #hc = xs.diagnostics.health_checks(

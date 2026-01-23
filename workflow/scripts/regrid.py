@@ -43,4 +43,4 @@ if __name__ == '__main__':
 
 
     # save
-    save(ds_regrid, output)
+    xs.save_to_zarr(ds_regrid, output, **config['save_to_zarr'])

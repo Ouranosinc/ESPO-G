@@ -34,7 +34,7 @@ if __name__ == '__main__':
     args['other_search_criteria'] = {'id': sim_id}
     cat_sim_id = xs.search_data_catalogs(**args,)
     dc_id = cat_sim_id.popitem()[1]
-    region_dict=config['custom']['full_region']
+    region_dict=config['full_region']
     ds_sim = xs.extract_dataset(catalog=dc_id,
                                 region=region_dict,
                                 **config['extraction']['simulation']['extract_dataset'],
@@ -64,8 +64,8 @@ if __name__ == '__main__':
     ds_sim=ds_sim.where(mask)
 
     # chunk
-    ds_sim = ds_sim.chunk({d: config['chunks']['working'][d] for d in ds_sim.dims})
-    ds_scen = ds_scen.chunk({d: config['chunks']['working'][d] for d in ds_scen.dims})
+    ds_sim=xs.io.rechunk_for_saving(ds_sim, config['chunks']['workingXY']) 
+    ds_scen=xs.io.rechunk_for_saving(ds_scen, config['chunks']['workingXY'])
 
     with xr.set_options(keep_attrs=True): #FIXME: until xclim changes behavior, issue xclim #2308
         sim_prop, sim_meas = xs.properties_and_measures(
@@ -80,10 +80,10 @@ if __name__ == '__main__':
                                 **config['diagnostics']['properties_and_measures']
                             )
     for out, name in zip([sim_prop, sim_meas, scen_prop, scen_meas],['sim_prop','sim_meas','scen_prop','scen_meas']):
-        out = out.chunk(config['chunks']['diag'])
-        save(out, output[name])
+        xs.save_to_zarr(out, output[name], **config['save_to_zarr'], rechunk=config['chunks']['diag'])
 
     imp = xs.diagnostics.measures_improvement([sim_meas,scen_meas])
-    save(imp, output['imp'])
+
+    xs.save_to_zarr(imp, output['imp'], **config['save_to_zarr'])
 
 
