@@ -1,4 +1,18 @@
-#Configuration file for ESPO-R6 scaling
+#Configuration file for ESPO-G6-C3
+subregions:
+  n: 50000 # number of loc in each subregions
+
+
+full_region:
+  name: &domain
+    NAM
+  method: bbox
+  tile_buffer: 1.5
+  lon_bnds: [ -179.95, -10 ]
+  lat_bnds: [ 10, 83.4 ]
+
+#TODO: change workflow to allow for 2 refs.
+
 extraction:
   reference:
       search_data_catalogs:
@@ -7,10 +21,19 @@ extraction:
           tasmin: D
           pr: D
           dtr: D
-          # hurs: D
-          # hursTasmax: D
+          mask: fx # for casr
+          hurs: D
+          hursTasmax: D
         allow_resampling: False
         allow_conversion: True
+        periods : &ref_period
+          - '1991'
+          - '2020'
+        other_search_criteria: # for casr
+          source: "CaSR"
+          version: "v32"
+      extract_dataset: # for casr
+            mask: True
   simulation:
       search_data_catalogs:
         variables_and_freqs:
@@ -19,8 +42,8 @@ extraction:
           pr: D
           dtr: D
           sftlf: fx
-          #hurs: D
-          #hursmin: D
+          hurs: D
+          hursmin: D
         match_hist_and_fut: True
         allow_conversion: True
         allow_resampling: False
@@ -31,26 +54,42 @@ extraction:
           ordered: 1
         other_search_criteria:
           processing_level: raw
-          experiment: ssp370
-          source: CRCM5-SN
-          #driving_model: MPI-ESM1-2-LR
-          #driving_member: r1i1p1f1
-          #member: r1
+          mip_era: CMIP6
+          experiment:
+            #- ssp245
+            - ssp370
+          source: # but actually on 8 have hurs (and there was a bug with MPI-ESM1-2-HR )
+            # - ACCESS-CM2 
+            # - ACCESS-ESM1-5  
+            # - BCC-CSM2-MR
+            # - CMCC-ESM2 
+            # - CNRM-ESM2-1 
+            # - CNRM-CM6-1
+            # - FGOALS-g3
+            # - GFDL-ESM4 
+            # - INM-CM5-0
+            # - MIROC6
+            # - MIROC-ES2L 
+            # - MPI-ESM1-2-HR
+            # - MPI-ESM1-2-LR 
+             - MRI-ESM2-0 
+            # - NorESM2-LM
+            # rerun for CanESM5 r1i1p2f1 (meme membre que MRCC5) and CanESM5-1 (TCR =2.26 according to ESMValTool) to be less hot
+            #source: 
+            #  - CanESM5
+            #  - CanESM5-1
+            #member: r1i1p2f1
       extract_dataset:
         periods : *sim_period
         xr_combine_kwargs:
           combine_attrs: override
         xr_open_kwargs:
-          engine: h5netcdf
           drop_variables:
             - height
             - bnds
             - time_bnds
-            - time_bounds
             - lat_bnds
             - lon_bnds
-            - crs
-            - quantization_info
       create_mask:
         variable: sftlf
         where_operator: ">="
@@ -62,8 +101,8 @@ extraction:
       tasmin: K
       pr: kg m-2 s-1 # xscen should work if standard_name is 'precipitation_flux'
       dtr: K
-      # hurs: "%"
-      # hursTasmax: "%"
+      hurs: "%"
+      hursTasmax: "%"
 
 regrid:
   regrid_dataset:
@@ -72,12 +111,40 @@ regrid:
         extrap_method: inverse_dist
         locstream_out: True
         reuse_weights: False
+      intermediate_grids:
+        reg1:
+          cf_grid_2d:
+            lon0_b: 179.05
+            lon1_b: 351.2
+            d_lon: 1
+            lat0_b: 9
+            lat1_b: 84
+            d_lat: 1
+          regridder_kwargs:
+            method: bilinear
+            extrap_method: inverse_dist
+            locstream_out: False
+            reuse_weights: False
+        reg2:
+          cf_grid_2d:
+            lon0_b: 179.04
+            lon1_b: 351.2
+            d_lon: 0.5
+            lat0_b: 8.9
+            lat1_b: 84
+            d_lat: 0.5
+          regridder_kwargs:
+            method: bilinear
+            extrap_method: inverse_dist
+            locstream_out: False
+            reuse_weights: False
 
 biasadjust:
     variables:
         dtr:
             training_args:
-                method: Scaling
+                method: DetrendedQuantileMapping
+                period: *ref_period
                 group: &group
                     group: time.dayofyear
                     window: 31
@@ -85,9 +152,16 @@ biasadjust:
                    thresh: 1e-4 K
                 xsdba_train_args:
                     kind: "*"
+                    nquantiles: 50
             adjusting_args:
                 periods: *sim_period
                 xsdba_adjust_args: &adj-args
+                    detrend:
+                        LoessDetrend:
+                          f: 0.2
+                          niter: 1
+                          d: 0
+                          weights: tricube
                     interp: nearest
                     extrapolation: constant
                 bias_adjust_institution: &b_a_inst
@@ -96,10 +170,12 @@ biasadjust:
                   ESPO6
         tasmax:
             training_args:
-                method: Scaling
+                method: DetrendedQuantileMapping
+                period: *ref_period
                 group: *group
                 xsdba_train_args:
                     kind: "+"
+                    nquantiles: 50
             adjusting_args:
                 periods: *sim_period
                 xsdba_adjust_args: *adj-args
@@ -107,57 +183,64 @@ biasadjust:
                 bias_adjust_project: *b_a_pro
         pr:
             training_args:
-                method: Scaling
+                method: DetrendedQuantileMapping
+                period: *ref_period
                 group: *group
                 jitter_under:
                     thresh: 0.01 mm d-1
                 xsdba_train_args:
                     kind: "*"
+                    nquantiles: 50
                     adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" # xsdba cant convert mm/day automatically
             adjusting_args:
                 periods: *sim_period
                 xsdba_adjust_args: *adj-args
                 bias_adjust_institution: *b_a_inst
                 bias_adjust_project: *b_a_pro
-        # hurs:
-        #     training_args:
-        #         method: DetrendedQuantileMapping
-        #         group: *group
-        #         xsdba_train_args:
-        #             kind: "*"
-        #             nquantiles: 50
-        #     adjusting_args:
-        #         periods: *sim_period
-        #         xsdba_adjust_args: *adj-args
-        #         bias_adjust_institution: *b_a_inst
-        #         bias_adjust_project: *b_a_pro
-        # hursTasmax:
-        #     training_args:
-        #         method: DetrendedQuantileMapping
-        #         group: *group
-        #         xsdba_train_args:
-        #             kind: "*"
-        #             nquantiles: 50
-        #     adjusting_args:
-        #         periods: *sim_period
-        #         xsdba_adjust_args: *adj-args
-        #         bias_adjust_institution: *b_a_inst
-        #         bias_adjust_project: *b_a_pro
+        hurs:
+            training_args:
+                method: DetrendedQuantileMapping
+                group: *group
+                xsdba_train_args:
+                    kind: "*"
+                    nquantiles: 50
+                # additive_space:
+                #   hurs: &logit
+                #     lower_bound: "0 %"
+                #     upper_bound: "100 %"
+                #     trans: "logit"
+                #     clip_next_to_bounds: permissive
+            adjusting_args:
+                periods: *sim_period
+                xsdba_adjust_args: *adj-args
+                bias_adjust_institution: *b_a_inst
+                bias_adjust_project: *b_a_pro
+        hursTasmax:
+            training_args:
+                method: DetrendedQuantileMapping
+                group: *group
+                xsdba_train_args:
+                    kind: "*"
+                    nquantiles: 50
+                # additive_space:
+                #   hursTasmax: *logit
+            adjusting_args:
+                periods: *sim_period
+                xsdba_adjust_args: *adj-args
+                bias_adjust_institution: *b_a_inst
+                bias_adjust_project: *b_a_pro
 
 clean_up:
   save:
     bitround: 12
   xscen_clean_up:
-      maybe_unstack_dict:
+    tasmax:
+      maybe_unstack_dict: &maybe
         stack_drop_nans: True
-      round_var:
-        pr: 10
-      # clip_var: #FIXME: add when xscen>=0.13.1
-      #   hurs: [0, 100]
-      #   hursTasmax: [0, 100]
-      change_attr_prefix: ''
-      remove_all_attrs_except:
-        global:
+      change_attr_prefix: &prefix
+        '' 
+      remove_all_attrs_except: 
+        global: &gattrs_to_keep
           - history
           - "cat:id"
           - "cat:source"
@@ -167,6 +250,7 @@ clean_up:
           - "cat:activity"
           - "cat:bias_adjust_project"
           - "cat:bias_adjust_institution"
+          - "cat:bias_adjust_reference"
           - "cat:domain"
           - "cat:mip_era"
           - "cat:type"
@@ -180,13 +264,9 @@ clean_up:
           - long_name
           - standard_name
           - units
-        tasmin: *attrs_to_keep
-        pr: *attrs_to_keep
-        dtr: *attrs_to_keep
-        # hurs: *attrs_to_keep
-        # hursTasmax: *attrs_to_keep
+          - grid_mapping
       add_attrs:
-        global:
+        global: &gattrs_to_add
           dataset: ESPO6
           version: v20
           code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake #TODO: put most up-to-date info
@@ -196,32 +276,82 @@ clean_up:
           organization: Scenarios and Climate Services Group, Ouranos Consortium, Montreal, QC; www.ouranos.ca
           disclaimer: Ouranos make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.
           license:  Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/)
+          "cat:domain": *domain
+          "cat:_data_format_": "zarr"
+          Notes: |
+            Regridded on the grid of the reference, then bias-adjusted with detrended
+            quantile mapping on a day-of-year basis with a window of 31 days, LOESS
+            detrending and 50 quantiles. The reference period was 1991-2020. Tasmax,
+            dtr and pr were adjusted, tasmin was computed
+            from tasmax and dtr after the adjustment.
         tasmax:
             standard_name: air_temperature
             long_name: Maximal daily temperature
             cell_methods: "time: maximum within days"
-        tasmin:
-            standard_name: air_temperature
-            long_name: Minimal daily temperature
-            cell_methods: "time: minimum within days"
+    pr:
+      maybe_unstack_dict: *maybe
+      round_var:
+        pr: 10
+      change_attr_prefix: *prefix
+      remove_all_attrs_except: 
+        global: *gattrs_to_keep
+        pr: *attrs_to_keep
+      add_attrs:
+        global: *gattrs_to_add
         pr:
             standard_name: precipitation_flux
             long_name: Mean daily precipitation flux
             cell_methods: "time: mean within days"
+    dtr:
+      maybe_unstack_dict: *maybe
+      change_attr_prefix: *prefix
+      remove_all_attrs_except: 
+        global: *gattrs_to_keep
+        dtr: *attrs_to_keep
+      add_attrs:
+        global: *gattrs_to_add
         dtr:
           cell_methods: "time: range within days"
           description: Diurnal temperature range from tasmax and tasmin.
           standard_name: air_temperature
           long_name: Diurnal temperature range.
-        # hurs:
-        #     standard_name: relative_humidity
-        #     long_name: Relative humidity
-        #     cell_methods: "time: mean within days"
-        # hursTasmax:
-        #   standard_name: relative_humidity
-        #   long_name: Relative humidity at maximal daily temperature
-        #   cell_methods: "time: point"
-        #   note: The bias adjustement was computed from hursmin of the simulation and hursTasmax of the reference.
+    tasmin: # a lot already done in tasmax and dtr
+      remove_all_attrs_except: 
+        tasmin: *attrs_to_keep
+      add_attrs:
+        tasmin:
+            standard_name: air_temperature
+            long_name: Minimal daily temperature
+            cell_methods: "time: minimum within days"
+      # hurs:
+      #   maybe_unstack_dict: *maybe
+      #   change_attr_prefix: *prefix
+      #   clip_var:
+      #     hurs: [0, 100]
+      #   remove_all_attrs_except: 
+      #     global: *gattrs_to_keep
+      #     hurs: *attrs_to_keep
+      #   add_attrs:
+      #     global: *gattrs_to_add
+      #     hurs:
+      #           standard_name: relative_humidity
+      #           long_name: Relative humidity
+      #           cell_methods: "time: mean within days"
+      # hursTasmax:
+      #   maybe_unstack_dict: *maybe
+      #   change_attr_prefix: *prefix
+      #   clip_var:
+      #     hursTasmax: [0, 100]
+      #   remove_all_attrs_except: 
+      #     global: *gattrs_to_keep
+      #     hursTasmax: *attrs_to_keep
+      #   add_attrs:
+      #     global: *gattrs_to_add
+      #     hursTasmax:
+      #       standard_name: relative_humidity
+      #       long_name: Relative humidity at maximal daily temperature
+      #       cell_methods: "time: point"
+      #       note: The bias adjustement was computed from hursmin of the simulation and hursTasmax of the reference.
 
 
 diagregion:   
@@ -253,22 +383,21 @@ diagnostics:
       tasmin: degC
       pr: mm d-1
       dtr: K
-      # hurs: "%"
-      # hursTasmax: "%"
+      hurs: "%"
+      hursTasmax: "%"
     properties: config/properties.yml
+    period: *ref_period
 
 health_checks:
   extract:
-    structure: &structure
+    structure:
       coords:
-        - rlat
-        - rlon
         - time
         - lat 
         - lon
       dims:
-        - rlat
-        - rlon
+        - lat
+        - lon
         - time
     start_date: &start
       "1950-01-01" 
@@ -294,9 +423,9 @@ health_checks:
       #   cfcheck_from_name: {}
     freq: &freq
       D
-    # missing: # FIXME: add when xscen>=0.13.2
-    #   missing_any:
-    #     freq: D
+    missing: # warn but don't raise
+      mising_any:
+        freq: D
     flags: &flags
       tasmax:
         temperature_extremely_high:
@@ -323,17 +452,16 @@ health_checks:
       - variables_and_units
       - cfchecks
       - freq
-      # dont raise on missing here 
+      - missing
   final:
-    #structure is in config_region
     start_date: *start
     end_date: *end
     variables_and_units: *varunits
-    cfchecks: *cfchecks
+    cfchecks: *cf
     freq: *freq
-    # missing: 
-    #   mising_some_but_not_all:
-    #     freq: D
+    missing:
+      missing_some_but_not_all:
+        freq: D
     flags: *flags
     return_flags: True
     raise_on:
@@ -343,13 +471,11 @@ health_checks:
       - variables_and_units
       - cfchecks
       - freq
-      #- missing
+      - missing
 
 io:
   rechunk:
     worker_mem: 2GB
-  # save_to_zarr:
-  #   mode: o
 
 
 logging:
@@ -377,7 +503,21 @@ tdd:
 
 
 chunks:
-  pre-regrid:
+  pre-regrid: 
     time: 365
-    rlat: -1 # dims of input
-    rlon: -1
+    lat: -1 # dims of input
+    lon: -1
+  workingloc:
+    loc: 600
+    time: -1
+  workingXY:
+    X: 20
+    Y: 20
+    time: -1
+  diag:
+    Y: -1
+    X: -1
+  final: 
+    Y: 50
+    X: 50
+    time: 4year
