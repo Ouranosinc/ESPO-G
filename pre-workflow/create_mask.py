@@ -5,7 +5,7 @@ from xscen import CONFIG
 import datetime
 import numpy as np
 
-xs.load_config("../config/config_general.yml", "../config/config_region.yml", "../config/paths.yml")
+xs.load_config("../config/config_general.yml",  "../config/paths.yml")
 
 
 

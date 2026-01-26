@@ -3,7 +3,7 @@ import os
 import copy
 import xarray as xr
 import xscen as xs
-from workflow.scripts.utils import dask_cluster, save
+from workflow.scripts.utils import dask_cluster
 if 1==0: #trick vscode
     import snakemake
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     ds_sim=xs.io.rechunk_for_saving(ds_sim, config['chunks']['workingXY']) 
     ds_scen=xs.io.rechunk_for_saving(ds_scen, config['chunks']['workingXY'])
 
-    with xr.set_options(keep_attrs=True): #FIXME: until xclim changes behavior, issue xclim #2308
+    with xr.set_options(keep_attrs=True): #to keep grid_mapping and bias_adj attr
         sim_prop, sim_meas = xs.properties_and_measures(
                                     ds=ds_sim,
                                     dref_for_measure=ref_prop,

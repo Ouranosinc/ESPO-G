@@ -3,7 +3,7 @@ import xarray as xr
 import xscen as xs
 from copy import deepcopy
 from xscen.utils import stack_drop_nans
-from workflow.scripts.utils import dask_cluster, save
+from workflow.scripts.utils import dask_cluster
 if 1==0: #trick vscode
     import snakemake
 
@@ -20,8 +20,6 @@ if __name__ == '__main__':
 
     # cut region
     #ds_ref = xs.spatial.subset(ds_ref, **config['custom']['regions'][subregion])
-
-    #TODO:might be nan in mask ? see remove_config branch
 
     # stack
     # var = list(ds_ref.data_vars)[0]

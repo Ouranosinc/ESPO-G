@@ -11,6 +11,8 @@ full_region:
   lon_bnds: [ -179.95, -10 ]
   lat_bnds: [ 10, 83.4 ]
 
+#TODO: change workflow to allow for 2 refs.
+
 extraction:
   reference:
       search_data_catalogs:
@@ -19,10 +21,19 @@ extraction:
           tasmin: D
           pr: D
           dtr: D
+          mask: fx # for casr
           # hurs: D
           # hursTasmax: D
         allow_resampling: False
         allow_conversion: True
+        periods : &ref_period
+          - '1991'
+          - '2020'
+        other_search_criteria: # for casr
+          source: "CaSR"
+          version: "v32"
+      extract_dataset: # for casr
+            mask: True
   simulation:
       search_data_catalogs:
         variables_and_freqs:
@@ -46,9 +57,9 @@ extraction:
           experiment: ssp370
           source: CRCM5-SN
           driving_model: 
-            - MPI-ESM1-2-LR
-            #- CanESM5
-            #- NorESM2-MM
+            #- MPI-ESM1-2-LR
+            - CanESM5
+            - NorESM2-MM
             #- CNRM-ESM2-1
           #driving_member: r1i1p1f1
           #member: r1
@@ -94,6 +105,7 @@ biasadjust:
         dtr:
             training_args:
                 method: DetrendedQuantileMapping
+                period: *ref_period
                 group: &group
                     group: time.dayofyear
                     window: 31
@@ -120,6 +132,7 @@ biasadjust:
         tasmax:
             training_args:
                 method: DetrendedQuantileMapping
+                period: *ref_period
                 group: *group
                 xsdba_train_args:
                     kind: "+"
@@ -132,6 +145,7 @@ biasadjust:
         pr:
             training_args:
                 method: DetrendedQuantileMapping
+                period: *ref_period
                 group: *group
                 jitter_under:
                     thresh: 0.01 mm d-1
@@ -325,6 +339,7 @@ diagnostics:
       # hurs: "%"
       # hursTasmax: "%"
     properties: config/properties.yml
+    period: *ref_period
 
 health_checks:
   extract:
@@ -420,7 +435,6 @@ io:
   # save_to_zarr:
   #   mode: o
 
-#TODO: need to figure this out after reform of load_config
 logging:
     formatters:
         default:
@@ -450,3 +464,17 @@ chunks:
     time: 365
     rlat: -1 # dims of input
     rlon: -1
+  workingloc:
+    loc: 600
+    time: -1
+  workingXY:
+    X: 20
+    Y: 20
+    time: -1
+  diag:
+    Y: -1
+    X: -1
+  final: 
+    Y: 50
+    X: 50
+    time: 4year

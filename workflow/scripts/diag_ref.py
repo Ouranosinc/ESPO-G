@@ -2,7 +2,7 @@ from copy import deepcopy
 import xclim as xc
 import xarray as xr
 import xscen as xs
-from workflow.scripts.utils import dask_cluster, save
+from workflow.scripts.utils import dask_cluster
 if 1==0: #trick vscode
     import snakemake
 
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     ds_ref = xs.spatial.subset(ds_ref, **config['diagregion'][dregion])
 
     # diagnostics
-    with xr.set_options(keep_attrs=True): #FIXME: until xclim changes behavior, issue xclim #2308
+    with xr.set_options(keep_attrs=True): #to keep grid_mapping and bias_adj attrs
         ds_ref_prop, _ = xs.properties_and_measures(ds=ds_ref, **config['diagnostics']['properties_and_measures'])
 
     xs.save_to_zarr(ds_ref_prop, output_prop, **config['save_to_zarr'], rechunk=config['chunks']['diag'])

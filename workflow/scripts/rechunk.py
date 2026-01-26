@@ -2,7 +2,7 @@ import os
 import xscen as xs
 from copy import deepcopy
 import xarray as xr
-from workflow.scripts.utils import dask_cluster, save
+from workflow.scripts.utils import dask_cluster
 if 1==0: #trick vscode
     import snakemake
 

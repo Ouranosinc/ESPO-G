@@ -5,7 +5,7 @@ import xarray as xr
 import numpy as np
 from datetime import datetime
 xr.set_options(keep_attrs=True)
-from workflow.scripts.utils import dask_cluster, save
+from workflow.scripts.utils import dask_cluster
 from xscen.xclim_modules import conversions
 from pathlib import Path
 if 1==0: #trick vscode

@@ -9,7 +9,7 @@ import os
 import sys
 import time
 
-xs.load_config("../config/config_general.yml", "../config/config_region.yml", "../config/paths.yml")
+xs.load_config("../config/config_general.yml",  "../config/paths.yml")
 
 
 if __name__ == '__main__':

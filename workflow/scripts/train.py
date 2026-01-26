@@ -3,7 +3,7 @@ import xarray as xr
 import xscen as xs
 import xclim as xc
 import numpy as np
-from workflow.scripts.utils import dask_cluster, save
+from workflow.scripts.utils import dask_cluster
 if 1==0: #trick vscode
     import snakemake
 

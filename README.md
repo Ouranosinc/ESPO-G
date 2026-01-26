@@ -32,7 +32,7 @@ Dataset Characteristics:
  * Add possibility to run ESPO-R
  * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
  * Add CaSR v3.2 reference
- * Add sftlf mask for the simulation
+ * Add sftlf >0.25 mask for the simulation
 
 Minor changes:
 * KACE-1-0-G was excluded. (https://github.com/Ouranosinc/ESPO-G/issues/6)
@@ -42,6 +42,8 @@ Minor changes:
 - 2026-01: initial tests ran with xscen-0.13
 - 2026-01-13: initial tests ran with espojan2026: xclim-0.59.2.dev4-py3-none-any.whl (main), xscen-0.13.2.dev4-py3-none-any.whl (add-nan-check),  xsdba-0.5.1.dev8-py3-none-any.whl (main).
  needed to revert to xscen-0.13 for some regrid.
+ - 2026-01-23: initial tests ran with espojan2026: xclim-0.60.0-py3-none-any.whl  (main), xscen-0.13.2.dev4-py3-none-any.whl (add-nan-check),  xsdba-0.5.1.dev8-py3-none-any.whl (main).
+ needed to use jupyter for sr-05 MPI.
  
 #### Project lait-e
     
@@ -132,7 +134,7 @@ $ pyact xscen-0.13
 
 2) Specify the output files wanted in the rule `all:input` of the `Snakefile`. (Final files are input of checks and diagnostics. Hence, no need to explicitely ask for them, they will be created.)
 
-3) Specify the simulations and reference wanted in `config/config_general.yml` and  `config/config_region.yml`.
+3) Specify the simulations and reference wanted in a config file in the directory `config/` and put its name at the top of the Snakemake file.
 
 4) Create your own `paths.yml` based on `paths-template.yml`.
 

@@ -4,7 +4,7 @@ from copy import deepcopy
 
 import xscen as xs
 import xclim as xc
-from workflow.scripts.utils import dask_cluster, save
+from workflow.scripts.utils import dask_cluster
 import copy
 import numpy as np
 if 1==0: #trick vscode
@@ -36,7 +36,6 @@ if __name__ == '__main__':
     # clean up time
     ds_sim['time'] = ds_sim.time.dt.floor('D') 
 
-    #TODO: verify that the mask is ok
     if 'mask' not in ds_sim and 'create_mask' in config['extraction']['simulation']:
         ds_sim["mask"] = xs.regrid.create_mask(dict_sim['fx'], **config['extraction']['simulation']['create_mask'])
 
@@ -79,5 +78,4 @@ if __name__ == '__main__':
 
     #tmp_zarr_and_zip(hc, snakemake.output.checks)
 
-    #TODO: check if mask is really added
     

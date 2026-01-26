@@ -1,7 +1,7 @@
 import xclim as xc
 import xscen as xs
 from copy import deepcopy
-from workflow.scripts.utils import dask_cluster, save
+from workflow.scripts.utils import dask_cluster
 if 1==0: #trick vscode
     import snakemake
 

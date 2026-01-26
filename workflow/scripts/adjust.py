@@ -4,7 +4,7 @@ import xscen as xs
 import xclim as xc
 import xsdba as xa
 import numpy as np
-from workflow.scripts.utils import dask_cluster, save
+from workflow.scripts.utils import dask_cluster
 import datetime
 if 1==0: #trick vscode
     import snakemake
