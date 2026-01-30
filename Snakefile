@@ -9,8 +9,9 @@ import numpy as np
 
 min_version("8.12.0") #set minimum snakemake version
 
-configfile: "config/config_ESPO-R-DQM.yml"
-configfile: "config/paths.yml"
+#TODO: choose the right configs
+configfile: "config/config_ESPO-R-Scaling.yml"
+configfile: "config/paths_ESPO-R-Scaling.yml"
 
 
 # choose the simulations to process
@@ -22,7 +23,6 @@ level=['improvement', 'diag_sim_prop','diag_sim_meas','diag_scen_prop','diag_sce
 # trick, use dom as wildcard so it can be defined in the config
 domain=[config['full_region']['name']]
 reference = [config['extraction']['reference']['search_data_catalogs']['other_search_criteria']['source']]
-
 
 # define subregions on which to split the computation
 #subregions = list(config["custom"]["regions"].keys()) # for parallelisation of computation
@@ -47,17 +47,17 @@ rule all:
         expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
 
 
-# rule makeref:
-#     output:
-#         ref=finaldir/ "reference/{dom}_default.zarr.zip",
-#         ref_stack=finaldir/ "reference/{dom}_stacked.zarr.zip",
-#     params:
-#         n_workers=6, 
-#         mem="90GB",
-#         time="00:45:00", 
-#         cpus_per_task=4, 
-#     script:
-#         "workflow/scripts/makeref.py"
+rule makeref:
+    output:
+        ref=finaldir/ "reference/{dom}_default.zarr.zip",
+        ref_stack=finaldir/ "reference/{dom}_stacked.zarr.zip",
+    params:
+        n_workers=6, 
+        mem="90GB",
+        time="00:45:00", 
+        cpus_per_task=4, 
+    script:
+        "workflow/scripts/makeref.py"
 
 
 
@@ -78,8 +78,8 @@ rule all:
 
 # rule extract:
 #     output:
-#         extract=temp(directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"))
-#         #extract=directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"),
+#         #extract=temp(directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"))
+#         extract=directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"),
 #     params:
 #         n_workers=2,
 #         mem="400GB",
@@ -94,8 +94,8 @@ rule all:
 #           noleap = finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
 #           extract = tmpdir/"{sim_id}+{dom}+extracted.zarr"
 #      output:
-#           temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr"))
-#           #directory(tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr") 
+#           #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr"))
+#           directory(tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr") 
 #      params:
 #           n_workers=2,
 #           cpus_per_task=8,
@@ -103,75 +103,81 @@ rule all:
 #           time="00:30:00",
 #         #   mem='500GB',# 2300 
 #         #   time= "01:00:00",# 2300 #
+#     #  script:
+#     #       "workflow/scripts/regrid.py" # this way created segfaults in some cases (MPI sr5)
+#      shell:
+#         """
+#         source /project/ctb-frigon/julavoie/envs/espojan2026/bin/modules
+#         source /project/ctb-frigon/julavoie/envs/espojan2026/bin/activate
+#         python /home/julavoie/code/DQM/ESPO-R/ESPO-G/workflow/scripts/regrid2.py {input.noleap} {input.extract} {output}
+#         """
+
+# rule rechunk:
+#      input:
+#           tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr"
+#      output:
+#           directory(tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr")
+#           #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr"))
+#      params:
+#           n_workers=2,
+#           cpus_per_task=10,
+#           mem='500GB',
+#           time="00:30:00",
+#         #   mem='150GB', #2300
+#         #   time="02:00:00", #2300
 #      script:
-#           "workflow/scripts/regrid.py"
+#           "workflow/scripts/rechunk.py"
 
-rule rechunk:
-     input:
-          tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr"
-     output:
-          #directory(tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr")
-          temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr"))
-     params:
-          n_workers=2,
-          cpus_per_task=10,
-          mem='500GB',
-          time="00:30:00",
-        #   mem='150GB', #2300
-        #   time="02:00:00", #2300
-     script:
-          "workflow/scripts/rechunk.py"
+# rule train:
+#     input:
+#         noleap = finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
+#         day360 = finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip",
+#         rechunk = tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr",
+#     output:
+#         directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr")
+#         #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr"))
+#     params:
+#         n_workers=3,
+#         mem='100GB',
+#         cpus_per_task=12,
+#         time="00:30:00",
+#     script:
+#         "workflow/scripts/train.py"
 
-rule train:
-    input:
-        noleap = finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
-        day360 = finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip",
-        rechunk = tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr",
-    output:
-        #directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr")
-        temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr"))
-    params:
-        n_workers=3,
-        mem='100GB',
-        cpus_per_task=12,
-        time="00:30:00",
-    script:
-        "workflow/scripts/train.py"
+# rule adjust: 
+#     input:
+#         train = tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr",
+#         rechunk = tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr",
+#     output:
+#         #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr"))
+#         directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr")
+#     params:
+#         n_workers=5,
+#         cpus_per_task=15,
+#         mem='300GB', 
+#         time="00:30:00", 
+#         # mem='200GB', #2300
+#         # time="2:00:00", #2300
+#     script:
+#         "workflow/scripts/adjust.py"
 
-rule adjust: 
-    input:
-        train = tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr",
-        rechunk = tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr",
-    output:
-        temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr"))
-        #directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr")
-    params:
-        n_workers=5,
-        cpus_per_task=15,
-        mem='300GB', 
-        time="00:30:00", 
-        # mem='200GB', #2300
-        # time="2:00:00", #2300
-    script:
-        "workflow/scripts/adjust.py"
-
-rule clean_up:
-    input:
-        noleap = finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
-        day360 = finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip",
-        sim= expand(tmpdir/"{{sim_id}}+{{dom}}+{{subregion}}+{var}+adjusted.zarr",var=list(config['biasadjust']['variables'].keys()))
-    output:
-        temp(directory(tmpdir/"day+{sim_id}+{dom}+{subregion}+1950-2100.zarr"))
-        #directory(tmpdir/"day+{sim_id}+{dom}+{subregion}+1950-2100.zarr")
-    params:
-        n_workers=2,
-        cpus_per_task=6,
-        mem='100GB',
-        time="00:45:00",
-        # mem='200GB', #2300
-        # time="02:00:00",
-    script:
-        "workflow/scripts/clean_up.py"
+# rule clean_up:
+#     input:
+#         noleap = finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
+#         day360 = finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip",
+#         sim= expand(tmpdir/"{{sim_id}}+{{dom}}+{{subregion}}+{var}+adjusted.zarr",var=list(config['biasadjust']['variables'].keys()))
+#     output:
+#         #temp(directory(tmpdir/"day+{sim_id}+{dom}+{subregion}+1950-2100.zarr"))
+#         directory(tmpdir/"day+{sim_id}+{dom}+{subregion}+1950-2100.zarr")
+#     params:
+#         n_workers=2,
+#         cpus_per_task=6,
+#         mem='100GB',
+#         time="00:45:00",
+#         # mem='200GB', #2300
+#         # time="02:00:00",
+#     script:
+#         "workflow/scripts/clean_up.py"
 
 def final_path(id):
     path='test'
@@ -287,7 +293,7 @@ rule health_checks:
         n_workers=8,
         mem='40GB',
         cpus_per_task=40,
-        time="00:30:00",
+        time="01:00:00",
     script:
         "workflow/scripts/health_check.py"
 
