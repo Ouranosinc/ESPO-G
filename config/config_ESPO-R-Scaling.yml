@@ -7,7 +7,7 @@ full_region:
   name: &domain
     NAM
   method: bbox
-  tile_buffer: 1.5
+  tile_buffer: 3
   lon_bnds: [ -179.95, -10 ]
   lat_bnds: [ 10, 83.4 ]
 
@@ -57,9 +57,9 @@ extraction:
           experiment: ssp370
           source: CRCM5-SN
           driving_model: 
-            #- MPI-ESM1-2-LR
-            - CanESM5
-            - NorESM2-MM
+            - MPI-ESM1-2-LR
+            #- CanESM5
+            #- NorESM2-MM
             #- CNRM-ESM2-1
           #driving_member: r1i1p1f1
           #member: r1
@@ -117,7 +117,6 @@ biasadjust:
                 periods: *sim_period
                 xsdba_adjust_args: &adj-args
                     interp: nearest
-                    extrapolation: constant
                 bias_adjust_institution: &b_a_inst
                   Ouranos
                 bias_adjust_project: &b_a_pro
@@ -143,7 +142,7 @@ biasadjust:
                     thresh: 0.01 mm d-1
                 xsdba_train_args:
                     kind: "*"
-                    adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" # xsdba cant convert mm/day automatically
+                    #adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" # xsdba cant convert mm/day automatically
             adjusting_args:
                 periods: *sim_period
                 xsdba_adjust_args: *adj-args
@@ -224,8 +223,8 @@ clean_up:
           "cat:domain": *domain
           "cat:_data_format_": "zarr"
           Notes: |
-            Regridded on the grid of the reference, then bias-adjusted with scaling
-            on a day-of-year basis with a window of 31 days. The reference period was 1991-2020. Tasmax,
+            Regridded on the grid of the reference, then bias-adjusted with scaling.
+             The reference period was 1991-2020. Tasmax,
             dtr and pr were adjusted, tasmin was computed
             from tasmax and dtr after the adjustment.
         tasmax:
@@ -400,7 +399,6 @@ health_checks:
       - freq
       # dont raise on missing here 
   final:
-    #structure is in config_region
     start_date: *start
     end_date: *end
     variables_and_units: *varunits
@@ -408,7 +406,7 @@ health_checks:
     freq: *freq
     missing:
       missing_some_but_not_all:
-        freq: D
+        freq: YS
     flags: *flags
     return_flags: True
     raise_on:

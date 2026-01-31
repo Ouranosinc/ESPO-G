@@ -56,7 +56,7 @@ if __name__ == '__main__':
         )
 
     # Add attribute for reference
-    ds_tr.attrs['cat:bias_adjust_reference'] = f"{ds_ref.attrs.get('cat:source', 'unknown')}{ds_ref.attrs.get('cat:version', '')}"
+    #ds_tr.attrs['cat:bias_adjust_reference'] = f"{ds_ref.attrs.get('cat:source', 'unknown')}{ds_ref.attrs.get('cat:version', '')}"
 
     
     for v in ['lat','lon']:

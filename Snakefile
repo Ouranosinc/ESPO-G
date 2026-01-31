@@ -47,17 +47,17 @@ rule all:
         expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
 
 
-rule makeref:
-    output:
-        ref=finaldir/ "reference/{dom}_default.zarr.zip",
-        ref_stack=finaldir/ "reference/{dom}_stacked.zarr.zip",
-    params:
-        n_workers=6, 
-        mem="90GB",
-        time="00:45:00", 
-        cpus_per_task=4, 
-    script:
-        "workflow/scripts/makeref.py"
+# rule makeref:
+#     output:
+#         ref=finaldir/ "reference/{dom}_default.zarr.zip",
+#         ref_stack=finaldir/ "reference/{dom}_stacked.zarr.zip",
+#     params:
+#         n_workers=6, 
+#         mem="90GB",
+#         time="00:45:00", 
+#         cpus_per_task=4, 
+#     script:
+#         "workflow/scripts/makeref.py"
 
 
 
@@ -89,22 +89,22 @@ rule makeref:
 #         "workflow/scripts/extract.py"
 
 
-# rule regrid:
-#      input:
-#           noleap = finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
-#           extract = tmpdir/"{sim_id}+{dom}+extracted.zarr"
-#      output:
-#           #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr"))
-#           directory(tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr") 
-#      params:
-#           n_workers=2,
-#           cpus_per_task=8,
-#           mem='500GB',
-#           time="00:30:00",
-#         #   mem='500GB',# 2300 
-#         #   time= "01:00:00",# 2300 #
-#     #  script:
-#     #       "workflow/scripts/regrid.py" # this way created segfaults in some cases (MPI sr5)
+rule regrid:
+     input:
+          noleap = finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
+          extract = tmpdir/"{sim_id}+{dom}+extracted.zarr"
+     output:
+          #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr"))
+          directory(tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr") 
+     params:
+          n_workers=2,
+          cpus_per_task=8,
+          mem='500GB',
+          time="01:00:00",
+        #   mem='500GB',# 2300 
+        #   time= "01:00:00",# 2300 #
+     script:
+          "workflow/scripts/regrid.py" # this way created segfaults in some cases (MPI sr5)
 #      shell:
 #         """
 #         source /project/ctb-frigon/julavoie/envs/espojan2026/bin/modules
@@ -112,72 +112,55 @@ rule makeref:
 #         python /home/julavoie/code/DQM/ESPO-R/ESPO-G/workflow/scripts/regrid2.py {input.noleap} {input.extract} {output}
 #         """
 
-# rule rechunk:
-#      input:
-#           tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr"
-#      output:
-#           directory(tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr")
-#           #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr"))
-#      params:
-#           n_workers=2,
-#           cpus_per_task=10,
-#           mem='500GB',
-#           time="00:30:00",
-#         #   mem='150GB', #2300
-#         #   time="02:00:00", #2300
-#      script:
-#           "workflow/scripts/rechunk.py"
+rule rechunk:
+     input:
+          tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr"
+     output:
+          directory(tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr")
+          #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr"))
+     params:
+          n_workers=2,
+          cpus_per_task=10,
+          mem='500GB',
+          time="00:30:00",
+        #   mem='150GB', #2300
+        #   time="02:00:00", #2300
+     script:
+          "workflow/scripts/rechunk.py"
 
-# rule train:
-#     input:
-#         noleap = finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
-#         day360 = finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip",
-#         rechunk = tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr",
-#     output:
-#         directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr")
-#         #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr"))
-#     params:
-#         n_workers=3,
-#         mem='100GB',
-#         cpus_per_task=12,
-#         time="00:30:00",
-#     script:
-#         "workflow/scripts/train.py"
+rule train:
+    input:
+        noleap = finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
+        day360 = finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip",
+        rechunk = tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr",
+    output:
+        directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr")
+        #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr"))
+    params:
+        n_workers=3,
+        mem='100GB',
+        cpus_per_task=12,
+        time="00:30:00",
+    script:
+        "workflow/scripts/train.py"
 
-# rule adjust: 
-#     input:
-#         train = tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr",
-#         rechunk = tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr",
-#     output:
-#         #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr"))
-#         directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr")
-#     params:
-#         n_workers=5,
-#         cpus_per_task=15,
-#         mem='300GB', 
-#         time="00:30:00", 
-#         # mem='200GB', #2300
-#         # time="2:00:00", #2300
-#     script:
-#         "workflow/scripts/adjust.py"
+rule adjust: 
+    input:
+        train = tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr",
+        rechunk = tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr",
+    output:
+        #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr"))
+        directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr")
+    params:
+        n_workers=5,
+        cpus_per_task=15,
+        mem='300GB', 
+        time="00:30:00", 
+        # mem='200GB', #2300
+        # time="2:00:00", #2300
+    script:
+        "workflow/scripts/adjust.py"
 
-# rule clean_up:
-#     input:
-#         noleap = finaldir/ "reference/split_regions/{dom}_{subregion}_noleap.zarr.zip",
-#         day360 = finaldir/ "reference/split_regions/{dom}_{subregion}_360_day.zarr.zip",
-#         sim= expand(tmpdir/"{{sim_id}}+{{dom}}+{{subregion}}+{var}+adjusted.zarr",var=list(config['biasadjust']['variables'].keys()))
-#     output:
-#         #temp(directory(tmpdir/"day+{sim_id}+{dom}+{subregion}+1950-2100.zarr"))
-#         directory(tmpdir/"day+{sim_id}+{dom}+{subregion}+1950-2100.zarr")
-#     params:
-#         n_workers=2,
-#         cpus_per_task=6,
-#         mem='100GB',
-#         time="00:45:00",
-#         # mem='200GB', #2300
-#         # time="02:00:00",
-#     script:
-#         "workflow/scripts/clean_up.py"
 
 def final_path(id):
     path='test'
@@ -205,26 +188,6 @@ def final_path(id):
          date_end=config['extraction']['simulation']['search_data_catalogs']['periods'][1])))
     return str(os.path.dirname(os.path.dirname(path)))
 
-#sim_id HAS to be in output, so can't use only params
-# rule concat_clean:
-#     input: 
-#         pr= expand(tmpdir/"{{sim_id}}+{{dom}}+{subregion}+pr+adjusted.zarr",  subregion=subregions),
-#         tasmax= expand(tmpdir/"{{sim_id}}+{{dom}}+{subregion}+tasmax+adjusted.zarr",  subregion=subregions),
-#         dtr= expand(tmpdir/"{{sim_id}}+{{dom}}+{subregion}+dtr+adjusted.zarr",  subregion=subregions),
-#     output: 
-#         pr=finaldir/"staging/{path}/pr/pr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip",
-#         tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip",
-#         tasmin=finaldir/"staging/{path}/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip",
-#         dtr=finaldir/"staging/{path}/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
-#         # hurs=finaldir/"staging/{path}/hurs/hurs_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
-#         # hursTasmax=finaldir/"staging/{path}/hursTasmax/hursTasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
-#     params:
-#         path=lambda wildcards: final_path(wildcards.sim_id),
-#         mem="60GB",
-#         time="03:00:00", 
-#         cpus_per_task=12,
-#     script:
-#         "workflow/scripts/concat_clean.py"
 
 ruleorder: tasmin > concat_clean 
 
@@ -257,25 +220,6 @@ rule tasmin:
 
 
 
-# #sim_id HAS to be in output, so can't use only params
-# rule concatenation_final:
-#     input: 
-#        final = expand(tmpdir/"day+{{sim_id}}+{{dom}}+{subregion}+1950-2100.zarr",  subregion=subregions)
-#     output: 
-#         pr=finaldir/"staging/{path}/pr/pr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip",
-#         tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip",
-#         tasmin=finaldir/"staging/{path}/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip",
-#         dtr=finaldir/"staging/{path}/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
-#         # hurs=finaldir/"staging/{path}/hurs/hurs_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
-#         # hursTasmax=finaldir/"staging/{path}/hursTasmax/hursTasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
-
-#     params:
-#         path=lambda wildcards: final_path(wildcards.sim_id),
-#         mem="60GB",
-#         time="02:00:00", 
-#         cpus_per_task=12,
-#     script:
-#         "workflow/scripts/concat.py"
 
 
 
@@ -334,6 +278,6 @@ rule diag:
         #mem="100GB", 
         #time="2:00:00", 
         mem="400GB", 
-        time="6:00:00", 
+        time="9:00:00", 
     script:
         "workflow/scripts/diag.py"

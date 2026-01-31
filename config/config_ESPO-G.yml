@@ -461,7 +461,7 @@ health_checks:
     freq: *freq
     missing:
       missing_some_but_not_all:
-        freq: D
+        freq: YS
     flags: *flags
     return_flags: True
     raise_on:

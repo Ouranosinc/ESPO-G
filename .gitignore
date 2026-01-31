@@ -144,3 +144,8 @@ pre-workflow/create_hurstasmax.sh
 Untitled3.ipynb
 PET0.ESMF_LogFile
 pre-workflow/mrcc5-checks.sh
+config/paths_ESPO-R-Scaling.yml
+config/paths_ESPO-R-DQM.yml
+s_logs_DQM/
+s_logs_Scaling/
+s_logs*

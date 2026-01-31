@@ -3,6 +3,8 @@ import xscen as xs
 import os
 import xclim as xc
 from copy import deepcopy
+from pathlib import Path
+import random
 from workflow.scripts.utils import dask_cluster
 if 1==0: #trick vscode
     import snakemake
@@ -17,9 +19,9 @@ if __name__ == '__main__':
 
     #client=dask_cluster(snakemake.params,config['dask']['client'])
 
-    ds_input = xr.open_zarr(inputs['extract'], decode_timedelta=False)#.compute()
+    ds_input = xr.open_zarr(inputs['extract'], decode_timedelta=False).compute()
 
-    ds_target = xr.open_zarr(inputs['noleap'], decode_timedelta=False)#.compute()
+    ds_target = xr.open_zarr(inputs['noleap'], decode_timedelta=False).compute()
 
     #mask_nan=ds_input.isnull()
     #xs.save_to_zarr(mask_nan, f"/scratch/julavoie/espo-workdir/mask_{snakemake.wildcards.subregion}.zarr")
@@ -28,6 +30,7 @@ if __name__ == '__main__':
     ds_regrid = xs.regrid_dataset(
         ds=ds_input,
         ds_grid=ds_target,
+        #weights_location=Path(os.environ['SLURM_TMPDIR']) / "weights" / f"regrid_weights_{random.randint(0,1e10)}",
         **config['regrid']['regrid_dataset']
     )
     

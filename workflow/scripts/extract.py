@@ -6,6 +6,7 @@ import xscen as xs
 import xclim as xc
 from workflow.scripts.utils import dask_cluster
 import copy
+from datetime import datetime
 import numpy as np
 if 1==0: #trick vscode
     import snakemake
@@ -62,8 +63,10 @@ if __name__ == '__main__':
         ds_sim['tasmin'] = ds_sim['tasmin'].astype('float32')
 
     #FIXME: remove when data is fixed
-    if "CMIP6_CORDEX_NorESM2-MM_r1i1p1f1_OURANOS_CRCM5-SN_historical_r1_NAM-12" == sim_id:
-         ds_sim['tasmin']=ds_sim['tasmin'].where(ds_sim['tasmin']!=0, np.nan)
+    if "CMIP6_CORDEX_NorESM2-MM_r1i1p1f1_OURANOS_CRCM5-SN" in  sim_id:
+        ds_sim['tasmin']=ds_sim['tasmin'].where(ds_sim['tasmin']!=0, np.nan)
+        ds_sim['tasmin'].attrs['history'] = (f"[{datetime.now():%Y-%m-%d %H:%M:%S}] 0s replaced by nans.\n") 
+
 
 
     # save to zarr
