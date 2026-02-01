@@ -15,6 +15,7 @@ full_region:
 
 extraction:
   reference:
+    CaSR:
       search_data_catalogs:
         variables_and_freqs:
           tasmax: D
@@ -57,9 +58,9 @@ extraction:
           experiment: ssp370
           source: CRCM5-SN
           driving_model: 
-            - MPI-ESM1-2-LR
+            #- MPI-ESM1-2-LR
             #- CanESM5
-            #- NorESM2-MM
+            - NorESM2-MM
             #- CNRM-ESM2-1
           #driving_member: r1i1p1f1
           #member: r1

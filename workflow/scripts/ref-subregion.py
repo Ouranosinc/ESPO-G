@@ -18,16 +18,6 @@ if __name__ == '__main__':
 
     ds_ref= xr.open_zarr(inputs[0], decode_timedelta=False)
 
-    # cut region
-    #ds_ref = xs.spatial.subset(ds_ref, **config['custom']['regions'][subregion])
-
-    # stack
-    # var = list(ds_ref.data_vars)[0]
-    # ds_ref = xs.utils.stack_drop_nans(
-    #     ds_ref,
-    #     ds_ref[var].isel(time=0, drop=True).notnull().compute(),
-    #     **config['utils']['stack_drop_nans']
-    # )
     
     # cut region
     n=config['subregions']['n']
@@ -36,11 +26,7 @@ if __name__ == '__main__':
     
     # chunk
     ds_ref = xs.io.rechunk_for_saving(ds_ref, rechunk=config['chunks']['workingloc'])
-    
 
-    # fix problem encoding
-    # for var in list(ds_ref.data_vars)+list(ds_ref.coords):
-    #     del ds_ref[var].encoding['chunks']
     
     ds_ref.attrs['cat:calendar'] = 'default'
     xs.save_to_zarr(ds_ref, output['default'], **config['save_to_zarr'])

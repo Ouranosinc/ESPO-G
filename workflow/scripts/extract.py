@@ -1,6 +1,7 @@
 
 import os
 from copy import deepcopy
+import cftime
 
 import xscen as xs
 import xclim as xc
@@ -43,17 +44,8 @@ if __name__ == '__main__':
 
     ds_sim = xs.clean_up(ds_sim, **config['extraction']['clean_up'])
 
-    # # patch holes
-    # ds_sim['tasmax']= ds_sim['tasmax'].chunk({"time": -1}).interpolate_na("time", method="linear")
-    # ds_sim['tasmin']= ds_sim['tasmin'].chunk({"time": -1}).interpolate_na("time", method="linear")
-    # ds_sim['dtr']= ds_sim['dtr'].chunk({"time": -1}).interpolate_na("time", method="linear")
-    # l = ds_sim.sizes["time"]
-    # valid = ds_sim['pr'].notnull().sum(dim="time")
-    # ds_sim['pr'] = ds_sim['pr'].where(((valid== l) | (valid == 0)), other=0)
-
     ds_sim = ds_sim.chunk(config['chunks']['pre-regrid'])
 
-    #ds_sim = ds_sim.chunk({'time': -1})
     
     # trick to fix CanESM5
     if 'CMIP6_ScenarioMIP_CCCma_CanESM5_ssp585_r1i1p1f1_global' == sim_id:
@@ -64,21 +56,15 @@ if __name__ == '__main__':
 
     #FIXME: remove when data is fixed
     if "CMIP6_CORDEX_NorESM2-MM_r1i1p1f1_OURANOS_CRCM5-SN" in  sim_id:
+        ds_sim['dtr']=ds_sim['dtr'].where(ds_sim['tasmin']!=0, np.nan)
+        ds_sim['dtr'].attrs['history'] = (f"[{datetime.now():%Y-%m-%d %H:%M:%S}] Tasmin 0s replaced by nans.\n")
         ds_sim['tasmin']=ds_sim['tasmin'].where(ds_sim['tasmin']!=0, np.nan)
-        ds_sim['tasmin'].attrs['history'] = (f"[{datetime.now():%Y-%m-%d %H:%M:%S}] 0s replaced by nans.\n") 
+        #ds_sim['dtr']=ds_sim.dtr.where(ds.time != cftime.DatetimeNoLeap(1950, 1, 1))
+        ds_sim['tasmin'].attrs['history'] = (f"[{datetime.now():%Y-%m-%d %H:%M:%S}] Tasmin 0s replaced by nans.\n") 
 
 
 
     # save to zarr
     xs.save_to_zarr(ds_sim, output['extract'], **config['save_to_zarr'])
-
-    # check that input is fine
-    #hc = xs.diagnostics.health_checks(
-    #ds=ds_sim,
-    #**CONFIG['health_checks']['extract'])
-
-    #hc.attrs.update(ds_sim.attrs)
-
-    #tmp_zarr_and_zip(hc, snakemake.output.checks)
 
     

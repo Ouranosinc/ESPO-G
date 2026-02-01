@@ -31,9 +31,10 @@ if __name__ == '__main__':
 
     #patch holes
     # ffill for the last time step.
+    # bbfill for the first time step.
     ds['tasmax']= ds['tasmax'].interpolate_na("time", method="linear").ffill("time")
-    ds['tasmin']= ds['tasmin'].interpolate_na("time", method="linear").ffill("time")
-    ds['dtr']= ds['dtr'].interpolate_na("time", method="linear").ffill("time")
+    ds['tasmin']= ds['tasmin'].interpolate_na("time", method="linear").ffill("time").bfill("time")
+    ds['dtr']= ds['dtr'].interpolate_na("time", method="linear").ffill("time").bfill("time")
     ds['pr'] = ds['pr'].where(ds['pr'].notnull(), other=0)
 
 

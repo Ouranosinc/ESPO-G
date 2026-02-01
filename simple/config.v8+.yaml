@@ -1,6 +1,6 @@
 executor: cluster-generic
 cluster-generic-submit-cmd:
-  mkdir -p s_logs_Scaling2/{rule} &&
+  mkdir -p s_logs_DQM31jan/{rule} &&
   sbatch
     --partition=c-frigon
     --account=ctb-frigon
@@ -8,7 +8,7 @@ cluster-generic-submit-cmd:
     --cpus-per-task={params.cpus_per_task}
     --mem={params.mem}
     --job-name={rule}-{wildcards}
-    --output=s_logs_Scaling2/{rule}/{wildcards}/%j.out
+    --output=s_logs_DQM31jan/{rule}/{wildcards}/%j.out
     --time={params.time}
     --parsable
 cluster-generic-cancel-cmd: "scancel"

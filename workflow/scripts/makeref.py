@@ -10,18 +10,19 @@ if __name__ == '__main__':
 
     # Get Snakemake parameters
     config = deepcopy(snakemake.config)
+    ref=snakemake.wildcards.ref
     output=snakemake.output
 
 
-    cat_ref = xs.search_data_catalogs(**config['extraction']['reference']['search_data_catalogs'])
+    region=config['full_region'].copy()
+    del region['tile_buffer']
+    cat_ref = xs.search_data_catalogs(**config['extraction']['reference'][ref]['search_data_catalogs'])
     dc = cat_ref.popitem()[1]
     ds_ref = xs.extract_dataset(catalog=dc,
-                                region=config['full_region'],
-                                **config['extraction']['reference']['extract_dataset']
+                                region=region, 
+                                **config['extraction']['reference'][ref]['extract_dataset']
                                 )['D']
     ds_ref = xs.clean_up(ds_ref, **config['extraction']['clean_up'])
-
-
     
     #fix encoding chunks issue
     for var in ds_ref.data_vars:

@@ -54,10 +54,6 @@ if __name__ == '__main__':
         var=[var],
         **config['biasadjust']['variables'][var]['training_args']
         )
-
-    # Add attribute for reference
-    #ds_tr.attrs['cat:bias_adjust_reference'] = f"{ds_ref.attrs.get('cat:source', 'unknown')}{ds_ref.attrs.get('cat:version', '')}"
-
     
     for v in ['lat','lon']:
         del ds_tr[v].encoding['chunks']

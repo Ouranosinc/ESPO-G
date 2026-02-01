@@ -15,6 +15,7 @@ full_region:
 
 extraction:
   reference:
+    CaSR:
       search_data_catalogs:
         variables_and_freqs:
           tasmax: D
