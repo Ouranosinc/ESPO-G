@@ -2,7 +2,10 @@ from pathlib import Path
 from copy import deepcopy
 import xarray as xr
 import xscen as xs
-from workflow.scripts.utils import tmp_zarr_and_zip
+try:
+    from workflow.scripts.utils import tmp_zarr_and_zip
+except ImportError:
+    from inpact.scripts.utils import save_to_zarrzip as tmp_zarr_and_zip
 if 1==0: #trick vscode
     import snakemake
 

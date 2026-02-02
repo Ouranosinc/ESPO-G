@@ -2,7 +2,11 @@ from copy import deepcopy
 from pathlib import Path
 import xarray as xr
 import xscen as xs
-from workflow.scripts.utils import dask_cluster, tmp_zarr_and_zip
+try:
+    from workflow.scripts.utils import dask_cluster, tmp_zarr_and_zip
+except ImportError:
+    from inpact.scripts.utils import save_to_zarrzip as tmp_zarr_and_zip
+    from inpact.scripts.utils import dask_cluster
 if 1==0: #trick vscode
     import snakemake
 

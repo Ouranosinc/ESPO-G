@@ -3,7 +3,10 @@ from pathlib import Path
 import xscen as xs
 import xarray as xr
 xr.set_options(keep_attrs=True)
-from workflow.scripts.utils import tmp_zarr_and_zip
+try:
+    from workflow.scripts.utils import tmp_zarr_and_zip
+except ImportError:
+    from inpact.scripts.utils import save_to_zarrzip as tmp_zarr_and_zip
 from xscen.xclim_modules import conversions
 from pathlib import Path
 if 1==0: #trick vscode

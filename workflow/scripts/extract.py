@@ -2,7 +2,11 @@ from copy import deepcopy
 from pathlib import Path
 import xarray as xr
 import xscen as xs
-from workflow.scripts.utils import dask_cluster, tmp_zarr_and_zip
+try:
+    from workflow.scripts.utils import dask_cluster, tmp_zarr_and_zip
+except ImportError:
+    from inpact.scripts.utils import save_to_zarrzip as tmp_zarr_and_zip
+    from inpact.scripts.utils import dask_cluster
 if 1==0: #trick vscode
     import snakemake
 
@@ -49,7 +53,6 @@ if __name__ == '__main__':
             ds_sim = ds_sim.drop_vars("sftlf")
 
     ds_sim = xs.clean_up(ds_sim, **config['extraction']['clean_up'])
-    
     # Save to zarr
     if Path(output).suffix == '.zip':
         tmp_zarr_and_zip(ds_sim, output, rechunk=config['chunks']['pre-regrid'], encoding={v: {"dtype": "float32"} for v in ds_sim.data_vars})

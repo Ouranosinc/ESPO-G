@@ -5,8 +5,6 @@ import xscen as xs
 if 1==0: #trick vscode
     import snakemake
 
-xs.load_config("config/config_general.yml", "config/config_region.yml", "config/paths.yml")
-
 
 def dask_cluster(n_workers, cpus_per_task, mem, local_directory, **kwargs):
     cluster = LocalCluster(
