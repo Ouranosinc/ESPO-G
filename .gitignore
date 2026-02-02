@@ -149,3 +149,4 @@ config/paths_ESPO-R-DQM.yml
 s_logs_DQM/
 s_logs_Scaling/
 s_logs*
+config/paths_ESPO-R-EV.yml

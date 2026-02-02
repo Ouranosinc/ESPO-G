@@ -30,9 +30,12 @@ Dataset Characteristics:
  * Add hurs and hursTasmax
  * Add possibility to run until 2300
  * Add possibility to run ESPO-R
+  * Regrid in one step
+  * Fill in nans
  * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
  * Add CaSR v3.2 reference
  * Add sftlf >0.25 mask for the simulation
+ * General refactor of the workflow
 
 Minor changes:
 * KACE-1-0-G was excluded. (https://github.com/Ouranosinc/ESPO-G/issues/6)
@@ -44,6 +47,7 @@ Minor changes:
  needed to revert to xscen-0.13 for some regrid.
  - 2026-01-23: initial tests ran with espojan2026: xclim-0.60.0-py3-none-any.whl  (main), xscen-0.13.2.dev4-py3-none-any.whl (add-nan-check),  xsdba-0.5.1.dev8-py3-none-any.whl (main).
  needed to use jupyter for sr-05 MPI.
+ -2026-01-31: initial tests ran with espojan2026. successful run for DQM and Scaling
  
 #### Project lait-e
     
