@@ -2,14 +2,14 @@
 
 custom:
     regions:
-      lait-C3:
-        name: lait-C3
+      lait-E5L:
+        name: lait-E5L
         method: bbox
         lat_bnds: [44.991361, 55.306617]
         lon_bnds: [ -79.579336, -56.934953]
     full_region:
       name:
-        lait-C3
+        lait-E5L
       method: bbox
       tile_buffer: 1.5
       lat_bnds: [44.991361, 55.306617]
@@ -19,54 +19,55 @@ custom:
 extraction:
     reference:
         search_data_catalogs:
-            variables_and_freqs: &var_and_freq
-                mask: fx
             periods : &ref_period
               - '1991'
-              - '2020'            
+              - '2020'
             other_search_criteria:
-                source: &ref_source
-                    "CaSR"
-                version: "v32" #TODO: put 3.2 when available and change notes below as well
-        extract_dataset:
-            mask: True
+                source:
+                    "ERA5-Land"
+        extract_dataset: {}
 
 biasadjust:
     variables:
         tasmax: &generic-ba
-            training_args:
-                period: *ref_period
-            # adjusting_args:
-            #     bias_adjust_reference: #FIXME: put when xscen>=0.13.1
-            #       CaSRv32 # TODO: put right version
+          training_args:
+            period: *ref_period
+        # adjusting_args:
+        #     bias_adjust_reference: #FIXME: put when xscen>=0.13.1
+        #       ERA5-Land # TODO: put right version
         hurs: *generic-ba
         hursTasmax: *generic-ba
 
 bias_adjust_reference: #in the mean time
-  CaSRv32
-
+  ERA5-Land
 
 clean_up:
   xscen_clean_up:
       maybe_unstack_dict:
         rechunk:
-          rlat: 20
-          rlon: 20
+          lat: 20
+          lon: 20
           time: -1
       attrs_to_remove:
-        rlat: original_shape
-        rlon: original_shape
+        lat: original_shape
+        lon: original_shape
       add_attrs:
         global:
           Notes: |
-            Regridded on the grid of CaSR v3.2, then bias-adjusted with detrended
+            Regridded on the grid of ERA5-Land, then bias-adjusted with detrended
             quantile mapping on a day-of-year basis with a window of 31 days, LOESS
-            detrending and 50 quantiles. The reference was CaSR v3.1 over the
-            1991-2020 period. 
-        rlat:
+            detrending and 50 quantiles. The reference was ERA5-Land over the
+            1991-2020 period.
+        lat:
+          standard_name: latitude
+          units: degrees_north
           axis: Y
-        rlon:
+          long_name: latitude
+        lon:
+          standard_name: longitude
+          units: degrees_east
           axis: X
+          long_name: longitude
 
 diagnostics:
   properties_and_measures:
@@ -75,28 +76,25 @@ diagnostics:
 health_checks:
     structure:
       coords:
-        - rlat
-        - rlon
-        - time
-        - lat 
+        - lat
         - lon
-        - rotated_pole
+        - time
       dims:
-        - rlat
-        - rlon
+        - lat
+        - lon
         - time
     
 
 chunks:
   working:
-    rlat: 20
-    rlon: 20
+    lat: 20
+    lon: 20
     loc: 600
     time: -1
   diag:
-    rlat: -1
-    rlon: -1
+    lat: -1
+    lon: -1
   final: 
-    rlat: 50
-    rlon: 50
+    lat: 50
+    lon: 50
     time: 4year

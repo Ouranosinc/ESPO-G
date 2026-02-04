@@ -25,7 +25,7 @@ if __name__ == '__main__':
         project={'title': 'ESPO-input', 'description': ' Inputs for ESPO'}
     )
 
-    ds_dict= cat.search(source=['ERA5-Land', 'CaSR'], variable=['tas','tdps', ], frequency='1hr').to_dataset_dict()
+    ds_dict= cat.search(source=['CaSR'], version='v32', variable=['tas','tdps', ], frequency='1hr').to_dataset_dict()
     for rid, ds in ds_dict.items():
         if not pcat.exists_in_cat(id=rid.split('.')[0], variable='hursTasmax'):
             print(rid)
@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
             # get hurs 
             print("Computing hurs from tas and tdps")
-            ds['hurs']=xc.atmos.relative_humidity_from_dewpoint(tas=ds.tas,tdps=ds.tdps,
+            ds['hurs']=xc.convert.relative_humidity_from_dewpoint(tas=ds.tas,tdps=ds.tdps,
                 invalid_values='clip', method = 'buck81')
 
             # cut the computation in 150 parts
@@ -48,7 +48,7 @@ if __name__ == '__main__':
                     print(f"Processing part {i}")
                     dscur = ds.isel(loc=slice(i*n, (i+1)*n))
 
-
+                    #TODO: see Pascal slack for a better version
                     #when tas max
                     max_tas_times=dscur.tas.resample(time='1D').apply(lambda x: x.idxmax('time'))
                     dsTasMax = dscur.sel(time=max_tas_times)

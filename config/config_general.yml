@@ -27,19 +27,19 @@ extraction:
           mip_era: CMIP6
           source: #TCR likely (v2)
             - ACCESS-CM2
-            - ACCESS-ESM1-5 #(not avail at Ouranos)
+            - ACCESS-ESM1-5 #(not avail at Ouranos), asli got it
             - BCC-CSM2-MR #(not avail)
             - CMCC-ESM2
             - CNRM-CM6-1
             - CNRM-ESM2-1 
-            - FGOALS-g3 #(not avail at Ouranos)
-            - GFDL-ESM4 #(not avail at Ouranos)
-            - MIROC-ES2L #(not avail at Ouranos)
-            - MIROC6 #(not avail at Ouranos)
+            - FGOALS-g3 #(not avail at Ouranos), only ssp126 available
+            - GFDL-ESM4 #(not avail at Ouranos), pas de hursmin daily
+            - MIROC-ES2L #(not avail at Ouranos), asli got it
+            - MIROC6 #(not avail at Ouranos), asli got it
             - MPI-ESM1-2-HR
             - MPI-ESM1-2-LR
             - MRI-ESM2-0
-            - NorESM2-LM #(not avail at Ouranos)
+            - NorESM2-LM #(not avail at Ouranos),  pas de hursmin daily
           experiment:
             - ssp245
             - ssp370
