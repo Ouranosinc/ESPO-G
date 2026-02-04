@@ -1,5 +1,8 @@
 # ESPO6 : Ensemble de Simulations Post-traitées d’Ouranos -  CMIP6 / Ouranos Ensemble of Bias-adjusted Simulations - CMIP6
 
+This release is for Project post-2100.
+The data is available on PAVICS: COMING SOON.
+The data is described COMING SOON.
 
 ## Context and Data Description
 The need to adapt to climate change is present in a growing number of fields, leading to an increase in the demand for climate scenarios for often interrelated sectors of activity. In order to meet this growing demand and to ensure the availability of climate scenarios responding to numerous vulnerability, impact, and adaptation (VIA) studies, 
@@ -41,7 +44,7 @@ Minor changes:
     
   Includes hurs and hursTasmax. Ran initial tests for lait-e in 2025-08 on narval with xclim-0.57.1.dev10, xscen-0.12.4.dev5 and xsdba 0.5.0 wheels and numpy 1.26.4 (env dqm-np2) using config_general-2100.yml and config_QC-E5L.yml.
 
-#### Project post-2100
+#### **Project post-2100**
     
   Includes simulation that reach 2300. Ran in 2025-12 with common env xscen-0.13 and branch post-2100-narval.
 
@@ -71,46 +74,6 @@ https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/datasets/simulation
 
 
 
-## Members
-To avoid the "hot model problem" (Hausfather et al, 2022), only models with a Transient Climate Response (TCR) in the likely range (1.4–2.2 °C) were kept in the official ensemble (Table 1). The experiments in the official ensemble included are SSP2-4.5 and SSP3-7.0.
-Extra "hot models" and SSP5-8.5 are also available even if they are not in the official ensemble.
-
-**Table 1. Members of ESPO6 v2.0.0**
-
-|**Model** |**Member** |**TCR (degC)**|**In TCR likely range**|**Status**|
-|---|---|---|---|---|
-| ACCESS-CM2     |r1i1p1f1| 2.1 | ✓ |not started|
-| ACCESS-ESM1-5  |r1i1p1f1| 1.95 | ✓ |not started|
-| BCC-CSM2-MR    |r1i1p1f1| 1.72 | ✓ |not started|
-| CMCC-ESM2     |r1i1p1f1| 1.92* | ✓ |not started|
-| CNRM-CM6-1     |r1i1p1f1| 2.14 | ✓ |not started|
-| CNRM-ESM2-1    |r1i1p1f1| 1.86 | ✓ |not started|
-| FGOALS-g3      |r1i1p1f1| 1.54 | ✓ |not started|
-| GFDL-ESM4      |r1i1p1f1| 1.61 | ✓ |not started|
-| MIROC-ES2L     |r1i1p1f1| 1.55 | ✓ |not started|
-| MIROC6         |r1i1p1f1| 1.55 | ✓ |not started|
-| MPI-ESM1-2-HR  |r1i1p1f1| 1.66 | ✓ |not started|
-| MPI-ESM1-2-LR  |r1i1p1f1| 1.84 | ✓ |not started|
-| MRI-ESM2-0     |r1i1p1f1| 1.64 | ✓ |not started|
-| NorESM2-LM     |r1i1p1f1| 1.48 | ✓ |not started|
-| CanESM5        |r1i1p1f1| 2.74 | x |not started|
-| CanESM5-1      |r1i1p2f1| ? | x |not started|
-| EC-Earth3      |r1i1p1f1| 2.3 | x |not started|
-| EC-Earth3-Veg  |r1i1p1f1| 2.62 | x |not started|
-| INM-CM4-8      |r1i1p1f1| 1.33 | x |not started|
-| INM-CM5-0      |r1i1p1f1| 1.37 | x |not started|
-| IPSL-CM6A-LR   |r1i1p1f1| 2.32 | x |not started|
-| NorESM2-MM     |r1i1p1f1| 1.33 | x |not started|
-| TaiESM1        |r1i1p1f1| 2.36 | x |not started|
-| UKESM1-0-LL    |r1i1p1f1| 2.79 | x |not started|
-
-
-Licences: All members have a CC BY 4.0 license. https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
-
-TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/recipe_tcr.html), as done in the IPCC AR6. A previous version of this table used Hausfather et al. 2022, Climate simulations: recognize the 'hot model' problem, comment in Nature: [DOI: 10.5281/zenodo.6476375](https://doi.org/10.5281/zenodo.6476375) and gave slightly different results.   See https://github.com/Ouranosinc/ESPO-G/issues/7 for discussion.
-*Note that the CMCC-ESM2 TCR is not available with the ESMValTool method. We show the one from Hausfather et al. (2022) instead.
-
-
 
 ## Instructions for the code
 
@@ -118,10 +81,29 @@ This version of the workflow is meant to be run on a HPC such as Narval. It uses
 
 To run the workflow:
 
-1) On narval, activate the  virtual env:
+1)
+ For Ouranos employee:
+On narval, activate the virtual env :
 
 ```bash
 $ pyact xscen-0.13
+```
+For everybody else (with a narval account):
+Create a virtual env and activate it.
+
+```bash
+# activate modules
+$ module load StdEnv/2023 gcc openmpi python/3.13 arrow proj/9.2 geos/3.12 mpi4py/3 netcdf geos nodejs esmf/8.8
+
+# create virtual env. Replace <ENV> by the name of your env
+$ virtualenv --no-download <ENV>
+
+# activate env
+$ source $ENVDIR/<ENV>/bin/activate
+
+# install requirements
+$ pip install --no-index --upgrade pip
+$ pip install --no-index -r requirements.txt
 ```
 
 2) Specify the output files wanted in the rule `all:input` of the `Snakefile`. (Final files are input of checks and diagnostics. Hence, no need to explicitely ask for them, they will be created.)
@@ -158,5 +140,4 @@ Description of the tasks:
 
 ### Problematic Areas
  - Users should be careful with precipitation data close to the south edge of the North American domain where there is less trust in the reference data, especially for precipitations.
- -[TODO: verify for v2.0] Some small regions in Alaska and Greenland showed very small tasmin and have been masked out by NaNs for 2 models (BCC-CSM2-MR and GFDL-ESM4 ). More details are available in section Health Checks of Lavoie et al. (2024)
 
