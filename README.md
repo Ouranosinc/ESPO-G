@@ -22,67 +22,6 @@ Dataset Characteristics:
 * License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 
-## Versions
-
- ### v2.0
- 
- Major changes:
- * Add hurs and hursTasmax
- * Add possibility to run until 2300
- * Add possibility to run ESPO-R
-  * Regrid in one step
-  * Fill in nans
- * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
- * Add CaSR v3.2 reference
- * Add sftlf >0.25 mask for the simulation
- * General refactor of the workflow
-
-Minor changes:
-* KACE-1-0-G was excluded. (https://github.com/Ouranosinc/ESPO-G/issues/6)
-* EC-Earth3-CC and NESM3 were excluded as they do not have SSP3-7.0 available.
-* New calculation of the TCR lead to CNRM-CM6-1/INM-CM5-0  being included/excluded in the TCR likely range. (https://github.com/Ouranosinc/ESPO-G/issues/7)
-
-- 2026-01: initial tests ran with xscen-0.13
-- 2026-01-13: initial tests ran with espojan2026: xclim-0.59.2.dev4-py3-none-any.whl (main), xscen-0.13.2.dev4-py3-none-any.whl (add-nan-check),  xsdba-0.5.1.dev8-py3-none-any.whl (main).
- needed to revert to xscen-0.13 for some regrid.
- - 2026-01-23: initial tests ran with espojan2026: xclim-0.60.0-py3-none-any.whl  (main), xscen-0.13.2.dev4-py3-none-any.whl (add-nan-check),  xsdba-0.5.1.dev8-py3-none-any.whl (main).
- needed to use jupyter for sr-05 MPI.
- -2026-01-31: initial tests ran with espojan2026. successful run for DQM and Scaling
- 
-#### Project lait-e
-    
-  Includes hurs and hursTasmax. Ran initial tests for lait-e in 2025-08 on narval with xclim-0.57.1.dev10, xscen-0.12.4.dev5 and xsdba 0.5.0 wheels and numpy 1.26.4 (env dqm-np2) using config_general-2100.yml and config_QC-E5L.yml.
-
-#### Project post-2100
-
-  Includes simulation that reach 2300. Ran in 2025-12 with common env xscen-0.13 and branch post-2100-narval.
-
-
-### v1.0
-In ESPO6 v1.0.0, CMIP6 global climate models simulations are bias-adjusted using the RDRS v2.1 and the ERA5-Land reference datasets. The simulation ensemble covers the period for years 1950-2100 and includes the daily minimum temperature (tasmin), the daily maximum temperature (tasmax) and the daily mean precipitation flux (pr). 
-
-* References: 
-
-  * Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024).
-https://www.nature.com/articles/s41597-023-02855-z
-
-  * ESPO-G6-R2 v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7877330.svg)](https://doi.org/10.5281/zenodo.7877330)
-
-  * ESPO-G6-E5L v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764929.svg)](https://doi.org/10.5281/zenodo.7764929)
-
-* Data availability:
-
-  At the time of publication, the data is stored on [Ouranos](https://www.ouranos.ca/)' THREDDS server, a part of the [PAVICS](https://pavics.ouranos.ca/) project:
-https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/datasets/simulations/bias_adjusted/cmip6/ouranos/ESPO-G/catalog.html
-
-  When new versions of ESPO6 will be released, previous versions may be pulled from the server. [Please contact us](mailto:scenarios@ouranos.ca) if you wish to obtain these.
-
-#### Project ESPO-G6-AHCCD
-
-  Paper coming soon.
-
-
-
 ## Members
 To avoid the "hot model problem" (Hausfather et al, 2022), only models with a Transient Climate Response (TCR) in the likely range (1.4–2.2 °C) were kept in the official ensemble (Table 1). The experiments in the official ensemble included are SSP2-4.5 and SSP3-7.0.
 Extra "hot models" and SSP5-8.5 are also available even if they are not in the official ensemble.
@@ -121,6 +60,93 @@ Licences: All members have a CC BY 4.0 license. https://wcrp-cmip.github.io/CMIP
 
 TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/recipe_tcr.html), as done in the IPCC AR6. A previous version of this table used Hausfather et al. 2022, Climate simulations: recognize the 'hot model' problem, comment in Nature: [DOI: 10.5281/zenodo.6476375](https://doi.org/10.5281/zenodo.6476375) and gave slightly different results.   See https://github.com/Ouranosinc/ESPO-G/issues/7 for discussion.
 *Note that the CMCC-ESM2 TCR is not available with the ESMValTool method. We show the one from Hausfather et al. (2022) instead.
+
+
+## Versions
+
+ ### v2.0 [This release]
+ 
+ Changes from v1.0:
+ * Add hurs and hursTasmax
+ * Add possibility to run until 2300
+ * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
+ * Add CaSR v3.2 reference
+ * Workflow uses snakemake
+* KACE-1-0-G was excluded. (https://github.com/Ouranosinc/ESPO-G/issues/6)
+* EC-Earth3-CC and NESM3 were excluded as they do not have SSP3-7.0 available.
+* New calculation of the TCR lead to CNRM-CM6-1/INM-CM5-0  being included/excluded in the TCR likely range. (https://github.com/Ouranosinc/ESPO-G/issues/7)
+
+### Project lait-e
+
+ Changes from v1.0:
+ * Includes hurs and hursTasmax.
+ * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
+ * CaSR v3.2 and ERA5-Land reference
+ * Quebec domain only
+ * Workflow uses snakemake
+ * Includes all CMIP6 models that have hurs and hursTasmax
+ * KACE-1-0-G was excluded. (https://github.com/Ouranosinc/ESPO-G/issues/6)
+ * EC-Earth3-CC and NESM3 were excluded as they do not have SSP3-7.0 available.
+ * New calculation of the TCR lead to CNRM-CM6-1/INM-CM5-0  being included/excluded in the TCR likely range. (https://github.com/Ouranosinc/ESPO-G/issues/7)
+
+  Branch: lait-e
+  
+  History: Ran initial tests for lait-e in 2025-08 on narval with xclim-0.57.1.dev10, xscen-0.12.4.dev5 and xsdba 0.5.0 wheels and numpy 1.26.4 (env dqm-np2) using config_general-2100.yml and config_QC-E5L.yml.
+
+### Project post-2100 [This release]
+
+ Changes from v1.0:
+ * Run until 2300
+ * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
+ * CaSR v3.2 reference
+ * Workflow uses snakemake
+ * Includes all CMIP6 models and experiment that went post-2100.
+
+  Branch: post-2100-narval
+  
+  History: Ran in 2025-12 with common env xscen-0.13
+
+### Project ESPO-G6-AHCCD
+
+  Similar to v1 but reference is AHCCD.
+  
+  Paper coming soon.
+
+  Reference: https://www.frdr-dfdr.ca/repo/dataset/876e9380-63fc-4eaa-987b-aa16c3770941
+
+### v1.0
+In ESPO6 v1.0.0, CMIP6 global climate models simulations are bias-adjusted using the RDRS v2.1 and the ERA5-Land reference datasets. The simulation ensemble covers the period for years 1950-2100 and includes the daily minimum temperature (tasmin), the daily maximum temperature (tasmax) and the daily mean precipitation flux (pr). 
+
+Dataset Characteristics:
+* Temporal coverage: 1950-2100
+* Temporal resolution: daily, noleap or 360_day calendar
+* Spatial coverage: North American domain from 179.9°W to 10.0°W and from 10.0°N to 83.3°N, only on land.
+* Spatial resolution: 0.1°
+* Data type: Gridded netCDF
+* License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+
+* References: 
+
+  * Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024).
+https://www.nature.com/articles/s41597-023-02855-z
+
+  * ESPO-G6-R2 v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7877330.svg)](https://doi.org/10.5281/zenodo.7877330)
+
+  * ESPO-G6-E5L v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764929.svg)](https://doi.org/10.5281/zenodo.7764929)
+
+* Data availability:
+
+  At the time of publication, the data is stored on [Ouranos](https://www.ouranos.ca/)' THREDDS server, a part of the [PAVICS](https://pavics.ouranos.ca/) project:
+https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/datasets/simulations/bias_adjusted/cmip6/ouranos/ESPO-G/catalog.html
+
+  When new versions of ESPO6 will be released, previous versions may be pulled from the server. [Please contact us](mailto:scenarios@ouranos.ca) if you wish to obtain these.
+
+
+
+
+
+
+
 
 
 
