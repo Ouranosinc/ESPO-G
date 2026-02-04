@@ -13,10 +13,11 @@ Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a
 
 ## Versions
 
-### Project post-2100 [This release]
+### Project ESPO-G6-C3-P2100 [This release]
+Post-2100 simulations.
 
  Changes from v1.0:
- * Run until 2300
+ * Run until 2300.
  * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
  * CaSR v3.2 reference
  * Workflow uses snakemake
@@ -90,7 +91,7 @@ $ module load StdEnv/2023 gcc openmpi python/3.13 arrow proj/9.2 geos/3.12 mpi4p
 $ virtualenv --no-download <ENV>
 
 # activate env
-$ source $ENVDIR/<ENV>/bin/activate
+$ source <ENV>/bin/activate
 
 # install requirements
 $ pip install --no-index --upgrade pip
