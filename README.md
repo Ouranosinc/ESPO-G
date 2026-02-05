@@ -1,26 +1,11 @@
 # ESPO6 : Ensemble de Simulations Post-traitées d’Ouranos -  CMIP6 / Ouranos Ensemble of Bias-adjusted Simulations - CMIP6
 
+This release is ESPO6 v2.0.
 
-## Context and Data Description
+## Context
 The need to adapt to climate change is present in a growing number of fields, leading to an increase in the demand for climate scenarios for often interrelated sectors of activity. In order to meet this growing demand and to ensure the availability of climate scenarios responding to numerous vulnerability, impact, and adaptation (VIA) studies, 
-[Ouranos](https://www.ouranos.ca) is working to create a set of operational multipurpose bias-adjusted climate simulations called "Ensemble de Simulations Post-traitées d'Ouranos" (ESPO).
-
-ESPO6 v1.0 is described in the following article:
-Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024).
-https://www.nature.com/articles/s41597-023-02855-z
-
-DOI for the code and data:[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764928.svg)](https://doi.org/10.5281/zenodo.7764928)
-
-The data is available on [PAVICS](https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/datasets/simulations/bias_adjusted/cmip6/ouranos/ESPO-G/catalog.html).
-
-Dataset Characteristics:
-* Temporal coverage: 1950-2100
-* Temporal resolution: daily, noleap or 360_day calendar
-* Spatial coverage: North American domain from 179.9°W to 10.0°W and from 10.0°N to 83.3°N, only on land.
-* Spatial resolution: 0.1°
-* Data type: Gridded netCDF
-* License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
-
+[Ouranos](https://www.ouranos.ca) is working to create a set of operational multipurpose bias-adjusted climate simulations called "Ensemble de Simulations Post-traitées d'Ouranos" (ESPO). ESPO6 v1.0 is described in the following article:
+Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024). https://www.nature.com/articles/s41597-023-02855-z
 
 ## Members
 To avoid the "hot model problem" (Hausfather et al, 2022), only models with a Transient Climate Response (TCR) in the likely range (1.4–2.2 °C) were kept in the official ensemble (Table 1). The experiments in the official ensemble included are SSP2-4.5 and SSP3-7.0.
@@ -76,6 +61,12 @@ TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/re
 * EC-Earth3-CC and NESM3 were excluded as they do not have SSP3-7.0 available.
 * New calculation of the TCR lead to CNRM-CM6-1/INM-CM5-0  being included/excluded in the TCR likely range. (https://github.com/Ouranosinc/ESPO-G/issues/7)
 
+branch: snakemake
+
+history:
+  2026-01: ran ESPO-R-DQM and ESPO-R-Scaling with env espojan2026 
+  2026-02: ran tests with env espojan2026. [ESPO-R-EV (bug, give up, Eric is working on it), ESPO-R-DQM-100 ()]
+
 ### Project lait-e
 
  Changes from v1.0:
@@ -91,9 +82,12 @@ TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/re
 
   Branch: lait-e
   
-  History: Ran initial tests for lait-e in 2025-08 on narval with xclim-0.57.1.dev10, xscen-0.12.4.dev5 and xsdba 0.5.0 wheels and numpy 1.26.4 (env dqm-np2) using config_general-2100.yml and config_QC-E5L.yml.
+  History:   
+    2025-10-30: Ran with env xscen-0.13 env for lait-E5L. 
+    2026-01-06: Ran with env xscen-0.13 env for lait-E5L newly available models.
+    2026-02-03: Ran with env xscen-0.13 env for lait-C3.
 
-### Project post-2100 [This release]
+### Project post-2100
 
  Changes from v1.0:
  * Run until 2300
@@ -140,12 +134,6 @@ https://www.nature.com/articles/s41597-023-02855-z
 https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/datasets/simulations/bias_adjusted/cmip6/ouranos/ESPO-G/catalog.html
 
   When new versions of ESPO6 will be released, previous versions may be pulled from the server. [Please contact us](mailto:scenarios@ouranos.ca) if you wish to obtain these.
-
-
-
-
-
-
 
 
 
