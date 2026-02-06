@@ -1,41 +1,44 @@
 # ESPO6 : Ensemble de Simulations Post-traitées d’Ouranos -  CMIP6 / Ouranos Ensemble of Bias-adjusted Simulations - CMIP6
 
-This release is for Project post-2100.
-
-The data is available on PAVICS: COMING SOON.
-
-The data is described in  COMING SOON.
+The data is available on PAVICS: TODO.
 
 ## Context and Data Description
 The need to adapt to climate change is present in a growing number of fields, leading to an increase in the demand for climate scenarios for often interrelated sectors of activity. In order to meet this growing demand and to ensure the availability of climate scenarios responding to numerous vulnerability, impact, and adaptation (VIA) studies, 
-[Ouranos](https://www.ouranos.ca) is working to create a set of operational multipurpose bias-adjusted climate simulations called "Ensemble de Simulations Post-traitées d'Ouranos" (ESPO). ESPO6 v1.0 is described in the following article:
-Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024). https://www.nature.com/articles/s41597-023-02855-z
+[Ouranos](https://www.ouranos.ca) is working to create a set of operational multipurpose bias-adjusted climate simulations called "Ensemble de Simulations Post-traitées d'Ouranos" (ESPO). ESPO6 v1.0 is described in [Lavoie et al. (2024)](https://www.nature.com/articles/s41597-023-02855-z). Other ensembles described below have been developed using a similar approach. 
+
 
 ## Versions
 
-### Project ESPO-G6-C3-P2100 [This release]
-Post-2100 simulations.
+### ESPO-G6-C3-P2100 v1 [This release]
 
- Changes from v1.0:
- * Run until 2300.
- * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
- * CaSR v3.2 reference
- * Workflow uses snakemake
- * Includes all CMIP6 models and experiment that went post-2100.
+ESPO-G6-C3-P2100 is a small ensemble of CMIP6 simulations extending to 2300 with variables for minimum daily temperature, maximum daily temperature and daily precipitation (tasmin, tasmax, pr). Beyond the ensemble composition, the main difference with ESPO6 v1 is the reference dataset, updated to the latest version of the Canadian Surface Reanalysis (CaSR v3.2).
 
-  Branch: post-2100-narval
+Changes from ESPO6 v1.0:
+
+* Covers the period from 1950 to 2300;
+* Reference dataset updated from CaSR v2.1 to CaSR v3.2;
+* Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
+* Workflow executed using [snakemake](https://snakemake.readthedocs.io/)
+ 
+Branch: `post-2100-narval`
   
-  History: Ran in 2025-12 with common env xscen-0.13
+History: Ran in 2025-12 within conda environment `xscen-0.13`.
 
-### Project ESPO-G6-AHCCD
+### ESPO-G6-AHCCD v1
 
-  Similar to v1 but reference is AHCCD.
+ESPO-G6-AHCCD is a large ensemble of CMIP6 simulations over the period 1950–2100 bias-adjusted using station records from the _Adjusted and homogenized Canadian climate data_ (AHCCD v3). It includes total daily precipitation, minimum, maximum and mean daily temperature. One notable feature of this dataset is that it includes 627 simulations for precipitation and 561 for temperature.  
+
+Changes from ESPO6 v1.0:
   
-  Paper coming soon.
+* Reference dataset is AHCCD v3, so projections are at the point scale;
 
-  Reference: https://www.frdr-dfdr.ca/repo/dataset/876e9380-63fc-4eaa-987b-aa16c3770941
+References:
+
+ * Huard, David, Sarah-Claude Bourdeau-Goulet, Léa Braschi, et al. 2026. “Delivering Probabilistic Climate Hazards Assessments.” Environmental Research Communications, ahead of print. https://doi.org/10.1088/2515-7620/ae3a4d.
+ * Bourdeau-Goulet, Sarah-Claude, Pascal Bourgault, Sarah Gammon, and David Huard. 2025. Ouranos Ensemble of Bias-Adjusted Simulations - Global Models CMIP6 - AHCCD v3 (ESPO-G6-AHCCD v1.0.0). May 31. https://doi.org/10.20383/103.01272.
 
 ### v1.0
+
 In ESPO6 v1.0.0, CMIP6 global climate models simulations are bias-adjusted using the RDRS v2.1 and the ERA5-Land reference datasets. The simulation ensemble covers the period for years 1950-2100 and includes the daily minimum temperature (tasmin), the daily maximum temperature (tasmax) and the daily mean precipitation flux (pr). 
 
 Dataset Characteristics:
