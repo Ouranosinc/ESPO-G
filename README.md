@@ -1,7 +1,5 @@
 # ESPO6 : Ensemble de Simulations Post-traitées d’Ouranos -  CMIP6 / Ouranos Ensemble of Bias-adjusted Simulations - CMIP6
 
-The data is available on PAVICS: TODO.
-
 ## Context
 The need to adapt to climate change is present in a growing number of fields, leading to an increase in the demand for climate scenarios for often interrelated sectors of activity. In order to meet this growing demand and to ensure the availability of climate scenarios responding to numerous vulnerability, impact, and adaptation (VIA) studies, 
 [Ouranos](https://www.ouranos.ca) is working to create a set of operational multipurpose bias-adjusted climate simulations called "Ensemble de Simulations Post-traitées d'Ouranos" (ESPO). ESPO6 v1.0 is described in [Lavoie et al. (2024)](https://www.nature.com/articles/s41597-023-02855-z). Other ensembles described below have been developed using a similar approach. 
@@ -19,7 +17,8 @@ Changes from ESPO6 v1.0:
 * Reference dataset updated from CaSR v2.1 to CaSR v3.2;
 * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
 * Workflow executed using [snakemake](https://snakemake.readthedocs.io/)
- 
+* Data is available on PAVICS: TODO.
+
 Branch: `post-2100-narval`
   
 History: Ran in 2025-12 within conda environment `xscen-0.13`.
@@ -31,6 +30,7 @@ ESPO-G6-AHCCD is a large ensemble of CMIP6 simulations over the period 1950–21
 Changes from ESPO6 v1.0:
   
 * Reference dataset is AHCCD v3, so projections are at the point scale;
+* Data is available in Zarr format on the [PAVICS MinIO server](https://minio.ouranos.ca/) in the `portail-ing` bucket. It can be accessed programmatically using the S3 standard, see [documentation](https://github.com/Ouranosinc/peach) for tutorials.
 
 References:
 
