@@ -1,0 +1,15 @@
+doc: |
+  ==========
+  Indicators
+  ==========
+  Indicators for testing
+indicators:
+  freezethaw_spell_mean_length_annual:
+    base: freezethaw_spell_mean_length
+  freezethaw_spell_max_length_annual:
+    base: freezethaw_spell_max_length
+  dlyfrzthw_annual:
+    base: dlyfrzthw
+  solidprcptot_annual:
+    base: solidprcptot
+  
