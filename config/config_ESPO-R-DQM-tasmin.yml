@@ -130,6 +130,19 @@ biasadjust:
                   Ouranos
                 bias_adjust_project: &b_a_pro
                   DQM
+        tasmin:
+            training_args:
+                method: DetrendedQuantileMapping
+                period: *ref_period
+                group: *group
+                xsdba_train_args:
+                    kind: "+"
+                    nquantiles: 50
+            adjusting_args:
+                periods: *sim_period
+                xsdba_adjust_args: *adj-args
+                bias_adjust_institution: *b_a_inst
+                bias_adjust_project: *b_a_pro
         tasmax:
             training_args:
                 method: DetrendedQuantileMapping
@@ -235,8 +248,8 @@ clean_up:
           Notes: |
             Regridded on the grid of the reference, then bias-adjusted with detrended
             quantile mapping. The reference period was 1991-2020. Tasmax,
-            dtr and pr were adjusted, tasmin was computed
-            from tasmax and dtr after the adjustment.
+            tasmin and pr were adjusted, dtr was computed
+            from tasmax and tasmin after the adjustment.
         tasmax:
             standard_name: air_temperature
             long_name: Maximal daily temperature
@@ -269,6 +282,7 @@ clean_up:
           standard_name: air_temperature
           long_name: Diurnal temperature range.
     tasmin: # a lot already done in tasmax and dtr
+      maybe_unstack_dict: *maybe
       remove_all_attrs_except: 
         tasmin: *attrs_to_keep
       add_attrs:

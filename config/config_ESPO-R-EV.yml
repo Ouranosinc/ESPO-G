@@ -49,7 +49,7 @@ extraction:
         allow_conversion: True
         allow_resampling: False
         periods: &sim_period
-          - '1950' 
+          - '1951' 
           - '2100'
         restrict_members:
           ordered: 1
