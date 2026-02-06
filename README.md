@@ -2,7 +2,7 @@
 
 The data is available on PAVICS: TODO.
 
-## Context and Data Description
+## Context
 The need to adapt to climate change is present in a growing number of fields, leading to an increase in the demand for climate scenarios for often interrelated sectors of activity. In order to meet this growing demand and to ensure the availability of climate scenarios responding to numerous vulnerability, impact, and adaptation (VIA) studies, 
 [Ouranos](https://www.ouranos.ca) is working to create a set of operational multipurpose bias-adjusted climate simulations called "Ensemble de Simulations Post-traitées d'Ouranos" (ESPO). ESPO6 v1.0 is described in [Lavoie et al. (2024)](https://www.nature.com/articles/s41597-023-02855-z). Other ensembles described below have been developed using a similar approach. 
 
