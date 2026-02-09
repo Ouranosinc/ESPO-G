@@ -16,7 +16,7 @@ xs.load_config( "paths_post-workflow.yml")
 
 if __name__ == '__main__':
 
-    for m in ['DQM','Scaling']:
+    for m in ['tasmin','DQM','Scaling']:
         for dm in ['MPI-ESM1-2-LR','CanESM5','NorESM2-MM']:
             print(glob.glob(f"{CONFIG[m]}/staging/simulation/biasadjusted/*_v20_CaSR/CMIP6/CORDEX/NAM/OURANOS/CRCM5-SN/{dm}/*/ssp370/r1/day/*/*.zarr.zip"))
             ds= xr.open_mfdataset(
