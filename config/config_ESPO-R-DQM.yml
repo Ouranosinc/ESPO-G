@@ -328,6 +328,11 @@ diagregion:
     method: bbox
     lat_bnds:  [ 61.3, 66.75]
     lon_bnds: [ -130, -103.8 ]
+  Atlas:
+    name: Atlas
+    method: bbox
+    lon_bnds: [-83 ,-55 ] 
+    lat_bnds: [42, 53]
 
 diagnostics:
   properties_and_measures:
