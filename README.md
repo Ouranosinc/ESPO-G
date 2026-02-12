@@ -68,7 +68,7 @@ Branch: snakemake
 
 History:
   2026-01: ran ESPO-R-DQM and ESPO-R-Scaling with env espojan2026 
-  2026-02: ran tests with env espojan2026. [ESPO-R-EV (bug, give up, Eric is working on it), ESPO-R-DQM-100 (works, this still has exploding pr), ESPO-R-DQM-tasmin]
+  2026-02: ran tests with env espojan2026. [ESPO-R-EV (bug, give up, Eric is working on it), ESPO-R-DQM-100 (works, this still has exploding pr), ESPO-R-DQM-tasmin (works, +s and -s vs DTR), ESPO-R-filter]
 
 ### Project lait-e
 

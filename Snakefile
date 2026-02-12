@@ -11,8 +11,8 @@ min_version("8.12.0") #set minimum snakemake version
 
 #TODO: choose the right configs
 #TODO: put the right log file
-configfile: "config/config_ESPO-R-DQM-tasmin.yml"
-configfile: "config/paths_ESPO-R-DQM-tasmin.yml"
+configfile: "config/config_ESPO-R-DQM-filter.yml"
+configfile: "config/paths_ESPO-R-DQM-filter.yml"
 
 
 # choose the simulations to process
@@ -208,6 +208,38 @@ rule adjust:
 #         script:
 #             "workflow/scripts/concat_clean_up.py"
 
+if 'filter_extremes' in config:
+    rule filter_extremes:
+        input:
+            rechunk = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regchunked.zarr",
+            adjusted = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+adjusted.zarr"
+        output:
+            directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+adjustedF.zarr")
+        wildcard_constraints:
+            var = "pr"
+        params:
+            n_workers=2,
+            cpus_per_task=5,
+            mem='500GB', 
+            time="06:00:00", 
+        script:
+            "workflow/scripts/filter_extremes.py"
+
+    ruleorder: concat_clean_filter > concat_clean
+
+    rule concat_clean_filter:
+        input: 
+            expand(tmpdir/"{{sim_id}}+{{dom}}+{{ref}}+{subregion}+{{var}}+adjustedF.zarr",  subregion=subregions),
+        output: 
+            finaldir/"staging/{path}/{var}/{var}_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
+        params:
+            path=lambda wildcards: final_path(wildcards.sim_id, wildcards.ref),
+            mem="60GB",
+            time="03:00:00", 
+            cpus_per_task=12,
+        script:
+            "workflow/scripts/concat_clean_up.py"
+
 
 
 def final_path(id, ref):
@@ -237,33 +269,33 @@ def final_path(id, ref):
     return str(os.path.dirname(os.path.dirname(path)))
 
 
-#TODO: remove
-rule swap: 
-    input:
-        tasmin = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmin+adjusted.zarr",
-        tasmax = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmax+adjusted.zarr",
-        dtr = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+dtr+adjusted.zarr",
-        pr = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+pr+adjusted.zarr",
-    output:
-        tasmin = directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmin+adjustedS.zarr"),
-        tasmax = directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmax+adjustedS.zarr"),
-        dtr = directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+dtr+adjustedS.zarr"),
-        pr = directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+pr+adjustedS.zarr"),
-    params:
-        n_workers=5,
-        cpus_per_task=15,
-        mem='300GB', 
-        time="00:30:00", 
-        # mem='200GB', #2300
-        # time="2:00:00", #2300
-    script:
-        "workflow/scripts/swap_temp.py"
+#TODO: remove, it is for tasmin
+# rule swap: 
+#     input:
+#         tasmin = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmin+adjusted.zarr",
+#         tasmax = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmax+adjusted.zarr",
+#         dtr = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+dtr+adjusted.zarr",
+#         pr = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+pr+adjusted.zarr",
+#     output:
+#         tasmin = directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmin+adjustedS.zarr"),
+#         tasmax = directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmax+adjustedS.zarr"),
+#         dtr = directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+dtr+adjustedS.zarr"),
+#         pr = directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+pr+adjustedS.zarr"),
+#     params:
+#         n_workers=5,
+#         cpus_per_task=15,
+#         mem='300GB', 
+#         time="00:30:00", 
+#         # mem='200GB', #2300
+#         # time="2:00:00", #2300
+#     script:
+#         "workflow/scripts/swap_temp.py"
 
-# ruleorder: tasmin > concat_clean
+ruleorder: tasmin > concat_clean
 
 rule concat_clean:
     input: 
-        expand(tmpdir/"{{sim_id}}+{{dom}}+{{ref}}+{subregion}+{{var}}+adjustedS.zarr",  subregion=subregions),
+        expand(tmpdir/"{{sim_id}}+{{dom}}+{{ref}}+{subregion}+{{var}}+adjusted.zarr",  subregion=subregions),
     output: 
         finaldir/"staging/{path}/{var}/{var}_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
     params:
@@ -274,19 +306,19 @@ rule concat_clean:
     script:
         "workflow/scripts/concat_clean_up.py"
 
-# rule tasmin:
-#     input: 
-#         tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip",
-#         dtr=finaldir/"staging/{path}/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip"
-#     output: 
-#         finaldir/"staging/{path}/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
-#     params:
-#         path=lambda wildcards: final_path(wildcards.sim_id, wildcards.ref),
-#         mem="60GB",
-#         time="03:00:00", 
-#         cpus_per_task=12,
-#     script:
-#         "workflow/scripts/tasmin.py"
+rule tasmin:
+    input: 
+        tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip",
+        dtr=finaldir/"staging/{path}/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip"
+    output: 
+        finaldir/"staging/{path}/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
+    params:
+        path=lambda wildcards: final_path(wildcards.sim_id, wildcards.ref),
+        mem="60GB",
+        time="03:00:00", 
+        cpus_per_task=12,
+    script:
+        "workflow/scripts/tasmin.py"
 
 
 
