@@ -360,7 +360,7 @@ health_checks:
         - rlon
         - time
     start_date: &start
-      "1950-01-01" 
+      "1951-01-01" 
     end_date: &end
       "2100-12-30"
     variables_and_units: &varunits

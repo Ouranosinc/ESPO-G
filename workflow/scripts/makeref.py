@@ -1,6 +1,7 @@
 import xclim as xc
 import xscen as xs
 from copy import deepcopy
+import geopandas as gpd
 from workflow.scripts.utils import dask_cluster
 if 1==0: #trick vscode
     import snakemake
@@ -23,6 +24,13 @@ if __name__ == '__main__':
                                 **config['extraction']['reference'][ref]['extract_dataset']
                                 )['D']
     ds_ref = xs.clean_up(ds_ref, **config['extraction']['clean_up'])
+
+
+    # subset to only NAM
+    #TODO: if use put data in more permanent place https://www.naturalearthdata.com/downloads/110m-cultural-vectors/
+    gdf = gpd.read_file(f"{config['paths']['home']}/notebooks/ne_110m_admin_0_countries")
+    gdf=gdf[gdf['CONTINENT']=='North America']
+    ds_ref = xs.spatial.subset(ds_ref, method='shape', shape=gdf)
     
     #fix encoding chunks issue
     for var in ds_ref.data_vars:

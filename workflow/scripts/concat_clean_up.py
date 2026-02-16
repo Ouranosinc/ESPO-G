@@ -29,6 +29,55 @@ if __name__ == '__main__':
 
     ds = xs.clean_up(ds=ds,**config['clean_up']['xscen_clean_up'][var])
 
+
+
+    # FIXME: use xscen when >0.14
+    import shapely as shp
+    # def dataset_extent(ds: xr.Dataset, method: str = "shape", name: str | None = None) :
+    #     from xscen.regrid import create_bounds_gridmapping
+
+    #     if "lat_bounds" not in ds:
+    #         if "lat" in ds and ds.lat.ndim == 1:
+    #             ds = ds.cf.add_bounds(["lon", "lat"])
+    #         else:
+    #             ds = create_bounds_gridmapping(ds, gridmap='crs') #crs added by JL
+    #     if ds["lat_bounds"].ndim == 2:
+    #         lonb = ds.lon_bounds.isel(bounds=xr.DataArray([0, 0, 1, 1], dims=("bounds",)))
+    #         latb = ds.lat_bounds.isel(bounds=xr.DataArray([0, 1, 1, 0], dims=("bounds",)))
+    #         lonb, latb = xr.broadcast(lonb, latb)
+    #     else:
+    #         lonb, latb = ds.lon_bounds, ds.lat_bounds
+
+    #     region = {"method": method}
+    #     if name is not None:
+    #         region["name"] = name
+
+    #     # Tolerance 0 is to merge colinear segments, without degrading anything else
+    #     p = shp.simplify(
+    #         shp.unary_union(shp.polygons(shp.linearrings(lonb.transpose(..., "bounds"), latb.transpose(..., "bounds")))),
+    #         tolerance=0,
+    #     )
+
+    #     match method:
+    #         case "shape":
+    #             region["shape"] = p
+    #         case "bbox":
+    #             bnds = p.bounds
+    #             region["lon_bnds"] = [bnds[0], bnds[2]]
+    #             region["lat_bnds"] = [bnds[1], bnds[3]]
+    #         case _ as err:
+    #             raise ValueError(f"Method must be 'shape' or 'bbox'. Got {err}.")
+
+    #     return region
+
+
+    # make sure we don't go outside the border of the inout data, 
+    # (extrapolation should only be for water inside the domain)
+    extent = xs.spatial.dataset_extent(ds, method='shape')
+    ds=xs.spatial.subset(ds, method='shape', name='original input extent',
+                            shape=gpd.GeoDataFrame(geometry=[extent['shape']]))
+
+
     chunks=xs.utils.translate_time_chunk(
         config['chunks']['final'],
         calendar=ds.time.dt.calendar,
