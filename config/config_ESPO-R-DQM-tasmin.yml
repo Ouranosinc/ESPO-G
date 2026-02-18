@@ -7,7 +7,7 @@ full_region:
   name: &domain
     NAM
   method: bbox
-  tile_buffer: 1.5
+  tile_buffer: 1.5 #removed in make ref
   lon_bnds: [ -179.95, -10 ]
   lat_bnds: [ 10, 83.4 ]
 

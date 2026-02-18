@@ -63,12 +63,16 @@ TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/re
   * New calculation of the TCR lead to CNRM-CM6-1/INM-CM5-0  being included/excluded in the TCR likely range. (https://github.com/Ouranosinc/ESPO-G/issues/7)
   * Add regional climate models for ESPO-R
   * Start in 1951 (CRCM5 not available in 1950)
+  * Fill in nans
+  * Add spatial subset of input domain.
+  * NAM domain slightly changed
 
 Branch: snakemake
 
 History:
   2026-01: ran ESPO-R-DQM and ESPO-R-Scaling with env espojan2026 
   2026-02: ran tests with env espojan2026. [ESPO-R-EV (bug, give up, Eric is working on it), ESPO-R-DQM-100 (works, this still has exploding pr), ESPO-R-DQM-tasmin (works, +s and -s vs DTR), ESPO-R-filter]
+  2026-02: Create env espofev2026 to add xesmf 0.9.2 and xscen-0.13.2.dev7. Ran tests for ESPO-R-filter
 
 ### Project lait-e
 

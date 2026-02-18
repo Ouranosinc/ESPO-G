@@ -158,55 +158,6 @@ rule adjust:
     script:
         "workflow/scripts/adjust.py"
 
-# if 'biasadjust_extremes' in config:
-#     rule train_extremes:
-#         input:
-#             noleap=finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_noleap.zarr.zip",
-#             day360=finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_360_day.zarr.zip",
-#             rechunk = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regchunked.zarr",
-#         output:
-#             directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+trainingEV.zarr")
-#         wildcard_constraints:
-#             var = "pr"
-#         params:
-#             n_workers=5,
-#             cpus_per_task=15,
-#             mem='300GB', 
-#             time="00:30:00", 
-#         script:
-#             "workflow/scripts/train_extremes.py"
-
-#     rule adjust_extremes:
-#         input:
-#             train = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+trainingEV.zarr",
-#             rechunk = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regchunked.zarr",
-#             scen = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+adjusted.zarr"
-#         output:
-#             directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+adjustedEV.zarr")
-#         wildcard_constraints:
-#             var = "pr"
-#         params:
-#             n_workers=5,
-#             cpus_per_task=15,
-#             mem='300GB', 
-#             time="00:30:00", 
-#         script:
-#             "workflow/scripts/adjust_extremes.py"
-
-#     ruleorder: concat_clean_extremes > concat_clean
-
-#     rule concat_clean_extremes:
-#         input: 
-#             expand(tmpdir/"{{sim_id}}+{{dom}}+{{ref}}+{subregion}+{{var}}+adjustedEV.zarr",  subregion=subregions),
-#         output: 
-#             finaldir/"staging/{path}/{var}/{var}_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
-#         params:
-#             path=lambda wildcards: final_path(wildcards.sim_id, wildcards.ref),
-#             mem="60GB",
-#             time="03:00:00", 
-#             cpus_per_task=12,
-#         script:
-#             "workflow/scripts/concat_clean_up.py"
 
 if 'filter_extremes' in config:
     rule filter_extremes:
@@ -229,7 +180,8 @@ if 'filter_extremes' in config:
 
     rule concat_clean_filter:
         input: 
-            expand(tmpdir/"{{sim_id}}+{{dom}}+{{ref}}+{subregion}+{{var}}+adjustedF.zarr",  subregion=subregions),
+            adjusted=expand(tmpdir/"{{sim_id}}+{{dom}}+{{ref}}+{subregion}+{{var}}+adjustedF.zarr",  subregion=subregions),
+            extracted=tmpdir/"{sim_id}+{dom}+extracted.zarr"
         output: 
             finaldir/"staging/{path}/{var}/{var}_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
         params:
@@ -295,7 +247,8 @@ ruleorder: tasmin > concat_clean
 
 rule concat_clean:
     input: 
-        expand(tmpdir/"{{sim_id}}+{{dom}}+{{ref}}+{subregion}+{{var}}+adjusted.zarr",  subregion=subregions),
+        adjusted=expand(tmpdir/"{{sim_id}}+{{dom}}+{{ref}}+{subregion}+{{var}}+adjusted.zarr",  subregion=subregions),
+        extracted=tmpdir/"{sim_id}+{dom}+extracted.zarr"
     output: 
         finaldir/"staging/{path}/{var}/{var}_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
     params:

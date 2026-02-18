@@ -37,4 +37,14 @@ indicators:
       min_gap: 3
       win_reducer: mean
       freq: YS
+  tx_mean_annual:
+    base: tx_mean
+  tn_mean_annual:
+    base: tx_mean
+  prcptot_annual:
+    base: prcptot
+  dry_days_annual:
+    base: dry_days
+    parameters:
+      thresh: 1 mm/day
   

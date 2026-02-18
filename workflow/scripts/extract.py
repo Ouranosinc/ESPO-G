@@ -54,15 +54,6 @@ if __name__ == '__main__':
         ds_sim['tasmax'] = ds_sim['tasmax'].astype('float32')
         ds_sim['tasmin'] = ds_sim['tasmin'].astype('float32')
 
-    #FIXME: remove when data is fixed
-    if "CMIP6_CORDEX_NorESM2-MM_r1i1p1f1_OURANOS_CRCM5-SN" in  sim_id:
-        ds_sim['dtr']=ds_sim['dtr'].where(ds_sim['tasmin']!=0, np.nan)
-        ds_sim['dtr'].attrs['history'] = (f"[{datetime.now():%Y-%m-%d %H:%M:%S}] Tasmin 0s replaced by nans.\n")
-        ds_sim['tasmin']=ds_sim['tasmin'].where(ds_sim['tasmin']!=0, np.nan)
-        #ds_sim['dtr']=ds_sim.dtr.where(ds.time != cftime.DatetimeNoLeap(1950, 1, 1))
-        ds_sim['tasmin'].attrs['history'] = (f"[{datetime.now():%Y-%m-%d %H:%M:%S}] Tasmin 0s replaced by nans.\n") 
-
-
 
     # save to zarr
     xs.save_to_zarr(ds_sim, output['extract'], **config['save_to_zarr'])
