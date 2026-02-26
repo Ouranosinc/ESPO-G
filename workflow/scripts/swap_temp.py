@@ -22,15 +22,18 @@ if __name__ == '__main__':
     ds_tasmax= xr.open_zarr(inputs['tasmax'], decode_timedelta=False)
     ds_tasmin= xr.open_zarr(inputs['tasmin'], decode_timedelta=False)
 
+    oldtasmax = ds_tasmax.copy()
+    oldtasmin = ds_tasmin.copy()
+
     # Find where no inversion
     valid_mask = ds_tasmax.tasmax > ds_tasmin.tasmin
 
 
     ds_tasmax['tasmax']=ds_tasmax.tasmax.where(valid_mask.compute(),
-     other=ds_tasmin.tasmin)
+     other=oldtasmin.tasmin)
 
     ds_tasmin['tasmin']=ds_tasmin.tasmin.where(valid_mask.compute(),
-        other=ds_tasmax.tasmax)
+        other=oldtasmax.tasmax)
     
     
     xs.save_to_zarr(

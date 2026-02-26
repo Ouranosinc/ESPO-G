@@ -52,16 +52,19 @@ TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/re
  ### v2.0 [This release]
  
  Changes from v1.0:
-  * Add hurs and hursTasmax
+  * Add possibility to run hurs and hursTasmax
   * Add possibility to run until 2300
+  * Add possibility to run for regional climate models
   * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
   * Add CaSR v3.2 reference
   * Workflow uses snakemake
   * Add mask based in sftlf on the simulation
   * KACE-1-0-G was excluded. (https://github.com/Ouranosinc/ESPO-G/issues/6)
   * EC-Earth3-CC and NESM3 were excluded as they do not have SSP3-7.0 available.
-  * New calculation of the TCR lead to CNRM-CM6-1/INM-CM5-0  being included/excluded in the TCR likely range. (https://github.com/Ouranosinc/ESPO-G/issues/7)
-  * Add regional climate models for ESPO-R
+  * New calculation of the TCR lead to CNRM-CM6-1/INM-CM5-0  being included/excluded in the TCR likely range. (https://github.com/Ouranosinc/ESPO-G/issues/7)  
+
+  For ESPO-R:
+  * Regrid in a single step
   * Start in 1951 (CRCM5 not available in 1950)
   * Fill in nans
   * Add spatial subset of input domain.
@@ -72,7 +75,7 @@ Branch: snakemake
 History:
   2026-01: ran ESPO-R-DQM and ESPO-R-Scaling with env espojan2026 
   2026-02: ran tests with env espojan2026. [ESPO-R-EV (bug, give up, Eric is working on it), ESPO-R-DQM-100 (works, this still has exploding pr), ESPO-R-DQM-tasmin (works, +s and -s vs DTR), ESPO-R-filter]
-  2026-02: Create env espofev2026 to add xesmf 0.9.2 and xscen-0.13.2.dev7. Ran tests for ESPO-R-filter
+  2026-02: Create env espofev2026 to add xesmf 0.9.2 and xscen-0.13.2.dev7. Ran tests for ESPO-R-filter and redo ESPO-R-tasmin without bug
 
 ### Project lait-e
 

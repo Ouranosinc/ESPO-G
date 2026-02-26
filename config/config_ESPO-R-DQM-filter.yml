@@ -100,7 +100,6 @@ regrid:
         extrap_method: inverse_dist
         locstream_out: True
         reuse_weights: False
-        #post_mask_source: domain_edge
 
 biasadjust:
     variables:

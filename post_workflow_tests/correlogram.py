@@ -52,10 +52,15 @@ if __name__ == '__main__':
     #                     )
     
     print('extracted')
-    for dm in ['MPI-ESM1-2-LR','CanESM5','NorESM2-MM']:
+    cat=xs.DataCatalog(CONFIG['catsim'])
+    sftlf= cat.search(source='CRCM5-SN', variable='sftlf',id='CMIP6_CORDEX_MPI-ESM1-2-LR_r1i1p1f1_OURANOS_CRCM5-SN_historical_r1_NAM-12' ).to_dataset()
+
+    #for dm in ['MPI-ESM1-2-LR','CanESM5','NorESM2-MM']:
+    for dm in ['MPI-ESM1-2-LR']:
         print(dm)
         f= glob.glob(f"{CONFIG['regDQM']}/*_{dm}_*+extracted.zarr")[0]
         ds=xr.open_zarr(f, decode_timedelta=False)
+        ds=ds.where(sftlf.sftlf>=0.25)
         ds=xs.spatial.subset(ds, method='bbox',lon_bnds= [-83 ,-55 ] ,lat_bnds= [42, 53], name='atlas')
         ds= ds.sel(time=slice('1991','2020'))
 
