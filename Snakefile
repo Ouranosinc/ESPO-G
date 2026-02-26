@@ -11,8 +11,8 @@ min_version("8.12.0") #set minimum snakemake version
 
 #TODO: choose the right configs
 #TODO: put the right log file
-configfile: "config/config_ESPO-R-tasmin.yml"
-configfile: "config/paths_ESPO-R-tasmin.yml"
+configfile: "config/config_ESPO-R-DQM-tasmin.yml"
+configfile: "config/paths_ESPO-R-DQM-tasmin.yml"
 
 
 # choose the simulations to process
@@ -241,7 +241,7 @@ rule swap:
     script:
         "workflow/scripts/swap_temp.py"
 
-ruleorder: tasmin > concat_clean
+
 
 rule concat_clean:
     input: 
@@ -257,19 +257,21 @@ rule concat_clean:
     script:
         "workflow/scripts/concat_clean_up.py"
 
-rule tasmin:
-    input: 
-        tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip",
-        dtr=finaldir/"staging/{path}/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip"
-    output: 
-        finaldir/"staging/{path}/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
-    params:
-        path=lambda wildcards: final_path(wildcards.sim_id, wildcards.ref),
-        mem="60GB",
-        time="03:00:00", 
-        cpus_per_task=12,
-    script:
-        "workflow/scripts/tasmin.py"
+#TODO: remove for tasmin method
+#ruleorder: tasmin > concat_clean
+# rule tasmin:
+#     input: 
+#         tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip",
+#         dtr=finaldir/"staging/{path}/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip"
+#     output: 
+#         finaldir/"staging/{path}/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
+#     params:
+#         path=lambda wildcards: final_path(wildcards.sim_id, wildcards.ref),
+#         mem="60GB",
+#         time="03:00:00", 
+#         cpus_per_task=12,
+#     script:
+#         "workflow/scripts/tasmin.py"
 
 
 rule health_checks:
