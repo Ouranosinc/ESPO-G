@@ -12,41 +12,41 @@ indicators:
     base: dlyfrzthw
   solidprcptot_annual:
     base: solidprcptot
-  # freezethaw_-2_2_spell_mean_length_annual:
-  #   base: freezethaw_spell_mean_length
-  #   parameters:
-  #     thresh_tasmin: '-2 degC'
-  #     thresh_tasmax: '2 degC'
-  # freezethaw_-2_2_spell_max_length_annual:
-  #   base: freezethaw_spell_max_length
-  #   parameters:
-  #     thresh_tasmin: '-2 degC'
-  #     thresh_tasmax: '2 degC'
-  # dlyfrzthw_-2_2_annual:
-  #   base: dlyfrzthw
-  #   parameters:
-  #     thresh_tasmin: '-2 degC'
-  #     thresh_tasmax: '2 degC'
-  # heat_spell_total_length_class1:
-  #   base: heat_spell_total_length
-  #   parameters:
-  #     resample_before_rl: False
-  #     thresh_tasmin: 20 degC
-  #     thresh_tasmax: 33 degC
-  #     window: 3
-  #     min_gap: 3
-  #     win_reducer: mean
-  #     freq: YS
-  # tx_mean_annual:
-  #   base: tx_mean
-  # tn_mean_annual:
-  #   base: tx_mean
-  # prcptot_annual:
-  #   base: prcptot
-  # dry_days_annual:
-  #   base: dry_days
-  #   parameters:
-  #     thresh: 1 mm/day
+  freezethaw_-2_2_spell_mean_length_annual:
+    base: freezethaw_spell_mean_length
+    parameters:
+      thresh_tasmin: '-2 degC'
+      thresh_tasmax: '2 degC'
+  freezethaw_-2_2_spell_max_length_annual:
+    base: freezethaw_spell_max_length
+    parameters:
+      thresh_tasmin: '-2 degC'
+      thresh_tasmax: '2 degC'
+  dlyfrzthw_-2_2_annual:
+    base: dlyfrzthw
+    parameters:
+      thresh_tasmin: '-2 degC'
+      thresh_tasmax: '2 degC'
+  heat_spell_total_length_class1:
+    base: heat_spell_total_length
+    parameters:
+      resample_before_rl: False
+      thresh_tasmin: 20 degC
+      thresh_tasmax: 33 degC
+      window: 3
+      min_gap: 3
+      win_reducer: mean
+      freq: YS
+  tx_mean_annual:
+    base: tx_mean
+  tn_mean_annual:
+    base: tx_mean
+  prcptot_annual:
+    base: prcptot
+  dry_days_annual:
+    base: dry_days
+    parameters:
+      thresh: 1 mm/day
   temp_close_to_zero_annual:
     base: Daily
     compute: bivariate_count_occurrences

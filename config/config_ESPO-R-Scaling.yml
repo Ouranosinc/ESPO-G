@@ -58,8 +58,8 @@ extraction:
           experiment: ssp370
           source: CRCM5-SN
           driving_model: 
-            #- MPI-ESM1-2-LR
-            #- CanESM5
+            - MPI-ESM1-2-LR
+            - CanESM5
             - NorESM2-MM
             #- CNRM-ESM2-1
           #driving_member: r1i1p1f1
