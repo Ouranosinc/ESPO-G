@@ -56,8 +56,6 @@ if __name__ == '__main__':
     q99_reg= xr.open_zarr(f"{os.environ['SLURM_TMPDIR']}/q99_reg_{sim_id}+{dom}+{ref}+{subregion}+{var}.zarr")
 
     q99= xr.concat([q99_reg]*150, dim='time')
-    print(q99)
-    print(ds_adj)
     q99['time']=ds_adj['time']
 
     ds_adj['pr']= ds_adj['pr'].where((ds_adj.pr < config['filter_extremes']['factor'] *q99.pr).compute(), other=ds_reg.pr)
