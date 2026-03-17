@@ -23,13 +23,12 @@ extraction:
           - '1950'
           - '2300' #TODO: 2180 for CMIP6_ScenarioMIP_CCCma_CanESM5_ssp585_r1i1p1f1_global
         restrict_members:
-          ordered: 1
-        #coverage_kwargs:
-        #  coverage: 0.9 # TODO: remove, only for ssp534-over, to skip the hole
+         ordered: 1
+        # coverage_kwargs:
+        #    coverage: 0.9 # put only for ssp534-over, to skip the hole
         other_search_criteria:
           processing_level: raw
           mip_era: CMIP6
-          #experiment: ssp534-over
       extract_dataset:
         periods : *sim_period
         xr_combine_kwargs:
