@@ -62,7 +62,7 @@ extraction:
       hurs: "%"
       hursTasmax: "%"
 
-regrid:
+regridxscen: # To be able to regrid in another way in thi.py
   regrid_dataset:
       regridder_kwargs:
         method: bilinear
@@ -184,8 +184,6 @@ clean_up:
         hursTasmax: *attrs_to_keep
       add_attrs:
         global:
-          dataset: ESPO6
-          version: v20
           code: https://github.com/Ouranosinc/ESPO-G/tree/lait-e #TODO: put most up-to-date info
           contact: lavoie.juliette@ouranos.ca
           organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca

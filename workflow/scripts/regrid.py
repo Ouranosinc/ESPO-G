@@ -22,6 +22,7 @@ if __name__ == '__main__':
         ds=ds_input,
         ds_grid=ds_target,
         weights_location=f"{os.environ['SLURM_TMPDIR']}/weights/" 
+        **CONFIG['regridxscen']['regrid_dataset']
     )
 
     # chunk time dim
