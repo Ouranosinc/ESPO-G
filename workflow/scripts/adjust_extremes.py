@@ -36,27 +36,35 @@ if __name__ == '__main__':
     ds_tr = xr.open_zarr(input_train, decode_timedelta=False)
     ds_scen = xr.open_zarr(input_scen, decode_timedelta=False)
 
-    # Add 'scen' to adjusting args
-    args = deepcopy(config['biasadjust_extremes']['variables'][var]['adjusting_args'])
-    args["xsdba_adjust_args"] = args.get("xsdba_adjust_args", {})
-    args["xsdba_adjust_args"]["scen"] = ds_scen[var]
+    out = xr.zeros_like(ds_scen)[[var]]
 
-    # Adjust
-    ds_scen = xs.adjust(
-        dsim=ds_sim,
-        dtrain=ds_tr,
-        **args
-        )
+    for seasons in [["DJF", "MAM"], ["JJA", "SON"]]:
+        # Add 'scen' to adjusting args
+        args = deepcopy(config['biasadjust_extremes']['variables'][var]['adjusting_args'])
+        args["xsdba_adjust_args"] = args.get("xsdba_adjust_args", {})
+        args["xsdba_adjust_args"]["scen"] = ds_scen[var].where(ds_scen['time.season'].isin(seasons))
+
+        train_season = ds_tr.sel(season="".join(seasons)).drop_vars("season")
+
+        # Adjust
+        ds_adj = xs.adjust(
+            dsim=ds_sim.where(ds_sim['time.season'].isin(seasons)),
+            dtrain=train_season,
+            **args
+            )
+        
+        with xr.set_options(keep_attrs=True):
+            out[var] += ds_adj[var].fillna(0)
 
     #FIXME: until xscen>=0.13.1, add ba_ref by hand
-    if ds_scen.attrs.get('cat:bias_adjust_reference', 'unknown') == 'unknown':
+    if out.attrs.get('cat:bias_adjust_reference', 'unknown') == 'unknown':
         if ds_tr.attrs.get('cat:bias_adjust_reference') is not None:
-            ds_scen.attrs['cat:bias_adjust_reference'] = ds_tr.attrs['cat:bias_adjust_reference']
+            out.attrs['cat:bias_adjust_reference'] = ds_tr.attrs['cat:bias_adjust_reference']
         elif config.get('bias_adjust_reference') is not None:
-            ds_scen.attrs['cat:bias_adjust_reference'] = config['bias_adjust_reference']
+            out.attrs['cat:bias_adjust_reference'] = config['bias_adjust_reference']
 
     # Save
     if Path(output).suffix == '.zip':
-        tmp_zarr_and_zip(ds_scen, output, rechunk=config['chunks']['working'], encoding={v: {"dtype": "float32"} for v in ds_scen.data_vars})
+        tmp_zarr_and_zip(out, output, rechunk=config['chunks']['working'], encoding={v: {"dtype": "float32"} for v in out.data_vars})
     else:
-        xs.save_to_zarr(ds_scen, output, rechunk=config['chunks']['working'], encoding={v: {"dtype": "float32"} for v in ds_scen.data_vars})
+        xs.save_to_zarr(out, output, rechunk=config['chunks']['working'], encoding={v: {"dtype": "float32"} for v in out.data_vars})

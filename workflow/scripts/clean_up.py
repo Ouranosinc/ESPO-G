@@ -28,9 +28,11 @@ if __name__ == '__main__':
         conv_mod = xs.indicators.load_xclim_module(Path(conversions.__file__).with_suffix(""))
         ds = ds.assign(tasmin=conv_mod.tasmin_from_dtr(dtr=ds.dtr, tasmax=ds.tasmax))
     else:
-        attrs = ds["tasmin"].attrs
-        ds["tasmin"] = xr.where(ds["tasmin"] > ds["tasmax"], ds["tasmax"] - 0.01, ds["tasmin"])
-        ds["tasmin"].attrs = attrs
+        ds["tasmin"] = ds["tasmin"].clip(max=ds["tasmax"] - 0.01)
+    # FIXME: This is a temporary addon to test both methods.
+    if "dtr" not in ds.data_vars:
+        ds["dtr"] = ds["tasmax"] - ds["tasmin"]
+        ds["dtr"].attrs = {"units": "K", "long_name": "diurnal temperature range"}
 
     args = deepcopy(config['clean_up']['xscen_clean_up'])
     if "maybe_unstack_dict" in args and "coords" not in args["maybe_unstack_dict"]:

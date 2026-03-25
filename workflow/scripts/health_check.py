@@ -28,9 +28,22 @@ if __name__ == '__main__':
     
     ds_input = xr.open_mfdataset(input, engine='zarr', decode_timedelta=False)
 
+    diags = deepcopy(config['health_checks'])
+    if "missing" in diags:
+        diags_missing = diags.pop("missing")
+        ds_for_missing = xs.utils.stack_drop_nans(
+            ds_input,
+            mask=ds_input[[v for v in ds_input.data_vars if "mask" not in v][0]].isel(time=0).notnull().drop_vars('time').load()
+            )
+        xs.diagnostics.health_checks(
+            ds=ds_for_missing,
+            missing=diags_missing,
+            raise_on=["missing"]
+        )
+
     hc = xs.diagnostics.health_checks(
         ds=ds_input,
-        **config['health_checks']
+        **diags
         )
     
     hc.attrs.update(ds_input.attrs)

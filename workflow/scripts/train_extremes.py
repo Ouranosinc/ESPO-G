@@ -42,19 +42,25 @@ if __name__ == '__main__':
     input_cal = input_noleap if refcal == 'noleap' else  input_360_day if refcal == '360_day' else 'unknown'
     ds_ref = xr.open_zarr(input_cal, decode_timedelta=False)
 
-    # Training
-    ds_tr = xs.train(
-        dref=ds_ref,
-        dhist=ds_hist,
-        var=[var],
-        **config['biasadjust_extremes']['variables'][var]['training_args']
-        )
-    
-    # Add attribute for reference
-    ds_tr.attrs['cat:bias_adjust_reference'] = f"{ds_ref.attrs.get('cat:source', 'unknown')}{ds_ref.attrs.get('cat:version', '')}"
+    out = []
+
+    for seasons in [["DJF", "MAM"], ["JJA", "SON"]]:
+        # Training
+        ds_tr = xs.train(
+            dref=ds_ref.where(ds_ref['time.season'].isin(seasons)),
+            dhist=ds_hist.where(ds_hist['time.season'].isin(seasons)),
+            var=[var],
+            **config['biasadjust_extremes']['variables'][var]['training_args']
+            )
+        ds_tr = ds_tr.assign_coords(season="".join(seasons))
+        
+        # Add attribute for reference
+        ds_tr.attrs['cat:bias_adjust_reference'] = f"{ds_ref.attrs.get('cat:source', 'unknown')}{ds_ref.attrs.get('cat:version', '')}"
+        out.append(ds_tr)
+    out = xr.concat(out, dim='season')
 
     # Save
     if Path(output).suffix == '.zip':
-        tmp_zarr_and_zip(ds_tr, output, rechunk=config['chunks']['working'], encoding={v: {"dtype": "float32"} for v in ds_tr.data_vars})
+        tmp_zarr_and_zip(out, output, rechunk=config['chunks']['working'], encoding={v: {"dtype": "float32"} for v in out.data_vars})
     else:
-        xs.save_to_zarr(ds_tr, output, rechunk=config['chunks']['working'], encoding={v: {"dtype": "float32"} for v in ds_tr.data_vars})
+        xs.save_to_zarr(out, output, rechunk=config['chunks']['working'], encoding={v: {"dtype": "float32"} for v in out.data_vars})

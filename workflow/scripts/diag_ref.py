@@ -1,21 +1,48 @@
-import xclim as xc
+from copy import deepcopy
+from pathlib import Path
+import os
 import xarray as xr
 import xscen as xs
-from xscen import CONFIG
-from workflow.scripts.utils import dask_cluster, tmp_zarr_and_zip
+try:
+    from workflow.scripts.utils import dask_cluster, tmp_zarr_and_zip
+except ImportError:
+    from inpact.scripts.utils import save_to_zarrzip as tmp_zarr_and_zip
+    from inpact.scripts.utils import dask_cluster
 if 1==0: #trick vscode
     import snakemake
 
-xs.load_config("config/config_general.yml","config/config_region.yml","config/paths.yml")
 
 if __name__ == '__main__':
+    # Get Snakemake parameters
+    input = snakemake.input.ref
+    output = snakemake.output.prop
+    dregion = snakemake.wildcards.dregion
+    config = deepcopy(snakemake.config)
+    
+    # FIXME: Can't use Dask until the PR in xsdba is merged.
+    # # Start Dask cluster
+    # client=dask_cluster(
+    #     n_workers=snakemake.params.n_workers,
+    #     cpus_per_task=snakemake.params.cpus_per_task,
+    #     mem=snakemake.params.mem,
+    #     local_directory=Path(config['tmppath']) / "dask",
+    #     **config['dask'].get('client', {})
+    #     )
 
-    client=dask_cluster(snakemake.params)
+    ds_ref = xs.spatial.subset(xr.open_zarr(input, decode_timedelta=False), **config['diagregion'][dregion])
 
-    ds_ref= xr.open_zarr(snakemake.input.ref,decode_timedelta=False)
-    ds_ref = xs.spatial.subset(ds_ref, **CONFIG['diagregion'][snakemake.wildcards.dregion])
+    # FIXME: Continuation of the Dask/xsdba issue.
+    ds_ref = xs.utils.stack_drop_nans(ds_ref, mask=ds_ref["tasmax"].isel(time=0).notnull().drop_vars("time").load(), to_file=str(Path(os.environ['SLURM_TMPDIR']) / f"coords_diag_ref_{dregion}_{Path(input).stem}.nc"))
+    ds_ref = ds_ref.load()
 
-    # diagnostics
-    ds_ref_prop, _ = xs.properties_and_measures(ds=ds_ref, **CONFIG['diagnostics']['properties_and_measures'])
-    ds_ref_prop = ds_ref_prop.chunk(CONFIG['chunks']['diag'])
-    tmp_zarr_and_zip(ds_ref_prop, snakemake.output.prop)
+    # Diagnostics
+    ds_ref_prop, _ = xs.properties_and_measures(ds=ds_ref, **config['diagnostics']['properties_and_measures'])
+
+    # FIXME: Continuation of the Dask/xsdba issue.
+    ds_ref_prop = xs.utils.unstack_fill_nan(ds_ref_prop, coords=str(Path(os.environ['SLURM_TMPDIR']) / f"coords_diag_ref_{dregion}_{Path(input).stem}.nc"))
+
+    # Save
+    if Path(output).suffix == '.zip':
+        tmp_zarr_and_zip(ds_ref_prop, output, rechunk=config['chunks']['diag'], encoding={v: {"dtype": "float32"} for v in ds_ref_prop.data_vars})
+    else:
+        xs.save_to_zarr(ds_ref_prop, output, rechunk=config['chunks']['diag'], encoding={v: {"dtype": "float32"} for v in ds_ref_prop.data_vars})
