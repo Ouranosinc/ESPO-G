@@ -28,7 +28,16 @@ if __name__ == '__main__':
         conv_mod = xs.indicators.load_xclim_module(Path(conversions.__file__).with_suffix(""))
         ds = ds.assign(tasmin=conv_mod.tasmin_from_dtr(dtr=ds.dtr, tasmax=ds.tasmax))
     else:
-        ds["tasmin"] = ds["tasmin"].clip(max=ds["tasmax"] - 0.01)
+        oldtasmax = ds["tasmax"].copy()
+        oldtasmin = ds["tasmin"].copy()
+
+        # Find where there are no inversion
+        valid_mask = oldtasmax >= oldtasmin
+
+        # Manage inverted temperatures
+        ds["tasmax"] = ds["tasmax"].where(valid_mask.compute(), other=oldtasmin)
+        ds["tasmin"] = ds["tasmin"].where(valid_mask.compute(), other=oldtasmax)
+
     # FIXME: This is a temporary addon to test both methods.
     if "dtr" not in ds.data_vars:
         ds["dtr"] = ds["tasmax"] - ds["tasmin"]

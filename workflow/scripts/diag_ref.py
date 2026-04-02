@@ -19,26 +19,22 @@ if __name__ == '__main__':
     dregion = snakemake.wildcards.dregion
     config = deepcopy(snakemake.config)
     
-    # FIXME: Can't use Dask until the PR in xsdba is merged.
-    # # Start Dask cluster
-    # client=dask_cluster(
-    #     n_workers=snakemake.params.n_workers,
-    #     cpus_per_task=snakemake.params.cpus_per_task,
-    #     mem=snakemake.params.mem,
-    #     local_directory=Path(config['tmppath']) / "dask",
-    #     **config['dask'].get('client', {})
-    #     )
+    # Start Dask cluster
+    client=dask_cluster(
+        n_workers=snakemake.params.n_workers,
+        cpus_per_task=snakemake.params.cpus_per_task,
+        mem=snakemake.params.mem,
+        local_directory=Path(config['tmppath']) / "dask",
+        **config['dask'].get('client', {})
+        )
 
     ds_ref = xs.spatial.subset(xr.open_zarr(input, decode_timedelta=False), **config['diagregion'][dregion])
 
-    # FIXME: Continuation of the Dask/xsdba issue.
+    # Much easier on Dask if we drop the NaN values at this stage, and then re-stack them after the diagnostics.
     ds_ref = xs.utils.stack_drop_nans(ds_ref, mask=ds_ref["tasmax"].isel(time=0).notnull().drop_vars("time").load(), to_file=str(Path(os.environ['SLURM_TMPDIR']) / f"coords_diag_ref_{dregion}_{Path(input).stem}.nc"))
-    ds_ref = ds_ref.load()
 
     # Diagnostics
     ds_ref_prop, _ = xs.properties_and_measures(ds=ds_ref, **config['diagnostics']['properties_and_measures'])
-
-    # FIXME: Continuation of the Dask/xsdba issue.
     ds_ref_prop = xs.utils.unstack_fill_nan(ds_ref_prop, coords=str(Path(os.environ['SLURM_TMPDIR']) / f"coords_diag_ref_{dregion}_{Path(input).stem}.nc"))
 
     # Save

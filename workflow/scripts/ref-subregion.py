@@ -12,7 +12,7 @@ if 1==0: #trick vscode
 
 if __name__ == '__main__':
     # Get Snakemake parameters
-    input = snakemake.input[0]
+    input = snakemake.input.ref
     output_default = snakemake.output.default
     output_noleap = snakemake.output.noleap
     output_day360 = snakemake.output.day360
