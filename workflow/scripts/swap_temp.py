@@ -26,7 +26,7 @@ if __name__ == '__main__':
     oldtasmin = ds_tasmin.copy()
 
     # Find where no inversion
-    valid_mask = ds_tasmax.tasmax > ds_tasmin.tasmin
+    valid_mask = ds_tasmax.tasmax >= ds_tasmin.tasmin
 
 
     ds_tasmax['tasmax']=ds_tasmax.tasmax.where(valid_mask.compute(),

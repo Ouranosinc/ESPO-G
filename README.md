@@ -52,23 +52,31 @@ TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/re
  ### v2.0 [This release]
  
  Changes from v1.0:
-  * Add possibility to run hurs and hursTasmax
-  * Add possibility to run until 2300
-  * Add possibility to run for regional climate models
-  * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
-  * Add CaSR v3.2 reference
-  * Workflow uses snakemake
-  * Add mask based in sftlf on the simulation
+
+  For ESPO-G:
   * KACE-1-0-G was excluded. (https://github.com/Ouranosinc/ESPO-G/issues/6)
   * EC-Earth3-CC and NESM3 were excluded as they do not have SSP3-7.0 available.
   * New calculation of the TCR lead to CNRM-CM6-1/INM-CM5-0  being included/excluded in the TCR likely range. (https://github.com/Ouranosinc/ESPO-G/issues/7)  
 
   For ESPO-R:
   * Regrid in a single step
-  * Start in 1951 (CRCM5 not available in 1950)
   * Fill in nans
+  * Filter raw extreme pr
   * Add spatial subset of input domain.
+
+  For both:
+  * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
+  * Add CaSR v3.2 reference
+  * Add mask based in sftlf on the simulation
+  * Start in 1951 (CRCM5 not available in 1950)
   * NAM domain slightly changed
+
+  In the code:
+  * Add possibility to run hurs and hursTasmax
+  * Add possibility to run until 2300
+  * Workflow uses snakemake
+  * More checks on nan in health checks
+
 
 Branch: snakemake
 

@@ -26,7 +26,7 @@ if __name__ == '__main__':
         path=f"{CONFIG['pathind']}/CaSR_{name}.zarr.zip"
         if not Path(path).exists():
             outd = xs.indicators.compute_indicators(ds, indicators=[(name,ind)])
-            out=outd['YS-JAN']
+            out=outd.popitem()[1]
 
             for v in out.coords:
                 if 'chunks' in out[v].encoding:
@@ -36,7 +36,7 @@ if __name__ == '__main__':
                 out,
                 path,
                 zip_zarrdir= "${SLURM_TMPDIR}",
-                rechunk={"rlat":50, "rlon":50}
+                rechunk={"rlat":50, "rlon":50, 'time':-1}
                 )
     
     print('adjusted')
@@ -55,16 +55,16 @@ if __name__ == '__main__':
                 path=f"{CONFIG['pathind']}/{m}_{dm}_{name}.zarr.zip"
                 if not Path(path).exists():
                     outd = xs.indicators.compute_indicators(ds, indicators=[(name,ind)])
-                    out=outd['YS-JAN']
+                    out=outd.popitem()[1]
                     xs.save_to_zarr(
                         out,
                         path,
                         zip_zarrdir= "${SLURM_TMPDIR}",
-                        rechunk={"rlat":50, "rlon":50}
+                        rechunk={"rlat":50, "rlon":50, 'time':-1}
                         )
     
     print('regridded')
-    for dm in ['MPI-ESM1-2-LR','CanESM5','NorESM2-MM']:
+    for dm in ['NorESM2-MM','CanESM5','MPI-ESM1-2-LR']:
         print(dm)
         d=[]
         for i in range(6):
@@ -80,10 +80,30 @@ if __name__ == '__main__':
             path=f"{CONFIG['pathind']}/regridded_{dm}_{name}.zarr.zip"
             if not Path(path).exists():
                 outd = xs.indicators.compute_indicators(ds, indicators=[(name,ind)])
-                out=outd['YS-JAN']
+                out=outd.popitem()[1]
+                #out = out.chunk({ "rlat":50, "rlon":50, 'time':-1})
+                xs.save_to_zarr(
+                    out,
+                    path,
+                    zip_zarrdir= "${SLURM_TMPDIR}",
+                    rechunk={"time":-1,"rlat":50, "rlon":50}
+                    )
+
+
+    print('extracted')
+    for dm in ['MPI-ESM1-2-LR','CanESM5','NorESM2-MM']:
+        print(dm)
+        f= glob.glob(f"{CONFIG['regDQM']}/*_{dm}_*+extracted.zarr")[0]
+        ds=xr.open_zarr(f, decode_timedelta=False)
+
+        mod = xs.indicators.load_xclim_module('indicators')
+
+        for name, ind in mod.iter_indicators():
+            path=f"{CONFIG['pathind']}/extracted_{dm}_{name}.zarr.zip"
+            if not Path(path).exists():
+                outd = xs.indicators.compute_indicators(ds, indicators=[(name,ind)])
+                out=outd.popitem()[1]
                 #out = out.chunk({ "rlat":50, "rlon":50})
-                print(path)
-                print(out)
                 xs.save_to_zarr(
                     out,
                     path,

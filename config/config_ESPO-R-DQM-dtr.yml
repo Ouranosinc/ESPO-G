@@ -351,7 +351,7 @@ diagnostics:
     period: *ref_period
 
 health_checks:
-  extract:
+  extract: # not actually used
     structure:
       coords:
         - rlat

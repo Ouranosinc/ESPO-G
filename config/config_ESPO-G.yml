@@ -1,4 +1,6 @@
 #Configuration file for ESPO-G6-C3
+
+#TODO: compare with what Gab did
 subregions:
   n: 50000 # number of loc in each subregions
 
@@ -7,9 +9,9 @@ full_region:
   name: &domain
     NAM
   method: bbox
-  tile_buffer: 1.5
+  tile_buffer: 1.5 #removed in make ref
   lon_bnds: [ -179.95, -10 ]
-  lat_bnds: [ 10, 83.4 ]
+  lat_bnds: [ 12.5, 83.4 ]
 
 #TODO: change workflow to allow for 2 refs.
 
@@ -23,8 +25,8 @@ extraction:
           pr: D
           dtr: D
           mask: fx # for casr
-          hurs: D
-          hursTasmax: D
+          # hurs: D
+          # hursTasmax: D
         allow_resampling: False
         allow_conversion: True
         periods : &ref_period
@@ -43,13 +45,13 @@ extraction:
           pr: D
           dtr: D
           sftlf: fx
-          hurs: D
-          hursmin: D
+          #hurs: D
+          #hursmin: D
         match_hist_and_fut: True
         allow_conversion: True
         allow_resampling: False
         periods: &sim_period
-          - '1950' 
+          - '1951' 
           - '2100'
         restrict_members:
           ordered: 1
@@ -85,6 +87,7 @@ extraction:
         xr_combine_kwargs:
           combine_attrs: override
         xr_open_kwargs:
+          engine: h5netcdf
           drop_variables:
             - height
             - bnds
@@ -102,8 +105,8 @@ extraction:
       tasmin: K
       pr: kg m-2 s-1 # xscen should work if standard_name is 'precipitation_flux'
       dtr: K
-      hurs: "%"
-      hursTasmax: "%"
+      # hurs: "%"
+      # hursTasmax: "%"
 
 regrid:
   regrid_dataset:
@@ -168,7 +171,7 @@ biasadjust:
                 bias_adjust_institution: &b_a_inst
                   Ouranos
                 bias_adjust_project: &b_a_pro
-                  ESPO6
+                  ESPO
         tasmax:
             training_args:
                 method: DetrendedQuantileMapping
@@ -198,38 +201,38 @@ biasadjust:
                 xsdba_adjust_args: *adj-args
                 bias_adjust_institution: *b_a_inst
                 bias_adjust_project: *b_a_pro
-        hurs:
-            training_args:
-                method: DetrendedQuantileMapping
-                group: *group
-                xsdba_train_args:
-                    kind: "*"
-                    nquantiles: 50
-                # additive_space:
-                #   hurs: &logit
-                #     lower_bound: "0 %"
-                #     upper_bound: "100 %"
-                #     trans: "logit"
-                #     clip_next_to_bounds: permissive
-            adjusting_args:
-                periods: *sim_period
-                xsdba_adjust_args: *adj-args
-                bias_adjust_institution: *b_a_inst
-                bias_adjust_project: *b_a_pro
-        hursTasmax:
-            training_args:
-                method: DetrendedQuantileMapping
-                group: *group
-                xsdba_train_args:
-                    kind: "*"
-                    nquantiles: 50
-                # additive_space:
-                #   hursTasmax: *logit
-            adjusting_args:
-                periods: *sim_period
-                xsdba_adjust_args: *adj-args
-                bias_adjust_institution: *b_a_inst
-                bias_adjust_project: *b_a_pro
+        # hurs:
+        #     training_args:
+        #         method: DetrendedQuantileMapping
+        #         group: *group
+        #         xsdba_train_args:
+        #             kind: "*"
+        #             nquantiles: 50
+        #         # additive_space:
+        #         #   hurs: &logit
+        #         #     lower_bound: "0 %"
+        #         #     upper_bound: "100 %"
+        #         #     trans: "logit"
+        #         #     clip_next_to_bounds: permissive
+        #     adjusting_args:
+        #         periods: *sim_period
+        #         xsdba_adjust_args: *adj-args
+        #         bias_adjust_institution: *b_a_inst
+        #         bias_adjust_project: *b_a_pro
+        # hursTasmax:
+        #     training_args:
+        #         method: DetrendedQuantileMapping
+        #         group: *group
+        #         xsdba_train_args:
+        #             kind: "*"
+        #             nquantiles: 50
+        #         # additive_space:
+        #         #   hursTasmax: *logit
+        #     adjusting_args:
+        #         periods: *sim_period
+        #         xsdba_adjust_args: *adj-args
+        #         bias_adjust_institution: *b_a_inst
+        #         bias_adjust_project: *b_a_pro
 
 clean_up:
   save:
@@ -281,8 +284,7 @@ clean_up:
           "cat:_data_format_": "zarr"
           Notes: |
             Regridded on the grid of the reference, then bias-adjusted with detrended
-            quantile mapping on a day-of-year basis with a window of 31 days, LOESS
-            detrending and 50 quantiles. The reference period was 1991-2020. Tasmax,
+            quantile mapping. The reference period was 1991-2020. Tasmax,
             dtr and pr were adjusted, tasmin was computed
             from tasmax and dtr after the adjustment.
         tasmax:
@@ -376,6 +378,11 @@ diagregion:
     method: bbox
     lat_bnds:  [ 61.3, 66.75]
     lon_bnds: [ -130, -103.8 ]
+  Atlas:
+    name: Atlas
+    method: bbox
+    lon_bnds: [-83 ,-55 ] 
+    lat_bnds: [42, 53]
 
 diagnostics:
   properties_and_measures:
@@ -384,13 +391,13 @@ diagnostics:
       tasmin: degC
       pr: mm d-1
       dtr: K
-      hurs: "%"
-      hursTasmax: "%"
+      # hurs: "%"
+      # hursTasmax: "%"
     properties: config/properties.yml
     period: *ref_period
 
 health_checks:
-  extract:
+  extract: # not actually used
     structure:
       coords:
         - time
@@ -426,7 +433,7 @@ health_checks:
       D
     missing: # warn but don't raise
       mising_any:
-        freq: D
+        freq: YS
     flags: &flags
       tasmax:
         temperature_extremely_high:
