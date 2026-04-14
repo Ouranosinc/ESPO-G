@@ -25,7 +25,6 @@ if __name__ == '__main__':
     dregion = snakemake.wildcards.dregion
     config = deepcopy(snakemake.config)
     
-    # FIXME: Can't use Dask until the PR in xsdba is merged.
     # Start Dask cluster
     client=dask_cluster(
         n_workers=snakemake.params.n_workers,
