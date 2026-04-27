@@ -33,6 +33,10 @@ if __name__ == '__main__':
     # Much easier on Dask if we drop the NaN values at this stage, and then re-stack them after the diagnostics.
     ds_ref = xs.utils.stack_drop_nans(ds_ref, mask=ds_ref["tasmax"].isel(time=0).notnull().drop_vars("time").load(), to_file=str(Path(os.environ['SLURM_TMPDIR']) / f"coords_diag_ref_{dregion}_{Path(input).stem}.nc"))
 
+    # Add tas
+    ds_ref["tas"] = (ds_ref["tasmax"] + ds_ref["tasmin"]) / 2
+    ds_ref["tas"].attrs = ds_ref["tasmax"].attrs
+
     # Diagnostics
     ds_ref_prop, _ = xs.properties_and_measures(ds=ds_ref, **config['diagnostics']['properties_and_measures'])
     ds_ref_prop = xs.utils.unstack_fill_nan(ds_ref_prop, coords=str(Path(os.environ['SLURM_TMPDIR']) / f"coords_diag_ref_{dregion}_{Path(input).stem}.nc"))

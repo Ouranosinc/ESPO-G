@@ -41,6 +41,10 @@ if __name__ == '__main__':
     # ds_ref_prop = ds_ref_prop.load()
     # ds_ref_prop = ds_ref_prop.sel(loc=ds_scen["loc"])
 
+    # Add tas
+    ds_scen["tas"] = (ds_scen["tasmax"] + ds_scen["tasmin"]) / 2
+    ds_scen["tas"].attrs = ds_scen["tasmax"].attrs
+
     # Diagnostics
     ds_sim_prop, _ = xs.properties_and_measures(ds=ds_scen.chunk({"time": -1}), **config['diagnostics']['properties_and_measures'])
     # ds_sim_prop, ds_sim_meas = xs.properties_and_measures(ds=ds_scen, dref_for_measure=ds_ref_prop, **config['diagnostics']['properties_and_measures'])

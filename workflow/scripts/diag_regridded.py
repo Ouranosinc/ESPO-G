@@ -60,6 +60,10 @@ if __name__ == '__main__':
     # ds_ref_prop_b = ds_ref_prop.sel(loc=ds_b["loc"])
     # ds_ref_prop_c = ds_ref_prop.sel(loc=ds_c["loc"])
 
+    # Add tas
+    ds_b["tas"] = (ds_b["tasmax"] + ds_b["tasmin"]) / 2
+    ds_b["tas"].attrs = ds_b["tasmax"].attrs
+
     # Diagnostics
     ds_simb_prop, _ = xs.properties_and_measures(ds=ds_b.chunk({"time": -1}), **config['diagnostics']['properties_and_measures'])
     # ds_simb_prop, ds_simb_meas = xs.properties_and_measures(ds=ds_b, dref_for_measure=ds_ref_prop_b, **config['diagnostics']['properties_and_measures'])
