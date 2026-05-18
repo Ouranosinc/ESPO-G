@@ -84,6 +84,9 @@ History:
   2026-01: ran ESPO-R-DQM and ESPO-R-Scaling with env espojan2026 
   2026-02: ran tests with env espojan2026. [ESPO-R-EV (bug, give up, Eric is working on it), ESPO-R-DQM-100 (works, this still has exploding pr), ESPO-R-DQM-tasmin (works, +s and -s vs DTR), ESPO-R-filter]
   2026-02: Create env espofev2026 to add xesmf 0.9.2 and xscen-0.13.2.dev7. Ran tests for ESPO-R-filter and redo ESPO-R-tasmin without bug
+  2026-04: Test CanRCM5 with env xscen-0.14, fixed filter and rerun CRCM5 with env xscen-0.14. 
+  2026-04-27: Tests with new xsdba branch fix-278 in env espoavr2026.
+  2026-04-28: Tests with new xsdba branch fix-278 (10q99 inside xsdba) in env espoavr2026
 
 ### Project lait-e
 

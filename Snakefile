@@ -11,13 +11,15 @@ min_version("8.12.0") #set minimum snakemake version
 
 #TODO: choose the right configs
 #TODO: put the right log file
-configfile: "config/config_ESPO-R-Scaling.yml"
-configfile: "config/paths_ESPO-R-Scaling.yml"
+configfile: "config/config_ESPO-R.yml"
+configfile: "config/paths_ESPO-R.yml"
 
 
 # choose the simulations to process
 dict_sim_id = xs.search_data_catalogs(**copy.deepcopy(config['extraction']['simulation']['search_data_catalogs'],))
 sim_ids= list(dict_sim_id.keys())
+print(config['extraction']['simulation']['search_data_catalogs'])
+print(sim_ids)
 
 diagregions=[d for d in config['diagregion'].keys()] # for diags
 level=['improvement', 'diag_sim_prop','diag_sim_meas','diag_scen_prop','diag_scen_meas']
