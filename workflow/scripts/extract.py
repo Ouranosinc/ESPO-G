@@ -11,6 +11,8 @@ from datetime import datetime
 import numpy as np
 if 1==0: #trick vscode
     import snakemake
+import xarray as xr
+xr.set_options(netcdf_engine_order =['h5netcdf','netcdf4', ])
 
 
 if __name__ == '__main__':

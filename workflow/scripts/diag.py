@@ -6,6 +6,7 @@ import xscen as xs
 from workflow.scripts.utils import dask_cluster
 if 1==0: #trick vscode
     import snakemake
+xr.set_options(netcdf_engine_order =['h5netcdf','netcdf4', ])
 
 
 if __name__ == '__main__':
