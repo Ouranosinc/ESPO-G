@@ -53,15 +53,16 @@ extraction:
         periods: &sim_period
           - '1951' 
           - '2100'
-        restrict_members:
-          ordered: 1
+        #restrict_members:
+        #  ordered: 1
         other_search_criteria:
           processing_level: raw
           mip_era: CMIP6
           experiment:
-            #- ssp245
+            - ssp245
             - ssp370
-          source: # but actually on 8 have hurs (and there was a bug with MPI-ESM1-2-HR )
+            - ssp585
+          #source: # but actually on 8 have hurs (and there was a bug with MPI-ESM1-2-HR )
             # - ACCESS-CM2 
             # - ACCESS-ESM1-5  
             # - BCC-CSM2-MR
@@ -75,7 +76,7 @@ extraction:
             # - MIROC-ES2L 
             # - MPI-ESM1-2-HR
             # - MPI-ESM1-2-LR 
-             - MRI-ESM2-0 
+            # - MRI-ESM2-0 
             # - NorESM2-LM
             # rerun for CanESM5 r1i1p2f1 (meme membre que MRCC5) and CanESM5-1 (TCR =2.26 according to ESMValTool) to be less hot
             #source: 
@@ -431,7 +432,7 @@ health_checks:
       #   cfcheck_from_name: {}
     freq: &freq
       D
-    missing: # warn but don't raise
+    missing:
       mising_any:
         freq: YS
     flags: &flags

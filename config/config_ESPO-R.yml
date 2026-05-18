@@ -56,20 +56,21 @@ extraction:
         other_search_criteria:
           processing_level: raw
           experiment: ssp370
-          source: CRCM5-SN
+          source: 
+            - CRCM5-SN
+            - CanRCM5-SN
           driving_model: 
             - MPI-ESM1-2-LR
             - CanESM5
+            - CanESM5-1
             - NorESM2-MM
             #- CNRM-ESM2-1
-          #driving_member: r1i1p1f1
           #member: r1
       extract_dataset:
         periods : *sim_period
         xr_combine_kwargs:
           combine_attrs: override
         xr_open_kwargs:
-          engine: h5netcdf
           drop_variables:
             - height
             - bnds
@@ -184,8 +185,8 @@ biasadjust:
         #         bias_adjust_institution: *b_a_inst
         #         bias_adjust_project: *b_a_pro
 
-filter_extremes:
-  factor: 1000
+# filter_extremes:
+#   factor: 1000 #TODO: change back
 
 
 clean_up:
