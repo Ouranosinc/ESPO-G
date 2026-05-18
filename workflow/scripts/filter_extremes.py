@@ -48,16 +48,18 @@ if __name__ == '__main__':
         if 'chunks' in q99_reg[v].encoding:
             del q99_reg[v].encoding['chunks']
 
-    xs.save_to_zarr(q99_reg, f"{os.environ['SLURM_TMPDIR']}/q99_reg_{sim_id}+{dom}+{ref}+{subregion}+{var}.zarr",)
+    xs.save_to_zarr(q99_reg, f"{config['paths']['tmpdir']}/q99_reg_{sim_id}+{dom}+{ref}+{subregion}+{var}.zarr",
+                    mode='o',
+                    **config['save_to_zarr']
+    )
 
   
     # replace adjusted pr with reg pr when reg pr was above 1000 q99
     ds_adj= xr.open_zarr(input_adjusted)
-    q99_reg= xr.open_zarr(f"{os.environ['SLURM_TMPDIR']}/q99_reg_{sim_id}+{dom}+{ref}+{subregion}+{var}.zarr")
+    q99_reg= xr.open_zarr(f"{config['paths']['tmpdir']}/q99_reg_{sim_id}+{dom}+{ref}+{subregion}+{var}.zarr")
 
     q99= xr.concat([q99_reg]*150, dim='time')
     q99['time']=ds_adj['time']
-
-    ds_adj['pr']= ds_adj['pr'].where((ds_adj.pr < config['filter_extremes']['factor'] *q99.pr).compute(), other=ds_reg.pr)
+    ds_adj['pr']= ds_adj['pr'].where((ds_reg.pr < config['filter_extremes']['factor'] *q99.pr).compute(), other=ds_reg.pr)
 
     xs.save_to_zarr(ds_adj, output, **config['save_to_zarr'])
