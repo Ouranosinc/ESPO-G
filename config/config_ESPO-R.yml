@@ -51,14 +51,20 @@ extraction:
         periods: &sim_period
           - '1951' 
           - '2100'
-        restrict_members:
-          ordered: 1
+        # restrict_members:
+        #   ordered: 1
         other_search_criteria:
           processing_level: raw
-          experiment: ssp370
+          experiment: 
+           - ssp370
+          # - ssp585
+          # - ssp245
           source: 
             - CRCM5-SN
-            - CanRCM5-SN
+            #- CanRCM5-SN
+          driving_member: 
+            - r4i1p1f1
+            - r5i1p1f1
           driving_model: 
             - MPI-ESM1-2-LR
             - CanESM5
@@ -155,9 +161,19 @@ biasadjust:
                     kind: "*"
                     nquantiles: 50
                     adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" # xsdba cant convert mm/day automatically
+                    max_tail_factor: 10 #TODO: test this 
             adjusting_args:
                 periods: *sim_period
-                xsdba_adjust_args: *adj-args
+                xsdba_adjust_args: 
+                    detrend:
+                        LoessDetrend:
+                          f: 0.2
+                          niter: 1
+                          d: 0
+                          weights: tricube
+                          mult_skip_zeros: True
+                    interp: nearest
+                    extrapolation: constant
                 bias_adjust_institution: *b_a_inst
                 bias_adjust_project: *b_a_pro
         # hurs:
