@@ -18,8 +18,10 @@ configfile: "config/paths_ESPO-R.yml"
 # choose the simulations to process
 dict_sim_id = xs.search_data_catalogs(**copy.deepcopy(config['extraction']['simulation']['search_data_catalogs'],))
 sim_ids= list(dict_sim_id.keys())
+#sim_ids=['CMIP6_CORDEX_MPI-ESM1-2-LR_r4i1p1f1_OURANOS_CRCM5-SN_ssp370_r1_NAM-12','CMIP6_CORDEX_MPI-ESM1-2-LR_r5i1p1f1_OURANOS_CRCM5-SN_ssp370_r1_NAM-12','CMIP6_CORDEX_MPI-ESM1-2-LR_r1i1p1f1_OURANOS_CRCM5-SN_ssp370_r1_NAM-12']
 print(config['extraction']['simulation']['search_data_catalogs'])
 print(sim_ids)
+
 
 diagregions=[d for d in config['diagregion'].keys()] # for diags
 level=['improvement', 'diag_sim_prop','diag_sim_meas','diag_scen_prop','diag_scen_meas']
@@ -29,7 +31,6 @@ reference = list(config['extraction']['reference'].keys())
 
 # define subregions on which to split the computation
 #TODO: this might fail with e5l..
-#subregions = list(config["custom"]["regions"].keys()) # for parallelisation of computation
 cat_ref = xs.search_data_catalogs(**config['extraction']['reference'][reference[0]]['search_data_catalogs'])
 dc = cat_ref.popitem()[1]
 dref = xs.extract_dataset(catalog=dc,
@@ -40,8 +41,6 @@ dref = xs.utils.stack_drop_nans(dref,dref.pr.isel(time=0, drop=True).notnull().c
 num_of_regions= int(np.ceil(dref.sizes['loc']/config['subregions']['n']))
 subregions=[f"sr-{i}" for i in range(num_of_regions)]
 
-
-
 #paths
 tmpdir= Path(config['paths']['tmpdir'])
 finaldir=Path(config['paths']['final'])
@@ -49,9 +48,7 @@ finaldir=Path(config['paths']['final'])
 rule all:
     input:
         expand(finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
-        expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
-
-
+        #expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
 rule makeref:
     output:
         ref=finaldir/ "reference/{dom}_{ref}_default.zarr.zip",
@@ -83,8 +80,8 @@ rule refsubregion:
 
 rule extract:
     output:
-        #extract=temp(directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"))
-        extract=directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"),
+        extract=temp(directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"))
+        #extract=directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"),
     params:
         n_workers=2,
         mem="400GB",
@@ -99,8 +96,8 @@ rule regrid:
           noleap = finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_noleap.zarr.zip",
           extract = tmpdir/"{sim_id}+{dom}+extracted.zarr"
      output:
-          #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+regridded.zarr"))
-          directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regridded.zarr") 
+          temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regridded.zarr"))
+          #directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regridded.zarr") 
      params:
           n_workers=2,
           cpus_per_task=8,
@@ -116,7 +113,7 @@ rule rechunk:
           tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regridded.zarr"
      output:
           directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regchunked.zarr")
-          #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+regchunked.zarr"))
+          #temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regchunked.zarr"))
      params:
           n_workers=2,
           cpus_per_task=10,
@@ -127,14 +124,41 @@ rule rechunk:
      script:
           "workflow/scripts/rechunk.py"
 
+
+#   pool groups for training
+# list is list of sim_ids that should be included in the training based on a sim_id
+# pool is the wildcard string concateneting all sim_ids that should be included in the training
+def id2list(id,):
+
+    RIPF_PATTERN = r'r\d+i\d+p\d+f\d+'
+
+    # Extract the r*i*p*f* part from id_str
+    ripf_match = re.search(RIPF_PATTERN, id)
+
+    ripf_span = ripf_match.span()
+
+    # Build a regex from id: keep everything outside the r*i*p*f* part literal,
+    # replace the r*i*p*f* part with the general pattern
+    prefix = re.escape(id[:ripf_span[0]])
+    suffix = re.escape(id[ripf_span[1]:])
+    match_pattern = re.compile(f'^{prefix}{RIPF_PATTERN}{suffix}$')
+
+    return [s for s in sim_ids if match_pattern.match(s)]
+
+def id2pool(id,):
+    return '&'.join(id2list(id,))
+
+def pool2list(pool,):
+    return pool.split('&')
+
 rule train:
     input:
         noleap = finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_noleap.zarr.zip",
         day360 = finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_360_day.zarr.zip",
-        rechunk = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regchunked.zarr",
+        rechunk=lambda wildcards: expand(tmpdir/"{sim_id}+{{dom}}+{{ref}}+{{subregion}}+regchunked.zarr",sim_id=pool2list(wildcards.pool)),
     output:
-        directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+training.zarr")
-        #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+training.zarr"))
+        directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+{var}+training.zarr")
+        #temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+{var}+training.zarr"))
     params:
         n_workers=3,
         mem='100GB',
@@ -145,11 +169,11 @@ rule train:
 
 rule adjust: 
     input:
-        train = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+training.zarr",
+        train = lambda wildcards: tmpdir/(f"{id2pool(wildcards.sim_id)}"+"+{dom}+{ref}+{subregion}+{var}+training.zarr"),
         rechunk = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regchunked.zarr",
     output:
-        #temp(directory(tmpdir/"{sim_id}+{dom}+{subregion}+{var}+adjusted.zarr"))
-        directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+adjusted.zarr")
+        temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+adjusted.zarr"))
+        #directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+adjusted.zarr")
     params:
         n_workers=5,
         cpus_per_task=15,
@@ -158,41 +182,9 @@ rule adjust:
         # mem='200GB', #2300
         # time="2:00:00", #2300
     script:
-        "workflow/scripts/adjust.py"
+       "workflow/scripts/adjust.py"
 
 
-if 'filter_extremes' in config:
-    rule filter_extremes:
-        input:
-            rechunk = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regchunked.zarr",
-            adjusted = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+adjusted.zarr"
-        output:
-            directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+adjustedF.zarr")
-        wildcard_constraints:
-            var = "pr"
-        params:
-            n_workers=2,
-            cpus_per_task=5,
-            mem='500GB', 
-            time="06:00:00", 
-        script:
-            "workflow/scripts/filter_extremes.py"
-
-    ruleorder: concat_clean_filter > concat_clean
-
-    rule concat_clean_filter:
-        input: 
-            adjusted=expand(tmpdir/"{{sim_id}}+{{dom}}+{{ref}}+{subregion}+{{var}}+adjustedF.zarr",  subregion=subregions),
-            extracted=tmpdir/"{sim_id}+{dom}+extracted.zarr"
-        output: 
-            finaldir/"staging/{path}/{var}/{var}_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
-        params:
-            path=lambda wildcards: final_path(wildcards.sim_id, wildcards.ref),
-            mem="60GB",
-            time="03:00:00", 
-            cpus_per_task=12,
-        script:
-            "workflow/scripts/concat_clean_up.py"
 
 
 
@@ -248,7 +240,7 @@ rule concat_clean:
         adjusted=expand(tmpdir/"{{sim_id}}+{{dom}}+{{ref}}+{subregion}+{{var}}+adjusted.zarr",  subregion=subregions),
         extracted=tmpdir/"{sim_id}+{dom}+extracted.zarr"
     output: 
-        finaldir/"staging/{path}/{var}/{var}_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
+        finaldir/"staging/{path}/{var}/{var}_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
     params:
         path=lambda wildcards: final_path(wildcards.sim_id, wildcards.ref),
         mem="60GB",
@@ -261,10 +253,10 @@ rule concat_clean:
 ruleorder: tasmin > concat_clean
 rule tasmin:
     input: 
-        tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip",
-        dtr=finaldir/"staging/{path}/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip"
+        tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip",
+        dtr=finaldir/"staging/{path}/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"
     output: 
-        finaldir/"staging/{path}/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip", 
+        finaldir/"staging/{path}/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
     params:
         path=lambda wildcards: final_path(wildcards.sim_id, wildcards.ref),
         mem="60GB",
@@ -276,10 +268,10 @@ rule tasmin:
 
 rule health_checks:
     input:
-        pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/pr/pr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip"),
-        tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip"),
-        tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip"),
-        dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip"),
+        pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/pr/pr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
+        tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
+        tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
+        dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
     output:
         finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip"
     params:
@@ -309,10 +301,10 @@ rule diag:
     input:
         ref=finaldir/ "reference/{dom}_{ref}_default.zarr.zip",
         ref_prop=finaldir/"diagnostics/{ref}/{dom}/{dregion}/ref-prop.zarr.zip",
-        scen_pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/pr/pr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip"),
-        scen_tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip"),
-        scen_tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip"),
-        scen_dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1950-2100.zarr.zip"), 
+        scen_pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/pr/pr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
+        scen_tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
+        scen_tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
+        scen_dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"), 
     output: 
         sim_prop=finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_sim-prop.zarr.zip",
         sim_meas=finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_sim-meas.zarr.zip",

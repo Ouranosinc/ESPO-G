@@ -87,6 +87,7 @@ History:
   2026-04: Test CanRCM5 with env xscen-0.14, fixed filter and rerun CRCM5 with env xscen-0.14. 
   2026-04-27: Tests with new xsdba branch fix-278 in env espoavr2026.
   2026-04-28: Tests with new xsdba branch fix-278 (10q99 inside xsdba) in env espoavr2026
+  2026-05-18: Test with new xsdba branch fix-278 in env espomai2026
 
 ### Project lait-e
 

@@ -1,10 +1,12 @@
-from copy import deepcopy
+from copy import deepcopy  # noqa: D100
+
 import xarray as xr
-import xscen as xs
 import xclim as xc
-import numpy as np
+import xscen as xs
 from workflow.scripts.utils import dask_cluster
-if 1==0: #trick vscode
+
+
+if 1 == 0:  # trick vscode
     import snakemake
 
 
@@ -18,11 +20,18 @@ if __name__ == '__main__':
     output = snakemake.output[0]
     config = deepcopy(snakemake.config)
 
-    client=dask_cluster(snakemake.params, config['dask']['client'])
+    client = dask_cluster(snakemake.params, config['dask']['client'])
 
     # load hist ds (simulation)
-    ds_hist = xr.open_zarr(input_rechunk , decode_timedelta=False)
-    
+    ds_hist = xr.open_mfdataset(
+        input_rechunk,
+        engine='zarr',
+        concat_dim='realizations',
+        combine='nested',
+        decode_timedelta=False
+    )
+    print(ds_hist)
+
     if 'hursmin' in ds_hist:
         # trick for biasadjustement of hursmin (sim) on hursTasmax (ref)
         ds_hist = ds_hist.rename({'hursmin': 'hursTasmax'})
@@ -37,15 +46,9 @@ if __name__ == '__main__':
     refcal = xs.utils.minimum_calendar(simcal, 'noleap')
 
     # snakemake can't have 360_day as a keyword..
-    input_cal = input_noleap if refcal == 'noleap' else  input_360_day if refcal == '360_day' else 'unknown'
+    input_cal = input_noleap if refcal == 'noleap' else \
+        input_360_day if refcal == '360_day' else 'unknown'
     ds_ref = xr.open_zarr(input_cal, decode_timedelta=False)
-
-    #clip tmp
-    # ds_ref['hurs'] = ds_ref['hurs'].clip(0,100)
-    # ds_hist['hurs'] = ds_hist['hurs'].clip(0,100)
-    # ds_ref['hursTasmax'] = ds_ref['hursTasmax'].clip(0,100)
-    # ds_hist['hursTasmax'] = ds_hist['hursTasmax'].clip(0,100)
-    #blba
 
     # training
     ds_tr = xs.train(
@@ -53,10 +56,14 @@ if __name__ == '__main__':
         dhist=ds_hist,
         var=[var],
         **config['biasadjust']['variables'][var]['training_args']
-        )
-    
-    for v in ['lat','lon']:
+    )
+
+    for v in ['lat', 'lon']:
         del ds_tr[v].encoding['chunks']
 
-    xs.save_to_zarr(ds_tr, output, **config['save_to_zarr'], rechunk=config['chunks']['workingloc'])
-
+    xs.save_to_zarr(
+        ds_tr,
+        output,
+        rechunk=config['chunks']['workingloc'],
+        **config['save_to_zarr'],
+    )

@@ -53,6 +53,15 @@ extraction:
           - '2100'
         # restrict_members:
         #   ordered: 1
+        exclusions: 
+          id: 
+            # we don't have them on narval yet
+            - CMIP6_CORDEX_CanESM5-1_r3i1p1f2_CCCma_CanRCM5-SN_ssp370_r2_NAM-25
+            - CMIP6_CORDEX_CanESM5-1_r4i1p1f2_CCCma_CanRCM5-SN_ssp370_r2_NAM-25
+            - CMIP6_CORDEX_CanESM5-1_r5i1p1f2_CCCma_CanRCM5-SN_ssp370_r2_NAM-25
+            # hole for now
+            - CMIP6_CORDEX_MPI-ESM1-2-LR_r2i1p1f1_OURANOS_CRCM5-SN_ssp370_r1_NAM-12
+            - CMIP6_CORDEX_MPI-ESM1-2-LR_r3i1p1f1_OURANOS_CRCM5-SN_ssp370_r1_NAM-12
         other_search_criteria:
           processing_level: raw
           experiment: 
@@ -61,15 +70,12 @@ extraction:
           # - ssp245
           source: 
             - CRCM5-SN
-            #- CanRCM5-SN
-          driving_member: 
-            - r4i1p1f1
-            - r5i1p1f1
+          #  - CanRCM5-SN
           driving_model: 
             - MPI-ESM1-2-LR
-            - CanESM5
-            - CanESM5-1
-            - NorESM2-MM
+            #- CanESM5
+            # - CanESM5-1
+            #- NorESM2-MM
             #- CNRM-ESM2-1
           #member: r1
       extract_dataset:
@@ -86,6 +92,7 @@ extraction:
             - lon_bnds
             #- crs #need to keep for data extent in concat_clean_up
             - quantization_info
+            - compression_info # makes extract fail
       create_mask:
         variable: sftlf
         where_operator: ">="
@@ -117,6 +124,7 @@ biasadjust:
                 group: &group
                     group: time.dayofyear
                     window: 31
+                    add_dims: ["realization"]
                 jitter_under: # to avoid negative dtr (when temperature inversion GFDL)
                    thresh: 1e-4 K
                 xsdba_train_args:
