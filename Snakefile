@@ -1,5 +1,7 @@
 #TODO: change comment for 2100 or 2300 and hurs
 #TODO: fix beginning and end date
+#TODO: choose the right configs
+#TODO: put the right log file
 from snakemake.utils import min_version
 from pathlib import Path
 import pandas as pd
@@ -7,10 +9,6 @@ import copy
 import xscen as xs
 import numpy as np
 
-min_version("8.12.0") #set minimum snakemake version
-
-#TODO: choose the right configs
-#TODO: put the right log file
 configfile: "config/config_ESPO-R.yml"
 configfile: "config/paths_ESPO-R.yml"
 
@@ -21,6 +19,52 @@ sim_ids= list(dict_sim_id.keys())
 #sim_ids=['CMIP6_CORDEX_MPI-ESM1-2-LR_r4i1p1f1_OURANOS_CRCM5-SN_ssp370_r1_NAM-12','CMIP6_CORDEX_MPI-ESM1-2-LR_r5i1p1f1_OURANOS_CRCM5-SN_ssp370_r1_NAM-12','CMIP6_CORDEX_MPI-ESM1-2-LR_r1i1p1f1_OURANOS_CRCM5-SN_ssp370_r1_NAM-12']
 print(config['extraction']['simulation']['search_data_catalogs'])
 print(sim_ids)
+
+#   pool groups for training
+# list is list of sim_ids that should be included in the training based on a sim_id
+# pool is the wildcard string concateneting all sim_ids that should be included in the training
+#TODO: you can't do GCM and RCM together now. it will put them together!
+#TODO: careful will also not work if multiple rcm
+def id2poollist(id,):
+
+    RIPF_PATTERN = r'r\d+i\d+p\d+f\d+'
+
+    # Extract the r*i*p*f* part from id_str
+    ripf_match = re.search(RIPF_PATTERN, id)
+
+    ripf_span = ripf_match.span()
+
+    # Build a regex from id: keep everything outside the r*i*p*f* part literal,
+    # replace the r*i*p*f* part with the general pattern
+    prefix = re.escape(id[:ripf_span[0]])
+    suffix = re.escape(id[ripf_span[1]:])
+    match_pattern = re.compile(f'^{prefix}{RIPF_PATTERN}{suffix}$')
+
+    return [s for s in sim_ids if match_pattern.match(s)]
+
+def id2poolname(id,):
+    exp= re.search(r'(ssp[^_]+)', id).group(1)
+    if id.count('_')==6: #GCM
+        gcm = re.search(rf'_([^_]+)_{exp}', id).group(1)
+        match=f"ScenarioMIP_{gcm}_{exp}"
+    elif id.count('_')==8: #RCM
+        gcm = re.search(r'_([^_]+)_(?=r\d+i\d+p\d+f\d+)', id).group(1) 
+        rcm = re.search(rf'_([^_]+)_{exp}', id).group(1) 
+        match=f"{rcm}_{gcm}_{exp}"
+    else:
+        raise(ValueError(f"sim_id {sim_id} not valid"))
+    return  match
+
+def poolname2poollist(poolname,):
+    #decompose pool name
+    dpool_name= poolname.split('_')
+    # of all pool_list, keep the one that have pool in the first (it could be any) element
+    # put _ after poolname to avoid issue when a name is inside anothe (looking at you EC-Earth3-Veg)
+    filtered = [list(l) for l in all_poollists if all([f"{pn}_" in l[0] for pn in dpool_name])]
+    if len(filtered) != 1:
+        raise ValueError(f"Pool {poolname} does not uniquely identify a list of simulations. Found: {filtered}")
+    return filtered[0]
+all_poollists=set([tuple(id2poollist(s)) for s in sim_ids])
 
 
 diagregions=[d for d in config['diagregion'].keys()] # for diags
@@ -125,55 +169,49 @@ rule rechunk:
           "workflow/scripts/rechunk.py"
 
 
-#   pool groups for training
-# list is list of sim_ids that should be included in the training based on a sim_id
-# pool is the wildcard string concateneting all sim_ids that should be included in the training
-def id2list(id,):
 
-    RIPF_PATTERN = r'r\d+i\d+p\d+f\d+'
 
-    # Extract the r*i*p*f* part from id_str
-    ripf_match = re.search(RIPF_PATTERN, id)
-
-    ripf_span = ripf_match.span()
-
-    # Build a regex from id: keep everything outside the r*i*p*f* part literal,
-    # replace the r*i*p*f* part with the general pattern
-    prefix = re.escape(id[:ripf_span[0]])
-    suffix = re.escape(id[ripf_span[1]:])
-    match_pattern = re.compile(f'^{prefix}{RIPF_PATTERN}{suffix}$')
-
-    return [s for s in sim_ids if match_pattern.match(s)]
-
-def id2pool(id,):
-    return '&'.join(id2list(id,))
-
-def pool2list(pool,):
-    return pool.split('&')
 
 rule train:
     input:
         noleap = finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_noleap.zarr.zip",
         day360 = finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_360_day.zarr.zip",
-        rechunk=lambda wildcards: expand(tmpdir/"{sim_id}+{{dom}}+{{ref}}+{{subregion}}+regchunked.zarr",sim_id=pool2list(wildcards.pool)),
+        rechunk=lambda wildcards: expand(tmpdir/"{sim_id}+{{dom}}+{{ref}}+{{subregion}}+regchunked.zarr",sim_id=poolname2poollist(wildcards.pool)),
     output:
         directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+{var}+training.zarr")
         #temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+{var}+training.zarr"))
     params:
         n_workers=3,
-        mem='100GB',
+        mem='300GB',
         cpus_per_task=12,
-        time="00:30:00",
+        time="01:00:00",
     script:
         "workflow/scripts/train.py"
 
-rule adjust: 
+# rule adjust: 
+#     input:
+#         train = lambda wildcards: tmpdir/(f"{id2poolname(wildcards.sim_id)}"+"+{dom}+{ref}+{subregion}+{var}+training.zarr"),
+#         rechunk = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regchunked.zarr",
+#     output:
+#         temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+adjusted.zarr"))
+#         #directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+adjusted.zarr")
+#     params:
+#         n_workers=5,
+#         cpus_per_task=15,
+#         mem='300GB', 
+#         time="00:30:00", 
+#         # mem='200GB', #2300
+#         # time="2:00:00", #2300
+#     script:
+#        "workflow/scripts/adjust.py"
+
+
+rule adjusttogether: 
     input:
-        train = lambda wildcards: tmpdir/(f"{id2pool(wildcards.sim_id)}"+"+{dom}+{ref}+{subregion}+{var}+training.zarr"),
-        rechunk = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regchunked.zarr",
+        train = lambda wildcards: tmpdir/(f"{id2poolname(wildcards.sim_id)}"+"+{dom}+{ref}+{subregion}+{var}+training.zarr"),
+        rechunk=lambda wildcards: expand(tmpdir/"{sim_id}+{{dom}}+{{ref}}+{{subregion}}+regchunked.zarr",sim_id=id2poollist(wildcards.sim_id)),
     output:
         temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+adjusted.zarr"))
-        #directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+adjusted.zarr")
     params:
         n_workers=5,
         cpus_per_task=15,
@@ -182,8 +220,7 @@ rule adjust:
         # mem='200GB', #2300
         # time="2:00:00", #2300
     script:
-       "workflow/scripts/adjust.py"
-
+       "workflow/scripts/adjusttogether.py"
 
 
 

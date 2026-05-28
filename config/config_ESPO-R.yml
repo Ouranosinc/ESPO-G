@@ -73,9 +73,9 @@ extraction:
           #  - CanRCM5-SN
           driving_model: 
             - MPI-ESM1-2-LR
-            #- CanESM5
+            - CanESM5
             # - CanESM5-1
-            #- NorESM2-MM
+            - NorESM2-MM
             #- CNRM-ESM2-1
           #member: r1
       extract_dataset:
@@ -179,7 +179,7 @@ biasadjust:
                           niter: 1
                           d: 0
                           weights: tricube
-                          mult_skip_zeros: True
+                          mult_skip_zeros: True # dont fail if only 0s
                     interp: nearest
                     extrapolation: constant
                 bias_adjust_institution: *b_a_inst

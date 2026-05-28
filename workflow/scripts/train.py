@@ -3,6 +3,7 @@ from copy import deepcopy  # noqa: D100
 import xarray as xr
 import xclim as xc
 import xscen as xs
+
 from workflow.scripts.utils import dask_cluster
 
 
@@ -26,10 +27,11 @@ if __name__ == '__main__':
     ds_hist = xr.open_mfdataset(
         input_rechunk,
         engine='zarr',
-        concat_dim='realizations',
+        concat_dim='realization',
         combine='nested',
         decode_timedelta=False
     )
+    ds_hist = ds_hist.chunk({"realization": -1})
     print(ds_hist)
 
     if 'hursmin' in ds_hist:
@@ -49,6 +51,10 @@ if __name__ == '__main__':
     input_cal = input_noleap if refcal == 'noleap' else \
         input_360_day if refcal == '360_day' else 'unknown'
     ds_ref = xr.open_zarr(input_cal, decode_timedelta=False)
+
+    # TODO: cheat temporarily
+    ds_ref = ds_ref.expand_dims(
+        {'realization': len(ds_hist.realization)}).chunk({"realization": -1})
 
     # training
     ds_tr = xs.train(

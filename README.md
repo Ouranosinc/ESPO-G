@@ -61,8 +61,8 @@ TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/re
   For ESPO-R:
   * Regrid in a single step
   * Fill in nans
-  * Filter raw extreme pr
   * Add spatial subset of input domain.
+  * Add max_tail_factor=10 for pr (maybe for both ?)
 
   For both:
   * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
@@ -70,8 +70,10 @@ TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/re
   * Add mask based in sftlf on the simulation
   * Start in 1951 (CRCM5 not available in 1950)
   * NAM domain slightly changed
+  * Add pooling of members in the training
 
-  In the code:
+
+  In the code, without effect on the data:
   * Add possibility to run hurs and hursTasmax
   * Add possibility to run until 2300
   * Workflow uses snakemake
