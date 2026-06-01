@@ -18,10 +18,13 @@ if __name__ == "__main__":
 
     # client=dask_cluster(snakemake.params,config['dask']['client'])
 
-    ds_input = xr.open_zarr(inputs["extract"], decode_timedelta=False).compute()
+    ds_input = xr.open_zarr(inputs["extract"], decode_timedelta=False)#.compute()
     ds_input = ds_input.drop_vars("crs", errors="ignore")
+    #ds_input = ds_input.chunk({"realization": -1})
 
     ds_target = xr.open_zarr(inputs["noleap"], decode_timedelta=False).compute()
+    print(ds_input)
+    print(ds_target)
 
     ds_regrid = xs.regrid_dataset(
         ds=ds_input, ds_grid=ds_target, **config["regrid"]["regrid_dataset"]

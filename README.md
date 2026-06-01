@@ -71,6 +71,7 @@ TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/re
   * Start in 1951 (CRCM5 not available in 1950)
   * NAM domain slightly changed
   * Add pooling of members in the training
+  * Change health checks temperature_extremely_low tresh to -80 degC
 
 
   In the code, without effect on the data:

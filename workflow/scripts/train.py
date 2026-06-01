@@ -24,14 +24,7 @@ if __name__ == '__main__':
     client = dask_cluster(snakemake.params, config['dask']['client'])
 
     # load hist ds (simulation)
-    ds_hist = xr.open_mfdataset(
-        input_rechunk,
-        engine='zarr',
-        concat_dim='realization',
-        combine='nested',
-        decode_timedelta=False
-    )
-    ds_hist = ds_hist.chunk({"realization": -1})
+    ds_hist = xr.open_zarr(input_rechunk, decode_timedelta=False)
     print(ds_hist)
 
     if 'hursmin' in ds_hist:
@@ -66,6 +59,8 @@ if __name__ == '__main__':
 
     for v in ['lat', 'lon']:
         del ds_tr[v].encoding['chunks']
+
+    print(ds_tr)
 
     xs.save_to_zarr(
         ds_tr,

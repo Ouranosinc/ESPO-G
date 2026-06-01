@@ -16,7 +16,6 @@ if 1 == 0:  # trick vscode
 if __name__ == "__main__":
     # Get Snakemake parameters
     var = snakemake.wildcards.var
-    sim_id = snakemake.wildcards.sim_id
     input_train = snakemake.input.train
     input_rechunk = snakemake.input.rechunk
     output = snakemake.output[0]
@@ -27,14 +26,7 @@ if __name__ == "__main__":
     client = dask_cluster(snakemake.params, config["dask"]["client"])
 
     # load sim ds
-    ds_sim = xr.open_mfdataset(
-        input_rechunk,
-        engine='zarr',
-        concat_dim='realization',
-        combine='nested',
-        decode_timedelta=False
-    )
-    ds_sim = ds_sim.chunk({"realization": -1})
+    ds_sim = xr.open_zarr(input_rechunk, decode_timedelta=False)
     print(ds_sim)
 
     ds_tr = xr.open_zarr(input_train, decode_timedelta=False)
@@ -62,12 +54,8 @@ if __name__ == "__main__":
         **config["biasadjust"]["variables"][var]["adjusting_args"],
     )
 
-    out = ds_scen.sel(realization=sim_id)
-    print(out)
-    out['realization'] = out['realization'].astype('str')
-    print(out)
     xs.save_to_zarr(
-        out,
+        ds_scen,
         output,
         **config["save_to_zarr"],
         rechunk=config["chunks"]["workingloc"],

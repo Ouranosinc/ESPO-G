@@ -27,14 +27,6 @@ if __name__ == "__main__":
     ds_sim = xr.open_zarr(input_rechunk, decode_timedelta=False)
     ds_tr = xr.open_zarr(input_train, decode_timedelta=False)
 
-    #TODO: cheat until we fix it elsewhere, rm add_dims
-    a=ds_tr.attrs['adj_params']
-    a=a.replace("add_dims=['realization'], ",'')
-    ds_tr.attrs['adj_params']=a
-    a=ds_tr.attrs['_xsdba_adjustment']
-    a=a.replace("\"add_dims\": [\"realization\"], ",'')
-    ds_tr.attrs['_xsdba_adjustment']=a
-
     if "hursmin" in ds_sim:
         # trick for biasadjustement of hursmin (sim) on hursTasmax (ref)
         ds_sim = ds_sim.rename({"hursmin": "hursTasmax"})

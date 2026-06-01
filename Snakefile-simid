@@ -1,4 +1,3 @@
-""" Snakefile by pool"""
 #TODO: change comment for 2100 or 2300 and hurs
 #TODO: fix beginning and end date
 #TODO: choose the right configs
@@ -24,28 +23,33 @@ print(sim_ids)
 #   pool groups for training
 # list is list of sim_ids that should be included in the training based on a sim_id
 # pool is the wildcard string concateneting all sim_ids that should be included in the training
-def id2poollist(sim_id,):
+#TODO: you can't do GCM and RCM together now. it will put them together!
+#TODO: careful will also not work if multiple rcm
+def id2poollist(id,):
 
-    RIPF_PATTERN=r'r\d+i\d+p\d+f\d+'
-    ripf_match = re.search(RIPF_PATTERN, sim_id)
+    RIPF_PATTERN = r'r\d+i\d+p\d+f\d+'
+
+    # Extract the r*i*p*f* part from id_str
+    ripf_match = re.search(RIPF_PATTERN, id)
+
     ripf_span = ripf_match.span()
 
     # Build a regex from id: keep everything outside the r*i*p*f* part literal,
     # replace the r*i*p*f* part with the general pattern
-    prefix = re.escape(sim_id[:ripf_span[0]])
-    suffix = re.escape(sim_id[ripf_span[1]:])
+    prefix = re.escape(id[:ripf_span[0]])
+    suffix = re.escape(id[ripf_span[1]:])
     match_pattern = re.compile(f'^{prefix}{RIPF_PATTERN}{suffix}$')
 
     return [s for s in sim_ids if match_pattern.match(s)]
 
-def id2poolname(sim_id,):
-    exp= re.search(r'(ssp[^_]+)', sim_id).group(1)
-    if sim_id.count('_')==6: #GCM
-        gcm = re.search(rf'_([^_]+)_{exp}', sim_id).group(1)
+def id2poolname(id,):
+    exp= re.search(r'(ssp[^_]+)', id).group(1)
+    if id.count('_')==6: #GCM
+        gcm = re.search(rf'_([^_]+)_{exp}', id).group(1)
         match=f"ScenarioMIP_{gcm}_{exp}"
-    elif sim_id.count('_')==8: #RCM
-        gcm = re.search(r'_([^_]+)_(?=r\d+i\d+p\d+f\d+)', sim_id).group(1) 
-        rcm = re.search(rf'_([^_]+)_{exp}', sim_id).group(1) 
+    elif id.count('_')==8: #RCM
+        gcm = re.search(r'_([^_]+)_(?=r\d+i\d+p\d+f\d+)', id).group(1) 
+        rcm = re.search(rf'_([^_]+)_{exp}', id).group(1) 
         match=f"{rcm}_{gcm}_{exp}"
     else:
         raise(ValueError(f"sim_id {sim_id} not valid"))
@@ -120,25 +124,27 @@ rule refsubregion:
 
 rule extract:
     output:
-        extract=temp(directory(tmpdir/"{pool}+{dom}+extracted.zarr"))
+        extract=temp(directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"))
+        #extract=directory(tmpdir/"{sim_id}+{dom}+extracted.zarr"),
     params:
         n_workers=2,
         mem="400GB",
         cpus_per_task=10,
         time="03:00:00",
     script:
-        "workflow/scripts/extractpool.py"
+        "workflow/scripts/extract.py"
 
 
 rule regrid:
      input:
           noleap = finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_noleap.zarr.zip",
-          extract = tmpdir/"{pool}+{dom}+extracted.zarr"
+          extract = tmpdir/"{sim_id}+{dom}+extracted.zarr"
      output:
-          temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+regridded.zarr"))
+          temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regridded.zarr"))
+          #directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regridded.zarr") 
      params:
           n_workers=2,
-          cpus_per_task=6,
+          cpus_per_task=8,
           mem='500GB',
           time="01:00:00",
         #   mem='500GB',# 2300 
@@ -148,9 +154,10 @@ rule regrid:
 
 rule rechunk:
      input:
-          tmpdir/"{pool}+{dom}+{ref}+{subregion}+regridded.zarr"
+          tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regridded.zarr"
      output:
-          directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+regchunked.zarr")
+          directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regchunked.zarr")
+          #temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regchunked.zarr"))
      params:
           n_workers=2,
           cpus_per_task=10,
@@ -169,9 +176,10 @@ rule train:
     input:
         noleap = finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_noleap.zarr.zip",
         day360 = finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_360_day.zarr.zip",
-        rechunk = tmpdir/"{pool}+{dom}+{ref}+{subregion}+regchunked.zarr"
+        rechunk=lambda wildcards: expand(tmpdir/"{sim_id}+{{dom}}+{{ref}}+{{subregion}}+regchunked.zarr",sim_id=poolname2poollist(wildcards.pool)),
     output:
         directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+{var}+training.zarr")
+        #temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+{var}+training.zarr"))
     params:
         n_workers=3,
         mem='300GB',
@@ -180,13 +188,30 @@ rule train:
     script:
         "workflow/scripts/train.py"
 
+# rule adjust: 
+#     input:
+#         train = lambda wildcards: tmpdir/(f"{id2poolname(wildcards.sim_id)}"+"+{dom}+{ref}+{subregion}+{var}+training.zarr"),
+#         rechunk = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+regchunked.zarr",
+#     output:
+#         temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+adjusted.zarr"))
+#         #directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+adjusted.zarr")
+#     params:
+#         n_workers=5,
+#         cpus_per_task=15,
+#         mem='300GB', 
+#         time="00:30:00", 
+#         # mem='200GB', #2300
+#         # time="2:00:00", #2300
+#     script:
+#        "workflow/scripts/adjust.py"
 
-rule adjust: 
+
+rule adjusttogether: 
     input:
-        train = tmpdir/"{pool}+{dom}+{ref}+{subregion}+{var}+training.zarr",
-        rechunk = tmpdir/"{pool}+{dom}+{ref}+{subregion}+regchunked.zarr",
+        train = lambda wildcards: tmpdir/(f"{id2poolname(wildcards.sim_id)}"+"+{dom}+{ref}+{subregion}+{var}+training.zarr"),
+        rechunk=lambda wildcards: expand(tmpdir/"{sim_id}+{{dom}}+{{ref}}+{{subregion}}+regchunked.zarr",sim_id=id2poollist(wildcards.sim_id)),
     output:
-        temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+{var}+adjusted.zarr"))
+        temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+{var}+adjusted.zarr"))
     params:
         n_workers=5,
         cpus_per_task=15,
@@ -195,7 +220,7 @@ rule adjust:
         # mem='200GB', #2300
         # time="2:00:00", #2300
     script:
-       "workflow/scripts/adjustpool.py"
+       "workflow/scripts/adjusttogether.py"
 
 
 
@@ -249,8 +274,8 @@ def final_path(id, ref):
 
 rule concat_clean:
     input: 
-        adjusted=lambda wildcards: expand(tmpdir/(f"{id2poolname(wildcards.sim_id)}"+"+{{dom}}+{{ref}}+{subregion}+{{var}}+adjusted.zarr"),  subregion=subregions),
-        extracted=lambda wildcards: tmpdir/(f"{id2poolname(wildcards.sim_id)}"+"+{dom}+extracted.zarr")
+        adjusted=expand(tmpdir/"{{sim_id}}+{{dom}}+{{ref}}+{subregion}+{{var}}+adjusted.zarr",  subregion=subregions),
+        extracted=tmpdir/"{sim_id}+{dom}+extracted.zarr"
     output: 
         finaldir/"staging/{path}/{var}/{var}_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
     params:
@@ -259,7 +284,7 @@ rule concat_clean:
         time="03:00:00", 
         cpus_per_task=12,
     script:
-        "workflow/scripts/concat_clean_uppool.py"
+        "workflow/scripts/concat_clean_up.py"
 
 
 ruleorder: tasmin > concat_clean

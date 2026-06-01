@@ -1,6 +1,7 @@
 #Configuration file for ESPO-R6-C3
 subregions:
-  n: 50000 # number of loc in each subregions
+  #n: 50000 # number of loc in each subregions
+  n: 10000 #TODO: test lower
 
 
 full_region:
@@ -42,7 +43,7 @@ extraction:
           tasmin: D
           pr: D
           dtr: D
-          sftlf: fx
+          sftlf: fx 
           #hurs: D
           #hursmin: D
         match_hist_and_fut: True
@@ -53,15 +54,6 @@ extraction:
           - '2100'
         # restrict_members:
         #   ordered: 1
-        exclusions: 
-          id: 
-            # we don't have them on narval yet
-            - CMIP6_CORDEX_CanESM5-1_r3i1p1f2_CCCma_CanRCM5-SN_ssp370_r2_NAM-25
-            - CMIP6_CORDEX_CanESM5-1_r4i1p1f2_CCCma_CanRCM5-SN_ssp370_r2_NAM-25
-            - CMIP6_CORDEX_CanESM5-1_r5i1p1f2_CCCma_CanRCM5-SN_ssp370_r2_NAM-25
-            # hole for now
-            - CMIP6_CORDEX_MPI-ESM1-2-LR_r2i1p1f1_OURANOS_CRCM5-SN_ssp370_r1_NAM-12
-            - CMIP6_CORDEX_MPI-ESM1-2-LR_r3i1p1f1_OURANOS_CRCM5-SN_ssp370_r1_NAM-12
         other_search_criteria:
           processing_level: raw
           experiment: 
@@ -75,7 +67,7 @@ extraction:
             - MPI-ESM1-2-LR
             - CanESM5
             # - CanESM5-1
-            - NorESM2-MM
+            #- NorESM2-MM
             #- CNRM-ESM2-1
           #member: r1
       extract_dataset:
@@ -83,6 +75,7 @@ extraction:
         xr_combine_kwargs:
           combine_attrs: override
         xr_open_kwargs:
+          engine: h5netcdf
           drop_variables:
             - height
             - bnds
@@ -422,7 +415,7 @@ health_checks:
         tasmax_below_tasmin:
       tasmin:
         temperature_extremely_low:
-          thresh: '-70 degC'
+          thresh: '-80 degC'
       pr:
         negative_accumulation_values:
         very_large_precipitation_events:
@@ -499,6 +492,7 @@ chunks:
   workingloc:
     loc: 600
     time: -1
+    realization: -1
   workingXY:
     X: 20
     Y: 20
