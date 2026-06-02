@@ -28,7 +28,6 @@ if __name__ == "__main__":
         list_dsr.append(dsr)
 
     ds = xr.concat(list_dsr, "loc")
-    print(ds)
 
     # get the sim_id we want and finalize attrs and dims
     ds = ds.sel(realization=sim_id)
@@ -44,8 +43,9 @@ if __name__ == "__main__":
     # make sure we don't go outside the border of the inout data,
     # (extrapolation should only be for water inside the domain)
     ds_ext = xr.open_zarr(extracted, decode_timedelta=False)
-    # TODO: until pascal fixes the data
-    ds_ext['crs'].attrs['earth_radius'] = float(ds_ext['crs'].attrs['earth_radius'])
+    # TODO: until xscen PR 743 in the env
+    if "crs" in ds_ext and "earth_radius" in ds_ext['crs'].attrs:
+        ds_ext['crs'].attrs['earth_radius'] = float(ds_ext['crs'].attrs['earth_radius'])
 
     extent = xs.spatial.dataset_extent(ds_ext, method="shape")
     ds = xs.spatial.subset(

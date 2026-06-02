@@ -25,7 +25,6 @@ if __name__ == '__main__':
 
     # load hist ds (simulation)
     ds_hist = xr.open_zarr(input_rechunk, decode_timedelta=False)
-    print(ds_hist)
 
     if 'hursmin' in ds_hist:
         # trick for biasadjustement of hursmin (sim) on hursTasmax (ref)
@@ -45,7 +44,7 @@ if __name__ == '__main__':
         input_360_day if refcal == '360_day' else 'unknown'
     ds_ref = xr.open_zarr(input_cal, decode_timedelta=False)
 
-    # TODO: cheat temporarily
+    # TODO: cheat temporarily until merge https://github.com/Ouranosinc/xsdba/pull/291
     ds_ref = ds_ref.expand_dims(
         {'realization': len(ds_hist.realization)}).chunk({"realization": -1})
 
@@ -59,8 +58,6 @@ if __name__ == '__main__':
 
     for v in ['lat', 'lon']:
         del ds_tr[v].encoding['chunks']
-
-    print(ds_tr)
 
     xs.save_to_zarr(
         ds_tr,

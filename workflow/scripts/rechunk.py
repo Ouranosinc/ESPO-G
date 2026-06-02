@@ -23,11 +23,14 @@ if __name__ == "__main__":
     # Try to not use this
     # xs.io.rechunk(
     #     path_in=str(snakemake.input[0]),
-    #     path_out=f"{os.environ['SLURM_TMPDIR']}/rechunked+{snakemake.wildcards.sim_id}+{snakemake.wildcards.subregion}/",
+    #     path_out=f"{os.environ['SLURM_TMPDIR']}/rechunked+{
+    #         snakemake.wildcards.sim_id}+{snakemake.wildcards.subregion}/",
     #     chunks_over_dim={
-    #         k: v for k, v in config["chunks"]["working"].items() if k in ["time", "loc"]
+    #         k: v for k, v in config[
+    # "chunks"]["working"].items() if k in ["time", "loc"]
     #     },
-    #     temp_store=f"{os.environ['SLURM_TMPDIR']}/{snakemake.wildcards.sim_id}+{snakemake.wildcards.subregion}/",
+    #     temp_store=f"{os.environ['SLURM_TMPDIR']}/{snakemake.wildcards.sim_id}+{
+    #         snakemake.wildcards.subregion}/",
     #     overwrite=True,
     # )  # explicit parse_config magic if you uncomment this
 

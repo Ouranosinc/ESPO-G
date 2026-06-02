@@ -1,7 +1,6 @@
 #Configuration file for ESPO-R6-C3
 subregions:
-  #n: 50000 # number of loc in each subregions
-  n: 10000 #TODO: test lower
+  n: 50000 # number of loc in each subregions
 
 
 full_region:
@@ -12,7 +11,6 @@ full_region:
   lon_bnds: [ -179.95, -10 ]
   lat_bnds: [ 12.5, 83.4 ]
 
-#TODO: change workflow to allow for 2 refs.
 
 extraction:
   reference:
@@ -43,7 +41,7 @@ extraction:
           tasmin: D
           pr: D
           dtr: D
-          sftlf: fx 
+          sftlf: fx  #TODO: put back when it is there
           #hurs: D
           #hursmin: D
         match_hist_and_fut: True
@@ -58,8 +56,8 @@ extraction:
           processing_level: raw
           experiment: 
            - ssp370
-          # - ssp585
-          # - ssp245
+           - ssp585
+           - ssp245
           source: 
             - CRCM5-SN
           #  - CanRCM5-SN
@@ -67,8 +65,8 @@ extraction:
             - MPI-ESM1-2-LR
             - CanESM5
             # - CanESM5-1
-            #- NorESM2-MM
-            #- CNRM-ESM2-1
+            - NorESM2-MM
+            - CNRM-ESM2-1
           #member: r1
       extract_dataset:
         periods : *sim_period
@@ -86,7 +84,7 @@ extraction:
             #- crs #need to keep for data extent in concat_clean_up
             - quantization_info
             - compression_info # makes extract fail
-      create_mask:
+      create_mask: #TODO: put back when sftlf is there
         variable: sftlf
         where_operator: ">="
         where_threshold: 0.25
@@ -162,7 +160,7 @@ biasadjust:
                     kind: "*"
                     nquantiles: 50
                     adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" # xsdba cant convert mm/day automatically
-                    max_tail_factor: 10 #TODO: test this 
+                    max_tail_factor: 10
             adjusting_args:
                 periods: *sim_period
                 xsdba_adjust_args: 
@@ -202,8 +200,6 @@ biasadjust:
         #         bias_adjust_institution: *b_a_inst
         #         bias_adjust_project: *b_a_pro
 
-# filter_extremes:
-#   factor: 1000 #TODO: change back
 
 
 clean_up:

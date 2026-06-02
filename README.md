@@ -91,6 +91,7 @@ History:
   2026-04-27: Tests with new xsdba branch fix-278 in env espoavr2026.
   2026-04-28: Tests with new xsdba branch fix-278 (10q99 inside xsdba) in env espoavr2026
   2026-05-18: Test with new xsdba branch fix-278 in env espomai2026
+  2026-06-01: Test with https://github.com/Ouranosinc/xsdba/pull/291/changes/242295b4fb5566af2549fff6731d9692c1992835 in env espomai2026. works with little ref cheat.
 
 ### Project lait-e
 

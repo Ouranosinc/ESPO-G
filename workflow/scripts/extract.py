@@ -81,7 +81,5 @@ if __name__ == "__main__":
     #     ds_sim["tasmax"] = ds_sim["tasmax"].astype("float32")
     #     ds_sim["tasmin"] = ds_sim["tasmin"].astype("float32")
 
-    print(type(ds_sim['crs'].attrs['earth_radius']))
-
     # save to zarr
     xs.save_to_zarr(ds_sim, output["extract"], **config["save_to_zarr"])

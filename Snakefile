@@ -88,8 +88,7 @@ finaldir=Path(config['paths']['final'])
 
 rule all:
     input:
-        #expand(finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
-        directory(expand(tmpdir/"{pool}+{dom}+extracted.zarr",dom=domain, pool=set([id2poolname(s) for s in sim_ids]))),
+        expand(finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
         #expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
 rule makeref:
     output:
