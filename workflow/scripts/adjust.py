@@ -20,11 +20,15 @@ if __name__ == "__main__":
     input_rechunk = snakemake.input.rechunk
     output = snakemake.output[0]
     config = deepcopy(snakemake.config)
+    print(input_rechunk)
+    print(output)
 
     client = dask_cluster(snakemake.params, config["dask"]["client"])
 
     # load sim ds
     ds_sim = xr.open_zarr(input_rechunk, decode_timedelta=False)
+    print(ds_sim)
+
     ds_tr = xr.open_zarr(input_train, decode_timedelta=False)
 
     if "hursmin" in ds_sim:

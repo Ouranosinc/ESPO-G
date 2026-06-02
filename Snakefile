@@ -3,6 +3,7 @@
 #TODO: fix beginning and end date
 #TODO: choose the right configs
 #TODO: put the right log file
+#TODO: adjust rules for tasmin or dtr
 from snakemake.utils import min_version
 from pathlib import Path
 import pandas as pd
@@ -70,7 +71,7 @@ domain=[config['full_region']['name']]
 reference = list(config['extraction']['reference'].keys())
 
 # define subregions on which to split the computation
-#TODO: this might fail with e5l..
+#this might fail with e5l..
 cat_ref = xs.search_data_catalogs(**config['extraction']['reference'][reference[0]]['search_data_catalogs'])
 dc = cat_ref.popitem()[1]
 dref = xs.extract_dataset(catalog=dc,
@@ -87,7 +88,8 @@ finaldir=Path(config['paths']['final'])
 
 rule all:
     input:
-        expand(finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
+        #expand(finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
+        directory(expand(tmpdir/"{pool}+{dom}+extracted.zarr",dom=domain, pool=set([id2poolname(s) for s in sim_ids]))),
         #expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
 rule makeref:
     output:
@@ -127,7 +129,7 @@ rule extract:
         cpus_per_task=10,
         time="03:00:00",
     script:
-        "workflow/scripts/extractpool.py"
+        "workflow/scripts/extract.py"
 
 
 rule regrid:
@@ -176,7 +178,7 @@ rule train:
         n_workers=3,
         mem='300GB',
         cpus_per_task=12,
-        time="01:00:00",
+        time="02:00:00",
     script:
         "workflow/scripts/train.py"
 
@@ -195,7 +197,7 @@ rule adjust:
         # mem='200GB', #2300
         # time="2:00:00", #2300
     script:
-       "workflow/scripts/adjustpool.py"
+       "workflow/scripts/adjust.py"
 
 
 
@@ -227,7 +229,7 @@ def final_path(id, ref):
     return str(os.path.dirname(os.path.dirname(path)))
 
 
-# #TODO: for tasmin, uncomment this task, add S to adjusted in concat_clean and comment tasmin rule and rule_order
+# for tasmin, uncomment this task, add S to adjusted in concat_clean and comment tasmin rule and rule_order
 # rule swap: 
 #     input:
 #         tasmin = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmin+adjusted.zarr",
@@ -259,7 +261,7 @@ rule concat_clean:
         time="03:00:00", 
         cpus_per_task=12,
     script:
-        "workflow/scripts/concat_clean_uppool.py"
+        "workflow/scripts/concat_clean_up.py"
 
 
 ruleorder: tasmin > concat_clean

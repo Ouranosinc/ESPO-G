@@ -1,5 +1,5 @@
 """Concat all regions and clean up the dataset."""
-
+import re
 from copy import deepcopy
 
 import geopandas as gpd
@@ -15,6 +15,7 @@ if 1 == 0:  # trick vscode
 
 if __name__ == "__main__":
     # Get Snakemake parameters
+    sim_id = snakemake.wildcards.sim_id
     inputs = snakemake.input.adjusted
     extracted = snakemake.input.extracted
     output = snakemake.output[0]
@@ -27,12 +28,25 @@ if __name__ == "__main__":
         list_dsr.append(dsr)
 
     ds = xr.concat(list_dsr, "loc")
+    print(ds)
+
+    # get the sim_id we want and finalize attrs and dims
+    ds = ds.sel(realization=sim_id)
+    ds = ds.drop("realization")
+    if "ScenarioMIP" in sim_id:  # GCM
+        ds.attrs["cat:member"] = re.search(r"r\d+i\d+p\d+f\d+", sim_id)
+    else:  # RCM
+        ds.attrs["cat:driving_member"] = re.search(r"r\d+i\d+p\d+f\d+", sim_id)
+    ds.attrs["cat:id"] = xs.catalog.generate_id(ds).iloc[0]
 
     ds = xs.clean_up(ds=ds, **config["clean_up"]["xscen_clean_up"][var])
 
     # make sure we don't go outside the border of the inout data,
     # (extrapolation should only be for water inside the domain)
     ds_ext = xr.open_zarr(extracted, decode_timedelta=False)
+    # TODO: until pascal fixes the data
+    ds_ext['crs'].attrs['earth_radius'] = float(ds_ext['crs'].attrs['earth_radius'])
+
     extent = xs.spatial.dataset_extent(ds_ext, method="shape")
     ds = xs.spatial.subset(
         ds, method="shape", shape=gpd.GeoDataFrame(geometry=[extent["shape"]])

@@ -52,7 +52,4 @@ if __name__ == "__main__":
         if "chunks" in ds[var].encoding:
             del ds[var].encoding["chunks"]
 
-    #TODO: tmp, put this in extract
-    #ds = ds.expand_dims(realization=[ds.attrs['cat:id']])
-
     xs.save_to_zarr(ds, output, **config["save_to_zarr"])
