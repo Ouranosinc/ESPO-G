@@ -73,13 +73,5 @@ if __name__ == "__main__":
 
     ds_sim = ds_sim.chunk(config["chunks"]["pre-regrid"])
 
-    # trick to fix CanESM5
-    # TODO: test GCM without
-    # if "CMIP6_ScenarioMIP_CCCma_CanESM5_ssp585_r1i1p1f1_global" == sim_id:
-    #     ds_sim["pr"] = ds_sim["pr"].astype("float32")
-    #     ds_sim["dtr"] = ds_sim["dtr"].astype("float32")
-    #     ds_sim["tasmax"] = ds_sim["tasmax"].astype("float32")
-    #     ds_sim["tasmin"] = ds_sim["tasmin"].astype("float32")
-
     # save to zarr
     xs.save_to_zarr(ds_sim, output["extract"], **config["save_to_zarr"])

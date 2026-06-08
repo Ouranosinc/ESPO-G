@@ -47,10 +47,12 @@ if __name__ == "__main__":
     if "crs" in ds_ext and "earth_radius" in ds_ext['crs'].attrs:
         ds_ext['crs'].attrs['earth_radius'] = float(ds_ext['crs'].attrs['earth_radius'])
 
-    extent = xs.spatial.dataset_extent(ds_ext, method="shape")
-    ds = xs.spatial.subset(
-        ds, method="shape", shape=gpd.GeoDataFrame(geometry=[extent["shape"]])
-    )
+    # only cut the original shape for RCM
+    if "ScenarioMIP" not in sim_id:
+        extent = xs.spatial.dataset_extent(ds_ext, method="shape")
+        ds = xs.spatial.subset(
+            ds, method="shape", shape=gpd.GeoDataFrame(geometry=[extent["shape"]])
+        )
 
     chunks = xs.utils.translate_time_chunk(
         config["chunks"]["final"],

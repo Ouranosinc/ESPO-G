@@ -41,7 +41,7 @@ extraction:
           tasmin: D
           pr: D
           dtr: D
-          sftlf: fx  #TODO: put back when it is there
+          sftlf: fx
           #hurs: D
           #hursmin: D
         match_hist_and_fut: True
@@ -60,11 +60,9 @@ extraction:
            - ssp245
           source: 
             - CRCM5-SN
-          #  - CanRCM5-SN
           driving_model: 
             - MPI-ESM1-2-LR
             - CanESM5
-            # - CanESM5-1
             - NorESM2-MM
             - CNRM-ESM2-1
           #member: r1
@@ -81,10 +79,10 @@ extraction:
             - time_bounds
             - lat_bnds
             - lon_bnds
-            #- crs #need to keep for data extent in concat_clean_up
             - quantization_info
             - compression_info # makes extract fail
-      create_mask: #TODO: put back when sftlf is there
+            #- crs #need to keep for data extent in concat_clean_up
+      create_mask: 
         variable: sftlf
         where_operator: ">="
         where_threshold: 0.25
@@ -108,18 +106,16 @@ regrid:
 
 biasadjust:
     variables:
-        dtr:
+        tasmax:
             training_args:
                 method: DetrendedQuantileMapping
                 period: *ref_period
                 group: &group
-                    group: time.dayofyear
-                    window: 31
-                    add_dims: ["realization"]
-                jitter_under: # to avoid negative dtr (when temperature inversion GFDL)
-                   thresh: 1e-4 K
+                  group: time.dayofyear
+                  window: 31
+                  add_dims: ["realization"]
                 xsdba_train_args:
-                    kind: "*"
+                    kind: "+"
                     nquantiles: 50
             adjusting_args:
                 periods: *sim_period
@@ -136,7 +132,7 @@ biasadjust:
                   Ouranos
                 bias_adjust_project: &b_a_pro
                   ESPO
-        tasmax:
+        tasmin:
             training_args:
                 method: DetrendedQuantileMapping
                 period: *ref_period
@@ -149,6 +145,21 @@ biasadjust:
                 xsdba_adjust_args: *adj-args
                 bias_adjust_institution: *b_a_inst
                 bias_adjust_project: *b_a_pro
+        # dtr: #TODO: choose the variable wanted
+        #     training_args:
+        #         method: DetrendedQuantileMapping
+        #         period: *ref_period
+        #         group: *group
+        #         jitter_under: # to avoid negative dtr (when temperature inversion GFDL)
+        #            thresh: 1e-4 K
+        #         xsdba_train_args:
+        #             kind: "*"
+        #             nquantiles: 50
+        #     adjusting_args:
+        #         periods: *sim_period
+        #         xsdba_adjust_args: *adj-args
+        #         bias_adjust_institution: *b_a_inst
+        #         bias_adjust_project: *b_a_pro
         pr:
             training_args:
                 method: DetrendedQuantileMapping
@@ -286,10 +297,14 @@ clean_up:
           description: Diurnal temperature range from tasmax and tasmin.
           standard_name: air_temperature
           long_name: Diurnal temperature range.
-    tasmin: # a lot already done in tasmax and dtr
+    tasmin:
+      maybe_unstack_dict: *maybe
+      change_attr_prefix: *prefix
       remove_all_attrs_except: 
+        global: *gattrs_to_keep
         tasmin: *attrs_to_keep
       add_attrs:
+        global: *gattrs_to_add
         tasmin:
             standard_name: air_temperature
             long_name: Minimal daily temperature
@@ -365,7 +380,7 @@ diagnostics:
     period: *ref_period
 
 health_checks:
-  extract: # not actually used
+  extract:
     structure:
       coords:
         - rlat
@@ -402,7 +417,7 @@ health_checks:
     freq: &freq
       D
     missing: # warn but don't raise
-      mising_any:
+      missing_any:
         freq: YS
     flags: &flags
       tasmax:
@@ -411,7 +426,7 @@ health_checks:
         tasmax_below_tasmin:
       tasmin:
         temperature_extremely_low:
-          thresh: '-80 degC'
+          thresh: '-70 degC' #'-80 degC' #TRy with -70 for ba of tasmin
       pr:
         negative_accumulation_values:
         very_large_precipitation_events:

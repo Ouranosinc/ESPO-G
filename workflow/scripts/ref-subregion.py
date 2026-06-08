@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     # cut region
     n = config["subregions"]["n"]
-    r = int(snakemake.wildcards.subregion.replace(f"sr-", ""))
+    r = int(snakemake.wildcards.subregion.replace("sr-", ""))
     ds_ref = ds_ref.sel(loc=slice(n * r, n * (r + 1)))
 
     # chunk

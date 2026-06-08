@@ -48,7 +48,7 @@ if __name__ == "__main__":
     )
 
     ds_pr = xr.open_zarr(inputs["pr"], decode_timedelta=False)
-    ds_dtr = xr.open_zarr(inputs["dtr"], decode_timedelta=False)
+    #ds_dtr = xr.open_zarr(inputs["dtr"], decode_timedelta=False)
 
     xs.save_to_zarr(
         ds_pr,
@@ -56,8 +56,8 @@ if __name__ == "__main__":
         **config["save_to_zarr"],
     )
 
-    xs.save_to_zarr(
-        ds_dtr,
-        output.dtr,
-        **config["save_to_zarr"],
-    )
+    # xs.save_to_zarr(
+    #     ds_dtr,
+    #     output.dtr,
+    #     **config["save_to_zarr"],
+    # )

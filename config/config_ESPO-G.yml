@@ -13,7 +13,6 @@ full_region:
   lon_bnds: [ -179.95, -10 ]
   lat_bnds: [ 12.5, 83.4 ]
 
-#TODO: change workflow to allow for 2 refs.
 
 extraction:
   reference:
@@ -55,13 +54,21 @@ extraction:
           - '2100'
         #restrict_members:
         #  ordered: 1
+        exclusions:
+          id: 
+            - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp585_r6i1p1f1_global # nans #TODO: check
+            - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp370_r6i1p1f1_global
+            - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp245_r6i1p1f1_global
+          source: 
+            - GFDL-CM4 # missing ssp370
+            - MIROC-ES2L # missing ssp585 (maybe not wait for asli)
         other_search_criteria:
           processing_level: raw
           mip_era: CMIP6
           experiment:
-            - ssp245
+            #- ssp245
             - ssp370
-            - ssp585
+            #- ssp585
           #source: # but actually on 8 have hurs (and there was a bug with MPI-ESM1-2-HR )
             # - ACCESS-CM2 
             # - ACCESS-ESM1-5  
@@ -146,17 +153,16 @@ regrid:
 
 biasadjust:
     variables:
-        dtr:
+        tasmax:
             training_args:
                 method: DetrendedQuantileMapping
                 period: *ref_period
                 group: &group
-                    group: time.dayofyear
-                    window: 31
-                jitter_under: # to avoid negative dtr (when temperature inversion GFDL)
-                   thresh: 1e-4 K
+                  group: time.dayofyear
+                  window: 31
+                  add_dims: ["realization"]
                 xsdba_train_args:
-                    kind: "*"
+                    kind: "+"
                     nquantiles: 50
             adjusting_args:
                 periods: *sim_period
@@ -173,7 +179,22 @@ biasadjust:
                   Ouranos
                 bias_adjust_project: &b_a_pro
                   ESPO
-        tasmax:
+        # dtr:
+        #     training_args:
+        #         method: DetrendedQuantileMapping
+        #         period: *ref_period
+        #         group: *group
+        #         jitter_under: # to avoid negative dtr (when temperature inversion GFDL)
+        #            thresh: 1e-4 K
+        #         xsdba_train_args:
+        #             kind: "*"
+        #             nquantiles: 50
+        #     adjusting_args:
+        #         periods: *sim_period
+        #         xsdba_adjust_args: *adj-args
+        #         bias_adjust_institution: *b_a_inst
+        #         bias_adjust_project: *b_a_pro
+        tasmin:
             training_args:
                 method: DetrendedQuantileMapping
                 period: *ref_period
@@ -197,9 +218,19 @@ biasadjust:
                     kind: "*"
                     nquantiles: 50
                     adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" # xsdba cant convert mm/day automatically
+                    max_tail_factor: 10
             adjusting_args:
                 periods: *sim_period
-                xsdba_adjust_args: *adj-args
+                xsdba_adjust_args: 
+                    detrend:
+                        LoessDetrend:
+                          f: 0.2
+                          niter: 1
+                          d: 0
+                          weights: tricube
+                          mult_skip_zeros: True # dont fail if only 0s
+                    interp: nearest
+                    extrapolation: constant
                 bias_adjust_institution: *b_a_inst
                 bias_adjust_project: *b_a_pro
         # hurs:
@@ -319,10 +350,14 @@ clean_up:
           description: Diurnal temperature range from tasmax and tasmin.
           standard_name: air_temperature
           long_name: Diurnal temperature range.
-    tasmin: # a lot already done in tasmax and dtr
+    tasmin: 
+      maybe_unstack_dict: *maybe
+      change_attr_prefix: *prefix
       remove_all_attrs_except: 
+        global: *gattrs_to_keep
         tasmin: *attrs_to_keep
       add_attrs:
+        global: *gattrs_to_add
         tasmin:
             standard_name: air_temperature
             long_name: Minimal daily temperature
@@ -433,7 +468,7 @@ health_checks:
     freq: &freq
       D
     missing:
-      mising_any:
+      missing_any:
         freq: YS
     flags: &flags
       tasmax:
@@ -442,7 +477,7 @@ health_checks:
         tasmax_below_tasmin:
       tasmin:
         temperature_extremely_low:
-          thresh: '-70 degC'
+          thresh: '-80 degC'
       pr:
         negative_accumulation_values:
         very_large_precipitation_events:
@@ -519,6 +554,7 @@ chunks:
   workingloc:
     loc: 600
     time: -1
+    realization: -1
   workingXY:
     X: 20
     Y: 20

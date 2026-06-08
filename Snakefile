@@ -1,9 +1,8 @@
 """ Snakefile by pool"""
-#TODO: change comment for 2100 or 2300 and hurs
-#TODO: fix beginning and end date
-#TODO: choose the right configs
-#TODO: put the right log file
-#TODO: adjust rules for tasmin or dtr
+#TODO: Make sure begining and end date in config match hardcoded filename
+#TODO: Choose the right configs
+#TODO: Put the right log file in simple
+#TODO: Adjust rules for tasmin or dtr
 from snakemake.utils import min_version
 from pathlib import Path
 import pandas as pd
@@ -11,21 +10,24 @@ import copy
 import xscen as xs
 import numpy as np
 
-configfile: "config/config_ESPO-R.yml"
-configfile: "config/paths_ESPO-R.yml"
+configfile: "config/config_ESPO-G.yml"
+configfile: "config/paths_ESPO-G.yml"
 
-
-# choose the simulations to process
+# Choose the simulations, diag, ref and dom to process
 dict_sim_id = xs.search_data_catalogs(**copy.deepcopy(config['extraction']['simulation']['search_data_catalogs'],))
 sim_ids= list(dict_sim_id.keys())
-#sim_ids=['CMIP6_CORDEX_MPI-ESM1-2-LR_r4i1p1f1_OURANOS_CRCM5-SN_ssp370_r1_NAM-12','CMIP6_CORDEX_MPI-ESM1-2-LR_r5i1p1f1_OURANOS_CRCM5-SN_ssp370_r1_NAM-12','CMIP6_CORDEX_MPI-ESM1-2-LR_r1i1p1f1_OURANOS_CRCM5-SN_ssp370_r1_NAM-12']
-print(config['extraction']['simulation']['search_data_catalogs'])
-print(sim_ids)
+diagregions=[d for d in config['diagregion'].keys()] # for diags
+level=['improvement', 'diag_sim_prop','diag_sim_meas','diag_scen_prop','diag_scen_meas']
+domain=[config['full_region']['name']]
+reference = list(config['extraction']['reference'].keys())
 
-#   pool groups for training
-# list is list of sim_ids that should be included in the training based on a sim_id
-# pool is the wildcard string concateneting all sim_ids that should be included in the training
+# Define utils for pooling 
 def id2poollist(sim_id,):
+    """
+    Given a sim_id, return the list of sim_ids that should be included in the 
+    training based on the pool it belongs to. 
+    """
+
 
     RIPF_PATTERN=r'r\d+i\d+p\d+f\d+'
     ripf_match = re.search(RIPF_PATTERN, sim_id)
@@ -40,6 +42,9 @@ def id2poollist(sim_id,):
     return [s for s in sim_ids if match_pattern.match(s)]
 
 def id2poolname(sim_id,):
+    """
+    Given a sim_id, return the name of the pool it belongs to.
+    """
     exp= re.search(r'(ssp[^_]+)', sim_id).group(1)
     if sim_id.count('_')==6: #GCM
         gcm = re.search(rf'_([^_]+)_{exp}', sim_id).group(1)
@@ -53,6 +58,9 @@ def id2poolname(sim_id,):
     return  match
 
 def poolname2poollist(poolname,):
+    """
+    Given a pool name, return the list of sim_ids that should be included in the pool.
+    """
     #decompose pool name
     dpool_name= poolname.split('_')
     # of all pool_list, keep the one that have pool in the first (it could be any) element
@@ -63,15 +71,7 @@ def poolname2poollist(poolname,):
     return filtered[0]
 all_poollists=set([tuple(id2poollist(s)) for s in sim_ids])
 
-
-diagregions=[d for d in config['diagregion'].keys()] # for diags
-level=['improvement', 'diag_sim_prop','diag_sim_meas','diag_scen_prop','diag_scen_meas']
-# trick, use dom as wildcard so it can be defined in the config
-domain=[config['full_region']['name']]
-reference = list(config['extraction']['reference'].keys())
-
-# define subregions on which to split the computation
-#this might fail with e5l..
+# Define subregions on which to split the computation
 cat_ref = xs.search_data_catalogs(**config['extraction']['reference'][reference[0]]['search_data_catalogs'])
 dc = cat_ref.popitem()[1]
 dref = xs.extract_dataset(catalog=dc,
@@ -82,7 +82,7 @@ dref = xs.utils.stack_drop_nans(dref,dref.pr.isel(time=0, drop=True).notnull().c
 num_of_regions= int(np.ceil(dref.sizes['loc']/config['subregions']['n']))
 subregions=[f"sr-{i}" for i in range(num_of_regions)]
 
-#paths
+# Define paths
 tmpdir= Path(config['paths']['tmpdir'])
 finaldir=Path(config['paths']['final'])
 
@@ -151,7 +151,7 @@ rule rechunk:
      input:
           tmpdir/"{pool}+{dom}+{ref}+{subregion}+regridded.zarr"
      output:
-          directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+regchunked.zarr")
+          temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+regchunked.zarr"))
      params:
           n_workers=2,
           cpus_per_task=10,
@@ -172,7 +172,7 @@ rule train:
         day360 = finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_360_day.zarr.zip",
         rechunk = tmpdir/"{pool}+{dom}+{ref}+{subregion}+regchunked.zarr"
     output:
-        directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+{var}+training.zarr")
+        temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+{var}+training.zarr"))
     params:
         n_workers=3,
         mem='300GB',
@@ -228,29 +228,45 @@ def final_path(id, ref):
     return str(os.path.dirname(os.path.dirname(path)))
 
 
-# for tasmin, uncomment this task, add S to adjusted in concat_clean and comment tasmin rule and rule_order
-# rule swap: 
-#     input:
-#         tasmin = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmin+adjusted.zarr",
-#         tasmax = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmax+adjusted.zarr",
-#         dtr = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+dtr+adjusted.zarr",
-#         pr = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+pr+adjusted.zarr",
-#     output:
-#         tasmin = directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmin+adjustedS.zarr"),
-#         tasmax = directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmax+adjustedS.zarr"),
-#         dtr = directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+dtr+adjustedS.zarr"),
-#         pr = directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+pr+adjustedS.zarr"),
-#     params:
-#         n_workers=5,
-#         cpus_per_task=15,
-#         mem='300GB', 
-#         time="00:30:00", 
-#     script:
-#         "workflow/scripts/swap_temp.py"
+if 'tasmin' in config['biasadjust']['variables']:
+    rule swap: 
+        input:
+            tasmin = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmin+adjusted.zarr",
+            tasmax = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmax+adjusted.zarr",
+            pr = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+pr+adjusted.zarr",
+        output:
+            tasmin = temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmin+adjustedS.zarr")),
+            tasmax = temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmax+adjustedS.zarr")),
+            pr = temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+pr+adjustedS.zarr")),
+        params:
+            n_workers=5,
+            cpus_per_task=15,
+            mem='300GB', 
+            time="00:30:00", 
+        script:
+            "workflow/scripts/swap_temp.py"
+elif 'dtr' in config['biasadjust']['variables']:
+    # if dtr no need to swap so just rename to add S for concat_clean
+    rule rename_files: 
+        input:
+            tasmax = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmax+adjusted.zarr",
+            dtr = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+dtr+adjusted.zarr",
+            pr = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+pr+adjusted.zarr",
+        output:
+            tasmax = temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmax+adjustedS.zarr")),
+            dtr = temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+dtr+adjustedS.zarr")),
+            pr = temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+pr+adjustedS.zarr")),
+        params:
+            n_workers=5,
+            cpus_per_task=15,
+            mem='300GB', 
+            time="00:30:00", 
+        shell:
+            "mv {input.dtr} {output.dtr} && mv {input.tasmax} {output.tasmax} && mv {input.pr} {output.pr}"
 
 rule concat_clean:
     input: 
-        adjusted=lambda wildcards: expand(tmpdir/(f"{id2poolname(wildcards.sim_id)}"+"+{{dom}}+{{ref}}+{subregion}+{{var}}+adjusted.zarr"),  subregion=subregions),
+        adjusted=lambda wildcards: expand(tmpdir/(f"{id2poolname(wildcards.sim_id)}"+"+{{dom}}+{{ref}}+{subregion}+{{var}}+adjustedS.zarr"),  subregion=subregions),
         extracted=lambda wildcards: tmpdir/(f"{id2poolname(wildcards.sim_id)}"+"+{dom}+extracted.zarr")
     output: 
         finaldir/"staging/{path}/{var}/{var}_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
@@ -262,22 +278,36 @@ rule concat_clean:
     script:
         "workflow/scripts/concat_clean_up.py"
 
-
-ruleorder: tasmin > concat_clean
-rule tasmin:
-    input: 
-        tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip",
-        dtr=finaldir/"staging/{path}/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"
-    output: 
-        finaldir/"staging/{path}/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
-    params:
-        path=lambda wildcards: final_path(wildcards.sim_id, wildcards.ref),
-        mem="60GB",
-        time="03:00:00", 
-        cpus_per_task=12,
-    script:
-        "workflow/scripts/tasmin.py"
-
+if 'dtr' in config['biasadjust']['variables']:
+    ruleorder: create_tasmin > concat_clean
+    rule create_tasmin:
+        input: 
+            tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip",
+            dtr=finaldir/"staging/{path}/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"
+        output: 
+            finaldir/"staging/{path}/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
+        params:
+            path=lambda wildcards: final_path(wildcards.sim_id, wildcards.ref),
+            mem="60GB",
+            time="03:00:00", 
+            cpus_per_task=12,
+        script:
+            "workflow/scripts/tasmin.py"
+elif 'tasmin' in config['biasadjust']['variables']:
+    ruleorder: create_dtr > concat_clean
+    rule create_dtr:
+        input: 
+            tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip",
+            tasmin=finaldir/"staging/{path}/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"
+        output: 
+            finaldir/"staging/{path}/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
+        params:
+            path=lambda wildcards: final_path(wildcards.sim_id, wildcards.ref),
+            mem="60GB",
+            time="03:00:00", 
+            cpus_per_task=12,
+        script:
+            "workflow/scripts/dtr.py"
 
 rule health_checks:
     input:

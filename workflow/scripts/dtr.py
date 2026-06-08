@@ -28,13 +28,13 @@ if __name__ == "__main__":
     conv_mod = xs.indicators.load_xclim_module(
         Path(conversions.__file__).with_suffix("")
     )
-    ds = ds.assign(tasmin=conv_mod.tasmin_from_dtr(dtr=ds.dtr, tasmax=ds.tasmax))
-    ds["tasmin"].attrs["history"] = (
-        f"[{datetime.now():%Y-%m-%d %H:%M:%S}] Tasmin computed from tasmax and dtr.\n"
-    ) + ds["tasmin"].attrs["history"]
-    ds = ds.drop_vars(["dtr", "tasmax"])
+    ds = ds.assign(dtr=conv_mod.dtr(tasmin=ds.tasmin, tasmax=ds.tasmax))
+    ds["dtr"].attrs["history"] = (
+        f"[{datetime.now():%Y-%m-%d %H:%M:%S}] dtr computed from tasmax and tasmin.\n"
+    ) + ds["dtr"].attrs["history"]
+    ds = ds.drop_vars(["tasmin", "tasmax"])
 
-    argsc = config["clean_up"]["xscen_clean_up"]["tasmin"].copy()
+    argsc = config["clean_up"]["xscen_clean_up"]["dtr"].copy()
     del argsc["maybe_unstack_dict"]  # done in concat_clean_up
     ds = xs.clean_up(ds=ds, **argsc)
 
