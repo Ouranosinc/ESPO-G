@@ -45,8 +45,8 @@ if __name__ == '__main__':
     ds_ref = xr.open_zarr(input_cal, decode_timedelta=False)
 
     # TODO: cheat temporarily until merge https://github.com/Ouranosinc/xsdba/pull/291
-    ds_ref = ds_ref.expand_dims(
-        {'realization': len(ds_hist.realization)}).chunk({"realization": -1})
+    #ds_ref = ds_ref.expand_dims(
+    #    {'realization': len(ds_hist.realization)}).chunk({"realization": -1})
 
     # training
     ds_tr = xs.train(

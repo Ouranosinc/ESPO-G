@@ -56,8 +56,8 @@ extraction:
           processing_level: raw
           experiment: 
            - ssp370
-           - ssp585
-           - ssp245
+           #- ssp585
+           #- ssp245
           source: 
             - CRCM5-SN
           driving_model: 
@@ -145,21 +145,21 @@ biasadjust:
                 xsdba_adjust_args: *adj-args
                 bias_adjust_institution: *b_a_inst
                 bias_adjust_project: *b_a_pro
-        # dtr: #TODO: choose the variable wanted
-        #     training_args:
-        #         method: DetrendedQuantileMapping
-        #         period: *ref_period
-        #         group: *group
-        #         jitter_under: # to avoid negative dtr (when temperature inversion GFDL)
-        #            thresh: 1e-4 K
-        #         xsdba_train_args:
-        #             kind: "*"
-        #             nquantiles: 50
-        #     adjusting_args:
-        #         periods: *sim_period
-        #         xsdba_adjust_args: *adj-args
-        #         bias_adjust_institution: *b_a_inst
-        #         bias_adjust_project: *b_a_pro
+        dtr: 
+            training_args:
+                method: DetrendedQuantileMapping
+                period: *ref_period
+                group: *group
+                jitter_under: # to avoid negative dtr (when temperature inversion GFDL)
+                   thresh: 1e-4 K
+                xsdba_train_args:
+                    kind: "*"
+                    nquantiles: 50
+            adjusting_args:
+                periods: *sim_period
+                xsdba_adjust_args: *adj-args
+                bias_adjust_institution: *b_a_inst
+                bias_adjust_project: *b_a_pro
         pr:
             training_args:
                 method: DetrendedQuantileMapping
@@ -388,6 +388,7 @@ health_checks:
         - time
         - lat 
         - lon
+        - crs
       dims:
         - rlat
         - rlon

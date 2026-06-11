@@ -19,7 +19,8 @@ if __name__ == "__main__":
     inputs = snakemake.input.adjusted
     extracted = snakemake.input.extracted
     output = snakemake.output[0]
-    var = snakemake.wildcards.var
+    var = snakemake.wildcards.var if 'var' in snakemake.wildcards.keys() else 'dtr'
+    print(var)
     config = deepcopy(snakemake.config)
 
     list_dsr = []

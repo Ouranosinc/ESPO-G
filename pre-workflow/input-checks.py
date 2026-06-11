@@ -1,4 +1,5 @@
-""" Run health checks on inputs."""
+"""Run health checks on inputs."""
+
 from pathlib import Path
 
 import xclim as xc
@@ -8,6 +9,7 @@ from xscen import CONFIG
 
 if __name__ == "__main__":
     for ensemble in ["ESPO-G", "ESPO-R"]:
+        print(ensemble)
         xs.load_config(
             f"../config/config_{ensemble}.yml",
             f"../config/paths_{ensemble}.yml",
@@ -24,13 +26,20 @@ if __name__ == "__main__":
         for sim_id, dc_id in cat_sim_id.items():
             path = root_path / f"{sim_id}_inputchecks.zarr.zip"
             if not path.exists():
-                print(sim_id,)
+                print(
+                    sim_id,
+                )
 
                 ds = xs.extract_dataset(
                     catalog=dc_id,
                     region=CONFIG["full_region"],
                     **CONFIG["extraction"]["simulation"]["extract_dataset"],
                 )["D"]
+
+                # we know that 2015 is missing for ESPO-R
+                # add it to avoid errors in the health checks
+                if ensemble == "ESPO-R":
+                    ds.loc[dict(time="2015-01-01")] = 270
 
                 hc = xs.diagnostics.health_checks(
                     ds=ds, **CONFIG["health_checks"]["extract"]
@@ -44,6 +53,7 @@ if __name__ == "__main__":
                             mm = xc.core.units.convert_units_to(
                                 f"{ma} kg m-2 s-1", "mm/day", context="hydro"
                             )
+                            print(mm)
                             hc[var] = mm
                             hc[var].attrs["units"] = "mm/day"
 
@@ -69,8 +79,7 @@ if __name__ == "__main__":
 
                         elif var == "dtr_negative_accumulation_values":
                             ma = ds.dtr.min().values
-                            mm = xc.core.units.convert_units_to(f"{ma} K", "degC")
                             hc[var] = mm
-                            hc[var].attrs["units"] = "degC"
+                            hc[var].attrs["units"] = "K"
 
                 xs.save_to_zarr(hc, path, **CONFIG["save_to_zarr"])

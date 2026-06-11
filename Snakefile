@@ -10,12 +10,13 @@ import copy
 import xscen as xs
 import numpy as np
 
-configfile: "config/config_ESPO-G.yml"
-configfile: "config/paths_ESPO-G.yml"
+configfile: "config/config_ESPO-R.yml"
+configfile: "config/paths_ESPO-R.yml"
 
 # Choose the simulations, diag, ref and dom to process
 dict_sim_id = xs.search_data_catalogs(**copy.deepcopy(config['extraction']['simulation']['search_data_catalogs'],))
 sim_ids= list(dict_sim_id.keys())
+print(sim_ids)
 diagregions=[d for d in config['diagregion'].keys()] # for diags
 level=['improvement', 'diag_sim_prop','diag_sim_meas','diag_scen_prop','diag_scen_meas']
 domain=[config['full_region']['name']]
@@ -70,6 +71,7 @@ def poolname2poollist(poolname,):
         raise ValueError(f"Pool {poolname} does not uniquely identify a list of simulations. Found: {filtered}")
     return filtered[0]
 all_poollists=set([tuple(id2poollist(s)) for s in sim_ids])
+print(all_poollists)
 
 # Define subregions on which to split the computation
 cat_ref = xs.search_data_catalogs(**config['extraction']['reference'][reference[0]]['search_data_catalogs'])
@@ -89,6 +91,7 @@ finaldir=Path(config['paths']['final'])
 rule all:
     input:
         expand(finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
+        expand(finaldir/"preswap/dtrpreswap_day_ESPO6_v20_{ref}+{sim_id}_{dom}.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
         #expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
 rule makeref:
     output:
@@ -228,41 +231,36 @@ def final_path(id, ref):
     return str(os.path.dirname(os.path.dirname(path)))
 
 
-if 'tasmin' in config['biasadjust']['variables']:
-    rule swap: 
-        input:
-            tasmin = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmin+adjusted.zarr",
-            tasmax = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmax+adjusted.zarr",
-            pr = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+pr+adjusted.zarr",
-        output:
-            tasmin = temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmin+adjustedS.zarr")),
-            tasmax = temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmax+adjustedS.zarr")),
-            pr = temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+pr+adjustedS.zarr")),
-        params:
-            n_workers=5,
-            cpus_per_task=15,
-            mem='300GB', 
-            time="00:30:00", 
-        script:
-            "workflow/scripts/swap_temp.py"
-elif 'dtr' in config['biasadjust']['variables']:
-    # if dtr no need to swap so just rename to add S for concat_clean
-    rule rename_files: 
-        input:
-            tasmax = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmax+adjusted.zarr",
-            dtr = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+dtr+adjusted.zarr",
-            pr = tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+pr+adjusted.zarr",
-        output:
-            tasmax = temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+tasmax+adjustedS.zarr")),
-            dtr = temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+dtr+adjustedS.zarr")),
-            pr = temp(directory(tmpdir/"{sim_id}+{dom}+{ref}+{subregion}+pr+adjustedS.zarr")),
-        params:
-            n_workers=5,
-            cpus_per_task=15,
-            mem='300GB', 
-            time="00:30:00", 
-        shell:
-            "mv {input.dtr} {output.dtr} && mv {input.tasmax} {output.tasmax} && mv {input.pr} {output.pr}"
+rule swap: 
+    input:
+        tasmin = tmpdir/"{pool}+{dom}+{ref}+{subregion}+tasmin+adjusted.zarr",
+        tasmax = tmpdir/"{pool}+{dom}+{ref}+{subregion}+tasmax+adjusted.zarr",
+    output:
+        tasmin = temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+tasmin+adjustedS.zarr")),
+        tasmax = temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+tasmax+adjustedS.zarr")),
+        dtrpreswap = temp(directory(tmpdir/"preswap/{pool}+{dom}+{ref}+{subregion}+dtrpreswap.zarr")),
+    params:
+        n_workers=5,
+        cpus_per_task=15,
+        mem='300GB', 
+        time="00:30:00", 
+    script:
+        "workflow/scripts/swap_temp.py"
+
+rule rename_files: #to get to adjustedS like swap
+    input:
+        dtr = tmpdir/"{pool}+{dom}+{ref}+{subregion}+dtr+adjusted.zarr",
+        pr = tmpdir/"{pool}+{dom}+{ref}+{subregion}+pr+adjusted.zarr",
+    output:
+        dtr = temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+dtr+adjustedS.zarr")),
+        pr = temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+pr+adjustedS.zarr")),
+    params:
+        n_workers=5,
+        cpus_per_task=15,
+        mem='300GB', 
+        time="00:30:00", 
+    shell:
+        "mv {input.dtr} {output.dtr} && mv {input.pr} {output.pr}"
 
 rule concat_clean:
     input: 
@@ -278,36 +276,19 @@ rule concat_clean:
     script:
         "workflow/scripts/concat_clean_up.py"
 
-if 'dtr' in config['biasadjust']['variables']:
-    ruleorder: create_tasmin > concat_clean
-    rule create_tasmin:
-        input: 
-            tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip",
-            dtr=finaldir/"staging/{path}/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"
-        output: 
-            finaldir/"staging/{path}/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
-        params:
-            path=lambda wildcards: final_path(wildcards.sim_id, wildcards.ref),
-            mem="60GB",
-            time="03:00:00", 
-            cpus_per_task=12,
-        script:
-            "workflow/scripts/tasmin.py"
-elif 'tasmin' in config['biasadjust']['variables']:
-    ruleorder: create_dtr > concat_clean
-    rule create_dtr:
-        input: 
-            tasmax=finaldir/"staging/{path}/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip",
-            tasmin=finaldir/"staging/{path}/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"
-        output: 
-            finaldir/"staging/{path}/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
-        params:
-            path=lambda wildcards: final_path(wildcards.sim_id, wildcards.ref),
-            mem="60GB",
-            time="03:00:00", 
-            cpus_per_task=12,
-        script:
-            "workflow/scripts/dtr.py"
+rule concat_clean_preswap:
+    input: 
+        adjusted=lambda wildcards: expand(tmpdir/(f"preswap/{id2poolname(wildcards.sim_id)}"+"+{{dom}}+{{ref}}+{subregion}+dtrpreswap.zarr"),  subregion=subregions),
+        extracted=lambda wildcards: tmpdir/(f"{id2poolname(wildcards.sim_id)}"+"+{dom}+extracted.zarr")
+    output: 
+        finaldir/"preswap/dtrpreswap_day_ESPO6_v20_{ref}+{sim_id}_{dom}.zarr.zip", 
+    params:
+        mem="60GB",
+        time="03:00:00", 
+        cpus_per_task=12,
+    script:
+        "workflow/scripts/concat_clean_up.py"
+
 
 rule health_checks:
     input:
