@@ -8,7 +8,10 @@ from xscen import CONFIG
 
 
 if __name__ == "__main__":
-    for ensemble in ["ESPO-G", "ESPO-R"]:
+    for ensemble in [
+        #"ESPO-G", 
+        "ESPO-R"
+                    ]:
         print(ensemble)
         xs.load_config(
             f"../config/config_{ensemble}.yml",
@@ -19,7 +22,7 @@ if __name__ == "__main__":
         cat_sim_id = xs.search_data_catalogs(
             **CONFIG["extraction"]["simulation"]["search_data_catalogs"],
         )
-        root_path = Path(f"{CONFIG['paths']['final']}/inputchecks/")
+        root_path = Path(f"{CONFIG['paths']['final']}/inputcheckslarge/")
         if not root_path.exists():
             root_path.mkdir(parents=True, exist_ok=True)
 

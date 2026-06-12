@@ -34,9 +34,9 @@ if __name__ == "__main__":
     ds = ds.sel(realization=sim_id)
     ds = ds.drop("realization")
     if "ScenarioMIP" in sim_id:  # GCM
-        ds.attrs["cat:member"] = re.search(r"r\d+i\d+p\d+f\d+", sim_id)
+        ds.attrs["cat:member"] = re.search(r"r\d+i\d+p\d+f\d+", sim_id).group(0)
     else:  # RCM
-        ds.attrs["cat:driving_member"] = re.search(r"r\d+i\d+p\d+f\d+", sim_id)
+        ds.attrs["cat:driving_member"] = re.search(r"r\d+i\d+p\d+f\d+", sim_id).group(0)
     ds.attrs["cat:id"] = xs.catalog.generate_id(ds).iloc[0]
 
     ds = xs.clean_up(ds=ds, **config["clean_up"]["xscen_clean_up"][var])

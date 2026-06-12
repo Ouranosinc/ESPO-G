@@ -420,20 +420,20 @@ health_checks:
     missing: # warn but don't raise
       missing_any:
         freq: YS
-    flags: &flags
+    flags:
       tasmax:
         temperature_extremely_high:
-          thresh: '60 degC'
-        tasmax_below_tasmin:
+          thresh: '80 degC'
       tasmin:
         temperature_extremely_low:
-          thresh: '-70 degC' #'-80 degC' #TRy with -70 for ba of tasmin
+          thresh: '-95 degC'
       pr:
         negative_accumulation_values:
         very_large_precipitation_events:
           thresh: '1650 mm/d'
       dtr:
-        negative_accumulation_values:
+        temperature_extremely_low:
+          thresh: '-5 K' # allow for up to -5 for issue with grid from GFDL
       # hurs:
       #   percentage_values_outside_of_bounds:
       # hursTasmax:
@@ -456,7 +456,20 @@ health_checks:
     missing:
       missing_some_but_not_all:
         freq: YS
-    flags: *flags
+    flags: 
+      tasmax:
+        temperature_extremely_high:
+          thresh: '60 degC'
+        tasmax_below_tasmin:
+      tasmin:
+        temperature_extremely_low:
+          thresh: '-80 degC'
+      pr:
+        negative_accumulation_values:
+        very_large_precipitation_events:
+          thresh: '1650 mm/d'
+      dtr:
+        negative_accumulation_values:
     return_flags: True
     raise_on:
       - structure

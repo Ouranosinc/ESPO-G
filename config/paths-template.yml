@@ -1,5 +1,4 @@
 #Configuration file for ESPO-G6-E5L v1.0.0
-# TODO: replace with your own paths in /project and /scratch and rename file to paths.yml.
 paths:
   tmpdir: <SCRATCH-ESPO-DIR>
   home: <FULL-PATH-TO-THIS-REPO>
@@ -28,8 +27,18 @@ utils:
 # for when we remove parse_config
 clean_up:  
     xscen_clean_up:
-      maybe_unstack_dict:
-        coords:  *coords
+      tasmax:
+        maybe_unstack_dict:
+          coords:  *coords
+      tasmin:
+        maybe_unstack_dict:
+          coords:  *coords
+      dtr:
+        maybe_unstack_dict:
+          coords:  *coords
+      pr:
+        maybe_unstack_dict:
+          coords:  *coords
 
 dask:
     client:

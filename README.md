@@ -1,17 +1,17 @@
-# ESPO6 : Ensemble de Simulations Post-traitées d’Ouranos -  CMIP6 / Ouranos Ensemble of Bias-adjusted Simulations - CMIP6
+# ESPO : Ensemble de Simulations Post-traitées d’Ouranos -  CMIP6 / Ouranos Ensemble of Bias-adjusted Simulations - CMIP6
 
-This release is ESPO6 v2.0.
+This release is ESPO v2.0.
 
 ## Context
 The need to adapt to climate change is present in a growing number of fields, leading to an increase in the demand for climate scenarios for often interrelated sectors of activity. In order to meet this growing demand and to ensure the availability of climate scenarios responding to numerous vulnerability, impact, and adaptation (VIA) studies, 
-[Ouranos](https://www.ouranos.ca) is working to create a set of operational multipurpose bias-adjusted climate simulations called "Ensemble de Simulations Post-traitées d'Ouranos" (ESPO). ESPO6 v1.0 is described in the following article:
+[Ouranos](https://www.ouranos.ca) is working to create a set of operational multipurpose bias-adjusted climate simulations called "Ensemble de Simulations Post-traitées d'Ouranos" (ESPO). ESPO v1.0 is described in the following article:
 Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024). https://www.nature.com/articles/s41597-023-02855-z
 
 ## Members
-To avoid the "hot model problem" (Hausfather et al, 2022), only models with a Transient Climate Response (TCR) in the likely range (1.4–2.2 °C) were kept in the official ensemble (Table 1). The experiments in the official ensemble included are SSP2-4.5 and SSP3-7.0.
-Extra "hot models" and SSP5-8.5 are also available even if they are not in the official ensemble.
 
-**Table 1. Members of ESPO6 v2.0.0**
+#TODO: Update table
+
+**Table 1. Members of ESPO-G6 v2.0.0**
 
 |**Model** |**Member** |**TCR (degC)**|**In TCR likely range**|**Status**|
 |---|---|---|---|---|
@@ -62,7 +62,6 @@ TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/re
   * Regrid in a single step
   * Fill in nans
   * Add spatial subset of input domain.
-  * Add max_tail_factor=10 for pr (maybe for both ?)
 
   For both:
   * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
@@ -72,6 +71,10 @@ TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/re
   * NAM domain slightly changed
   * Add pooling of members in the training
   * Change health checks temperature_extremely_low tresh to -80 degC
+  * Add health checks for input
+  * Add max_tail_factor=10 for pr
+  * Adjust tasmax and tasmin directly
+
 
 
   In the code, without effect on the data:
@@ -83,6 +86,7 @@ TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/re
 
 Branch: snakemake
 
+# TODO: clean this up for release
 History:
   2026-01: ran ESPO-R-DQM and ESPO-R-Scaling with env espojan2026 
   2026-02: ran tests with env espojan2026. [ESPO-R-EV (bug, give up, Eric is working on it), ESPO-R-DQM-100 (works, this still has exploding pr), ESPO-R-DQM-tasmin (works, +s and -s vs DTR), ESPO-R-filter]
@@ -92,6 +96,7 @@ History:
   2026-04-28: Tests with new xsdba branch fix-278 (10q99 inside xsdba) in env espoavr2026
   2026-05-18: Test with new xsdba branch fix-278 in env espomai2026
   2026-06-01: Test with https://github.com/Ouranosinc/xsdba/pull/291/changes/242295b4fb5566af2549fff6731d9692c1992835 in env espomai2026. works with little ref cheat.
+  2026-06-12: ESPO-R and ESPO-G work with espomai2026
 
 ### Project lait-e
 
@@ -179,6 +184,9 @@ https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/datasets/simulation
 This version of the workflow is meant to be run on a HPC such as Narval. It uses the workflow manager software Snakemake.
 
 To run the workflow:
+TODO: update env and make instruction for external
+
+0) Run scripts in pre-workflow folder to very the inputs and create the mask for CaSRv3.2.
 
 1) On narval, activate the  virtual env:
 
@@ -199,7 +207,7 @@ $ pyact xscen-0.13
 ```bash
 $ snakemake --profile simple
 ```
-
+TODO: redo dag.png
 Snakemake should build a dag that looks like: ![Texte alternatif](dag.png)
 
 Description of the tasks:
@@ -210,9 +218,11 @@ Description of the tasks:
  - rechunk: Rechunk the regridded dataset to prepare for the bias adjustment (needed on large datasets).
  - train: Train the bias adjustment algorithm.
  - adjust: Adjust the simulation dataset with the trained bias adjustment algorithm.
- - clean_up: Join each individually adjusted variable back in one scenario dataset and clean up other details.
+ - swap_temp: Swap tasmax and tasmin when tasmin>tasmax.
+ - concat_clean_up: Join each individually adjusted variable and sugregion back in one dataset, separate members of the pool and clean up other details.
  - concat: Concatenate adjusted simulation of the three regions into the complete NAM domain.  
- - diag: Compute diagnostics (defined in configuration/properties.yml) on smaller regions to assess the performance.
+ - diag and diag_ref: Compute diagnostics (defined in configuration/properties.yml) on smaller regions to assess the performance.
+ - health_checks: Validation of the data.
 
 
 
@@ -220,5 +230,6 @@ Description of the tasks:
 
 ### Problematic Areas
  - Users should be careful with precipitation data close to the south edge of the North American domain where there is less trust in the reference data, especially for precipitations.
+ - Users should be careful with unseen extreme precipitation. Precipitation extremes that were 10 time larger than the highest quantile in the reference were not adjusted.
  -[TODO: verify for v2.0] Some small regions in Alaska and Greenland showed very small tasmin and have been masked out by NaNs for 2 models (BCC-CSM2-MR and GFDL-ESM4 ). More details are available in section Health Checks of Lavoie et al. (2024)
 
