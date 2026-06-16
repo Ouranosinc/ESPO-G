@@ -127,7 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# other
 config/paths_ESPO-G.yml
 config/paths_ESPO-R.yml
 .snakemake/
+.vscode/
 
