@@ -2,7 +2,6 @@
 #TODO: Make sure begining and end date in config match hardcoded filename
 #TODO: Choose the right configs
 #TODO: Put the right log file in simple
-#TODO: Adjust rules for tasmin or dtr
 from snakemake.utils import min_version
 from pathlib import Path
 import pandas as pd
@@ -10,8 +9,8 @@ import copy
 import xscen as xs
 import numpy as np
 
-configfile: "config/config_ESPO-R.yml"
-configfile: "config/paths_ESPO-R.yml"
+configfile: "config/config_ESPO-G.yml"
+configfile: "config/paths_ESPO-G.yml"
 
 # Choose the simulations, diag, ref and dom to process
 dict_sim_id = xs.search_data_catalogs(**copy.deepcopy(config['extraction']['simulation']['search_data_catalogs'],))

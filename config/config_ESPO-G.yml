@@ -1,6 +1,5 @@
 #Configuration file for ESPO-G6-C3
 
-#TODO: compare with what Gab did
 subregions:
   n: 50000 # number of loc in each subregions
 
@@ -24,8 +23,6 @@ extraction:
           pr: D
           dtr: D
           mask: fx # for casr
-          # hurs: D
-          # hursTasmax: D
         allow_resampling: False
         allow_conversion: True
         periods : &ref_period
@@ -44,54 +41,29 @@ extraction:
           pr: D
           dtr: D
           sftlf: fx
-          #hurs: D
-          #hursmin: D
         match_hist_and_fut: True
         allow_conversion: True
         allow_resampling: False
         periods: &sim_period
           - '1951' 
           - '2100'
-        #restrict_members:
-        #  ordered: 1
+        restrict_members:
+         ordered: 5
         exclusions:
-          id: 
-            - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp585_r6i1p1f1_global # nans #TODO: check
-            - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp370_r6i1p1f1_global
-            - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp245_r6i1p1f1_global
-          source: 
+          source: # criteria, model should have at least one member with all 3 exps.
             - GFDL-CM4 # missing ssp370
-            - MIROC-ES2L # missing ssp585 (maybe not wait for asli)
-            - CRCM5-SN
-            - BCC-CSM2-MR # negative dtr, https://github.com/Ouranosinc/data-requests/issues/55
+            - EC-Earth3-CC # missing ssp370
+            - CRCM5-SN # we are doing G here.
+            - KIOST-ESM # missing ssp245 and ssp370
+            - NESM3 # missing ssp370
+            #- BCC-CSM2-MR # negative dtr, https://github.com/Ouranosinc/data-requests/issues/55 #TODO: check and maybe others
         other_search_criteria:
           processing_level: raw
           mip_era: CMIP6
-          experiment:
-            #- ssp245
+          experiment: # run one exp at the time to avoid exploding scratch quota
+            - ssp245
             #- ssp370
-            - ssp585
-          #source: # but actually on 8 have hurs (and there was a bug with MPI-ESM1-2-HR )
-            # - ACCESS-CM2 
-            # - ACCESS-ESM1-5  
-            # - BCC-CSM2-MR
-            # - CMCC-ESM2 
-          # - CNRM-ESM2-1 
-            # - CNRM-CM6-1
-            # - FGOALS-g3
-            # - GFDL-ESM4 
-            # - INM-CM5-0
-            # - MIROC6
-            # - MIROC-ES2L 
-            # - MPI-ESM1-2-HR
-            # - MPI-ESM1-2-LR 
-            # - MRI-ESM2-0 
-            # - NorESM2-LM
-            # rerun for CanESM5 r1i1p2f1 (meme membre que MRCC5) and CanESM5-1 (TCR =2.26 according to ESMValTool) to be less hot
-            #source: 
-            #  - CanESM5
-            #  - CanESM5-1
-            #member: r1i1p2f1
+            #- ssp585
       extract_dataset:
         periods : *sim_period
         xr_combine_kwargs:
@@ -115,8 +87,6 @@ extraction:
       tasmin: K
       pr: kg m-2 s-1 # xscen should work if standard_name is 'precipitation_flux'
       dtr: K
-      # hurs: "%"
-      # hursTasmax: "%"
 
 regrid:
   regrid_dataset:
@@ -235,38 +205,6 @@ biasadjust:
                     extrapolation: constant
                 bias_adjust_institution: *b_a_inst
                 bias_adjust_project: *b_a_pro
-        # hurs:
-        #     training_args:
-        #         method: DetrendedQuantileMapping
-        #         group: *group
-        #         xsdba_train_args:
-        #             kind: "*"
-        #             nquantiles: 50
-        #         # additive_space:
-        #         #   hurs: &logit
-        #         #     lower_bound: "0 %"
-        #         #     upper_bound: "100 %"
-        #         #     trans: "logit"
-        #         #     clip_next_to_bounds: permissive
-        #     adjusting_args:
-        #         periods: *sim_period
-        #         xsdba_adjust_args: *adj-args
-        #         bias_adjust_institution: *b_a_inst
-        #         bias_adjust_project: *b_a_pro
-        # hursTasmax:
-        #     training_args:
-        #         method: DetrendedQuantileMapping
-        #         group: *group
-        #         xsdba_train_args:
-        #             kind: "*"
-        #             nquantiles: 50
-        #         # additive_space:
-        #         #   hursTasmax: *logit
-        #     adjusting_args:
-        #         periods: *sim_period
-        #         xsdba_adjust_args: *adj-args
-        #         bias_adjust_institution: *b_a_inst
-        #         bias_adjust_project: *b_a_pro
 
 clean_up:
   save:
@@ -364,36 +302,6 @@ clean_up:
             standard_name: air_temperature
             long_name: Minimal daily temperature
             cell_methods: "time: minimum within days"
-      # hurs:
-      #   maybe_unstack_dict: *maybe
-      #   change_attr_prefix: *prefix
-      #   clip_var:
-      #     hurs: [0, 100]
-      #   remove_all_attrs_except: 
-      #     global: *gattrs_to_keep
-      #     hurs: *attrs_to_keep
-      #   add_attrs:
-      #     global: *gattrs_to_add
-      #     hurs:
-      #           standard_name: relative_humidity
-      #           long_name: Relative humidity
-      #           cell_methods: "time: mean within days"
-      # hursTasmax:
-      #   maybe_unstack_dict: *maybe
-      #   change_attr_prefix: *prefix
-      #   clip_var:
-      #     hursTasmax: [0, 100]
-      #   remove_all_attrs_except: 
-      #     global: *gattrs_to_keep
-      #     hursTasmax: *attrs_to_keep
-      #   add_attrs:
-      #     global: *gattrs_to_add
-      #     hursTasmax:
-      #       standard_name: relative_humidity
-      #       long_name: Relative humidity at maximal daily temperature
-      #       cell_methods: "time: point"
-      #       note: The bias adjustement was computed from hursmin of the simulation and hursTasmax of the reference.
-
 
 diagregion:   
   Magtogoek:
@@ -454,8 +362,6 @@ health_checks:
       tasmin: "K"
       pr: "kg m-2 s-1"
       dtr: "K"
-      # hurs: "%"
-      # hursTasmax: "%"
     cfchecks: &cf
       tasmax:
         cfcheck_from_name: {}
@@ -465,8 +371,6 @@ health_checks:
         cfcheck_from_name: {}
       dtr:
         cfcheck_from_name: {}
-      # hurs:
-      #   cfcheck_from_name: {}
     freq: &freq
       D
     missing:
@@ -486,10 +390,6 @@ health_checks:
       dtr:
         temperature_extremely_low:
           thresh: '-5 K' # allow for up to -5 for issue with grid from GFDL
-      # hurs:
-      #   percentage_values_outside_of_bounds:
-      # hursTasmax:
-      #   percentage_values_outside_of_bounds:
     return_flags: True
     raise_on:
       - structure

@@ -2,16 +2,18 @@
 
 from pathlib import Path
 
+import pandas as pd
 import xclim as xc
 import xscen as xs
 from xscen import CONFIG
+import cftime
 
 
 if __name__ == "__main__":
     for ensemble in [
-        #"ESPO-G", 
-        "ESPO-R"
-                    ]:
+        "ESPO-R",
+        "ESPO-G",
+    ]:
         print(ensemble)
         xs.load_config(
             f"../config/config_{ensemble}.yml",
@@ -22,7 +24,7 @@ if __name__ == "__main__":
         cat_sim_id = xs.search_data_catalogs(
             **CONFIG["extraction"]["simulation"]["search_data_catalogs"],
         )
-        root_path = Path(f"{CONFIG['paths']['final']}/inputcheckslarge/")
+        root_path = Path(f"{CONFIG['paths']['final']}/inputcheckslarge2/")
         if not root_path.exists():
             root_path.mkdir(parents=True, exist_ok=True)
 
@@ -41,8 +43,22 @@ if __name__ == "__main__":
 
                 # we know that 2015 is missing for ESPO-R
                 # add it to avoid errors in the health checks
+                print(ds)
+
                 if ensemble == "ESPO-R":
-                    ds.loc[dict(time="2015-01-01")] = 270
+                    ds["time"] = ds.time.dt.floor("D")
+                    tmp = ds.sel(time="2015-01-02").squeeze()
+                    tmp = tmp.drop_vars("time")
+                    ds = ds.where(
+                        ds.time != (ds.time.sel(time="2015-01-01").values),
+                        tmp,
+                    )
+                    tmp = ds.sel(time="2100-12-30").squeeze()
+                    tmp = tmp.drop_vars("time")
+                    ds = ds.where(
+                        ds.time != (ds.time.sel(time="2100-12-31").values),
+                        tmp,
+                    )
 
                 hc = xs.diagnostics.health_checks(
                     ds=ds, **CONFIG["health_checks"]["extract"]

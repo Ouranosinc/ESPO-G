@@ -9,7 +9,7 @@ Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a
 
 ## Members
 
-#TODO: Update table
+#TODO: Update table when we have everything
 
 **Table 1. Members of ESPO-G6 v2.0.0**
 
@@ -73,7 +73,7 @@ TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/re
   * Change health checks temperature_extremely_low tresh to -80 degC
   * Add health checks for input
   * Add max_tail_factor=10 for pr
-  * Adjust tasmax and tasmin directly
+  * Adjust tasmax and tasmin directly, instead of tasmax and dtr
 
 
 

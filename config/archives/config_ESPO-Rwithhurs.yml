@@ -1,0 +1,531 @@
+#Configuration file for ESPO-R6-C3
+subregions:
+  n: 50000 # number of loc in each subregions
+
+
+full_region:
+  name: &domain
+    NAM
+  method: bbox
+  tile_buffer: 1.5 #removed in make ref
+  lon_bnds: [ -179.95, -10 ]
+  lat_bnds: [ 12.5, 83.4 ]
+
+
+extraction:
+  reference:
+    CaSR:
+      search_data_catalogs:
+        variables_and_freqs:
+          tasmax: D
+          tasmin: D
+          pr: D
+          dtr: D
+          mask: fx # for casr
+          # hurs: D # TODO: careful that the right definition is chosen
+          # hursTasmax: D
+        allow_resampling: False
+        allow_conversion: True
+        periods : &ref_period
+          - '1991'
+          - '2020'
+        other_search_criteria: # for casr
+          source: "CaSR"
+          version: "v32"
+      extract_dataset: # for casr
+            mask: True
+  simulation:
+      search_data_catalogs:
+        variables_and_freqs:
+          tasmax: D
+          tasmin: D
+          pr: D
+          dtr: D
+          sftlf: fx
+          #hurs: D
+          #hursmin: D
+        match_hist_and_fut: True
+        allow_conversion: True
+        allow_resampling: False
+        periods: &sim_period
+          - '1951' 
+          - '2100'
+        # restrict_members:
+        #   ordered: 1
+        other_search_criteria:
+          processing_level: raw
+          experiment: 
+           - ssp370
+           - ssp585
+           - ssp245
+          source: 
+            - CRCM5-SN
+          driving_model: 
+            - MPI-ESM1-2-LR
+            - CanESM5
+            - NorESM2-MM
+            - CNRM-ESM2-1
+          #member: r1
+      extract_dataset:
+        periods : *sim_period
+        xr_combine_kwargs:
+          combine_attrs: override
+        xr_open_kwargs:
+          engine: h5netcdf
+          drop_variables:
+            - height
+            - bnds
+            - time_bnds
+            - time_bounds
+            - lat_bnds
+            - lon_bnds
+            - quantization_info
+            - compression_info # makes extract fail
+            #- crs #need to keep for data extent in concat_clean_up
+      create_mask: 
+        variable: sftlf
+        where_operator: ">="
+        where_threshold: 0.25
+        mask_nans: True
+  clean_up:
+    variables_and_units:
+      tasmax: K
+      tasmin: K
+      pr: kg m-2 s-1 # xscen should work if standard_name is 'precipitation_flux'
+      dtr: K
+      # hurs: "%"
+      # hursTasmax: "%"
+
+regrid:
+  regrid_dataset:
+      regridder_kwargs:
+        method: bilinear
+        extrap_method: inverse_dist
+        locstream_out: True
+        reuse_weights: False
+
+biasadjust:
+    variables:
+        tasmax:
+            training_args:
+                method: DetrendedQuantileMapping
+                period: *ref_period
+                group: &group
+                  group: time.dayofyear
+                  window: 31
+                  add_dims: ["realization"]
+                xsdba_train_args:
+                    kind: "+"
+                    nquantiles: 50
+            adjusting_args:
+                periods: *sim_period
+                xsdba_adjust_args: &adj-args
+                    detrend:
+                        LoessDetrend:
+                          f: 0.2
+                          niter: 1
+                          d: 0
+                          weights: tricube
+                    interp: nearest
+                    extrapolation: constant
+                bias_adjust_institution: &b_a_inst
+                  Ouranos
+                bias_adjust_project: &b_a_pro
+                  ESPO
+        tasmin:
+            training_args:
+                method: DetrendedQuantileMapping
+                period: *ref_period
+                group: *group
+                xsdba_train_args:
+                    kind: "+"
+                    nquantiles: 50
+            adjusting_args:
+                periods: *sim_period
+                xsdba_adjust_args: *adj-args
+                bias_adjust_institution: *b_a_inst
+                bias_adjust_project: *b_a_pro
+        dtr: 
+            training_args:
+                method: DetrendedQuantileMapping
+                period: *ref_period
+                group: *group
+                jitter_under: # to avoid negative dtr (when temperature inversion GFDL)
+                   thresh: 1e-4 K
+                xsdba_train_args:
+                    kind: "*"
+                    nquantiles: 50
+            adjusting_args:
+                periods: *sim_period
+                xsdba_adjust_args: *adj-args
+                bias_adjust_institution: *b_a_inst
+                bias_adjust_project: *b_a_pro
+        pr:
+            training_args:
+                method: DetrendedQuantileMapping
+                period: *ref_period
+                group: *group
+                jitter_under:
+                    thresh: 0.01 mm d-1
+                xsdba_train_args:
+                    kind: "*"
+                    nquantiles: 50
+                    adapt_freq_thresh: "1.1574e-05 kg m^-2 s^-1" # xsdba cant convert mm/day automatically
+                    max_tail_factor: 10
+            adjusting_args:
+                periods: *sim_period
+                xsdba_adjust_args: 
+                    detrend:
+                        LoessDetrend:
+                          f: 0.2
+                          niter: 1
+                          d: 0
+                          weights: tricube
+                          mult_skip_zeros: True # dont fail if only 0s
+                    interp: nearest
+                    extrapolation: constant
+                bias_adjust_institution: *b_a_inst
+                bias_adjust_project: *b_a_pro
+        # hurs:
+        #     training_args:
+        #         method: DetrendedQuantileMapping
+        #         group: *group
+        #         xsdba_train_args:
+        #             kind: "*"
+        #             nquantiles: 50
+        #     adjusting_args:
+        #         periods: *sim_period
+        #         xsdba_adjust_args: *adj-args
+        #         bias_adjust_institution: *b_a_inst
+        #         bias_adjust_project: *b_a_pro
+        # hursTasmax:
+        #     training_args:
+        #         method: DetrendedQuantileMapping
+        #         group: *group
+        #         xsdba_train_args:
+        #             kind: "*"
+        #             nquantiles: 50
+        #     adjusting_args:
+        #         periods: *sim_period
+        #         xsdba_adjust_args: *adj-args
+        #         bias_adjust_institution: *b_a_inst
+        #         bias_adjust_project: *b_a_pro
+
+
+
+clean_up:
+  save:
+    bitround: 12
+  xscen_clean_up:
+    tasmax:
+      maybe_unstack_dict: &maybe
+        stack_drop_nans: True
+      change_attr_prefix: &prefix
+        '' 
+      remove_all_attrs_except: 
+        global: &gattrs_to_keep
+          - history
+          - "cat:id"
+          - "cat:source"
+          - "cat:member"
+          - "cat:experiment"
+          - "cat:institution"
+          - "cat:activity"
+          - "cat:bias_adjust_project"
+          - "cat:bias_adjust_institution"
+          - "cat:bias_adjust_reference"
+          - "cat:domain"
+          - "cat:mip_era"
+          - "cat:type"
+          - "cat:driving_model"
+          - "cat:driving_member"
+        tasmax: &attrs_to_keep
+          - bias_adjustment
+          - cell_methods
+          - coordinates
+          - history
+          - long_name
+          - standard_name
+          - units
+          - grid_mapping
+      add_attrs:
+        global: &gattrs_to_add
+          dataset: ESPO6
+          version: v20
+          code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake #TODO: put most up-to-date info
+          contact: lavoie.juliette@ouranos.ca
+          organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca
+          avertissement : Ouranos ne donne aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande et d'adéquation à un usage particulier. Toutes les responsabilités découlant de la fourniture des informations (y compris toute responsabilité découlant d'une négligence) sont exclues dans toute la mesure permise par la loi.
+          organization: Scenarios and Climate Services Group, Ouranos Consortium, Montreal, QC; www.ouranos.ca
+          disclaimer: Ouranos make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.
+          license:  Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/)
+          "cat:domain": *domain
+          "cat:_data_format_": "zarr"
+          Notes: |
+            Regridded on the grid of the reference, then bias-adjusted with detrended
+            quantile mapping. The reference period was 1991-2020. Tasmax,
+            dtr and pr were adjusted, tasmin was computed
+            from tasmax and dtr after the adjustment.
+        tasmax:
+            standard_name: air_temperature
+            long_name: Maximal daily temperature
+            cell_methods: "time: maximum within days"
+    pr:
+      maybe_unstack_dict: *maybe
+      round_var:
+        pr: 10
+      change_attr_prefix: *prefix
+      remove_all_attrs_except: 
+        global: *gattrs_to_keep
+        pr: *attrs_to_keep
+      add_attrs:
+        global: *gattrs_to_add
+        pr:
+            standard_name: precipitation_flux
+            long_name: Mean daily precipitation flux
+            cell_methods: "time: mean within days"
+    dtr:
+      maybe_unstack_dict: *maybe
+      change_attr_prefix: *prefix
+      remove_all_attrs_except: 
+        global: *gattrs_to_keep
+        dtr: *attrs_to_keep
+      add_attrs:
+        global: *gattrs_to_add
+        dtr:
+          cell_methods: "time: range within days"
+          description: Diurnal temperature range from tasmax and tasmin.
+          standard_name: air_temperature
+          long_name: Diurnal temperature range.
+    tasmin:
+      maybe_unstack_dict: *maybe
+      change_attr_prefix: *prefix
+      remove_all_attrs_except: 
+        global: *gattrs_to_keep
+        tasmin: *attrs_to_keep
+      add_attrs:
+        global: *gattrs_to_add
+        tasmin:
+            standard_name: air_temperature
+            long_name: Minimal daily temperature
+            cell_methods: "time: minimum within days"
+      # hurs:
+      #   maybe_unstack_dict: *maybe
+      #   change_attr_prefix: *prefix
+      #   clip_var:
+      #     hurs: [0, 100]
+      #   remove_all_attrs_except: 
+      #     global: *gattrs_to_keep
+      #     hurs: *attrs_to_keep
+      #   add_attrs:
+      #     global: *gattrs_to_add
+      #     hurs:
+      #           standard_name: relative_humidity
+      #           long_name: Relative humidity
+      #           cell_methods: "time: mean within days"
+      # hursTasmax:
+      #   maybe_unstack_dict: *maybe
+      #   change_attr_prefix: *prefix
+      #   clip_var:
+      #     hursTasmax: [0, 100]
+      #   remove_all_attrs_except: 
+      #     global: *gattrs_to_keep
+      #     hursTasmax: *attrs_to_keep
+      #   add_attrs:
+      #     global: *gattrs_to_add
+      #     hursTasmax:
+      #       standard_name: relative_humidity
+      #       long_name: Relative humidity at maximal daily temperature
+      #       cell_methods: "time: point"
+      #       note: The bias adjustement was computed from hursmin of the simulation and hursTasmax of the reference.
+
+
+diagregion:   
+  Magtogoek:
+    name: Magtogoek
+    method: bbox
+    lat_bnds:  [ 41.4, 49.4] 
+    lon_bnds: [ -92.2, -59.8 ]
+  Cree:
+    name: Cree
+    method: bbox
+    lat_bnds: [ 46.9, 53.8 ]
+    lon_bnds: [ -115, -97.1 ]
+  Ute:
+    name: Ute
+    method: bbox
+    lat_bnds:  [ 35.5, 43]
+    lon_bnds: [ -109.6, -95.5 ]
+  Tlicho:
+    name: Tlicho
+    method: bbox
+    lat_bnds:  [ 61.3, 66.75]
+    lon_bnds: [ -130, -103.8 ]
+  Atlas:
+    name: Atlas
+    method: bbox
+    lon_bnds: [-83 ,-55 ] 
+    lat_bnds: [42, 53]
+
+diagnostics:
+  properties_and_measures:
+    change_units_arg:
+      tasmax: degC
+      tasmin: degC
+      pr: mm d-1
+      dtr: K
+      # hurs: "%"
+      # hursTasmax: "%"
+    properties: config/properties.yml
+    period: *ref_period
+
+health_checks:
+  extract:
+    structure:
+      coords:
+        - rlat
+        - rlon
+        - time
+        - lat 
+        - lon
+        - crs
+      dims:
+        - rlat
+        - rlon
+        - time
+    start_date: &start
+      "1951-01-01" 
+    end_date: &end
+      "2100-12-30"
+    variables_and_units: &varunits
+      tasmax: "K"
+      tasmin: "K"
+      pr: "kg m-2 s-1"
+      dtr: "K"
+      # hurs: "%"
+      # hursTasmax: "%"
+    cfchecks: &cf
+      tasmax:
+        cfcheck_from_name: {}
+      tasmin:
+        cfcheck_from_name: {}
+      pr:
+        cfcheck_from_name: {}
+      dtr:
+        cfcheck_from_name: {}
+      # hurs:
+      #   cfcheck_from_name: {}
+    freq: &freq
+      D
+    missing: 
+      missing_some_but_not_all:
+        freq: YS
+    flags:
+      tasmax:
+        temperature_extremely_high:
+          thresh: '80 degC'
+      tasmin:
+        temperature_extremely_low:
+          thresh: '-95 degC'
+      pr:
+        negative_accumulation_values:
+        very_large_precipitation_events:
+          thresh: '2300 mm/d'
+      dtr:
+        temperature_extremely_low:
+          thresh: '-5 K' # allow for up to -5 for issue with grid from GFDL
+      # hurs:
+      #   percentage_values_outside_of_bounds:
+      # hursTasmax:
+      #   percentage_values_outside_of_bounds:
+    return_flags: True
+    raise_on:
+      - structure
+      - start_date
+      - end_date
+      - variables_and_units
+      - cfchecks
+      - freq
+      - missing
+  final:
+    start_date: *start
+    end_date: *end
+    variables_and_units: *varunits
+    cfchecks: *cf
+    freq: *freq
+    missing:
+      missing_some_but_not_all:
+        freq: YS
+    flags: 
+      tasmax:
+        temperature_extremely_high:
+          thresh: '60 degC'
+        tasmax_below_tasmin:
+      tasmin:
+        temperature_extremely_low:
+          thresh: '-80 degC'
+      pr:
+        negative_accumulation_values:
+        very_large_precipitation_events:
+          thresh: '1650 mm/d'
+      dtr:
+        negative_accumulation_values:
+    return_flags: True
+    raise_on:
+      - structure
+      - start_date
+      - end_date
+      - variables_and_units
+      - cfchecks
+      - freq
+      - missing
+
+io:
+  rechunk:
+    worker_mem: 2GB
+
+
+logging:
+    formatters:
+        default:
+            format: '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
+            datefmt: '%Y-%m-%d %H:%M:%S'
+    handlers:
+        console:
+            class : logging.StreamHandler
+            formatter: default
+            level : DEBUG
+            stream: ext://sys.stdout #needed to have the right color in pycharm
+    loggers:
+        xscen:
+            level: DEBUG
+            handlers: [console]
+
+dask:
+    array.slicing.split_large_chunks: False
+
+tdd:
+  xarray_open_kwargs:
+    decode_timedelta: False
+
+
+chunks:
+  pre-regrid:
+    time: 365
+    rlat: -1 # dims of input
+    rlon: -1
+  workingloc:
+    loc: 600
+    time: -1
+    realization: -1
+  workingXY:
+    X: 20
+    Y: 20
+    time: -1
+  diag:
+    Y: -1
+    X: -1
+  final: 
+    Y: 50
+    X: 50
+    time: 4year

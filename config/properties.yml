@@ -1,9 +1,5 @@
 realm: generic
-# variables:
-#   hursTasmax:
-#     standard_name: relative_humidity
-#     description: Relative humidity at maximal daily temperature
-#     canonical_units: "%"
+#TODO: add properties from Gab's workflow
 indicators:
   mean_tasmax:
     base: xsdba.properties.mean
@@ -190,58 +186,3 @@ indicators:
       da: dtr
     parameters:
       q: 0.99
-  # mean_hurs:
-  #   base: xsdba.properties.mean
-  #   input:
-  #     da: hurs
-  # q01_hurs:
-  #   base: xsdba.properties.quantile
-  #   input:
-  #     da: hurs
-  #   parameters:
-  #     q: 0.01
-  # q99_hurs:
-  #   base: xsdba.properties.quantile
-  #   input:
-  #     da: hurs
-  #   parameters:
-  #     q: 0.99
-  # mean_hursTasmax:
-  #   base: xsdba.properties.mean
-  #   input:
-  #     da: hursTasmax
-  # q01_hursTasmax:
-  #   base: xsdba.properties.quantile
-  #   input:
-  #     da: hursTasmax
-  #   parameters:
-  #     q: 0.01
-  # q99_hursTasmax:
-  #   base: xsdba.properties.quantile
-  #   input:
-  #     da: hursTasmax
-  #   parameters:
-  #     q: 0.99
-  # aca_hurs:
-  #   base: xsdba.properties.annual_cycle_amplitude
-  #   input:
-  #     da: hurs
-  # aca_hursTasmax:
-  #   base: xsdba.properties.annual_cycle_amplitude
-  #   input:
-  #     da: hursTasmax
-  # corr_tasmax_hurs:
-  #   base: xsdba.properties.corr_btw_var
-  #   input:
-  #     da1: tasmax
-  #     da2: hurs
-  # corr_tasmax_hursTasmax:
-  #   base: xsdba.properties.corr_btw_var
-  #   input:
-  #     da1: tasmax
-  #     da2: hursTasmax
-  # corr_pr_hurs:
-  #   base: xsdba.properties.corr_btw_var
-  #   input:
-  #     da1: pr
-  #     da2: hurs

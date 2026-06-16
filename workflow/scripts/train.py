@@ -30,10 +30,6 @@ if __name__ == '__main__':
         # trick for biasadjustement of hursmin (sim) on hursTasmax (ref)
         ds_hist = ds_hist.rename({'hursmin': 'hursTasmax'})
 
-        # needed until we can use numpy>2, for clip in additive transform
-        # ds_hist['hursTasmax'] = ds_hist['hursTasmax'].astype(float)
-        # ds_hist['hurs'] = ds_hist['hurs'].astype(float)
-
     # load ref ds
     # choose right calendar
     simcal = xc.core.calendar.get_calendar(ds_hist)
@@ -43,10 +39,6 @@ if __name__ == '__main__':
     input_cal = input_noleap if refcal == 'noleap' else \
         input_360_day if refcal == '360_day' else 'unknown'
     ds_ref = xr.open_zarr(input_cal, decode_timedelta=False)
-
-    # TODO: cheat temporarily until merge https://github.com/Ouranosinc/xsdba/pull/291
-    #ds_ref = ds_ref.expand_dims(
-    #    {'realization': len(ds_hist.realization)}).chunk({"realization": -1})
 
     # training
     ds_tr = xs.train(

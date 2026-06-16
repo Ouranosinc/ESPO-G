@@ -20,20 +20,6 @@ if __name__ == "__main__":
 
     client = dask_cluster(snakemake.params, config["dask"]["client"])
 
-    # Try to not use this
-    # xs.io.rechunk(
-    #     path_in=str(snakemake.input[0]),
-    #     path_out=f"{os.environ['SLURM_TMPDIR']}/rechunked+{
-    #         snakemake.wildcards.sim_id}+{snakemake.wildcards.subregion}/",
-    #     chunks_over_dim={
-    #         k: v for k, v in config[
-    # "chunks"]["working"].items() if k in ["time", "loc"]
-    #     },
-    #     temp_store=f"{os.environ['SLURM_TMPDIR']}/{snakemake.wildcards.sim_id}+{
-    #         snakemake.wildcards.subregion}/",
-    #     overwrite=True,
-    # )  # explicit parse_config magic if you uncomment this
-
     # # test to get rif of rechunker
     ds = xr.open_zarr(inputs[0], decode_timedelta=False)
     ds = xs.io.rechunk_for_saving(ds, rechunk=config["chunks"]["workingloc"])

@@ -22,8 +22,6 @@ extraction:
           pr: D
           dtr: D
           mask: fx # for casr
-          # hurs: D # TODO: careful that the right definition is chosen
-          # hursTasmax: D
         allow_resampling: False
         allow_conversion: True
         periods : &ref_period
@@ -42,22 +40,18 @@ extraction:
           pr: D
           dtr: D
           sftlf: fx
-          #hurs: D
-          #hursmin: D
         match_hist_and_fut: True
         allow_conversion: True
         allow_resampling: False
         periods: &sim_period
           - '1951' 
           - '2100'
-        # restrict_members:
-        #   ordered: 1
         other_search_criteria:
           processing_level: raw
           experiment: 
            - ssp370
-           #- ssp585
-           #- ssp245
+           - ssp585
+           - ssp245
           source: 
             - CRCM5-SN
           driving_model: 
@@ -65,7 +59,6 @@ extraction:
             - CanESM5
             - NorESM2-MM
             - CNRM-ESM2-1
-          #member: r1
       extract_dataset:
         periods : *sim_period
         xr_combine_kwargs:
@@ -93,8 +86,6 @@ extraction:
       tasmin: K
       pr: kg m-2 s-1 # xscen should work if standard_name is 'precipitation_flux'
       dtr: K
-      # hurs: "%"
-      # hursTasmax: "%"
 
 regrid:
   regrid_dataset:
@@ -186,30 +177,6 @@ biasadjust:
                     extrapolation: constant
                 bias_adjust_institution: *b_a_inst
                 bias_adjust_project: *b_a_pro
-        # hurs:
-        #     training_args:
-        #         method: DetrendedQuantileMapping
-        #         group: *group
-        #         xsdba_train_args:
-        #             kind: "*"
-        #             nquantiles: 50
-        #     adjusting_args:
-        #         periods: *sim_period
-        #         xsdba_adjust_args: *adj-args
-        #         bias_adjust_institution: *b_a_inst
-        #         bias_adjust_project: *b_a_pro
-        # hursTasmax:
-        #     training_args:
-        #         method: DetrendedQuantileMapping
-        #         group: *group
-        #         xsdba_train_args:
-        #             kind: "*"
-        #             nquantiles: 50
-        #     adjusting_args:
-        #         periods: *sim_period
-        #         xsdba_adjust_args: *adj-args
-        #         bias_adjust_institution: *b_a_inst
-        #         bias_adjust_project: *b_a_pro
 
 
 
@@ -309,36 +276,6 @@ clean_up:
             standard_name: air_temperature
             long_name: Minimal daily temperature
             cell_methods: "time: minimum within days"
-      # hurs:
-      #   maybe_unstack_dict: *maybe
-      #   change_attr_prefix: *prefix
-      #   clip_var:
-      #     hurs: [0, 100]
-      #   remove_all_attrs_except: 
-      #     global: *gattrs_to_keep
-      #     hurs: *attrs_to_keep
-      #   add_attrs:
-      #     global: *gattrs_to_add
-      #     hurs:
-      #           standard_name: relative_humidity
-      #           long_name: Relative humidity
-      #           cell_methods: "time: mean within days"
-      # hursTasmax:
-      #   maybe_unstack_dict: *maybe
-      #   change_attr_prefix: *prefix
-      #   clip_var:
-      #     hursTasmax: [0, 100]
-      #   remove_all_attrs_except: 
-      #     global: *gattrs_to_keep
-      #     hursTasmax: *attrs_to_keep
-      #   add_attrs:
-      #     global: *gattrs_to_add
-      #     hursTasmax:
-      #       standard_name: relative_humidity
-      #       long_name: Relative humidity at maximal daily temperature
-      #       cell_methods: "time: point"
-      #       note: The bias adjustement was computed from hursmin of the simulation and hursTasmax of the reference.
-
 
 diagregion:   
   Magtogoek:
@@ -374,8 +311,6 @@ diagnostics:
       tasmin: degC
       pr: mm d-1
       dtr: K
-      # hurs: "%"
-      # hursTasmax: "%"
     properties: config/properties.yml
     period: *ref_period
 
@@ -402,8 +337,6 @@ health_checks:
       tasmin: "K"
       pr: "kg m-2 s-1"
       dtr: "K"
-      # hurs: "%"
-      # hursTasmax: "%"
     cfchecks: &cf
       tasmax:
         cfcheck_from_name: {}
@@ -413,12 +346,10 @@ health_checks:
         cfcheck_from_name: {}
       dtr:
         cfcheck_from_name: {}
-      # hurs:
-      #   cfcheck_from_name: {}
     freq: &freq
       D
-    missing: # warn but don't raise
-      missing_any:
+    missing: 
+      missing_some_but_not_all:
         freq: YS
     flags:
       tasmax:
@@ -430,14 +361,10 @@ health_checks:
       pr:
         negative_accumulation_values:
         very_large_precipitation_events:
-          thresh: '1650 mm/d'
+          thresh: '2300 mm/d'
       dtr:
         temperature_extremely_low:
           thresh: '-5 K' # allow for up to -5 for issue with grid from GFDL
-      # hurs:
-      #   percentage_values_outside_of_bounds:
-      # hursTasmax:
-      #   percentage_values_outside_of_bounds:
     return_flags: True
     raise_on:
       - structure
@@ -446,7 +373,7 @@ health_checks:
       - variables_and_units
       - cfchecks
       - freq
-      # dont raise on missing here 
+      - missing
   final:
     start_date: *start
     end_date: *end
