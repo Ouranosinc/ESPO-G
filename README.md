@@ -1,216 +1,235 @@
-# ESPO-G6-R2 : Ensemble de Simulations Post-traitées d’Ouranos - modèles Globaux CMIP6  - RDRS v2.1 / Ouranos Ensemble of Bias-adjusted Simulations - Global models CMIP6 - RDRS v2.1
+# ESPO : Ensemble de Simulations Post-traitées d’Ouranos -  CMIP6 / Ouranos Ensemble of Bias-adjusted Simulations - CMIP6
 
-
-ESPO-G6:[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764928.svg)](https://doi.org/10.5281/zenodo.7764928)
-
-ESPO-G6-R2 v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7877330.svg)](https://doi.org/10.5281/zenodo.7877330)
-
-ESPO-G6-E5L v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764929.svg)](https://doi.org/10.5281/zenodo.7764929)
-
-
-The dataset is described in the following article:
-
-Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024).
-https://www.nature.com/articles/s41597-023-02855-z
-
+This release is ESPO v2.0.
 
 ## Context
-The need to adapt to climate change is present in a growing number of fields, leading to an increase in the demand for 
-climate scenarios for often interrelated sectors of activity. In order to meet this growing demand and to ensure the 
-availability of climate scenarios responding to numerous vulnerability, impact, and adaptation (VIA) studies, 
-[Ouranos](https://www.ouranos.ca) is working to create a set of operational multipurpose climate scenarios called 
-"Ensemble de Simulations Post-traitées d'Ouranos" (ESPO) covering North America at a resolution of 0.1°. 
-In ESPO-G6-R2 v1.0.0, CMIP6 global climate models simulations are bias-adjusted using the RDRS v2.1 reference dataset.
-The simulation ensemble covers the period for years 1950-2100 and includes the daily minimum temperature (`tasmin`), the daily maximum temperature (`tasmax`) and the daily mean precipitation flux (`pr`).
-The experiments included are SSP2-4.5 and SSP3-7.0.
+The need to adapt to climate change is present in a growing number of fields, leading to an increase in the demand for climate scenarios for often interrelated sectors of activity. In order to meet this growing demand and to ensure the availability of climate scenarios responding to numerous vulnerability, impact, and adaptation (VIA) studies, 
+[Ouranos](https://www.ouranos.ca) is working to create a set of operational multipurpose bias-adjusted climate simulations called "Ensemble de Simulations Post-traitées d'Ouranos" (ESPO). ESPO v1.0 is described in the following article:
+Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024). https://www.nature.com/articles/s41597-023-02855-z
+
+## Members
+
+#TODO: Update table when we have everything
+
+**Table 1. Members of ESPO-G6 v2.0.0**
+
+|**Model** |**Member** |**TCR (degC)**|**In TCR likely range**|**Status**|
+|---|---|---|---|---|
+| ACCESS-CM2     |r1i1p1f1| 2.1 | ✓ |not started|
+| ACCESS-ESM1-5  |r1i1p1f1| 1.95 | ✓ |not started|
+| BCC-CSM2-MR    |r1i1p1f1| 1.72 | ✓ |not started|
+| CMCC-ESM2     |r1i1p1f1| 1.92* | ✓ |not started|
+| CNRM-CM6-1     |r1i1p1f1| 2.14 | ✓ |not started|
+| CNRM-ESM2-1    |r1i1p1f1| 1.86 | ✓ |not started|
+| FGOALS-g3      |r1i1p1f1| 1.54 | ✓ |not started|
+| GFDL-ESM4      |r1i1p1f1| 1.61 | ✓ |not started|
+| MIROC-ES2L     |r1i1p1f1| 1.55 | ✓ |not started|
+| MIROC6         |r1i1p1f1| 1.55 | ✓ |not started|
+| MPI-ESM1-2-HR  |r1i1p1f1| 1.66 | ✓ |not started|
+| MPI-ESM1-2-LR  |r1i1p1f1| 1.84 | ✓ |not started|
+| MRI-ESM2-0     |r1i1p1f1| 1.64 | ✓ |not started|
+| NorESM2-LM     |r1i1p1f1| 1.48 | ✓ |not started|
+| CanESM5        |r1i1p1f1| 2.74 | x |not started|
+| CanESM5-1      |r1i1p2f1| ? | x |not started|
+| EC-Earth3      |r1i1p1f1| 2.3 | x |not started|
+| EC-Earth3-Veg  |r1i1p1f1| 2.62 | x |not started|
+| INM-CM4-8      |r1i1p1f1| 1.33 | x |not started|
+| INM-CM5-0      |r1i1p1f1| 1.37 | x |not started|
+| IPSL-CM6A-LR   |r1i1p1f1| 2.32 | x |not started|
+| NorESM2-MM     |r1i1p1f1| 1.33 | x |not started|
+| TaiESM1        |r1i1p1f1| 2.36 | x |not started|
+| UKESM1-0-LL    |r1i1p1f1| 2.79 | x |not started|
 
 
-To avoid the "hot model problem" (Hausfather et al, 2022), only models with a Transient Climate Response (TCR) in the likely range (1.4–2.2 °C) were kept in the official ensemble (Table 1).
-Extra "hot models" and SSP5-8.5 are also available even if they are not in the official ensemble.
+Licences: All members have a CC BY 4.0 license. https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
 
-**Table 1. Members of ESPO-G6-R2 v1.0.0**
-
-|**Institution**|**Model** |**Member** |**License**|**TCR (degC)**|**In TCR likely range**|**Status**|
-|---|---|---|---|---|---|---|
-|CAS |	FGOALS-g3 |	r1i1p1f1 |CC BY 4.0|1.50|✓| Completed|
-|CMCC 	|CMCC-ESM2 |	r1i1p1f1 |CC BY 4.0|1.92|✓|Completed|
-|	CSIRO-ARCCSS |	ACCESS-CM2 |	r1i1p1f1  |CC BY 4.0|1.96|✓|Completed|
-| CSIRO 	|ACCESS-ESM1-5 |	r1i1p1f1 |CC BY 4.0|1.97|✓|Completed|
-| 	DKRZ |	MPI-ESM1-2-HR |	r1i1p1f1 |CC BY 4.0|1,64|✓|Completed|
-| 	INM 	|INM-CM5-0 |	r1i1p1f1 |CC BY 4.0|1.41|✓|Completed|
-| 	MIROC |	MIROC6 |	r1i1p1f1 |CC BY 4.0|1.55|✓|Completed|
-| 	MPI-M |	MPI-ESM1-2-LR |	r1i1p1f1 |CC BY 4.0|1.82|✓|Completed|
-| 	MRI |	MRI-ESM2-0 |	r1i1p1f1 |CC BY 4.0|1.67|✓|Completed|
-| 	NCC |	NorESM2-LM |	r1i1p1f1 |CC BY 4.0|1.49|✓|Completed|
-| 	CNRM-CERFACS |	CNRM-ESM2-1 |	r1i1p1f2 |CC BY 4.0|1.83|✓|Completed|
-| 	NIMS-KMA |	KACE-1-0-G |	r1i1p1f1 |CC BY 4.0|2.04|✓|Completed|
-| 	NOAA-GFDL |	GFDL-ESM4 |	r1i1p1f1 |CC BY 4.0|1.63|✓|Completed|
-| 	BCC |	BCC-CSM2-MR |	r1i1p1f1 |CC BY 4.0|1.55|✓|Completed|
-| CCCma	 |	CanESM5 |	r1i1p1f1 |CC BY 4.0|2.71| |Completed|
-| CNRM-CERFACS	 |	CNRM-CM6-1 |r1i1p1f2	 |CC BY 4.0|2.22| |Completed|
-| EC-Earth-Consortium	 |	EC-Earth3 |r1i1p1f1	 |CC BY 4.0|2.30| |Completed|
-| IPSL	 |	IPSL-CM6A-LR |	r1i1p1f1 |CC BY 4.0|2.35| |Completed|
-| 	MOHC |	UKESM1-0-LL |	r1i1p1f2 |CC BY 4.0|2.77| |Completed|
-| 	NCC |NorESM2-MM	 |	r1i1p1f1 |CC BY 4.0|1.22| |Completed|
-| EC-Earth-Consortium	 |	EC-Earth3-CC  |r1i1p1f1	 |CC BY 4.0|2.63| |Completed (no SSP3-7.0)|
-| 	NUIST |NESM3 	 |	r1i1p1f1 |CC BY 4.0|2.72| |Completed (no SSP3-7.0)|
-| 	MIROC |MIROC-ES2L	 |	r1i1p1f2 |CC BY 4.0|1.49| ✓|Completed |
-| 	EC-Earth-Consortium |EC-Earth3-Veg	 |	r1i1p1f1 |CC BY 4.0|2.66| |Completed |
-| 	INM |INM-CM4-8	 |	r1i1p1f1 |CC BY 4.0|1.30| |Completed |
-| 	AS-RCEC |TaiESM1	 |	r1i1p1f1 |CC BY 4.0|1.30| |Completed |
+TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/recipe_tcr.html), as done in the IPCC AR6. A previous version of this table used Hausfather et al. 2022, Climate simulations: recognize the 'hot model' problem, comment in Nature: [DOI: 10.5281/zenodo.6476375](https://doi.org/10.5281/zenodo.6476375) and gave slightly different results.   See https://github.com/Ouranosinc/ESPO-G/issues/7 for discussion.
+*Note that the CMCC-ESM2 TCR is not available with the ESMValTool method. We show the one from Hausfather et al. (2022) instead.
 
 
+## Versions
 
-Licences: https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
+ ### v2.0 [This release]
+ 
+ Changes from v1.0:
 
-TCR: Hausfather et al. 2022, Climate simulations: recognize the 'hot model' problem, comment in Nature: [DOI: 10.5281/zenodo.6476375](https://doi.org/10.5281/zenodo.6476375)
+  For ESPO-G:
+  * KACE-1-0-G was excluded. (https://github.com/Ouranosinc/ESPO-G/issues/6)
+  * EC-Earth3-CC and NESM3 were excluded as they do not have SSP3-7.0 available.
+  * New calculation of the TCR lead to CNRM-CM6-1/INM-CM5-0  being included/excluded in the TCR likely range. (https://github.com/Ouranosinc/ESPO-G/issues/7)  
 
-## Spatial coverage
-The dataset has a resolution of 0.1° over a North American domain on a rotated grid with
-a grid pole latitude of 31.7583 and longitude of 87.5970. The latitude range covered is 
-from 5.7560°N to 83.9816°N and the longitude range is from 179.9728°E to 9.0204°W.
+  For ESPO-R:
+  * Regrid in a single step
+  * Fill in nans
+  * Add spatial subset of input domain.
 
-> :warning: Users should be careful with precipitation data close to the south edge of the domain where there is less trust in the reference data.
+  For both:
+  * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
+  * Add CaSR v3.2 reference
+  * Add mask based in sftlf on the simulation
+  * Start in 1951 (CRCM5 not available in 1950)
+  * NAM domain slightly changed
+  * Add pooling of members in the training
+  * Change health checks temperature_extremely_low tresh to -80 degC
+  * Add health checks for input
+  * Add max_tail_factor=10 for pr
+  * Adjust tasmax and tasmin directly, instead of tasmax and dtr
 
-Data is only available on or near land. A mask was created by removing all grid cells that 
-had a sea area fraction of 1 in the reference dataset and then putting back a buffer 
-of one grid cell along the coasts.
 
-Some small regions in Alaska and Greenland have been masked out by NaNs for 2 models.
-More details are available in section 5 of [the documentation of the adjustment method.](documentation/ESPO_G6_R2v100_adjustment.pdf)
 
-## Temporal coverage
-As the bias-adjustment method requires a consistent number of calendar days (no leap days), all members using a standard
-calendar were converted to the `noleap` one by dropping any values for February 29th. `KACE-1-0-G`
-is the only model simulated with a 360-day calendar, and was kept as is.
+  In the code, without effect on the data:
+  * Add possibility to run hurs and hursTasmax
+  * Add possibility to run until 2300
+  * Workflow uses snakemake
+  * More checks on nan in health checks
 
-The bias-adjustment was calibrated over the years 1989-2018, the most recont 30-year period available, and applied to the full 1950-2100 period.
 
-## Reference data
-The ESPO-G6-R2 v1.0.0 dataset uses the RDRS v2.1 (Gasset et al., 2021) as reference dataset. This is a product
-from Environment and Climate Change Canada (ECCC) created by using the Regional 
-Deterministic Reforecast System (RDRS) to downscale the Global Deterministic Reforecast 
-System (GDRS) initialized by ERA-Interim. The system is also coupled with the Canadian 
-Land Data Assimilation System (CaLDAS) and Precipitation Analysis (CaPA). It was downloaded from
-[CaSPAR](https://caspar-data.ca).
+Branch: snakemake
 
-> :warning: A different version of ESPO-G6 uses ERA5-Land as a reference. 
-The information for ESPO-G6-E5L can be found in this [release](https://github.com/Ouranosinc/ESPO-G/releases/tag/v1.0.0) with [doi:10.5281/zenodo.7764929](https://zenodo.org/record/7764929#.ZEbAg3aZPz8).
+# TODO: clean this up for release
+History:
+  2026-01: ran ESPO-R-DQM and ESPO-R-Scaling with env espojan2026 
+  2026-02: ran tests with env espojan2026. [ESPO-R-EV (bug, give up, Eric is working on it), ESPO-R-DQM-100 (works, this still has exploding pr), ESPO-R-DQM-tasmin (works, +s and -s vs DTR), ESPO-R-filter]
+  2026-02: Create env espofev2026 to add xesmf 0.9.2 and xscen-0.13.2.dev7. Ran tests for ESPO-R-filter and redo ESPO-R-tasmin without bug
+  2026-04: Test CanRCM5 with env xscen-0.14, fixed filter and rerun CRCM5 with env xscen-0.14. 
+  2026-04-27: Tests with new xsdba branch fix-278 in env espoavr2026.
+  2026-04-28: Tests with new xsdba branch fix-278 (10q99 inside xsdba) in env espoavr2026
+  2026-05-18: Test with new xsdba branch fix-278 in env espomai2026
+  2026-06-01: Test with https://github.com/Ouranosinc/xsdba/pull/291/changes/242295b4fb5566af2549fff6731d9692c1992835 in env espomai2026. works with little ref cheat.
+  2026-06-12: ESPO-R and ESPO-G work with espomai2026
 
-## Methodology
-The temperature and precipitation data from the simulations in Table 1 were first extracted over North America.
-Then, all the extracted simulation data are interpolated bilinearly in cascades to the RDRS v2.1 grid. The ESPO-G6-R2 v.1.0.0 bias adjustment procedure then uses [xclim's bias adjustment algorithms](https://xclim.readthedocs.io/en/stable/sdba.html)
-to adjust simulation bias following a quantile mapping procedure. In particular, the algorithm used is inspired by the
-"Detrended Quantile Mapping" (DQM) method described by Cannon (2015). The procedure is bipartite;
-First, the adjustment factors are calculated based on reference data and simulations over a common period (training stage),
-and second, the entire simulation is corrected with these factors (adjustment step). The reference period chosen here were years 1989-2018.
-Adjustments are univariate, where corrections are applied separately for each of the 3 variables. Data is adjusted for
-each day of the year, using a rolling window of 31 days. Although computational more expensive, the rolling window method
-allows for better adjustment of the annual cycle. Note that this method does not work well with leap years as there is four
-(4) times fewer data values for day 366. To remedy this problem, all simulations as well as the reference product are
-converted to this "noleap" calendar. A more detailed explanation of the adjustment process is given in [the documentation](documentation/ESPO_G6_R2v100_adjustment.pdf).
+### Project lait-e
 
-## Data processing tools
-Production and regular updates of ESPO-R/G operational datasets represent a challenge in terms of computational resources. 
-Ouranos has invested a great deal of effort in the development of powerful tools for this type of data processing via its 
-[xclim software package](https://xclim.readthedocs.io/en/stable/) (Logan et al., 2021). Built upon the packages
-[xarray](https://xarray.dev/) and [dask](https://www.dask.org/), xclim benefits from simple-to-use parallelization and
-distributed computing tools and can be easily deployed in High Performance Computing (HPC) environments.
+ Changes from v1.0:
+ * Includes hurs and hursTasmax.
+ * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
+ * CaSR v3.2 and ERA5-Land reference
+ * Quebec domain only
+ * Workflow uses snakemake
+ * Includes all CMIP6 models that have hurs and hursTasmax
+ * KACE-1-0-G was excluded. (https://github.com/Ouranosinc/ESPO-G/issues/6)
+ * EC-Earth3-CC and NESM3 were excluded as they do not have SSP3-7.0 available.
+ * New calculation of the TCR lead to CNRM-CM6-1/INM-CM5-0  being included/excluded in the TCR likely range. (https://github.com/Ouranosinc/ESPO-G/issues/7)
 
-This repository contains the code used to generate and analyze the ESPO-G datasets. In addition to xclim and other
-freely available python libraries, it also uses [xscen](https://github.com/Ouranosinc/xscen), a climate change
-scenario-building analysis framework, also being developed at Ouranos. This tool relies on data catalogs as handled by
-[intake-esm](https://intake-esm.readthedocs.io/en/latest/index.html) as well as on YAML configuration files with a
-simple but specific structure. The catalog files and all paths needed by the configuration are missing from this
-repository, since they are specific to the data architecture of the computer running the code. To reproduce ESPO-G, one will need:
+  Branch: lait-e
+  
+  History:   
+    2025-10-30: Ran with env xscen-0.13 env for lait-E5L. 
+    2026-01-06: Ran with env xscen-0.13 env for lait-E5L newly available models.
+    2026-02-03: Ran with env xscen-0.13 env for lait-C3.
 
-- `simulation.json` and `simulation.csv`: An intake-esm catalog, compatible with xscen, listing the daily simulation datasets to use as inputs.
-- `reconstruction.json` and `reconstruction.csv`: An intake-esm catalog, compatible with xscen, listing the daily reference datasets to use as inputs.
-- `paths.yml`: A yaml file with the paths needed by the workflows. `configuration/template_paths.yml` shows an example of such a file, one only needs to replace the placeholders.
 
-To run the workflow, uncomment the tasks wanted at the top of config file. Then, run
+### ESPO-G6-C3-P2100 v1
 
-``python workflow_ESPO-G.py``
+ESPO-G6-C3-P2100 is a small ensemble of CMIP6 simulations extending to 2300 with variables for minimum daily temperature, maximum daily temperature and daily precipitation (tasmin, tasmax, pr). Beyond the ensemble composition, the main difference with ESPO6 v1 is the reference dataset, updated to the latest version of the Canadian Surface Reanalysis (CaSR v3.2).
+
+Changes from ESPO6 v1.0:
+
+* Covers the period from 1950 to 2300;
+* Reference dataset updated from CaSR v2.1 to CaSR v3.2;
+* Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
+* Workflow executed using [snakemake](https://snakemake.readthedocs.io/)
+* Data is available on PAVICS: TODO.
+
+Branch: `post-2100-narval`
+  
+History: Ran in 2025-12 within conda environment `xscen-0.13`.
+
+### ESPO-G6-AHCCD v1
+
+ESPO-G6-AHCCD is a large ensemble of CMIP6 simulations over the period 1950–2100 bias-adjusted using station records from the _Adjusted and homogenized Canadian climate data_ (AHCCD v3). It includes total daily precipitation, minimum, maximum and mean daily temperature. One notable feature of this dataset is that it includes 627 simulations for precipitation and 561 for temperature.  
+
+Changes from ESPO6 v1.0:
+  
+* Reference dataset is AHCCD v3, so projections are at the point scale;
+* Data is available in Zarr format on the [PAVICS MinIO server](https://minio.ouranos.ca/) in the `portail-ing` bucket. It can be accessed programmatically using the S3 standard, see [documentation](https://github.com/Ouranosinc/peach) for tutorials.
+
+References:
+
+ * Huard, David, Sarah-Claude Bourdeau-Goulet, Léa Braschi, et al. 2026. “Delivering Probabilistic Climate Hazards Assessments.” Environmental Research Communications, ahead of print. https://doi.org/10.1088/2515-7620/ae3a4d.
+ * Bourdeau-Goulet, Sarah-Claude, Pascal Bourgault, Sarah Gammon, and David Huard. 2025. Ouranos Ensemble of Bias-Adjusted Simulations - Global Models CMIP6 - AHCCD v3 (ESPO-G6-AHCCD v1.0.0). May 31. https://doi.org/10.20383/103.01272.
+
+### v1.0
+In ESPO6 v1.0.0, CMIP6 global climate models simulations are bias-adjusted using the RDRS v2.1 and the ERA5-Land reference datasets. The simulation ensemble covers the period for years 1950-2100 and includes the daily minimum temperature (tasmin), the daily maximum temperature (tasmax) and the daily mean precipitation flux (pr). 
+
+Dataset Characteristics:
+* Temporal coverage: 1950-2100
+* Temporal resolution: daily, noleap or 360_day calendar
+* Spatial coverage: North American domain from 179.9°W to 10.0°W and from 10.0°N to 83.3°N, only on land.
+* Spatial resolution: 0.1°
+* Data type: Gridded netCDF
+* License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+
+* References: 
+
+  * Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024).
+https://www.nature.com/articles/s41597-023-02855-z
+
+  * ESPO-G6-R2 v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7877330.svg)](https://doi.org/10.5281/zenodo.7877330)
+
+  * ESPO-G6-E5L v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764929.svg)](https://doi.org/10.5281/zenodo.7764929)
+
+* Data availability:
+
+  At the time of publication, the data is stored on [Ouranos](https://www.ouranos.ca/)' THREDDS server, a part of the [PAVICS](https://pavics.ouranos.ca/) project:
+https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/datasets/simulations/bias_adjusted/cmip6/ouranos/ESPO-G/catalog.html
+
+  When new versions of ESPO6 will be released, previous versions may be pulled from the server. [Please contact us](mailto:scenarios@ouranos.ca) if you wish to obtain these.
+
+
+
+
+## Instructions for the code
+
+This version of the workflow is meant to be run on a HPC such as Narval. It uses the workflow manager software Snakemake.
+
+To run the workflow:
+TODO: update env and make instruction for external
+
+0) Run scripts in pre-workflow folder to very the inputs and create the mask for CaSRv3.2.
+
+1) On narval, activate the  virtual env:
+
+```bash
+$ pyact xscen-0.13
+```
+
+2) Specify the output files wanted in the rule `all:input` of the `Snakefile`. (Final files are input of checks and diagnostics. Hence, no need to explicitely ask for them, they will be created.)
+
+3) Specify the simulations and reference wanted in a config file in the directory `config/` and put its name at the top of the Snakemake file.
+
+4) Create your own `paths.yml` based on `paths-template.yml`.
+
+5) If needed, personalize the `simple/config.v8+.yaml` for the right slurm parameters.
+
+6) Run the workflow:
+
+```bash
+$ snakemake --profile simple
+```
+TODO: redo dag.png
+Snakemake should build a dag that looks like: ![Texte alternatif](dag.png)
 
 Description of the tasks:
  - makeref: Create the reference dataset with the right domain, period and calendar.
+ - ref-subregion: Divide the reference in region to be able to run in parallel.
  - extract: Extract the simulation dataset with the right domain and period. 
  - regrid: Regrid the simulation onto the reference grid.
  - rechunk: Rechunk the regridded dataset to prepare for the bias adjustment (needed on large datasets).
  - train: Train the bias adjustment algorithm.
  - adjust: Adjust the simulation dataset with the trained bias adjustment algorithm.
- - clean_up: Join each individually adjusted variable back in one scenario dataset and clean up other details.
- - final_zarr: Rechunk the scenario dataset and save it.
- - diagnostics: Compute simple diagnostics (defined in configuration/properties_ESPO-G.yml) on the whole domain for a quality check.
- - concat: Concatenate scenario and diagnostics of the three regions into the complete NAM domain.  
- - official-diag: Compute diagnostics (defined in configuration/off-properties_ESPO-G.yml) on smaller regions to assess the performance.
- - indicators: Compute indicators (defined in configuration/portraits.yml) on the scenario.
- - climatological_mean: Compute the climatological mean of the indicators.
- - delta: Compute the deltas of the climatological means.
- - ensemble: Compute the ensemble statistics.
- 
-Loop structure:
-```
-makeref
-for sim in simulations: # iterate over all models and experiments
-    # We split the domain in three in order to have less computationnaly expensive task.
-    for region in regions: # iterate over 3 sub-regions of NAM. 
-        extract
-        regrid
-        rechunk
-        for var in variable:
-            train
-            adjust
-        clean_up
-        final_zarr
-        diagnostics
-    concat
-    
-# tasks below iterate inside the task
-official diag
-indicators
-climatological_mean
-delta
-ensembles
-```
-
-## Performance
-Bias-adjustment of climate simulations is a quest with many traps. In order to assess the improvements and regressions
-that the process brought to the simulations, we emulated the "VALUE" validation framework (Maraun et al., 2015).
-While that project aimed to "to validate and compare downscaling methods", we based our approach on its ideas of statistical
-"properties" and "measures" to measure bias between the simulations, the scenarios, and the reference.
-
-A detailed analysis is given in [the documentation](documentation/ESPO_G6_R2v100_performance.pdf).
-Our general conclusions concerning the quality of ESPO-G6-R2 v1.0.0 are:
-
- - The marginal properties of the simulations (mean, quantiles) are very well-adjusted, by design of the Quantile Mapping algorithm.
- - The climate change signal is also conserved from the simulations by design of the algorithm.
- - A side effect of adjusting the distributions explicitly is the improvement of the inter-variable correlation, even though the bias correction algorithm does not aim to adjust these aspects.
- - Because tasmin is not directly adjusted, but rather computed from the adjusted tasmax and dtr, it seems that our diagnostics show weaker improvements, compared to tasmax.
- 
-
-## Data availability and download
-The ESPO-G6-R2 v1.0.0 data is currently available under the [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) license.
-
-At the time of publication, the data is stored on [Ouranos](https://www.ouranos.ca/)' THREDDS server, a part of the [PAVICS](https://pavics.ouranos.ca/) project:
-https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/datasets/simulations/bias_adjusted/cmip6/ouranos/ESPO-G/ESPO-G6-R2v1.0.0/catalog.html
-
-When new versions of ESPO-G will be released, previous versions may be pulled from the server. [Please contact us](mailto:scenarios@ouranos.ca) if you wish to obtain these.
-
-## Acknowledgements
-We acknowledge the World Climate Research Programme, which, through its Working Group on Coupled Modelling, coordinated and promoted CMIP6. We thank the climate modeling groups for producing and making available their model output, the Earth System Grid Federation (ESGF) for archiving the data and providing access, and the multiple funding agencies who support CMIP6 and ESGF.
+ - swap_temp: Swap tasmax and tasmin when tasmin>tasmax.
+ - concat_clean_up: Join each individually adjusted variable and sugregion back in one dataset, separate members of the pool and clean up other details.
+ - concat: Concatenate adjusted simulation of the three regions into the complete NAM domain.  
+ - diag and diag_ref: Compute diagnostics (defined in configuration/properties.yml) on smaller regions to assess the performance.
+ - health_checks: Validation of the data.
 
 
-## References
-Cannon, A. J., Sobie, S. R., & Murdock, T. Q. (2015). Bias correction of GCM precipitation by quantile mapping: How well do methods preserve changes in quantiles and extremes? Journal of Climate, 28(17), 6938–6959. https://doi.org/10.1175/JCLI-D-14-00754.1
 
-Gasset, N., Fortin, V., Dimitrijevic, M., Carrera, M., Bilodeau, B., Muncaster, R.,  Etienne Gaborit, Roy, G., Pentcheva, N., Bulat, M., Wang, X., Pavlovic, R., Lespinas, F., Khedhaouiria, D., (2021). A 10 km north american precipitation and land surface reanalysis based on the gem atmospheric model. Hydrology and Earth System Sciences. doi:10.5194/hess-2021-41.
+## Warnings
 
-Hausfather, Z., Marvel, K., Schmidt, G. A., Nielsen-Gammon, J. W., Zelinka, M. (2022). Climate simulations: recognize the ‘hot model’ problem. Nature 2022 605:7908, 605(7908), 26–29. https://doi.org/10.1038/d41586-022-01192-2
-
-Logan, T., Bourgault, P., Smith, T. J., Huard, D., Biner, S., Labonté, M.-P., Rondeau-Genesse, G., Fyke, J., Aoun, A., Roy, P., Ehbrecht, C., Caron, D., Stephens, A., Whelan, C., Low, J.-F., Keel, T., Lavoie, J., Tanguy, M., Barnes, C., … Quinn, J. (2022). Ouranosinc/xclim (0.35.0) [Python]. Zenodo. https://doi.org/10.5281/zenodo.6407112
-
-Maraun, D., Widmann, M., Gutiérrez,  J.M., Kotlarski, S., Chandler, R. E., Hertig, E., Wibig, J., Huth, R., Wilcke, R. A. I. (2015). VALUE: A Framework to Validate Downscaling Approaches for Climate Change Studies. Earth’s Future 3, 1, 1‑14. https://doi.org/10.1002/2014EF000259.
-
-Zhuang, J., Dussin, R., Huard, D., Bourgault, P., Banihirwe, A., Raynaud, S., Malevich, B., Schupfner, M., Hamman, J., Levang, S., Jüling, A., Almansi, M., Fernandes, F., Rondeau-Genesse, G., Rasp, S., & Bell, R. (2021). pangeo-data/xESMF (0.6.2) [Python]. Zenodo. https://doi.org/10.5281/zenodo.5721118
+### Problematic Areas
+ - Users should be careful with precipitation data close to the south edge of the North American domain where there is less trust in the reference data, especially for precipitations.
+ - Users should be careful with unseen extreme precipitation. Precipitation extremes that were 10 time larger than the highest quantile in the reference were not adjusted.
+ -[TODO: verify for v2.0] Some small regions in Alaska and Greenland showed very small tasmin and have been masked out by NaNs for 2 models (BCC-CSM2-MR and GFDL-ESM4 ). More details are available in section Health Checks of Lavoie et al. (2024)
 

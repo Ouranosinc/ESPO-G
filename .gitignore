@@ -127,3 +127,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+config/paths_ESPO-G.yml
+config/paths_ESPO-R.yml
