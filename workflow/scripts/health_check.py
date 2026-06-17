@@ -14,7 +14,8 @@ if 1 == 0:  # trick vscode
 if __name__ == "__main__":
     # Get Snakemake parameters
     inputs = snakemake.input
-    output = snakemake.output[0]
+    output_nam = snakemake.output["NAM"]
+    output_qc = snakemake.output["QC"]
     config = deepcopy(snakemake.config)
 
     client = dask_cluster(snakemake.params, config["dask"]["client"])
@@ -25,4 +26,10 @@ if __name__ == "__main__":
 
     hc.attrs.update(ds.attrs)
 
-    xs.save_to_zarr(hc, output, **config["save_to_zarr"])
+    xs.save_to_zarr(hc, output_nam, **config["save_to_zarr"])
+
+    # more severe checks for QC region
+    ds = xs.spatial.subset(ds, **config["QC"])
+    hc = xs.diagnostics.health_checks(ds=ds, **config["health_checks"]["final"])
+    hc.attrs.update(ds.attrs)
+    xs.save_to_zarr(hc, output_qc, **config["save_to_zarr"])

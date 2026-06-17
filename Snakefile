@@ -90,8 +90,9 @@ finaldir=Path(config['paths']['final'])
 rule all:
     input:
         expand(finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
+        expand(finaldir/"checks/QC/{sim_id}+{ref}+{dom}+QC_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
         expand(finaldir/"preswap/dtrpreswap_day_ESPO6_v20_{ref}+{sim_id}_{dom}.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
-        #expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
+        expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
 rule makeref:
     output:
         ref=finaldir/ "reference/{dom}_{ref}_default.zarr.zip",
@@ -222,7 +223,7 @@ def final_path(id, ref):
          bias_adjust_project=config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_project'],
          bias_adjust_institution=config['biasadjust']['variables']['tasmax']['adjusting_args']['bias_adjust_institution'],
          bias_adjust_reference=ref,
-         version=config['clean_up']['xscen_clean_up']['tasmax']['add_attrs']['global']['version'],
+         version=config['clean_up']['xscen_clean_up']['tasmax']['add_attrs']['global']['version'].replace('.',''),
          frequency='day',
          xrfreq='D',
          date_start=config['extraction']['simulation']['search_data_catalogs']['periods'][0], 
@@ -296,7 +297,8 @@ rule health_checks:
         tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
         dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
     output:
-        finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip"
+        NAM=finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip",
+        QC=finaldir/"checks/QC/{sim_id}+{ref}+{dom}+QC_checks.zarr.zip"
     params:
         n_workers=8,
         mem='40GB',

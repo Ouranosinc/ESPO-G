@@ -183,32 +183,42 @@ https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/datasets/simulation
 
 This version of the workflow is meant to be run on a HPC such as Narval. It uses the workflow manager software Snakemake.
 
-To run the workflow:
-TODO: update env and make instruction for external
 
-0) Run scripts in pre-workflow folder to very the inputs and create the mask for CaSRv3.2.
-
-1) On narval, activate the  virtual env:
+1) Create the virtual environnment on narval
 
 ```bash
-$ pyact xscen-0.13
+$ module load StdEnv/2023 gcc openmpi python/3.12 arrow proj/9.4 geos mpi4py/4.0.3 netcdf geos nodejs esmf scipy-stack/2026a
+$ virtualenv --no-download $ENVDIR/<ENV>
+$ echo "module load StdEnv/2023 gcc openmpi python/3.12 arrow proj/9.4 geos mpi4py/4.0.3 
+netcdf geos nodejs esmf scipy-stack/2026a" >>> $ENVDIR/<ENV>/bin/modules
+$ source $ENVDIR/<ENV>/bin/modules
+$ source $ENVDIR/<ENV>/bin/activate
+$ pip install --no-index --upgrade pip
+$ pip install --no-index -r requirements.txt
 ```
 
-2) Specify the output files wanted in the rule `all:input` of the `Snakefile`. (Final files are input of checks and diagnostics. Hence, no need to explicitely ask for them, they will be created.)
+2) Run scripts in pre-workflow folder to verify the inputs and create the mask for CaSRv3.2.
 
-3) Specify the simulations and reference wanted in a config file in the directory `config/` and put its name at the top of the Snakemake file.
 
-4) Create your own `paths.yml` based on `paths-template.yml`.
+3) Specify the output files wanted in the rule `all:input` of the `Snakefile`. (Final files are input of checks and diagnostics. Hence, no need to explicitely ask for them, they will be created.)
 
-5) If needed, personalize the `simple/config.v8+.yaml` for the right slurm parameters.
+4) Specify the simulations and reference wanted in a config file in the directory `config/` and put its name at the top of the Snakemake file.
 
-6) Run the workflow:
+5) Create your own `paths.yml` based on `paths-template.yml`.
+
+6) If needed, personalize the `simple/config.v8+.yaml` for the right slurm parameters.
+
+7) Run the workflow:
 
 ```bash
+# If not done already, activate the virtual env
+$ source $ENVDIR/<ENV>/bin/modules
+$ source $ENVDIR/<ENV>/bin/activate
+# run the workflow
 $ snakemake --profile simple
 ```
-TODO: redo dag.png
-Snakemake should build a dag that looks like: ![Texte alternatif](dag.png)
+
+Snakemake should build a dag that looks like this (simplified with only one model, one experiment and two subregions) : ![Texte alternatif](dag.png)
 
 Description of the tasks:
  - makeref: Create the reference dataset with the right domain, period and calendar.
@@ -229,7 +239,7 @@ Description of the tasks:
 ## Warnings
 
 ### Problematic Areas
- - Users should be careful with precipitation data close to the south edge of the North American domain where there is less trust in the reference data, especially for precipitations.
+ - Users should be careful with precipitation data close to the south edge of the North American domain where there is less trust in the reference data, especially for precipitations. Also, health checks on inputs revealed precipitation over 2000 mm/day in the south of the domain for CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_ssp370_r1i1p1f1_global.
  - Users should be careful with unseen extreme precipitation. Precipitation extremes that were 10 time larger than the highest quantile in the reference were not adjusted.
  -[TODO: verify for v2.0] Some small regions in Alaska and Greenland showed very small tasmin and have been masked out by NaNs for 2 models (BCC-CSM2-MR and GFDL-ESM4 ). More details are available in section Health Checks of Lavoie et al. (2024)
 

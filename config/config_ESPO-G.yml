@@ -50,19 +50,29 @@ extraction:
         restrict_members:
          ordered: 5
         exclusions:
+          id: #To only have 5 members
+          - CMIP6_ScenarioMIP_CCCma_CanESM5_ssp245_r1i1p1f1_global
+          - CMIP6_ScenarioMIP_CCCma_CanESM5_ssp370_r1i1p1f1_global
+          - CMIP6_ScenarioMIP_CCCma_CanESM5_ssp585_r1i1p1f1_global
+          - CMIP6_ScenarioMIP_CCCma_CanESM5_ssp245_r2i1p2f1_global
+          - CMIP6_ScenarioMIP_CCCma_CanESM5_ssp370_r2i1p2f1_global
+          - CMIP6_ScenarioMIP_CCCma_CanESM5_ssp585_r2i1p2f1_global
+          - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp245_r10i1p1f1_global
+          - CMIP6_ScenarioMIP_CAS_FGOALS-g3_ssp245_r3i1p1f1_global # TODO: only tmp, tasmin, file not there, but in cat 
+          - CMIP6_ScenarioMIP_CAS_FGOALS-g3_ssp370_r3i1p1f1_global # TODO: only tmp, tasmin, file not there, but in cat 
+          - CMIP6_ScenarioMIP_CAS_FGOALS-g3_ssp585_r3i1p1f1_global # TODO: only tmp, tasmin, file not there, but in cat 
           source: # criteria, model should have at least one member with all 3 exps.
             - GFDL-CM4 # missing ssp370
             - EC-Earth3-CC # missing ssp370
             - CRCM5-SN # we are doing G here.
             - KIOST-ESM # missing ssp245 and ssp370
             - NESM3 # missing ssp370
-            #- BCC-CSM2-MR # negative dtr, https://github.com/Ouranosinc/data-requests/issues/55 #TODO: check and maybe others
         other_search_criteria:
           processing_level: raw
           mip_era: CMIP6
           experiment: # run one exp at the time to avoid exploding scratch quota
-            - ssp245
-            #- ssp370
+            #- ssp245
+            - ssp370
             #- ssp585
       extract_dataset:
         periods : *sim_period
@@ -151,7 +161,20 @@ biasadjust:
                   Ouranos
                 bias_adjust_project: &b_a_pro
                   ESPO
-        dtr:
+        tasmin:
+            training_args:
+                method: DetrendedQuantileMapping
+                period: *ref_period
+                group: *group
+                xsdba_train_args:
+                    kind: "+"
+                    nquantiles: 50
+            adjusting_args:
+                periods: *sim_period
+                xsdba_adjust_args: *adj-args
+                bias_adjust_institution: *b_a_inst
+                bias_adjust_project: *b_a_pro
+        dtr: 
             training_args:
                 method: DetrendedQuantileMapping
                 period: *ref_period
@@ -160,19 +183,6 @@ biasadjust:
                    thresh: 1e-4 K
                 xsdba_train_args:
                     kind: "*"
-                    nquantiles: 50
-            adjusting_args:
-                periods: *sim_period
-                xsdba_adjust_args: *adj-args
-                bias_adjust_institution: *b_a_inst
-                bias_adjust_project: *b_a_pro
-        tasmin:
-            training_args:
-                method: DetrendedQuantileMapping
-                period: *ref_period
-                group: *group
-                xsdba_train_args:
-                    kind: "+"
                     nquantiles: 50
             adjusting_args:
                 periods: *sim_period
@@ -243,9 +253,8 @@ clean_up:
           - grid_mapping
       add_attrs:
         global: &gattrs_to_add
-          dataset: ESPO6
-          version: v20
-          code: https://github.com/Ouranosinc/ESPO-G/tree/snakemake #TODO: put most up-to-date info
+          version: v2.0
+          code: https://github.com/Ouranosinc/ESPO-G/
           contact: lavoie.juliette@ouranos.ca
           organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca
           avertissement : Ouranos ne donne aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande et d'adéquation à un usage particulier. Toutes les responsabilités découlant de la fourniture des informations (y compris toute responsabilité découlant d'une négligence) sont exclues dans toute la mesure permise par la loi.
@@ -254,11 +263,6 @@ clean_up:
           license:  Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/)
           "cat:domain": *domain
           "cat:_data_format_": "zarr"
-          Notes: |
-            Regridded on the grid of the reference, then bias-adjusted with detrended
-            quantile mapping. The reference period was 1991-2020. Tasmax,
-            dtr and pr were adjusted, tasmin was computed
-            from tasmax and dtr after the adjustment.
         tasmax:
             standard_name: air_temperature
             long_name: Maximal daily temperature
@@ -290,7 +294,7 @@ clean_up:
           description: Diurnal temperature range from tasmax and tasmin.
           standard_name: air_temperature
           long_name: Diurnal temperature range.
-    tasmin: 
+    tasmin:
       maybe_unstack_dict: *maybe
       change_attr_prefix: *prefix
       remove_all_attrs_except: 
@@ -337,13 +341,11 @@ diagnostics:
       tasmin: degC
       pr: mm d-1
       dtr: K
-      # hurs: "%"
-      # hursTasmax: "%"
     properties: config/properties.yml
     period: *ref_period
 
 health_checks:
-  extract: # not actually used
+  NAM:
     structure:
       coords:
         - time
@@ -374,9 +376,9 @@ health_checks:
     freq: &freq
       D
     missing:
-      missing_any:
+      missing_any: 
         freq: YS
-    flags: 
+    flags:
       tasmax:
         temperature_extremely_high:
           thresh: '80 degC'
@@ -391,7 +393,7 @@ health_checks:
         temperature_extremely_low:
           thresh: '-5 K' # allow for up to -5 for issue with grid from GFDL
     return_flags: True
-    raise_on:
+    raise_on: &raise_on
       - structure
       - start_date
       - end_date
@@ -399,6 +401,24 @@ health_checks:
       - cfchecks
       - freq
       - missing
+  QC:
+    flags: 
+      tasmax:
+        temperature_extremely_high:
+          thresh: '65 degC'
+        tasmax_below_tasmin:
+      tasmin:
+        temperature_extremely_low:
+          thresh: '-70 degC'
+      pr:
+        negative_accumulation_values:
+        very_large_precipitation_events:
+          thresh: '900 mm/d'
+      dtr:
+        temperature_extremely_low:
+          thresh: '-1 K' # allow small neg for known issue with grid from GFDL
+    return_flags: True
+    raise_on: *raise_on
   final:
     start_date: *start
     end_date: *end
@@ -423,14 +443,13 @@ health_checks:
       dtr:
         negative_accumulation_values:
     return_flags: True
-    raise_on:
-      - structure
-      - start_date
-      - end_date
-      - variables_and_units
-      - cfchecks
-      - freq
-      - missing
+    raise_on: *raise_on
+
+QC:
+  name: QC
+  method: bbox
+  lon_bnds: [ -83, -55 ]
+  lat_bnds: [ 42, 63 ]
 
 io:
   rechunk:

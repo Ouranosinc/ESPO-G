@@ -61,6 +61,30 @@ if __name__ == "__main__":
 
     ds_sim = xr.concat(real, dim="realization")
 
+    # nan weird individual timestep
+    if "BCC-CSM2-MR" in pool:  # dtr around -30
+        ds_sim["tasmin"] = ds_sim["tasmin"].where(
+            ds_sim.time != (ds_sim.time.sel(time="2014-12-31").values),
+        )
+        ds_sim["dtr"] = ds_sim["dtr"].where(
+            ds_sim.time != (ds_sim.time.sel(time="2014-12-31").values),
+        )
+    if "ACCESS-ESM1-5" in pool:  # tasmin -138
+        ds_sim["tasmin"] = ds_sim["tasmin"].where(
+            ~(
+                (ds_sim.lat == 63.75)
+                & (ds_sim.lon == 313.125)
+                & (ds_sim.time == ds_sim.time.sel(time="1984-01-10").values)
+            )
+        )
+        ds_sim["dtr"] = ds_sim["dtr"].where(
+            ~(
+                (ds_sim.lat == 63.75)
+                & (ds_sim.lon == 313.125)
+                & (ds_sim.time == ds_sim.time.sel(time="1984-01-10").values)
+            )
+        )
+
     # clean up time
     ds_sim["time"] = ds_sim.time.dt.floor("D")
 

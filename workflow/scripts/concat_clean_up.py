@@ -38,6 +38,10 @@ if __name__ == "__main__":
         ds.attrs["cat:driving_member"] = re.search(r"r\d+i\d+p\d+f\d+", sim_id).group(0)
     ds.attrs["cat:id"] = xs.catalog.generate_id(ds).iloc[0]
 
+    # put dataArray history in dataset history
+    ds.attrs["history"] = ds[var].attrs["history"] + " \n " + ds.attrs["history"]
+
+    # clean up
     ds = xs.clean_up(ds=ds, **config["clean_up"]["xscen_clean_up"][var])
 
     # make sure we don't go outside the border of the inout data,
