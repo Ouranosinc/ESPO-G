@@ -307,6 +307,7 @@ diagnostics:
     period: *ref_period
 
 health_checks:
+  # for inputs
   NAM:
     structure:
       coords:
@@ -341,7 +342,7 @@ health_checks:
     freq: &freq
       D
     missing: &missing
-      missing_some_but_not_all:
+       missing_some_but_not_all: # because of mask
         freq: YS
     flags:
       tasmax:
@@ -351,7 +352,7 @@ health_checks:
         temperature_extremely_low:
           thresh: '-95 degC'
       pr:
-        negative_accumulation_values:
+        negative_accumulation_values: 
         very_large_precipitation_events:
           thresh: '1650 mm/d'
       dtr:
@@ -371,7 +372,6 @@ health_checks:
       tasmax:
         temperature_extremely_high:
           thresh: '65 degC'
-        tasmax_below_tasmin:
       tasmin:
         temperature_extremely_low:
           thresh: '-70 degC'
@@ -384,27 +384,36 @@ health_checks:
           thresh: '-1 K' # allow small neg for known issue with grid from GFDL
     return_flags: True
     raise_on: *raise_on
-  final:
+  # for final
+  finalNAM:
     start_date: *start
     end_date: *end
     variables_and_units: *varunits
     cfchecks: *cf
     freq: *freq
     missing: *missing
-    flags: 
+    flags:
       tasmax:
         temperature_extremely_high:
           thresh: '60 degC'
         tasmax_below_tasmin:
       tasmin:
         temperature_extremely_low:
-          thresh: '-80 degC'
+          thresh: '-70 degC'
       pr:
         negative_accumulation_values:
         very_large_precipitation_events:
           thresh: '1650 mm/d'
       dtr:
         negative_accumulation_values:
+    return_flags: True
+    raise_on: *raise_on
+  finalQC: #TODO: maybe lower pr and add others
+    flags: 
+      pr:
+        negative_accumulation_values:
+        very_large_precipitation_events:
+          thresh: '900 mm/d' 
     return_flags: True
     raise_on: *raise_on
 

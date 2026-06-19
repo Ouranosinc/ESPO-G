@@ -1,7 +1,9 @@
-""" Snakefile by pool"""
-#TODO: Make sure begining and end date in config match hardcoded filename
-#TODO: Choose the right configs
-#TODO: Put the right log file in simple
+""" Snakefile for ESPO workflow
+# Instructions before lauching the workflow:
+1. Make sure begining and end date in config match hardcoded filename
+2. Choose the right configs
+3. Put the right log file in simple
+"""
 from snakemake.utils import min_version
 from pathlib import Path
 import pandas as pd
@@ -92,7 +94,9 @@ rule all:
         expand(finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
         expand(finaldir/"checks/QC/{sim_id}+{ref}+{dom}+QC_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
         expand(finaldir/"preswap/dtrpreswap_day_ESPO6_v20_{ref}+{sim_id}_{dom}.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
-        expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
+        # TODO: run diag in a second wave
+        #expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
+
 rule makeref:
     output:
         ref=finaldir/ "reference/{dom}_{ref}_default.zarr.zip",
@@ -104,7 +108,6 @@ rule makeref:
         cpus_per_task=4, 
     script:
         "workflow/scripts/makeref.py"
-
 
 
 rule refsubregion:
@@ -145,10 +148,9 @@ rule regrid:
           cpus_per_task=6,
           mem='500GB',
           time="01:00:00",
-        #   mem='500GB',# 2300 
-        #   time= "01:00:00",# 2300 #
      script:
-          "workflow/scripts/regrid.py" # this way created segfaults in some cases (MPI sr5)
+          "workflow/scripts/regrid.py" 
+
 
 rule rechunk:
      input:
@@ -160,13 +162,8 @@ rule rechunk:
           cpus_per_task=10,
           mem='500GB',
           time="00:30:00",
-        #   mem='150GB', #2300
-        #   time="02:00:00", #2300
      script:
           "workflow/scripts/rechunk.py"
-
-
-
 
 
 rule train:
@@ -196,12 +193,8 @@ rule adjust:
         cpus_per_task=15,
         mem='300GB', 
         time="00:30:00", 
-        # mem='200GB', #2300
-        # time="2:00:00", #2300
     script:
        "workflow/scripts/adjust.py"
-
-
 
 
 def final_path(id, ref):
@@ -247,6 +240,7 @@ rule swap:
     script:
         "workflow/scripts/swap_temp.py"
 
+
 rule rename_files: #to get to adjustedS like swap
     input:
         dtr = tmpdir/"{pool}+{dom}+{ref}+{subregion}+dtr+adjusted.zarr",
@@ -262,6 +256,7 @@ rule rename_files: #to get to adjustedS like swap
     shell:
         "mv {input.dtr} {output.dtr} && mv {input.pr} {output.pr}"
 
+
 rule concat_clean:
     input: 
         adjusted=lambda wildcards: expand(tmpdir/(f"{id2poolname(wildcards.sim_id)}"+"+{{dom}}+{{ref}}+{subregion}+{{var}}+adjustedS.zarr"),  subregion=subregions),
@@ -275,6 +270,7 @@ rule concat_clean:
         cpus_per_task=12,
     script:
         "workflow/scripts/concat_clean_up.py"
+
 
 rule concat_clean_preswap:
     input: 
@@ -339,8 +335,6 @@ rule diag:
     params:
         n_workers=4, 
         cpus_per_task=4,
-        #mem="100GB", 
-        #time="2:00:00", 
         mem="400GB", 
         time="9:00:00", 
     script:

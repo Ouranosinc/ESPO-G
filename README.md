@@ -9,36 +9,37 @@ Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a
 
 ## Members
 
-#TODO: Update table when we have everything
+The simulation included are: ![available model](available.png)
 
-**Table 1. Members of ESPO-G6 v2.0.0**
+**Table 1. Transient Climate Response (TCR) for ESPO Global Climate Models**
 
-|**Model** |**Member** |**TCR (degC)**|**In TCR likely range**|**Status**|
+|**Model** |**Member** |**TCR (degC)**|**In TCR likely range**|
+
 |---|---|---|---|---|
-| ACCESS-CM2     |r1i1p1f1| 2.1 | ✓ |not started|
-| ACCESS-ESM1-5  |r1i1p1f1| 1.95 | ✓ |not started|
-| BCC-CSM2-MR    |r1i1p1f1| 1.72 | ✓ |not started|
-| CMCC-ESM2     |r1i1p1f1| 1.92* | ✓ |not started|
-| CNRM-CM6-1     |r1i1p1f1| 2.14 | ✓ |not started|
-| CNRM-ESM2-1    |r1i1p1f1| 1.86 | ✓ |not started|
-| FGOALS-g3      |r1i1p1f1| 1.54 | ✓ |not started|
-| GFDL-ESM4      |r1i1p1f1| 1.61 | ✓ |not started|
-| MIROC-ES2L     |r1i1p1f1| 1.55 | ✓ |not started|
-| MIROC6         |r1i1p1f1| 1.55 | ✓ |not started|
-| MPI-ESM1-2-HR  |r1i1p1f1| 1.66 | ✓ |not started|
-| MPI-ESM1-2-LR  |r1i1p1f1| 1.84 | ✓ |not started|
-| MRI-ESM2-0     |r1i1p1f1| 1.64 | ✓ |not started|
-| NorESM2-LM     |r1i1p1f1| 1.48 | ✓ |not started|
-| CanESM5        |r1i1p1f1| 2.74 | x |not started|
-| CanESM5-1      |r1i1p2f1| ? | x |not started|
-| EC-Earth3      |r1i1p1f1| 2.3 | x |not started|
-| EC-Earth3-Veg  |r1i1p1f1| 2.62 | x |not started|
-| INM-CM4-8      |r1i1p1f1| 1.33 | x |not started|
-| INM-CM5-0      |r1i1p1f1| 1.37 | x |not started|
-| IPSL-CM6A-LR   |r1i1p1f1| 2.32 | x |not started|
-| NorESM2-MM     |r1i1p1f1| 1.33 | x |not started|
-| TaiESM1        |r1i1p1f1| 2.36 | x |not started|
-| UKESM1-0-LL    |r1i1p1f1| 2.79 | x |not started|
+| ACCESS-CM2     |r1i1p1f1| 2.1 | ✓ |
+| ACCESS-ESM1-5  |r1i1p1f1| 1.95 | ✓ |
+| BCC-CSM2-MR    |r1i1p1f1| 1.72 | ✓ |
+| CMCC-CM2-SR5    |r1i1p1f1| TODO | ✓ |
+| CMCC-ESM2     |r1i1p1f1| 1.92* | ✓ |
+| CNRM-CM6-1     |r1i1p1f1| 2.14 | ✓ |
+| CNRM-ESM2-1    |r1i1p1f1| 1.86 | ✓ |
+| FGOALS-g3      |r1i1p1f1| 1.54 | ✓ |
+| GFDL-ESM4      |r1i1p1f1| 1.61 | ✓ |
+| MIROC-ES2L     |r1i1p1f1| 1.55 | ✓ |
+| MIROC6         |r1i1p1f1| 1.55 | ✓ |
+| MPI-ESM1-2-HR  |r1i1p1f1| 1.66 | ✓ |
+| MPI-ESM1-2-LR  |r1i1p1f1| 1.84 | ✓ |
+| MRI-ESM2-0     |r1i1p1f1| 1.64 | ✓ |
+| NorESM2-LM     |r1i1p1f1| 1.48 | ✓ |
+| CanESM5        |r1i1p1f1| 2.74 | x |
+| EC-Earth3      |r1i1p1f1| 2.3 | x |
+| EC-Earth3-Veg  |r1i1p1f1| 2.62 | x |
+| INM-CM4-8      |r1i1p1f1| 1.33 | x |
+| INM-CM5-0      |r1i1p1f1| 1.37 | x |
+| IPSL-CM6A-LR   |r1i1p1f1| 2.32 | x |
+| NorESM2-MM     |r1i1p1f1| 1.33 | x |
+| TaiESM1        |r1i1p1f1| 2.36 | x |
+| UKESM1-0-LL    |r1i1p1f1| 2.79 | x |
 
 
 Licences: All members have a CC BY 4.0 license. https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
@@ -70,8 +71,8 @@ TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/re
   * Start in 1951 (CRCM5 not available in 1950)
   * NAM domain slightly changed
   * Add pooling of members in the training
-  * Change health checks temperature_extremely_low tresh to -80 degC
   * Add health checks for input
+  * Add health checks on QC
   * Add max_tail_factor=10 for pr
   * Adjust tasmax and tasmin directly, instead of tasmax and dtr
 
@@ -83,20 +84,9 @@ TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/re
   * Workflow uses snakemake
   * More checks on nan in health checks
 
-
-Branch: snakemake
-
-# TODO: clean this up for release
-History:
-  2026-01: ran ESPO-R-DQM and ESPO-R-Scaling with env espojan2026 
-  2026-02: ran tests with env espojan2026. [ESPO-R-EV (bug, give up, Eric is working on it), ESPO-R-DQM-100 (works, this still has exploding pr), ESPO-R-DQM-tasmin (works, +s and -s vs DTR), ESPO-R-filter]
-  2026-02: Create env espofev2026 to add xesmf 0.9.2 and xscen-0.13.2.dev7. Ran tests for ESPO-R-filter and redo ESPO-R-tasmin without bug
-  2026-04: Test CanRCM5 with env xscen-0.14, fixed filter and rerun CRCM5 with env xscen-0.14. 
-  2026-04-27: Tests with new xsdba branch fix-278 in env espoavr2026.
-  2026-04-28: Tests with new xsdba branch fix-278 (10q99 inside xsdba) in env espoavr2026
-  2026-05-18: Test with new xsdba branch fix-278 in env espomai2026
-  2026-06-01: Test with https://github.com/Ouranosinc/xsdba/pull/291/changes/242295b4fb5566af2549fff6731d9692c1992835 in env espomai2026. works with little ref cheat.
-  2026-06-12: ESPO-R and ESPO-G work with espomai2026
+  History:
+    TODO
+  
 
 ### Project lait-e
 
@@ -218,7 +208,7 @@ $ source $ENVDIR/<ENV>/bin/activate
 $ snakemake --profile simple
 ```
 
-Snakemake should build a dag that looks like this (simplified with only one model, one experiment and two subregions) : ![Texte alternatif](dag.png)
+Snakemake should build a dag that looks like this (simplified with only one model, one experiment and two subregions) : ![dag of workflow](dag.png)
 
 Description of the tasks:
  - makeref: Create the reference dataset with the right domain, period and calendar.
@@ -239,7 +229,17 @@ Description of the tasks:
 ## Warnings
 
 ### Problematic Areas
- - Users should be careful with precipitation data close to the south edge of the North American domain where there is less trust in the reference data, especially for precipitations. Also, health checks on inputs revealed precipitation over 2000 mm/day in the south of the domain for CMIP6_ScenarioMIP_CSIRO-ARCCSS_ACCESS-CM2_ssp370_r1i1p1f1_global.
+ - Users should be careful with precipitation data close to the south edge of the North American domain where there is less trust in the reference data (CaSR), especially for precipitations. Also, health checks on inputs revealed precipitation over 1650 mm/day in the south of the domain for ACCESS-CM2 and CRCM5.
  - Users should be careful with unseen extreme precipitation. Precipitation extremes that were 10 time larger than the highest quantile in the reference were not adjusted.
  -[TODO: verify for v2.0] Some small regions in Alaska and Greenland showed very small tasmin and have been masked out by NaNs for 2 models (BCC-CSM2-MR and GFDL-ESM4 ). More details are available in section Health Checks of Lavoie et al. (2024)
+
+ ### Modifications to inputs
+Health checks were performed on the raw simulations (see health_checks:NAM and health_checks:QC in the config files) in order to identify possible issues with models. Problematic points were then analysed and either masked (see below) or warned about (see above).
+
+
+ - CMIP6_CMIP_BCC_BCC-CSM2-MR_historical_r1i1p1f1_global: On 2014-12-31, there are many large negative values of dtr. Every grid points on that day was set to nan for dtr and tasmin. The workflow will fill the nans with interpolation over the time dimension.
+ - CMIP6_CMIP_CSIRO_ACCESS-ESM1-5_historical_r1i1p1f1_global:  On 1984-01-10 and 2000-02-07, at 63.75N; 313.125E, tasmin is -138 K. This single gridpoint was replaced by a nan. The workflow will fill the nan with interpolation over the time dimension.
+ - CMIP6_ScenarioMIP_MOHC_UKESM1-0-LL_ssp370_r1i1p1f2_global: On 2100-08-11, at 49.375N; 285.9375E, there is a single gridpoint (over Québec) with precipitation of 1024 mm/day. This gridpoint was replaced by the mean of its eight spatial neighbors.
+ - UKESM1-0-LL: As suggested in [this errata][https://errata.esgf.io/static/view.html?uid=76b3f818-d65f-c76b-bfd8-cae5bc27825c] all tasmax above 335K where masked. The workflow will fill the nan with interpolation over the time dimension.
+
 

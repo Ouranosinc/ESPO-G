@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     ds = xr.open_mfdataset(inputs, engine="zarr", decode_timedelta=False)
 
-    hc = xs.diagnostics.health_checks(ds=ds, **config["health_checks"]["final"])
+    hc = xs.diagnostics.health_checks(ds=ds, **config["health_checks"]["finalNAM"])
 
     hc.attrs.update(ds.attrs)
 
@@ -30,6 +30,6 @@ if __name__ == "__main__":
 
     # more severe checks for QC region
     ds = xs.spatial.subset(ds, **config["QC"])
-    hc = xs.diagnostics.health_checks(ds=ds, **config["health_checks"]["final"])
+    hc = xs.diagnostics.health_checks(ds=ds, **config["health_checks"]["finalQC"])
     hc.attrs.update(ds.attrs)
     xs.save_to_zarr(hc, output_qc, **config["save_to_zarr"])

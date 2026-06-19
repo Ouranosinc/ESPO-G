@@ -1,6 +1,6 @@
 realm: generic
-#TODO: add properties from Gab's workflow
 indicators:
+  # Maximum Temperature
   mean_tasmax:
     base: xsdba.properties.mean
     cf_attrs:
@@ -8,38 +8,33 @@ indicators:
       standard_name: air_temperature
     input:
       da: tasmax
-  mean_tasmin:
+  mean_tasmax_season:
     base: xsdba.properties.mean
     cf_attrs:
-      long_name: mean minimum temperature
-      standard_name: air_temperature
-    input:
-      da: tasmin
-  mean_pr:
-    base: xsdba.properties.mean
-    cf_attrs:
-      long_name: mean precipitation
-      standard_name: precipitation_flux
-    input:
-      da: pr
-  q99_tasmax:
-    base: xsdba.properties.quantile
-    cf_attrs:
-      long_name: 99th quantile of maximum temperature
+      long_name: mean maximum temperature
       standard_name: air_temperature
     input:
       da: tasmax
     parameters:
-      q: 0.99
-  q99_tasmin:
-    base: xsdba.properties.quantile
+      group: time.season
+  std_tasmax:
+    base: xsdba.properties.std
     cf_attrs:
-      long_name: 99th quantile of minimum temperature
+      long_name: standard deviation of maximum temperature
       standard_name: air_temperature
     input:
-      da: tasmin
+      da: tasmax
+    measure: xsdba.measures.BIAS
+  std_tasmax_season:
+    base: xsdba.properties.std
+    cf_attrs:
+      long_name: standard deviation of maximum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmax
+    measure: xsdba.measures.BIAS
     parameters:
-      q: 0.99
+      group: time.season
   q01_tasmax:
     base: xsdba.properties.quantile
     cf_attrs:
@@ -49,6 +44,121 @@ indicators:
       da: tasmax
     parameters:
       q: 0.01
+  q50_tasmax:
+    base: xsdba.properties.quantile
+    cf_attrs:
+      long_name: 50th quantile of maximum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmax
+    parameters:
+      q: 0.50
+  q99_tasmax:
+    base: xsdba.properties.quantile
+    cf_attrs:
+      long_name: 99th quantile of maximum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmax
+    parameters:
+      q: 0.99
+  amplitude_tasmax:
+    base: xsdba.properties.annual_cycle_amplitude
+    cf_attrs:
+      long_name: Amplitude of the annual cycle of the maximum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmax
+  phase_tasmax:
+    base: xsdba.properties.annual_cycle_phase
+    cf_attrs:
+      long_name: Phase of the annual cycle of the maximum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmax
+  asymmetry_tasmax:
+    base: xsdba.properties.annual_cycle_asymmetry
+    cf_attrs:
+      long_name: Asymmetry of the annual cycle of the maximum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmax
+  mean_warm_spell_tasmax:
+    base: xsdba.properties.spell_length_distribution
+    cf_attrs:
+      long_name: Mean length of warm spell
+      standard_name: air_temperature
+    input:
+      da: tasmax
+    parameters:
+      method: quantile
+      op: '>='
+      thresh: 0.9
+      window: 3
+      stat: mean
+      group: time.season
+  max_warm_spell_tasmax:
+    base: xsdba.properties.spell_length_distribution
+    cf_attrs:
+      long_name: Maximum length of warm spell
+      standard_name: air_temperature
+    input:
+      da: tasmax
+    parameters:
+      method: quantile
+      op: '>='
+      thresh: 0.9
+      stat: max
+  autocorrelation_tasmax:
+    base: xsdba.properties.acf
+    cf_attrs:
+      long_name: Autocorrelation function of maximum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmax
+  decorrelation_tasmax:
+    base: xsdba.properties.decorrelation_length
+    cf_attrs:
+      long_name: Decorrelation length of maximum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmax
+
+  # Minimum Temperature
+  mean_tasmin:
+    base: xsdba.properties.mean
+    cf_attrs:
+      long_name: mean minimum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmin
+  mean_tasmin_season:
+    base: xsdba.properties.mean
+    cf_attrs:
+      long_name: mean minimum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmin
+    parameters:
+      group: time.season
+  std_tasmin:
+    base: xsdba.properties.std
+    cf_attrs:
+      long_name: standard deviation of minimum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmin
+    measure: xsdba.measures.BIAS
+  std_tasmin_season:
+    base: xsdba.properties.std
+    cf_attrs:
+      long_name: standard deviation of minimum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmin
+    measure: xsdba.measures.BIAS
+    parameters:
+      group: time.season
   q01_tasmin:
     base: xsdba.properties.quantile
     cf_attrs:
@@ -58,15 +168,241 @@ indicators:
       da: tasmin
     parameters:
       q: 0.01
-  q99_pr:
+  q50_tasmin:
     base: xsdba.properties.quantile
     cf_attrs:
-      long_name: 99th quantile of precipitation
+      long_name: 50th quantile of minimum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmin
+    parameters:
+      q: 0.50
+  q99_tasmin:
+    base: xsdba.properties.quantile
+    cf_attrs:
+      long_name: 99th quantile of minimum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmin
+    parameters:
+      q: 0.99
+  amplitude_tasmin:
+    base: xsdba.properties.annual_cycle_amplitude
+    cf_attrs:
+      long_name: Amplitude of the annual cycle of the minimum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmin
+  phase_tasmin:
+    base: xsdba.properties.annual_cycle_phase
+    cf_attrs:
+      long_name: Phase of the annual cycle of the minimum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmin
+  asymmetry_tasmin:
+    base: xsdba.properties.annual_cycle_asymmetry
+    cf_attrs:
+      long_name: Asymmetry of the annual cycle of the minimum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmin
+  mean_cold_spell_tasmin:
+    base: xsdba.properties.spell_length_distribution
+    cf_attrs:
+      long_name: Mean length of cold spell
+      standard_name: air_temperature
+    input:
+      da: tasmin
+    parameters:
+      method: quantile
+      op: '<='
+      thresh: 0.1
+      window: 3
+      stat: mean
+      group: time.season
+  max_cold_spell_tasmin:
+    base: xsdba.properties.spell_length_distribution
+    cf_attrs:
+      long_name: Maximum length of cold spell
+      standard_name: air_temperature
+    input:
+      da: tasmin
+    parameters:
+      method: quantile
+      op: '<='
+      thresh: 0.1
+      stat: max
+  autocorrelation_tasmin:
+    base: xsdba.properties.acf
+    cf_attrs:
+      long_name: Autocorrelation function of minimum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmin
+  decorrelation_tasmin:
+    base: xsdba.properties.decorrelation_length
+    cf_attrs:
+      long_name: Decorrelation length of minimum temperature
+      standard_name: air_temperature
+    input:
+      da: tasmin
+  days_above_0_tasmin:
+    base: xsdba.properties.threshold_count
+    cf_attrs:
+      long_name: Number of days with minimum temperature above 0 degC
+      standard_name: air_temperature
+    input:
+      da: tasmin
+    parameters:
+      op: '>='
+      thresh: '0 degC'
+      group: time.season
+  days_tas_above_0_tasmin:
+    base: xsdba.properties.threshold_count
+    cf_attrs:
+      long_name: Number of days with mean temperature above 0 degC
+      standard_name: air_temperature
+    input:
+      da: tas
+    parameters:
+      op: '>='
+      thresh: '0 degC'
+      group: time.season
+
+  # Diurnal Temperature Range
+  mean_dtr:
+    base: xsdba.properties.mean
+    cf_attrs:
+      long_name: mean diurnal temperature range
+      standard_name: air_temperature_range
+    input:
+      da: dtr
+  mean_dtr_season:
+    base: xsdba.properties.mean
+    cf_attrs:
+      long_name: mean diurnal temperature range
+      standard_name: air_temperature_range
+    input:
+      da: dtr
+    parameters:
+      group: time.season
+  std_dtr:
+    base: xsdba.properties.std
+    cf_attrs:
+      long_name: standard deviation of diurnal temperature range
+      standard_name: air_temperature_range
+    input:
+      da: dtr
+    measure: xsdba.measures.BIAS
+  std_dtr_season:
+    base: xsdba.properties.std
+    cf_attrs:
+      long_name: standard deviation of diurnal temperature range
+      standard_name: air_temperature_range
+    input:
+      da: dtr
+    measure: xsdba.measures.BIAS
+    parameters:
+      group: time.season
+  q01_dtr:
+    base: xsdba.properties.quantile
+    input:
+      da: dtr
+    parameters:
+      q: 0.01
+  q50_dtr:
+    base: xsdba.properties.quantile
+    input:
+      da: dtr
+    parameters:
+      q: 0.50 
+  q99_dtr:
+    base: xsdba.properties.quantile
+    input:
+      da: dtr
+    parameters:
+      q: 0.99
+  amplitude_dtr:
+    base: xsdba.properties.annual_cycle_amplitude
+    cf_attrs:
+      long_name: Amplitude of the annual cycle of the diurnal temperature range
+      standard_name: air_temperature_range
+    input:
+      da: dtr
+  phase_dtr:
+    base: xsdba.properties.annual_cycle_phase
+    cf_attrs:
+      long_name: Phase of the annual cycle of the diurnal temperature range
+      standard_name: air_temperature_range
+    input:
+      da: dtr
+  asymmetry_dtr:
+    base: xsdba.properties.annual_cycle_asymmetry
+    cf_attrs: 
+      long_name: Asymmetry of the annual cycle of the diurnal temperature range
+      standard_name: air_temperature_range
+    input:
+      da: dtr
+  autocorrelation_dtr:
+    base: xsdba.properties.acf
+    cf_attrs:
+      long_name: Autocorrelation function of diurnal temperature range
+      standard_name: air_temperature_range
+    input:  
+      da: dtr
+  decorrelation_dtr:  
+    base: xsdba.properties.decorrelation_length
+    cf_attrs:
+      long_name: Decorrelation length of diurnal temperature range
+      standard_name: air_temperature_range
+    input:
+      da: dtr
+
+  # Precipitation
+  mean_pr:
+    base: xsdba.properties.mean
+    cf_attrs:
+      long_name: mean precipitation
+      standard_name: precipitation_flux
+    input:
+      da: pr
+  mean_pr_season:
+    base: xsdba.properties.mean
+    cf_attrs:
+      long_name: mean precipitation
       standard_name: precipitation_flux
     input:
       da: pr
     parameters:
-      q: 0.99
+      group: time.season
+  std_pr:
+    base: xsdba.properties.std
+    cf_attrs:
+      long_name: standard deviation of precipitation
+      standard_name: precipitation_flux
+    input:
+      da: pr
+    measure: xsdba.measures.BIAS
+  std_pr_season:
+    base: xsdba.properties.std
+    cf_attrs:
+      long_name: standard deviation of precipitation
+      standard_name: precipitation_flux
+    input:
+      da: pr
+    measure: xsdba.measures.BIAS
+    parameters:
+      group: time.season
+  q50_pr:
+    base: xsdba.properties.quantile
+    cf_attrs:
+      long_name: 50th quantile of precipitation
+      standard_name: precipitation_flux
+    input:
+      da: pr
+    parameters:
+      q: 0.50
   q95_pr:
     base: xsdba.properties.quantile
     cf_attrs:
@@ -76,37 +412,160 @@ indicators:
       da: pr
     parameters:
       q: 0.95
-  dry_spell_freq:
+  q99_pr:
+    base: xsdba.properties.quantile
+    cf_attrs:
+      long_name: 50th quantile of precipitation
+      standard_name: precipitation_flux
+    input:
+      da: pr
+    parameters:
+      q: 0.99
+  q995_pr:
+    base: xsdba.properties.quantile
+    cf_attrs:
+      long_name: 99.5th quantile of precipitation
+      standard_name: precipitation_flux
+    input:
+      da: pr
+    parameters:
+      q: 0.995
+  return_value20_pr:
+    base: xsdba.properties.return_value
+    cf_attrs:
+      long_name: 20-year return value of precipitation
+      standard_name: precipitation_flux
+    input:
+      da: pr
+    parameters:
+      period: 20
+      method: ML  # FIXME: PWM needs lmoments3 object?
+  return_value50_pr:
+    base: xsdba.properties.return_value
+    cf_attrs:
+      long_name: 50-year return value of precipitation
+      standard_name: precipitation_flux
+    input:
+      da: pr
+    parameters:
+      period: 50
+      method: ML
+  return_value20_season_pr:
+    base: xsdba.properties.return_value
+    cf_attrs:
+      long_name: 20-year seasonal return value of precipitation
+      standard_name: precipitation_flux
+    input:
+      da: pr
+    parameters:
+      period: 20
+      method: ML
+      group: time.season
+  amplitude_pr:
+    base: xsdba.properties.annual_cycle_amplitude
+    cf_attrs:
+      long_name: Amplitude of the annual cycle of the precipitation
+      standard_name: precipitation_flux
+    input:
+      da: pr
+  phase_pr:
+    base: xsdba.properties.annual_cycle_phase
+    cf_attrs:
+      long_name: Phase of the annual cycle of the precipitation
+      standard_name: precipitation_flux
+    input:
+      da: pr
+  asymmetry_pr:
+    base: xsdba.properties.annual_cycle_asymmetry
+    cf_attrs:
+      long_name: Asymmetry of the annual cycle of the precipitation
+      standard_name: precipitation_flux
+    input:
+      da: pr
+  dry_days_freq_pr:
     base: xsdba.properties.relative_frequency
     cf_attrs:
-      long_name: dry spell frequency
+      long_name: dry days frequency
       standard_name: precipitation_flux
     input:
       da: pr
     parameters:
       op: "<"
       thresh: "1 mm d-1"
-  aca_tasmax:
-    base: xsdba.properties.annual_cycle_amplitude
+  mean_dry_spell_pr:
+    base: xsdba.properties.spell_length_distribution
     cf_attrs:
-      long_name: Amplitude of the annual cycle of the maximum temperature
-      standard_name: air_temperature
-    input:
-      da: tasmax
-  aca_tasmin:
-    base: xsdba.properties.annual_cycle_amplitude
-    cf_attrs:
-      long_name: Amplitude of the annual cycle of the minimum temperature
-      standard_name: air_temperature
-    input:
-      da: tasmin
-  aca_pr:
-    base: xsdba.properties.relative_annual_cycle_amplitude
-    cf_attrs:
-      long_name: Relative amplitude of the annual cycle of the precipitation
+      long_name: Mean length of dry spell
       standard_name: precipitation_flux
     input:
       da: pr
+    parameters:
+      method: amount
+      op: '<'
+      thresh: 1 mm d-1
+      window: 3
+      stat: mean
+      group: time.season
+  max_dry_spell_pr:
+    base: xsdba.properties.spell_length_distribution
+    cf_attrs:
+      long_name: Maximum length of dry spell
+      standard_name: precipitation_flux
+    input:
+      da: pr
+    parameters:
+      method: amount
+      op: '<'
+      thresh: 1 mm d-1
+      stat: max
+  wet_wet_pr:
+    base: xsdba.properties.transition_probability
+    cf_attrs:
+      long_name: Transition probability from a wet day to a wet day
+      standard_name: precipitation_flux
+    input:
+      da: pr
+    parameters:
+      initial_op: '>='
+      final_op: '>='
+      thresh: '1 mm d-1'
+  dry_wet_pr:
+    base: xsdba.properties.transition_probability
+    cf_attrs:
+      long_name: Transition probability from a dry day to a wet day
+      standard_name: precipitation_flux
+    input:
+      da: pr
+    parameters:
+      initial_op: '<'
+      final_op: '>='
+      thresh: '1 mm d-1'
+  dry_dry_pr:
+    base: xsdba.properties.transition_probability
+    cf_attrs:
+      long_name: Transition probability from a dry day to a dry day
+      standard_name: precipitation_flux
+    input:
+      da: pr
+    parameters:
+      initial_op: '<'
+      final_op: '<'
+      thresh: '1 mm d-1'
+  autocorrelation_pr:
+    base: xsdba.properties.acf
+    cf_attrs:
+      long_name: Autocorrelation function of precipitation
+      standard_name: precipitation_flux
+    input:
+      da: pr
+  decorrelation_pr:
+    base: xsdba.properties.decorrelation_length
+    cf_attrs:
+      long_name: Decorrelation length of precipitation
+      standard_name: precipitation_flux
+    input:
+      da: pr
+  # Correlations between variables
   corr_tasmax_tasmin:
     base: xsdba.properties.corr_btw_var
     cf_attrs:
@@ -121,68 +580,3 @@ indicators:
     input:
       da1: tasmax
       da2: pr
-  max_dry_spell:
-    base: xsdba.properties.spell_length_distribution
-    cf_attrs:
-      long_name: Maximum length of dry spell
-      standard_name: precipitation_flux
-    input:
-      da: pr
-    parameters:
-      method: amount
-      op: '<'
-      thresh: 1 mm d-1
-      stat: max
-  max_warm_spell:
-    base: xsdba.properties.spell_length_distribution
-    cf_attrs:
-      long_name: Maximum length of warm spell
-      standard_name: air_temperature
-    input:
-      da: tasmax
-    parameters:
-      method: quantile
-      op: '>='
-      thresh: 0.9
-      stat: max
-  wet_wet:
-    base: xsdba.properties.transition_probability
-    cf_attrs:
-      long_name: Transition probability from a wet day to a wet day
-      standard_name: precipitation_flux
-    input:
-      da: pr
-    parameters:
-      initial_op: '>='
-      final_op: '>='
-      thresh: '1 mm d-1'
-  dry_wet:
-    base: xsdba.properties.transition_probability
-    cf_attrs:
-      long_name: Transition probability from a dry day to a wet day
-      standard_name: precipitation_flux
-    input:
-      da: pr
-    parameters:
-      initial_op: '<'
-      final_op: '>='
-      thresh: '1 mm d-1'
-  mean_dtr:
-    base: xsdba.properties.mean
-    cf_attrs:
-      long_name: mean diurnal temperature range
-      standard_name: air_temperature_range
-    input:
-      da: dtr
-  q01_dtr:
-    base: xsdba.properties.quantile
-    input:
-      da: dtr
-    parameters:
-      q: 0.01
-  q99_dtr:
-    base: xsdba.properties.quantile
-    input:
-      da: dtr
-    parameters:
-      q: 0.99

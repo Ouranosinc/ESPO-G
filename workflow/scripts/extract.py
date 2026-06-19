@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 
+import numpy as np
 import xarray as xr
 import xscen as xs
 
@@ -74,7 +75,9 @@ if __name__ == "__main__":
             ~(
                 (ds_sim.lat == 63.75)
                 & (ds_sim.lon == 313.125)
-                & (ds_sim.time == ds_sim.time.sel(time="1984-01-10").values)
+                & ((ds_sim.time == ds_sim.time.sel(time="1984-01-10").values)
+                | (ds_sim.time == ds_sim.time.sel(time="2000-02-07").values))
+                & (ds_sim.realization == 'CMIP6_CMIP_CSIRO_ACCESS-ESM1-5_historical_r1i1p1f1_global')
             )
         )
         ds_sim["dtr"] = ds_sim["dtr"].where(
@@ -83,6 +86,36 @@ if __name__ == "__main__":
                 & (ds_sim.lon == 313.125)
                 & (ds_sim.time == ds_sim.time.sel(time="1984-01-10").values)
             )
+        )
+    if "UKESM1-0-LL_ssp370" in pool:  # 1024mm on QC, replace with spatial neighbor mean
+        ilat = ds_sim["lat"].values.tolist().index(49.375)
+        ilon = ds_sim["lon"].values.tolist().index(285.9375)
+        mean_around = (
+            ds_sim.sel(time="2100-08-11",
+             realization='CMIP6_ScenarioMIP_MOHC_UKESM1-0-LL_ssp370_r1i1p1f2_global')
+            .isel(
+                lat=slice(ilat - 1, ilat + 2),
+                lon=slice(ilon - 1, ilon + 2),
+            )
+            .squeeze()
+            .pr.values
+        )
+        mean_around[1, 1] = np.nan
+        fillval = np.nanmean(mean_around)
+        ds_sim["pr"] = ds_sim["pr"].where(
+            ~(
+                (ds_sim.lat == 49.375)
+                & (ds_sim.lon == 285.9375)
+                & (ds_sim.time == ds_sim.time.sel(time="2100-08-11").values)
+                & (ds_sim.realization == 'CMIP6_ScenarioMIP_MOHC_UKESM1-0-LL_ssp370_r1i1p1f2_global')
+            ),
+            other=fillval,
+        )
+
+    # https://errata.esgf.io/static/view.html?uid=76b3f818-d65f-c76b-bfd8-cae5bc27825c
+    if 'UKESM1-0-LL' in pool:
+        ds_sim["tasmax"] = ds_sim["tasmax"].where(
+            ds_sim.tasmax <= 335,
         )
 
     # clean up time
