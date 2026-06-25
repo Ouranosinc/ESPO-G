@@ -61,7 +61,7 @@ if __name__ == "__main__":
         "D"
     )  # probably this wont be need when data is cleaned
     # need lat and lon -1 for the regrid
-    ds_sim = ds_sim.chunk(config["chunks"]["pre-regrid"])
+    ds_sim = xs.io.rechunk_for_saving(ds_sim, rechunk=config["chunks"]["pre-regrid"])
     if "hursmin" in ds_sim:
         ds_sim = ds_sim.rename({"hursmin": "hursTasmax"})
 

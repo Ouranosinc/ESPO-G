@@ -15,8 +15,7 @@ if __name__ == '__main__':
 
     # Get Snakemake parameters
     var = snakemake.wildcards.var
-    input_noleap = snakemake.input.noleap
-    input_360_day = snakemake.input.day360
+    input_ref = snakemake.input.ref
     input_rechunk = snakemake.input.rechunk
     output = snakemake.output[0]
     config = deepcopy(snakemake.config)
@@ -35,10 +34,8 @@ if __name__ == '__main__':
     simcal = xc.core.calendar.get_calendar(ds_hist)
     refcal = xs.utils.minimum_calendar(simcal, 'noleap')
 
-    # snakemake can't have 360_day as a keyword..
-    input_cal = input_noleap if refcal == 'noleap' else \
-        input_360_day if refcal == '360_day' else 'unknown'
-    ds_ref = xr.open_zarr(input_cal, decode_timedelta=False)
+    ds_ref = xr.open_zarr(input_ref, decode_timedelta=False)
+    ds_ref = ds_ref.convert_calendar(refcal, align_on="year")
 
     # training
     ds_tr = xs.train(
@@ -47,9 +44,6 @@ if __name__ == '__main__':
         var=[var],
         **config['biasadjust']['variables'][var]['training_args']
     )
-
-    for v in ['lat', 'lon']:
-        del ds_tr[v].encoding['chunks']
 
     xs.save_to_zarr(
         ds_tr,

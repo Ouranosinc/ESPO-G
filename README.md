@@ -7,19 +7,58 @@ The need to adapt to climate change is present in a growing number of fields, le
 [Ouranos](https://www.ouranos.ca) is working to create a set of operational multipurpose bias-adjusted climate simulations called "Ensemble de Simulations Post-traitées d'Ouranos" (ESPO). ESPO v1.0 is described in the following article:
 Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024). https://www.nature.com/articles/s41597-023-02855-z
 
-## Members
 
-The simulation included are: ![available model](available.png)
 
-**Table 1. Transient Climate Response (TCR) for ESPO Global Climate Models**
+## Versions
+There are two official version of ESPO: v1 and v2. Additonnaly, there are some side projects that use similar methods. All versions are listed here:
+
+ ### v2.0 [This release]
+ 
+ #### Changes from v1.0:
+
+  For ESPO-G:
+  * KACE-1-0-G was excluded. (https://github.com/Ouranosinc/ESPO-G/issues/6)
+  * EC-Earth3-CC and NESM3 were excluded as they do not have SSP3-7.0 available.
+  * New calculation of the TCR lead to CNRM-CM6-1/INM-CM5-0  being included/excluded in the TCR likely range. (https://github.com/Ouranosinc/ESPO-G/issues/7)  
+
+  For ESPO-R:
+  * Regrid in a single step
+  * Fill in nans
+  * Add spatial subset of input domain.
+
+  For both:
+  * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
+  * Add CaSR v3.2 reference
+  * Add mask based in sftlf on the simulation
+  * Start in 1951 (CRCM5 not available in 1950)
+  * NAM domain slightly changed
+  * Add pooling of members in the training
+  * Add health checks for input
+  * Add health checks on QC
+  * Add max_tail_factor=10 for pr
+  * Adjust tasmax and tasmin directly, instead of tasmax and dtr
+  * Interpolation in the adjustement is linear instead of nearest
+
+
+
+  In the code, without effect on the data:
+  * Add possibility to run hurs and hursTasmax
+  * Add possibility to run until 2300
+  * Workflow uses snakemake
+  * More checks on nan in health checks
+
+#### Members
+
+The simulation included are: ![available model](notebooks/tree_of_inputs.png)
+
+**Table 1. Transient Climate Response (TCR) for ESPO v2.0 Global Climate Models**
 
 |**Model** |**Member** |**TCR (degC)**|**In TCR likely range**|
 
-|---|---|---|---|---|
+|---|---|---|---|
 | ACCESS-CM2     |r1i1p1f1| 2.1 | ✓ |
 | ACCESS-ESM1-5  |r1i1p1f1| 1.95 | ✓ |
 | BCC-CSM2-MR    |r1i1p1f1| 1.72 | ✓ |
-| CMCC-CM2-SR5    |r1i1p1f1| TODO | ✓ |
 | CMCC-ESM2     |r1i1p1f1| 1.92* | ✓ |
 | CNRM-CM6-1     |r1i1p1f1| 2.14 | ✓ |
 | CNRM-ESM2-1    |r1i1p1f1| 1.86 | ✓ |
@@ -48,44 +87,8 @@ TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/re
 *Note that the CMCC-ESM2 TCR is not available with the ESMValTool method. We show the one from Hausfather et al. (2022) instead.
 
 
-## Versions
-
- ### v2.0 [This release]
- 
- Changes from v1.0:
-
-  For ESPO-G:
-  * KACE-1-0-G was excluded. (https://github.com/Ouranosinc/ESPO-G/issues/6)
-  * EC-Earth3-CC and NESM3 were excluded as they do not have SSP3-7.0 available.
-  * New calculation of the TCR lead to CNRM-CM6-1/INM-CM5-0  being included/excluded in the TCR likely range. (https://github.com/Ouranosinc/ESPO-G/issues/7)  
-
-  For ESPO-R:
-  * Regrid in a single step
-  * Fill in nans
-  * Add spatial subset of input domain.
-
-  For both:
-  * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
-  * Add CaSR v3.2 reference
-  * Add mask based in sftlf on the simulation
-  * Start in 1951 (CRCM5 not available in 1950)
-  * NAM domain slightly changed
-  * Add pooling of members in the training
-  * Add health checks for input
-  * Add health checks on QC
-  * Add max_tail_factor=10 for pr
-  * Adjust tasmax and tasmin directly, instead of tasmax and dtr
-
-
-
-  In the code, without effect on the data:
-  * Add possibility to run hurs and hursTasmax
-  * Add possibility to run until 2300
-  * Workflow uses snakemake
-  * More checks on nan in health checks
-
-  History:
-    TODO
+#### History:
+    Ran in June 2026 with env espov2.
   
 
 ### Project lait-e
@@ -140,9 +143,9 @@ References:
  * Bourdeau-Goulet, Sarah-Claude, Pascal Bourgault, Sarah Gammon, and David Huard. 2025. Ouranos Ensemble of Bias-Adjusted Simulations - Global Models CMIP6 - AHCCD v3 (ESPO-G6-AHCCD v1.0.0). May 31. https://doi.org/10.20383/103.01272.
 
 ### v1.0
-In ESPO6 v1.0.0, CMIP6 global climate models simulations are bias-adjusted using the RDRS v2.1 and the ERA5-Land reference datasets. The simulation ensemble covers the period for years 1950-2100 and includes the daily minimum temperature (tasmin), the daily maximum temperature (tasmax) and the daily mean precipitation flux (pr). 
+In ESPO6 v1.0.0, CMIP6 global climate models simulations are bias-adjusted using the RDRS v2.1 and the ERA5-Land reference datasets to create the ESPO-G6-R2 and ESPO-G6-E5L ensemble, respectively. The simulation ensemble covers the period for years 1950-2100 and includes the daily minimum temperature (tasmin), the daily maximum temperature (tasmax) and the daily mean precipitation flux (pr). 
 
-Dataset Characteristics:
+#### Dataset Characteristics:
 * Temporal coverage: 1950-2100
 * Temporal resolution: daily, noleap or 360_day calendar
 * Spatial coverage: North American domain from 179.9°W to 10.0°W and from 10.0°N to 83.3°N, only on land.
@@ -150,7 +153,46 @@ Dataset Characteristics:
 * Data type: Gridded netCDF
 * License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
-* References: 
+#### Members
+
+**Table 2: Members of ESPO-G6-R2 v1.0.0**
+
+|**Institution**|**Model** |**Member** |**License**|**TCR (degC)**|**In TCR likely range**|**Status**|
+|---|---|---|---|---|---|---|
+|CAS |	FGOALS-g3 |	r1i1p1f1 |CC BY 4.0|1.50|✓| Completed|
+|CMCC 	|CMCC-ESM2 |	r1i1p1f1 |CC BY 4.0|1.92|✓|Completed|
+|	CSIRO-ARCCSS |	ACCESS-CM2 |	r1i1p1f1  |CC BY 4.0|1.96|✓|Completed|
+| CSIRO 	|ACCESS-ESM1-5 |	r1i1p1f1 |CC BY 4.0|1.97|✓|Completed|
+| 	DKRZ |	MPI-ESM1-2-HR |	r1i1p1f1 |CC BY 4.0|1,64|✓|Completed|
+| 	INM 	|INM-CM5-0 |	r1i1p1f1 |CC BY 4.0|1.41|✓|Completed|
+| 	MIROC |	MIROC6 |	r1i1p1f1 |CC BY 4.0|1.55|✓|Completed|
+| 	MPI-M |	MPI-ESM1-2-LR |	r1i1p1f1 |CC BY 4.0|1.82|✓|Completed|
+| 	MRI |	MRI-ESM2-0 |	r1i1p1f1 |CC BY 4.0|1.67|✓|Completed|
+| 	NCC |	NorESM2-LM |	r1i1p1f1 |CC BY 4.0|1.49|✓|Completed|
+| 	CNRM-CERFACS |	CNRM-ESM2-1 |	r1i1p1f2 |CC BY 4.0|1.83|✓|Completed|
+| 	NIMS-KMA |	KACE-1-0-G |	r1i1p1f1 |CC BY 4.0|2.04|✓|Completed|
+| 	NOAA-GFDL |	GFDL-ESM4 |	r1i1p1f1 |CC BY 4.0|1.63|✓|Completed|
+| 	BCC |	BCC-CSM2-MR |	r1i1p1f1 |CC BY 4.0|1.55|✓|Completed|
+| CCCma	 |	CanESM5 |	r1i1p1f1 |CC BY 4.0|2.71| |Completed|
+| CNRM-CERFACS	 |	CNRM-CM6-1 |r1i1p1f2	 |CC BY 4.0|2.22| |Completed|
+| EC-Earth-Consortium	 |	EC-Earth3 |r1i1p1f1	 |CC BY 4.0|2.30| |Completed|
+| IPSL	 |	IPSL-CM6A-LR |	r1i1p1f1 |CC BY 4.0|2.35| |Completed|
+| 	MOHC |	UKESM1-0-LL |	r1i1p1f2 |CC BY 4.0|2.77| |Completed|
+| 	NCC |NorESM2-MM	 |	r1i1p1f1 |CC BY 4.0|1.22| |Completed|
+| EC-Earth-Consortium	 |	EC-Earth3-CC  |r1i1p1f1	 |CC BY 4.0|2.63| |Completed (no SSP3-7.0)|
+| 	NUIST |NESM3 	 |	r1i1p1f1 |CC BY 4.0|2.72| |Completed (no SSP3-7.0)|
+| 	MIROC |MIROC-ES2L	 |	r1i1p1f2 |CC BY 4.0|1.49| ✓|Completed |
+| 	EC-Earth-Consortium |EC-Earth3-Veg	 |	r1i1p1f1 |CC BY 4.0|2.66| |Completed |
+| 	INM |INM-CM4-8	 |	r1i1p1f1 |CC BY 4.0|1.30| |Completed |
+| 	AS-RCEC |TaiESM1	 |	r1i1p1f1 |CC BY 4.0|1.30| |Completed |
+
+
+
+Licences: https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
+
+TCR: Hausfather et al. 2022, Climate simulations: recognize the 'hot model' problem, comment in Nature: [DOI: 10.5281/zenodo.6476375](https://doi.org/10.5281/zenodo.6476375)
+
+#### References: 
 
   * Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024).
 https://www.nature.com/articles/s41597-023-02855-z
@@ -159,7 +201,7 @@ https://www.nature.com/articles/s41597-023-02855-z
 
   * ESPO-G6-E5L v1.0.0: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7764929.svg)](https://doi.org/10.5281/zenodo.7764929)
 
-* Data availability:
+#### Data availability:
 
   At the time of publication, the data is stored on [Ouranos](https://www.ouranos.ca/)' THREDDS server, a part of the [PAVICS](https://pavics.ouranos.ca/) project:
 https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/datasets/simulations/bias_adjusted/cmip6/ouranos/ESPO-G/catalog.html
@@ -229,16 +271,16 @@ Description of the tasks:
 ## Warnings
 
 ### Problematic Areas
- - Users should be careful with precipitation data close to the south edge of the North American domain where there is less trust in the reference data (CaSR), especially for precipitations. Also, health checks on inputs revealed precipitation over 1650 mm/day in the south of the domain for ACCESS-CM2 and CRCM5.
+ - Users should be careful with precipitation data close to the south edge of the North American domain where there is less trust in the reference data (CaSR), especially for precipitations. Also, health checks on inputs revealed precipitation over 1650 mm/day in the south of the domain for ACCESS-CM2, UKESM1-0-LL and CRCM5.
  - Users should be careful with unseen extreme precipitation. Precipitation extremes that were 10 time larger than the highest quantile in the reference were not adjusted.
  -[TODO: verify for v2.0] Some small regions in Alaska and Greenland showed very small tasmin and have been masked out by NaNs for 2 models (BCC-CSM2-MR and GFDL-ESM4 ). More details are available in section Health Checks of Lavoie et al. (2024)
 
  ### Modifications to inputs
-Health checks were performed on the raw simulations (see health_checks:NAM and health_checks:QC in the config files) in order to identify possible issues with models. Problematic points were then analysed and either masked (see below) or warned about (see above).
+In v2.0, health checks were performed on the raw simulations (see health_checks:NAM and health_checks:QC in the config files) in order to identify possible issues with models. Problematic points were then analysed and either masked (see below) or warned about (see above).
 
 
  - CMIP6_CMIP_BCC_BCC-CSM2-MR_historical_r1i1p1f1_global: On 2014-12-31, there are many large negative values of dtr. Every grid points on that day was set to nan for dtr and tasmin. The workflow will fill the nans with interpolation over the time dimension.
- - CMIP6_CMIP_CSIRO_ACCESS-ESM1-5_historical_r1i1p1f1_global:  On 1984-01-10 and 2000-02-07, at 63.75N; 313.125E, tasmin is -138 K. This single gridpoint was replaced by a nan. The workflow will fill the nan with interpolation over the time dimension.
+ - CMIP6_CMIP_CSIRO_ACCESS-ESM1-5_historical_r1i1p1f1_global:  On 1984-01-10 and 2000-02-07, at 63.75N; 313.125E, tasmin is -138 degC and -96 degC, respectively. These single gridpoints were replaced by a nan. The workflow will fill the nan with interpolation over the time dimension.
  - CMIP6_ScenarioMIP_MOHC_UKESM1-0-LL_ssp370_r1i1p1f2_global: On 2100-08-11, at 49.375N; 285.9375E, there is a single gridpoint (over Québec) with precipitation of 1024 mm/day. This gridpoint was replaced by the mean of its eight spatial neighbors.
  - UKESM1-0-LL: As suggested in [this errata][https://errata.esgf.io/static/view.html?uid=76b3f818-d65f-c76b-bfd8-cae5bc27825c] all tasmax above 335K where masked. The workflow will fill the nan with interpolation over the time dimension.
 

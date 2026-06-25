@@ -1,4 +1,4 @@
-#Configuration file for ESPO-G6-C3
+#Configuration file for ESPO v2.0
 
 subregions:
   n: 50000 # number of loc in each subregions
@@ -23,6 +23,7 @@ extraction:
           pr: D
           dtr: D
           mask: fx # for casr
+          orog: fx
         allow_resampling: False
         allow_conversion: True
         periods : &ref_period
@@ -58,22 +59,25 @@ extraction:
           - CMIP6_ScenarioMIP_CCCma_CanESM5_ssp370_r2i1p2f1_global
           - CMIP6_ScenarioMIP_CCCma_CanESM5_ssp585_r2i1p2f1_global
           - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp245_r10i1p1f1_global
-          - CMIP6_ScenarioMIP_CAS_FGOALS-g3_ssp245_r3i1p1f1_global # TODO: only tmp, tasmin, file not there, but in cat 
-          - CMIP6_ScenarioMIP_CAS_FGOALS-g3_ssp370_r3i1p1f1_global # TODO: only tmp, tasmin, file not there, but in cat 
-          - CMIP6_ScenarioMIP_CAS_FGOALS-g3_ssp585_r3i1p1f1_global # TODO: only tmp, tasmin, file not there, but in cat 
           source: # criteria, model should have at least one member with all 3 exps.
             - GFDL-CM4 # missing ssp370
             - EC-Earth3-CC # missing ssp370
-            - CRCM5-SN # we are doing G here.
             - KIOST-ESM # missing ssp245 and ssp370
             - NESM3 # missing ssp370
+            - CMCC-CM2-SR5 # retracted
         other_search_criteria:
           processing_level: raw
           mip_era: CMIP6
           experiment: # run one exp at the time to avoid exploding scratch quota
-            #- ssp245
+            # - ssp245
             - ssp370
             #- ssp585
+          source:
+            #- CRCM5-SN
+            - MPI-ESM1-2-LR
+            - CanESM5
+            - NorESM2-MM
+            - CNRM-ESM2-1
       extract_dataset:
         periods : *sim_period
         xr_combine_kwargs:
@@ -84,8 +88,12 @@ extraction:
             - height
             - bnds
             - time_bnds
+            - time_bounds
             - lat_bnds
             - lon_bnds
+            - quantization_info
+            - compression_info # makes extract fail
+            #- crs #need to keep for data extent in concat_clean_up
       create_mask:
         variable: sftlf
         where_operator: ">="
@@ -256,9 +264,9 @@ clean_up:
           version: v2.0
           code: https://github.com/Ouranosinc/ESPO-G/
           contact: lavoie.juliette@ouranos.ca
-          organisation: Groupe scénarios et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca
+          organisation: Équipe science du climat et services climatiques, Consortium Ouranos, Montréal, QC; www.ouranos.ca
           avertissement : Ouranos ne donne aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande et d'adéquation à un usage particulier. Toutes les responsabilités découlant de la fourniture des informations (y compris toute responsabilité découlant d'une négligence) sont exclues dans toute la mesure permise par la loi.
-          organization: Scenarios and Climate Services Group, Ouranos Consortium, Montreal, QC; www.ouranos.ca
+          organization: Climate Science and Climate Services Team, Ouranos Consortium, Montreal, QC; www.ouranos.ca
           disclaimer: Ouranos make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.
           license:  Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/)
           "cat:domain": *domain
@@ -293,7 +301,7 @@ clean_up:
           cell_methods: "time: range within days"
           description: Diurnal temperature range from tasmax and tasmin.
           standard_name: air_temperature
-          long_name: Diurnal temperature range.
+          long_name: Diurnal temperature range
     tasmin:
       maybe_unstack_dict: *maybe
       change_attr_prefix: *prefix
@@ -347,15 +355,6 @@ diagnostics:
 health_checks:
   # for inputs
   NAM:
-    structure:
-      coords:
-        - time
-        - lat 
-        - lon
-      dims:
-        - lat
-        - lon
-        - time
     start_date: &start
       "1951-01-01" 
     end_date: &end
@@ -434,7 +433,7 @@ health_checks:
         tasmax_below_tasmin:
       tasmin:
         temperature_extremely_low:
-          thresh: '-70 degC'
+          thresh: '-75 degC'
       pr:
         negative_accumulation_values:
         very_large_precipitation_events:
@@ -448,7 +447,7 @@ health_checks:
       pr:
         negative_accumulation_values:
         very_large_precipitation_events:
-          thresh: '900 mm/d' 
+          thresh: '500 mm/d' 
     return_flags: True
     raise_on: *raise_on
 
@@ -490,8 +489,8 @@ tdd:
 chunks:
   pre-regrid: 
     time: 365
-    lat: -1 # dims of input
-    lon: -1
+    X: -1 # dims of input
+    Y: -1
   workingloc:
     loc: 600
     time: -1

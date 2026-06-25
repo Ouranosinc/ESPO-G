@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 
+import xarray as xr
 import xscen as xs
 
 
@@ -21,17 +22,19 @@ if __name__ == "__main__":
         **config["extraction"]["reference"][ref]["search_data_catalogs"]
     )
     dc = cat_ref.popitem()[1]
-    ds_ref = xs.extract_dataset(
+    ds_dict = xs.extract_dataset(
         catalog=dc,
         region=region,
         **config["extraction"]["reference"][ref]["extract_dataset"],
-    )["D"]
+    )
+    ds_ref = ds_dict["D"]
     ds_ref = xs.clean_up(ds_ref, **config["extraction"]["clean_up"])
 
-    # fix encoding chunks issue
-    for var in ds_ref.data_vars:
-        if "chunks" in ds_ref[var].encoding:
-            del ds_ref[var].encoding["chunks"]
+    # Add fixed fields as coordinates
+    if "fx" in ds_dict:
+        ds_ref = xr.merge([ds_ref, ds_dict["fx"]], compat="override").assign_coords(
+            ds_dict["fx"].data_vars
+        )
 
     xs.save_to_zarr(
         ds_ref,

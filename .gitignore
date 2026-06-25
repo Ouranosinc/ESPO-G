@@ -138,3 +138,6 @@ s_logs*/
 *.sh
 pre-workflow/*.sh
 
+pre-workflow/input-checks.sh
+config/paths_ESPO.yml
+pre-workflow/create_mask.sh

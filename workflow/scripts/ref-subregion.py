@@ -29,13 +29,3 @@ if __name__ == "__main__":
 
     ds_ref.attrs["cat:calendar"] = "default"
     xs.save_to_zarr(ds_ref, output["default"], **config["save_to_zarr"])
-
-    # noleap
-    ds_refnl = ds_ref.convert_calendar("noleap")
-    ds_refnl.attrs["cat:calendar"] = "noleap"
-    xs.save_to_zarr(ds_refnl, output["noleap"], **config["save_to_zarr"])
-
-    # 360_day
-    ds_ref3 = ds_ref.convert_calendar("360_day", align_on="year")
-    ds_ref3.attrs["cat:calendar"] = "360_day"
-    xs.save_to_zarr(ds_ref3, output["day360"], **config["save_to_zarr"])

@@ -36,9 +36,4 @@ if __name__ == "__main__":
     )
     ds["pr"] = ds["pr"].where(ds["pr"].notnull(), other=0)
 
-    # fix encoding chunks issue
-    for var in ds.data_vars:
-        if "chunks" in ds[var].encoding:
-            del ds[var].encoding["chunks"]
-
     xs.save_to_zarr(ds, output, **config["save_to_zarr"])

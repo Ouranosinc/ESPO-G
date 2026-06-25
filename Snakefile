@@ -11,8 +11,8 @@ import copy
 import xscen as xs
 import numpy as np
 
-configfile: "config/config_ESPO-G.yml"
-configfile: "config/paths_ESPO-G.yml"
+configfile: "config/config_ESPO.yml"
+configfile: "config/paths_ESPO.yml"
 
 # Choose the simulations, diag, ref and dom to process
 dict_sim_id = xs.search_data_catalogs(**copy.deepcopy(config['extraction']['simulation']['search_data_catalogs'],))
@@ -99,7 +99,7 @@ rule all:
 
 rule makeref:
     output:
-        ref=finaldir/ "reference/{dom}_{ref}_default.zarr.zip",
+        ref=finaldir/ "reference/{dom}_{ref}_fullregion.zarr.zip",
         ref_stack=finaldir/ "reference/{dom}_{ref}_stacked.zarr.zip",
     params:
         n_workers=6, 
@@ -115,8 +115,6 @@ rule refsubregion:
         finaldir/ "reference/{dom}_{ref}_stacked.zarr.zip",
     output: 
         default=finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_default.zarr.zip",
-        noleap=finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_noleap.zarr.zip",
-        day360=finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_360_day.zarr.zip",
     params:
         n_workers=2,
         mem="50GB",
@@ -139,7 +137,7 @@ rule extract:
 
 rule regrid:
      input:
-          noleap = finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_noleap.zarr.zip",
+          ref = finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_default.zarr.zip",
           extract = tmpdir/"{pool}+{dom}+extracted.zarr"
      output:
           temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+regridded.zarr"))
@@ -168,8 +166,7 @@ rule rechunk:
 
 rule train:
     input:
-        noleap = finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_noleap.zarr.zip",
-        day360 = finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_360_day.zarr.zip",
+        ref = finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_default.zarr.zip",
         rechunk = tmpdir/"{pool}+{dom}+{ref}+{subregion}+regchunked.zarr"
     output:
         temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+{var}+training.zarr"))
@@ -192,7 +189,7 @@ rule adjust:
         n_workers=5,
         cpus_per_task=15,
         mem='300GB', 
-        time="00:30:00", 
+        time="01:30:00", 
     script:
        "workflow/scripts/adjust.py"
 
@@ -306,7 +303,7 @@ rule health_checks:
 
 rule diag_ref:
     input:
-        ref=finaldir/ "reference/{dom}_{ref}_default.zarr.zip"
+        ref=finaldir/ "reference/{dom}_{ref}_fullregion.zarr.zip"
     output: 
         prop=finaldir/"diagnostics/{ref}/{dom}/{dregion}/ref-prop.zarr.zip"
     params:
@@ -320,7 +317,7 @@ rule diag_ref:
 
 rule diag:
     input:
-        ref=finaldir/ "reference/{dom}_{ref}_default.zarr.zip",
+        ref=finaldir/ "reference/{dom}_{ref}_fullregion.zarr.zip",
         ref_prop=finaldir/"diagnostics/{ref}/{dom}/{dregion}/ref-prop.zarr.zip",
         scen_pr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/pr/pr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
         scen_tasmax=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/tasmax/tasmax_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),

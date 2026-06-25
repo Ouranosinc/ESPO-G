@@ -1,6 +1,7 @@
 """Create mask for CaSR."""
 
 import datetime
+from pathlib import Path
 
 import numpy as np
 import xarray as xr
@@ -8,7 +9,7 @@ import xscen as xs
 from xscen import CONFIG
 
 
-xs.load_config("../config/config_general.yml", "../config/paths.yml")
+xs.load_config("../config/config_ESPO.yml", "../config/paths_ESPO.yml")
 
 
 if __name__ == "__main__":
@@ -22,6 +23,7 @@ if __name__ == "__main__":
     ds = cat.search(source=["CaSR"], variable=["sftof"], frequency="fx").to_dataset()
     # start with removing the ocean
     mask = xr.where(ds.sftof == 1, np.nan, 1)
+    mask = mask.chunk(dict(rlat=-1, rlon=-1))
 
     # add back a buffer along the coast
     w = xs.spatial.creep_weights(mask.notnull())
@@ -46,9 +48,12 @@ if __name__ == "__main__":
         mask[c].attrs = ds[c].attrs
 
     # save
-    path = f"{xs.build_path(mask, root=CONFIG['data'])}.zip"
+    path = Path(f"{xs.build_path(mask, root=CONFIG['data'])}.zip")
 
-    xs.save_to_zarr(mask, path.replace(".zip", ""))
-    xs.io.zip_directory(path.replace(".zip", ""), path, delete=True)
+    # create dirs if they don't exist
+    if not path.parent.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+    xs.save_to_zarr(mask, path, **CONFIG["save_to_zarr"])
 
     pcat.update_from_ds(mask, path)
