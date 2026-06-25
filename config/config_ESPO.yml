@@ -69,11 +69,11 @@ extraction:
           processing_level: raw
           mip_era: CMIP6
           experiment: # run one exp at the time to avoid exploding scratch quota
-            # - ssp245
+            #- ssp245
             - ssp370
             #- ssp585
           source:
-            #- CRCM5-SN
+            - CRCM5-SN
             - MPI-ESM1-2-LR
             - CanESM5
             - NorESM2-MM
@@ -433,7 +433,7 @@ health_checks:
         tasmax_below_tasmin:
       tasmin:
         temperature_extremely_low:
-          thresh: '-75 degC'
+          thresh: '-80 degC'
       pr:
         negative_accumulation_values:
         very_large_precipitation_events:
@@ -442,7 +442,7 @@ health_checks:
         negative_accumulation_values:
     return_flags: True
     raise_on: *raise_on
-  finalQC: #TODO: maybe lower pr and add others
+  finalQC:
     flags: 
       pr:
         negative_accumulation_values:

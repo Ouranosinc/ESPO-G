@@ -220,11 +220,11 @@ This version of the workflow is meant to be run on a HPC such as Narval. It uses
 
 ```bash
 $ module load StdEnv/2023 gcc openmpi python/3.12 arrow proj/9.4 geos mpi4py/4.0.3 netcdf geos nodejs esmf scipy-stack/2026a
-$ virtualenv --no-download $ENVDIR/<ENV>
+$ virtualenv --no-download <ENV>
 $ echo "module load StdEnv/2023 gcc openmpi python/3.12 arrow proj/9.4 geos mpi4py/4.0.3 
-netcdf geos nodejs esmf scipy-stack/2026a" >>> $ENVDIR/<ENV>/bin/modules
-$ source $ENVDIR/<ENV>/bin/modules
-$ source $ENVDIR/<ENV>/bin/activate
+netcdf geos nodejs esmf scipy-stack/2026a" >>> <ENV>/bin/modules
+$ source <ENV>/bin/modules
+$ source <ENV>/bin/activate
 $ pip install --no-index --upgrade pip
 $ pip install --no-index -r requirements.txt
 ```
