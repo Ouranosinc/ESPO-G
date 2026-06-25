@@ -132,7 +132,6 @@ dmypy.json
 config/paths_ESPO-G.yml
 config/paths_ESPO-R.yml
 .snakemake/
-.vscode/
 slurm*
 s_logs*/
 *.sh
