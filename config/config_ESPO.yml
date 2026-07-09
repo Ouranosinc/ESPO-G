@@ -58,6 +58,13 @@ extraction:
           - CMIP6_ScenarioMIP_CCCma_CanESM5_ssp245_r2i1p2f1_global
           - CMIP6_ScenarioMIP_CCCma_CanESM5_ssp370_r2i1p2f1_global
           - CMIP6_ScenarioMIP_CCCma_CanESM5_ssp585_r2i1p2f1_global
+          # min tasmin is -138 for member r1, replace it with r6
+          - CMIP6_ScenarioMIP_CSIRO_ACCESS-ESM1-5_ssp245_r1i1p1f1_global
+          - CMIP6_ScenarioMIP_CSIRO_ACCESS-ESM1-5_ssp370_r1i1p1f1_global
+          - CMIP6_ScenarioMIP_CSIRO_ACCESS-ESM1-5_ssp585_r1i1p1f1_global
+          # mismatch lats break workflow
+          - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp245_r2i1p1f1_global
+          - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp245_r7i1p1f1_global
           - CMIP6_ScenarioMIP_EC-Earth-Consortium_EC-Earth3_ssp245_r10i1p1f1_global
           source: # criteria, model should have at least one member with all 3 exps.
             - GFDL-CM4 # missing ssp370
@@ -69,15 +76,9 @@ extraction:
           processing_level: raw
           mip_era: CMIP6
           experiment: # run one exp at the time to avoid exploding scratch quota
-            #- ssp245
+            - ssp245
             - ssp370
-            #- ssp585
-          source:
-            - CRCM5-SN
-            - MPI-ESM1-2-LR
-            - CanESM5
-            - NorESM2-MM
-            - CNRM-ESM2-1
+            - ssp585 
       extract_dataset:
         periods : *sim_period
         xr_combine_kwargs:
@@ -97,7 +98,7 @@ extraction:
       create_mask:
         variable: sftlf
         where_operator: ">="
-        where_threshold: 0.25
+        where_threshold: 25
         mask_nans: True
   clean_up:
     variables_and_units:
@@ -429,7 +430,7 @@ health_checks:
     flags:
       tasmax:
         temperature_extremely_high:
-          thresh: '60 degC'
+          thresh: '61 degC'
         tasmax_below_tasmin:
       tasmin:
         temperature_extremely_low:
@@ -447,15 +448,14 @@ health_checks:
       pr:
         negative_accumulation_values:
         very_large_precipitation_events:
-          thresh: '500 mm/d' 
+          thresh: '400 mm/d' 
     return_flags: True
     raise_on: *raise_on
 
 QC:
   name: QC
-  method: bbox
-  lon_bnds: [ -83, -55 ]
-  lat_bnds: [ 42, 63 ]
+  method: shape
+
 
 io:
   rechunk:

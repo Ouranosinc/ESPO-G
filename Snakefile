@@ -94,8 +94,8 @@ rule all:
         expand(finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
         expand(finaldir/"checks/QC/{sim_id}+{ref}+{dom}+QC_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
         expand(finaldir/"preswap/dtrpreswap_day_ESPO6_v20_{ref}+{sim_id}_{dom}.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
-        # TODO: run diag in a second wave
-        #expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
+        # TODO:run diag in a second wave
+        expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
 
 rule makeref:
     output:
@@ -130,7 +130,7 @@ rule extract:
         n_workers=2,
         mem="400GB",
         cpus_per_task=10,
-        time="01:00:00",
+        time="02:00:00",
     script:
         "workflow/scripts/extract.py"
 
@@ -174,7 +174,7 @@ rule train:
         n_workers=3,
         mem='300GB',
         cpus_per_task=12,
-        time="01:00:00",
+        time="01:30:00",
     script:
         "workflow/scripts/train.py"
 
@@ -296,7 +296,7 @@ rule health_checks:
         n_workers=8,
         mem='40GB',
         cpus_per_task=40,
-        time="00:30:00",
+        time="01:00:00",
     script:
         "workflow/scripts/health_check.py"
 

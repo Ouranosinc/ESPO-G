@@ -47,7 +47,7 @@ if __name__ == "__main__":
     # make sure we don't go outside the border of the inout data,
     # (extrapolation should only be for water inside the domain)
     ds_ext = xr.open_zarr(extracted, decode_timedelta=False)
-    # TODO: until xscen PR 743 in the env
+    # FIXME: until xscen PR 743 in the env
     if "crs" in ds_ext and "earth_radius" in ds_ext['crs'].attrs:
         ds_ext['crs'].attrs['earth_radius'] = float(ds_ext['crs'].attrs['earth_radius'])
 

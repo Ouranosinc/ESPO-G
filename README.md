@@ -37,7 +37,7 @@ There are two official version of ESPO: v1 and v2. Additonnaly, there are some s
   * Add health checks on QC
   * Add max_tail_factor=10 for pr
   * Adjust tasmax and tasmin directly, instead of tasmax and dtr
-  * Interpolation in the adjustement is linear instead of nearest
+  * Correct some of the inputs (see Warnings section below)
 
 
 
@@ -60,25 +60,26 @@ The simulation included are: ![available model](notebooks/tree_of_inputs.png)
 | ACCESS-ESM1-5  |r1i1p1f1| 1.95 | ✓ |
 | BCC-CSM2-MR    |r1i1p1f1| 1.72 | ✓ |
 | CMCC-ESM2     |r1i1p1f1| 1.92* | ✓ |
-| CNRM-CM6-1     |r1i1p1f1| 2.14 | ✓ |
-| CNRM-ESM2-1    |r1i1p1f1| 1.86 | ✓ |
+| CNRM-CM6-1     |r1i1p1f2| 2.14 | ✓ |
+| CNRM-ESM2-1    |r1i1p1f2| 1.86 | ✓ |
 | FGOALS-g3      |r1i1p1f1| 1.54 | ✓ |
 | GFDL-ESM4      |r1i1p1f1| 1.61 | ✓ |
-| MIROC-ES2L     |r1i1p1f1| 1.55 | ✓ |
+| MIROC-ES2L     |r1i1p1f2| 1.55 | ✓ |
 | MIROC6         |r1i1p1f1| 1.55 | ✓ |
 | MPI-ESM1-2-HR  |r1i1p1f1| 1.66 | ✓ |
 | MPI-ESM1-2-LR  |r1i1p1f1| 1.84 | ✓ |
 | MRI-ESM2-0     |r1i1p1f1| 1.64 | ✓ |
 | NorESM2-LM     |r1i1p1f1| 1.48 | ✓ |
 | CanESM5        |r1i1p1f1| 2.74 | x |
-| EC-Earth3      |r1i1p1f1| 2.3 | x |
+| CanESM5-1       |r1i1p2f1| 2.26 | x |
+| EC-Earth3      |r3i1p1f1| 2.3 | x |
 | EC-Earth3-Veg  |r1i1p1f1| 2.62 | x |
 | INM-CM4-8      |r1i1p1f1| 1.33 | x |
 | INM-CM5-0      |r1i1p1f1| 1.37 | x |
 | IPSL-CM6A-LR   |r1i1p1f1| 2.32 | x |
 | NorESM2-MM     |r1i1p1f1| 1.33 | x |
 | TaiESM1        |r1i1p1f1| 2.36 | x |
-| UKESM1-0-LL    |r1i1p1f1| 2.79 | x |
+| UKESM1-0-LL    |r1i1p1f2| 2.79 | x |
 
 
 Licences: All members have a CC BY 4.0 license. https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
@@ -280,7 +281,6 @@ In v2.0, health checks were performed on the raw simulations (see health_checks:
 
 
  - CMIP6_CMIP_BCC_BCC-CSM2-MR_historical_r1i1p1f1_global: On 2014-12-31, there are many large negative values of dtr. Every grid points on that day was set to nan for dtr and tasmin. The workflow will fill the nans with interpolation over the time dimension.
- - CMIP6_CMIP_CSIRO_ACCESS-ESM1-5_historical_r1i1p1f1_global:  On 1984-01-10 and 2000-02-07, at 63.75N; 313.125E, tasmin is -138 degC and -96 degC, respectively. These single gridpoints were replaced by a nan. The workflow will fill the nan with interpolation over the time dimension.
  - CMIP6_ScenarioMIP_MOHC_UKESM1-0-LL_ssp370_r1i1p1f2_global: On 2100-08-11, at 49.375N; 285.9375E, there is a single gridpoint (over Québec) with precipitation of 1024 mm/day. This gridpoint was replaced by the mean of its eight spatial neighbors.
  - UKESM1-0-LL: As suggested in [this errata][https://errata.esgf.io/static/view.html?uid=76b3f818-d65f-c76b-bfd8-cae5bc27825c] all tasmax above 335K where masked. The workflow will fill the nan with interpolation over the time dimension.
 

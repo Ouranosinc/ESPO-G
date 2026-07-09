@@ -70,28 +70,6 @@ if __name__ == "__main__":
         ds_sim["dtr"] = ds_sim["dtr"].where(
             ds_sim.time != (ds_sim.time.sel(time="2014-12-31").values),
         )
-    if "ACCESS-ESM1-5" in pool:  # tasmin -138
-        ds_sim["tasmin"] = ds_sim["tasmin"].where(
-            ~(
-                (ds_sim.lat == 63.75)
-                & (ds_sim.lon == 313.125)
-                & (
-                    (ds_sim.time == ds_sim.time.sel(time="1984-01-10").values)
-                    | (ds_sim.time == ds_sim.time.sel(time="2000-02-07").values)
-                )
-                & (
-                    ds_sim.realization
-                    == "CMIP6_CMIP_CSIRO_ACCESS-ESM1-5_historical_r1i1p1f1_global"
-                )
-            )
-        )
-        ds_sim["dtr"] = ds_sim["dtr"].where(
-            ~(
-                (ds_sim.lat == 63.75)
-                & (ds_sim.lon == 313.125)
-                & (ds_sim.time == ds_sim.time.sel(time="1984-01-10").values)
-            )
-        )
     if "UKESM1-0-LL_ssp370" in pool:  # 1024mm on QC, replace with spatial neighbor mean
         ilat = ds_sim["lat"].values.tolist().index(49.375)
         ilon = ds_sim["lon"].values.tolist().index(285.9375)
