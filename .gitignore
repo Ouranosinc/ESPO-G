@@ -129,15 +129,11 @@ dmypy.json
 .pyre/
 
 # other
-config/paths_ESPO-G.yml
-config/paths_ESPO-R.yml
 .snakemake/
 slurm*
 s_logs*/
 *.sh
 pre-workflow/*.sh
-
-pre-workflow/input-checks.sh
-config/paths_ESPO.yml
-pre-workflow/create_mask.sh
 .vscode/
+config/paths_*
+config/ARCHES/paths_*
