@@ -4,8 +4,8 @@ This release is ESPO v2.0.
 
 ## Context
 The need to adapt to climate change is present in a growing number of fields, leading to an increase in the demand for climate scenarios for often interrelated sectors of activity. In order to meet this growing demand and to ensure the availability of climate scenarios responding to numerous vulnerability, impact, and adaptation (VIA) studies, 
-[Ouranos](https://www.ouranos.ca) is working to create a set of operational multipurpose bias-adjusted climate simulations called "Ensemble de Simulations Post-traitées d'Ouranos" (ESPO). ESPO v1.0 is described in the following article:
-Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024). https://www.nature.com/articles/s41597-023-02855-z
+[Ouranos](https://www.ouranos.ca) is created a set of operational multipurpose bias-adjusted climate simulations called "Ensemble de Simulations Post-traitées d'Ouranos" (ESPO). ESPO v1.0 is described in the following article:
+Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a high-resolution North American reanalysis. Nature Scientific Data. 10.1038/s41597-023-02855-z (2024). https://www.nature.com/articles/s41597-023-02855-z. ESPO v2.0 is the current release (see description below.)
 
 
 
@@ -13,15 +13,17 @@ Lavoie et al., An ensemble of bias-adjusted CMIP6 climate simulations based on a
 There are two official version of ESPO: v1 and v2. Additonnaly, there are some side projects that use similar methods. All versions are listed here:
 
  ### v2.0 [This release]
+
+  ESPO v2.0 is composed of two sub-ensemble: ESPO-G6-C3 (Global climate models from CMIP6 adjusted to CaSR v3.2) and ESPO-R6-C3 (Regional climate models from CMIP6 adjusted to CaSR v3.2).
  
  #### Changes from v1.0:
 
-  For ESPO-G:
+  For ESPO-G6-C3:
   * KACE-1-0-G was excluded. (https://github.com/Ouranosinc/ESPO-G/issues/6)
   * EC-Earth3-CC and NESM3 were excluded as they do not have SSP3-7.0 available.
   * New calculation of the TCR lead to CNRM-CM6-1/INM-CM5-0  being included/excluded in the TCR likely range. (https://github.com/Ouranosinc/ESPO-G/issues/7)  
 
-  For ESPO-R:
+  For ESPO-R6-C3:
   * Regrid in a single step
   * Fill in nans
   * Add spatial subset of input domain.
@@ -54,12 +56,11 @@ The simulation included are: ![available model](notebooks/tree_of_inputs.png)
 **Table 1. Transient Climate Response (TCR) for ESPO v2.0 Global Climate Models**
 
 |**Model** |**Member** |**TCR (degC)**|**In TCR likely range**|
-
 |---|---|---|---|
-| ACCESS-CM2     |r1i1p1f1| 2.1 | ✓ |
+| ACCESS-CM2     |r1i1p1f1| 2.1  | ✓ |
 | ACCESS-ESM1-5  |r1i1p1f1| 1.95 | ✓ |
 | BCC-CSM2-MR    |r1i1p1f1| 1.72 | ✓ |
-| CMCC-ESM2     |r1i1p1f1| 1.92* | ✓ |
+| CMCC-ESM2      |r1i1p1f1| 1.92*| ✓ |
 | CNRM-CM6-1     |r1i1p1f2| 2.14 | ✓ |
 | CNRM-ESM2-1    |r1i1p1f2| 1.86 | ✓ |
 | FGOALS-g3      |r1i1p1f1| 1.54 | ✓ |
@@ -71,8 +72,8 @@ The simulation included are: ![available model](notebooks/tree_of_inputs.png)
 | MRI-ESM2-0     |r1i1p1f1| 1.64 | ✓ |
 | NorESM2-LM     |r1i1p1f1| 1.48 | ✓ |
 | CanESM5        |r1i1p1f1| 2.74 | x |
-| CanESM5-1       |r1i1p2f1| 2.26 | x |
-| EC-Earth3      |r3i1p1f1| 2.3 | x |
+| CanESM5-1      |r1i1p2f1| 2.26 | x |
+| EC-Earth3      |r3i1p1f1| 2.3  | x |
 | EC-Earth3-Veg  |r1i1p1f1| 2.62 | x |
 | INM-CM4-8      |r1i1p1f1| 1.33 | x |
 | INM-CM5-0      |r1i1p1f1| 1.37 | x |
@@ -90,6 +91,26 @@ TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/re
 
 #### History:
     Ran in June 2026 with env espov2.
+
+#### Warnings
+
+
+ ##### Modifications to inputs
+In v2.0, health checks were performed on the raw simulations (see health_checks:NAM and health_checks:QC in the config files) in order to identify possible issues with models. Problematic points were then analysed and either masked or warned about.
+
+ - CMIP6_CMIP_BCC_BCC-CSM2-MR_historical_r1i1p1f1_global: On 2014-12-31, there are many large negative values of dtr. Every grid points on that day was set to nan for dtr and tasmin. The workflow will fill the nans with interpolation over the time dimension.
+ - CMIP6_ScenarioMIP_MOHC_UKESM1-0-LL_ssp370_r1i1p1f2_global: On 2100-08-11, at 49.375N; 285.9375E, there is a single gridpoint (over Québec) with precipitation of 1024 mm/day. This gridpoint was replaced by the mean of its eight spatial neighbors.
+ - UKESM1-0-LL: As suggested in [this errata][https://errata.esgf.io/static/view.html?uid=76b3f818-d65f-c76b-bfd8-cae5bc27825c] all tasmax above 335K where masked. The workflow will fill the nan with interpolation over the time dimension.
+
+ ##### Extreme Precipitations
+ - Users should be careful with precipitation data close to the south edge of the North American domain where there is less trust in the reference data (CaSR) for precipitations.
+ - Health checks on inputs revealed precipitation over 1650 mm/day in the south of the domain for ACCESS-CM2, UKESM1-0-LL and CRCM5. Though, this threshold is not exceeded after the regridding.
+ - Health checks on adjusted outputs revealed very rare precipitation over 400 mm/day over Quebec for CRCM5-SN and ACCESS-CM2.
+ - Users should be careful with unseen extreme precipitation. Precipitation extremes that were 10 time larger than the highest quantile in the reference were not adjusted.
+
+
+More details on checks can be found in notebooks/check.ipynb.
+
   
 
 ### Project lait-e
@@ -267,21 +288,5 @@ Description of the tasks:
  - diag and diag_ref: Compute diagnostics (defined in configuration/properties.yml) on smaller regions to assess the performance.
  - health_checks: Validation of the data.
 
-
-
-## Warnings
-
-### Problematic Areas
- - Users should be careful with precipitation data close to the south edge of the North American domain where there is less trust in the reference data (CaSR), especially for precipitations. Also, health checks on inputs revealed precipitation over 1650 mm/day in the south of the domain for ACCESS-CM2, UKESM1-0-LL and CRCM5.
- - Users should be careful with unseen extreme precipitation. Precipitation extremes that were 10 time larger than the highest quantile in the reference were not adjusted.
- -[TODO: verify for v2.0] Some small regions in Alaska and Greenland showed very small tasmin and have been masked out by NaNs for 2 models (BCC-CSM2-MR and GFDL-ESM4 ). More details are available in section Health Checks of Lavoie et al. (2024)
-
- ### Modifications to inputs
-In v2.0, health checks were performed on the raw simulations (see health_checks:NAM and health_checks:QC in the config files) in order to identify possible issues with models. Problematic points were then analysed and either masked (see below) or warned about (see above).
-
-
- - CMIP6_CMIP_BCC_BCC-CSM2-MR_historical_r1i1p1f1_global: On 2014-12-31, there are many large negative values of dtr. Every grid points on that day was set to nan for dtr and tasmin. The workflow will fill the nans with interpolation over the time dimension.
- - CMIP6_ScenarioMIP_MOHC_UKESM1-0-LL_ssp370_r1i1p1f2_global: On 2100-08-11, at 49.375N; 285.9375E, there is a single gridpoint (over Québec) with precipitation of 1024 mm/day. This gridpoint was replaced by the mean of its eight spatial neighbors.
- - UKESM1-0-LL: As suggested in [this errata][https://errata.esgf.io/static/view.html?uid=76b3f818-d65f-c76b-bfd8-cae5bc27825c] all tasmax above 335K where masked. The workflow will fill the nan with interpolation over the time dimension.
 
 
