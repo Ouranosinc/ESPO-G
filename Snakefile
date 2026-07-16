@@ -11,8 +11,11 @@ import copy
 import xscen as xs
 import numpy as np
 
-configfile: "config/config_ESPO.yml"
-configfile: "config/paths_ESPO.yml"
+#TODO: put the right config
+#configfile: "config/config_ESPO.yml"
+#configfile: "config/paths_ESPO.yml"
+configfile: "config/ARCHES/config_Scaling.yml"
+configfile: "config/ARCHES/paths_Scaling.yml"
 
 # Choose the simulations, diag, ref and dom to process
 dict_sim_id = xs.search_data_catalogs(**copy.deepcopy(config['extraction']['simulation']['search_data_catalogs'],))
