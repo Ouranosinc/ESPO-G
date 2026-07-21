@@ -21,7 +21,7 @@ Changes from ESPO6 v1.0:
 
 Branch: `post-2100-narval`
   
-History: Ran in 2025-12 within conda environment `xscen-0.13`.
+History: Ran in 2026-03 within conda environment `xscen-0.13`.
 
 ### ESPO-G6-AHCCD v1
 
