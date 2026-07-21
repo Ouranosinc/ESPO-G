@@ -9,19 +9,21 @@ The need to adapt to climate change is present in a growing number of fields, le
 
 ### ESPO-G6-P2100 v2 [This release]
 
-  ESPO-G6-C3-P2100 is a small ensemble of CMIP6 simulations extending to 2300 with variables for minimum daily temperature, maximum daily temperature and daily precipitation (tasmin, tasmax, pr). Beyond the ensemble composition, the main difference with ESPO6 v1 is the reference dataset, updated to the latest version of the Canadian Surface Reanalysis (CaSR v3.2).
+ESPO-G6-C3-P2100 is a small ensemble of CMIP6 simulations extending to 2300 with variables for minimum daily temperature, maximum daily temperature and daily precipitation (tasmin, tasmax, pr). Beyond the ensemble composition, the main difference with ESPO6 v1 is the reference dataset, updated to the latest version of the Canadian Surface Reanalysis (CaSR v3.2).
 
-  Changes from ESPO-G6-R2 v1.0:
+Changes from ESPO-G6-R2 v1.0:
 
-  * Covers the period from 1950 to 2300;
-  * Reference dataset updated from CaSR v2.1 to CaSR v3.2;
-  * Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
-  * Workflow executed using [snakemake](https://snakemake.readthedocs.io/)
-  * Data is available in netCDF on PAVICS: https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/birdhouse/disk3/ouranos/ESPO-G/ESPO-G6-post2100_v2.0/catalog.html
+* Covers the period from 1950 to 2300;
+* Reference dataset updated from CaSR v2.1 to CaSR v3.2;
+* Fix bug on adapt freq (https://github.com/Ouranosinc/ESPO-G/issues/8)
+* Workflow executed using [snakemake](https://snakemake.readthedocs.io/)
+* Data is available in netCDF on PAVICS: https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/catalog/birdhouse/disk3/ouranos/ESPO-G/ESPO-G6-post2100_v2.0/catalog.html
 
-  Branch: `post-2100-narval`
-    
-  History: Ran in 2026-03 within conda environment `xscen-0.13`.
+
+Branch: `post-2100-narval`
+  
+History: Ran in 2026-03 within conda environment `xscen-0.13`.
+
 
 ### ESPO-G6-AHCCD v1
 
