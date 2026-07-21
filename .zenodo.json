@@ -1,0 +1,112 @@
+{
+    "creators": [
+        {
+          "name": "Lavoie, Juliette",
+          "affiliation": "Ouranos",
+          "orcid": "0000-0002-4708-5182"
+        },
+        {
+         "name": "Fortin, Anne-Sophie",
+         "affiliation": "Ouranos",
+         "orcid": "0000-0002-5547-5412"
+        },
+        {
+         "name": "Bresson, Émilie",
+         "affiliation": "Ouranos",
+         "orcid": "0000-0002-5289-4937"
+        },
+        {
+          "name": "Bourgault, Pascal",
+          "affiliation": "Ouranos",
+          "orcid": "0000-0003-1192-0403"
+        },
+        {
+          "name": "Logan, Travis",
+          "affiliation": "Ouranos",
+          "orcid": "0000-0002-2212-9580"
+        },
+        {
+            "name": "Caron, Louis-Philippe",
+            "affiliation": "Ouranos",
+            "orcid": "0000-0001-5221-0147"
+        },
+        {
+            "name": "Gammon, Sarah",
+            "affiliation": "Ouranos",
+            "orcid":"0009-0007-6082-9063"
+        },
+        {
+          "name": "Smith, Trevor James",
+          "affiliation": "Ouranos",
+          "orcid": "0000-0001-5393-8359"
+        },
+        {
+          "name": "Biner, Sébastien",
+          "orcid": "0000-0001-7515-490X"
+        },
+        {
+          "name": "Braun, Marco",
+          "affiliation": "Ouranos",
+          "orcid": "0000-0001-5061-3217"
+        },
+        {
+         "name": "Huard, David",
+         "affiliation": "Ouranos", 
+         "orcid": "0000-0003-0311-5498"
+        }
+    ],
+
+    "license": "Apache-2.0", "upload_type": "software", "access_right": "open", "title": "ESPO-G6-P2100 v2: Ensemble de scénarios polyvalents d'Ouranos - Modèles Globaux post-2100 / Ouranos post-2100 Multipurpose Climate Scenarios - Global models", 
+    "related_identifiers": [
+  { "scheme": "doi", "identifier": "10.22033/ESGF/CMIP6.3683", "relation": "isDerivedFrom", "resource_type": "dataset"
+  },
+  { "scheme": "doi", "identifier": "10.22033/ESGF/CMIP6.3694", "relation": "isDerivedFrom", "resource_type": "dataset"
+  },
+  { "scheme": "doi", "identifier": "10.22033/ESGF/CMIP6.3696", "relation": "isDerivedFrom", "resource_type": "dataset"
+  },
+  { "scheme": "doi", "identifier": "10.22033/ESGF/CMIP6.4221", "relation": "isDerivedFrom", "resource_type": "dataset"
+  },
+  { "scheme": "doi", "identifier": "10.22033/ESGF/CMIP6.4332", "relation": "isDerivedFrom", "resource_type": "dataset"
+  },
+  { "scheme": "doi", "identifier": "10.22033/ESGF/CMIP6.4320", "relation": "isDerivedFrom", "resource_type": "dataset"
+  },
+  { "scheme": "doi", "identifier": "10.22033/ESGF/CMIP6.4333", "relation": "isDerivedFrom", "resource_type": "dataset"
+  },
+  { "scheme": "doi", "identifier": "10.22033/ESGF/CMIP6.4876", "relation": "isDerivedFrom", "resource_type": "dataset"
+  },
+  { "scheme": "doi", "identifier": "10.22033/ESGF/CMIP6.4882", "relation": "isDerivedFrom", "resource_type": "dataset"
+  },
+  { "scheme": "doi", "identifier": "10.22033/ESGF/CMIP6.4886", "relation": "isDerivedFrom", "resource_type": "dataset"
+  },
+  { "scheme": "doi", "identifier": "10.22033/ESGF/CMIP6.4914", "relation": "isDerivedFrom", "resource_type": "dataset"
+  },
+  { "scheme": "doi", "identifier": "10.22033/ESGF/CMIP6.6333", "relation": "isDerivedFrom", "resource_type": "dataset"
+  },
+  { "scheme": "doi", "identifier": "10.22033/ESGF/CMIP6.6405", "relation": "isDerivedFrom", "resource_type": "dataset"
+  },
+  { "scheme": "doi", "identifier": "10.22033/ESGF/CMIP6.6909", "relation": "isDerivedFrom", "resource_type": "dataset"
+  },
+  { "scheme": "doi", "identifier": "10.22033/ESGF/CMIP6.6927", "relation": "isDerivedFrom", "resource_type": "dataset"
+  },
+  { "scheme": "doi", "identifier": "10.22033/ESGF/CMIP6.6929", "relation": "isDerivedFrom", "resource_type": "dataset"
+  },
+  { "scheme": "doi", "identifier": "10.22033/ESGF/CMIP6.8321", "relation": "isDerivedFrom", "resource_type": "dataset"
+  }
+            ],
+
+    "keywords": [
+        "climate", 
+        "bias adjustment", 
+        "quantile mapping",
+        "North America",
+        "analysis",
+        "bias correction",
+        "climatology",
+        "climate change",
+        "climate data",
+        "climate indicators",
+        "climate simulation",
+        "post-2100",
+        "CaSR"
+    ]
+}
