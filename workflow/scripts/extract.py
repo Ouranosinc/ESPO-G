@@ -49,6 +49,8 @@ if __name__ == "__main__":
     )
 
     # extract all the member
+    # FIXME: in a future version, capture tracking_ids here
+    # https://github.com/Ouranosinc/ESPO-G/issues/15
     real = []
     for subcat in cat_sim_id.values():
         dict_sim = xs.extract_dataset(
