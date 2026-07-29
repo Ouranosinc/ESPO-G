@@ -28,12 +28,17 @@ if __name__ == "__main__":
     zenodo_dict = {}
     zenodo_dict["related_identifiers"] = [{"CRCM5-SN": "no dataset DOI."}]
     all_dois = []
-    for sim_id, tracking_ids in tracking_ids_dict.items():
-        if "ScenarioMIP" in sim_id:  # cmipcite doesn't work for CORDEX yet
-            print(sim_id)
+    missing_1 = []
+    missing_2 = []
+    got_all = []
+    for pool_id, tracking_ids in tracking_ids_dict.items():
+        if "ScenarioMIP" in pool_id:  # no citation CORDEX
+            print(pool_id)
             dois = []
+
             for t in tracking_ids:
                 if t is not None:
+                    # print(t)
                     try:
                         dois.append(
                             get_doi_and_version(
@@ -41,20 +46,23 @@ if __name__ == "__main__":
                                 doi_granularity="experiment",
                                 # sometimes doi not connected to latest
                                 multi_dataset_handling="first",
+                                # FIXME: update when new arg in cmip PR merge
                             )[0]
                         )
                     except ValueError:
                         print(f"cmipcite failed on {t}")
             dois = list(set(dois))
             if len(dois) == 0:
-                zenodo_dict["related_identifiers"].append(
-                    {sim_id: "No DOI found. Add it by hand."}
-                )
+                missing_2.append(pool_id)
             elif len(dois) == 1:  # should have a ssp and a historical DOI
-                zenodo_dict["related_identifiers"].append(
-                    {sim_id: "One DOI missing.Add it by hand."}
-                )
+                missing_1.append(pool_id)
+            else:
+                got_all.append(pool_id)
+
             all_dois.extend(dois)
+    zenodo_dict["related_identifiers"].append({'missing 1': list(set(missing_1))})
+    zenodo_dict["related_identifiers"].append({'missing 2': list(set(missing_2))})
+    zenodo_dict["related_identifiers"].append({'got all': list(set(got_all))})
     # remove duplicate historical
     all_dois = list(set(all_dois))
     for doi in all_dois:
