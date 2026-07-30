@@ -1,4 +1,4 @@
-#Configuration file for ESPO v2.0
+#Configuration file for Scaling method
 
 subregions:
   n: 50000 # number of loc in each subregions

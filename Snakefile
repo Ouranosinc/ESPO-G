@@ -12,10 +12,10 @@ import xscen as xs
 import numpy as np
 
 #TODO: put the right config
-#configfile: "config/config_ESPO.yml"
-#configfile: "config/paths_ESPO.yml"
-configfile: "config/ARCHES/config_Scaling.yml"
-configfile: "config/ARCHES/paths_Scaling.yml"
+configfile: "config/config_ESPO.yml"
+configfile: "config/paths_ESPO.yml"
+# configfile: "config/ARCHES/config_Scaling.yml"
+# configfile: "config/ARCHES/paths_Scaling.yml"
 
 # Choose the simulations, diag, ref and dom to process
 dict_sim_id = xs.search_data_catalogs(**copy.deepcopy(config['extraction']['simulation']['search_data_catalogs'],))
@@ -97,7 +97,6 @@ rule all:
         expand(finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
         expand(finaldir/"checks/QC/{sim_id}+{ref}+{dom}+QC_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
         expand(finaldir/"preswap/dtrpreswap_day_ESPO6_v20_{ref}+{sim_id}_{dom}.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
-        # TODO:run diag in a second wave
         expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
 
 rule makeref:

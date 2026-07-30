@@ -66,3 +66,4 @@ max-doc-length = 180
 
 [lint.pydocstyle]
 convention = "numpy"
+
