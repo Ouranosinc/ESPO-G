@@ -20,8 +20,6 @@ if __name__ == '__main__':
     coords = snakemake.input.coords
     output_prop_bilinear = snakemake.output.prop_bilinear
     # output_prop_conservative = snakemake.output.prop_conservative
-    # output_meas_bilinear = snakemake.output.meas_bilinear
-    # output_meas_conservative = snakemake.output.meas_conservative
     dregion = snakemake.wildcards.dregion
     config = deepcopy(snakemake.config)
     
@@ -55,10 +53,6 @@ if __name__ == '__main__':
     # ds_b = ds_b.load()
     # ds_c = xs.utils.stack_drop_nans(ds_c, mask=ds_c["pr"].isel(time=0).notnull().drop_vars("time").load(), to_file=str(Path(os.environ['SLURM_TMPDIR']) / f"coords_diag_regridded_conservative_{dregion}_{Path(input_c).stem}.nc"))
     # ds_c = ds_c.load()
-    # ds_ref_prop = xs.utils.stack_drop_nans(ds_ref_prop, mask=ds_ref_prop[[v for v in ds_ref_prop.data_vars][0]].notnull().load())
-    # ds_ref_prop = ds_ref_prop.load()
-    # ds_ref_prop_b = ds_ref_prop.sel(loc=ds_b["loc"])
-    # ds_ref_prop_c = ds_ref_prop.sel(loc=ds_c["loc"])
 
     # Add tas
     ds_b["tas"] = (ds_b["tasmax"] + ds_b["tasmin"]) / 2
@@ -66,20 +60,11 @@ if __name__ == '__main__':
 
     # Diagnostics
     ds_simb_prop, _ = xs.properties_and_measures(ds=ds_b.chunk({"time": -1}), **config['diagnostics']['properties_and_measures'])
-    # ds_simb_prop, ds_simb_meas = xs.properties_and_measures(ds=ds_b, dref_for_measure=ds_ref_prop_b, **config['diagnostics']['properties_and_measures'])
-    # ds_simc_prop, ds_simc_meas = xs.properties_and_measures(ds=ds_c, dref_for_measure=ds_ref_prop_c, **config['diagnostics']['properties_and_measures'])
+    # ds_simc_prop, _ = xs.properties_and_measures(ds=ds_c.chunk({"time": -1}), **config['diagnostics']['properties_and_measures'])
 
     # # FIXME: Continuation of the Dask/xsdba issue.
-    # for c in ds_simb_prop.coords:
-    #     if c not in ds_simb_meas.coords:
-    #         ds_simb_meas.coords[c] = ds_simb_prop.coords[c]
-    # for c in ds_simc_prop.coords:
-    #     if c not in ds_simc_meas.coords:
-    #         ds_simc_meas.coords[c] = ds_simc_prop.coords[c]
     ds_simb_prop = xs.utils.unstack_fill_nan(ds_simb_prop, coords=str(Path(os.environ['SLURM_TMPDIR']) / f"coords_diag_regridded_bilinear_{dregion}_{Path(input_b).stem}.nc"))
-    # ds_simb_meas = xs.utils.unstack_fill_nan(ds_simb_meas, coords=str(Path(os.environ['SLURM_TMPDIR']) / f"coords_diag_regridded_bilinear_{dregion}_{Path(input_b).stem}.nc"))
     # ds_simc_prop = xs.utils.unstack_fill_nan(ds_simc_prop, coords=str(Path(os.environ['SLURM_TMPDIR']) / f"coords_diag_regridded_conservative_{dregion}_{Path(input_c).stem}.nc"))
-    # ds_simc_meas = xs.utils.unstack_fill_nan(ds_simc_meas, coords=str(Path(os.environ['SLURM_TMPDIR']) / f"coords_diag_regridded_conservative_{dregion}_{Path(input_c).stem}.nc"))
 
     # Save
     def _save(ds, output):
@@ -88,6 +73,4 @@ if __name__ == '__main__':
         else:
             xs.save_to_zarr(ds, output, rechunk=config['chunks']['diag'], encoding={v: {"dtype": "float32"} for v in ds.data_vars})
     _save(ds_simb_prop, output_prop_bilinear)
-    # _save(ds_simb_meas, output_meas_bilinear)
     # _save(ds_simc_prop, output_prop_conservative)
-    # _save(ds_simc_meas, output_meas_conservative)
