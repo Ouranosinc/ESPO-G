@@ -1,0 +1,39 @@
+indicators:
+  tx_mean_annual:
+    base: tx_mean
+    cf_attrs:
+      var_name: tx_mean
+    parameters:
+      freq: YS
+  tn_mean_annual:
+    base: tn_mean
+    cf_attrs:
+      var_name: tn_mean
+    parameters:
+      freq: YS
+  tx_days_above_32_annual:
+    base: tx_days_above
+    cf_attrs:
+      var_name: tx_days_above_32
+    parameters:
+      thresh: 32 degC
+      freq: YS
+  prcptot_annual:
+    base: prcptot
+    cf_attrs:
+      var_name: prcptot
+    parameters:
+      freq: YS
+  pr_days_above_20_annual:
+    base: wetdays
+    cf_attrs:
+      var_name: pr_days_above_20
+    parameters:
+      thresh: "20 mm/d"
+      freq: YS
+  rx1day_annual:
+    base: rx1day
+    cf_attrs:
+      var_name: rx1day
+    parameters:
+      freq: YS

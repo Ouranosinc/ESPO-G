@@ -127,3 +127,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# other
+.snakemake/
+slurm*
+s_logs*/
+*.sh
+pre-workflow/*.sh
+.vscode/
+config/paths_*
+config/ARCHES/paths_*
