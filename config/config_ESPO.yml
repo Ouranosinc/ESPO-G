@@ -6,11 +6,11 @@ subregions:
 
 full_region:
   name: &domain
-    NAM
+    IDM
   method: bbox
   tile_buffer: 1.5 #removed in make ref
-  lon_bnds: [ -179.95, -10 ]
-  lat_bnds: [ 12.5, 83.4 ]
+  lon_bnds: [ -62.5, -61 ]
+  lat_bnds: [ 46.9, 48 ]
 
 
 extraction:
@@ -22,18 +22,18 @@ extraction:
           tasmin: D
           pr: D
           dtr: D
-          mask: fx # for casr
-          orog: fx
+          #mask: fx # for casr
+          #orog: fx
         allow_resampling: False
         allow_conversion: True
         periods : &ref_period
-          - '1991'
-          - '2020'
+          - '1989'
+          - '2023'
         other_search_criteria: # for casr
           source: "CaSR"
           version: "v32"
       extract_dataset: # for casr
-            mask: True
+            mask: False
   simulation:
       search_data_catalogs:
         variables_and_freqs:
@@ -41,7 +41,7 @@ extraction:
           tasmin: D
           pr: D
           dtr: D
-          sftlf: fx
+          #sftlf: fx
         match_hist_and_fut: True
         allow_conversion: True
         allow_resampling: False
@@ -84,7 +84,6 @@ extraction:
         xr_combine_kwargs:
           combine_attrs: override
         xr_open_kwargs:
-          engine: h5netcdf
           drop_variables:
             - height
             - bnds
@@ -95,11 +94,11 @@ extraction:
             - quantization_info
             - compression_info # makes extract fail
             #- crs #need to keep for data extent in concat_clean_up
-      create_mask:
-        variable: sftlf
-        where_operator: ">="
-        where_threshold: 25
-        mask_nans: True
+      #create_mask:
+      #  variable: sftlf
+      #  where_operator: ">="
+      #  where_threshold: 0
+      #  mask_nans: True
   clean_up:
     variables_and_units:
       tasmax: K
@@ -116,12 +115,12 @@ regrid:
         reuse_weights: False
       intermediate_grids:
         reg1:
-          cf_grid_2d:
-            lon0_b: 179.05
-            lon1_b: 351.2
+          cf_grid_2d: # -62.5, -61; 46.9, 48
+            lon0_b: 296.5
+            lon1_b: 300.5
             d_lon: 1
-            lat0_b: 9
-            lat1_b: 84
+            lat0_b: 45
+            lat1_b: 50
             d_lat: 1
           regridder_kwargs:
             method: bilinear
@@ -130,11 +129,11 @@ regrid:
             reuse_weights: False
         reg2:
           cf_grid_2d:
-            lon0_b: 179.04
-            lon1_b: 351.2
+            lon0_b: 296.5
+            lon1_b: 300.5
             d_lon: 0.5
-            lat0_b: 8.9
-            lat1_b: 84
+            lat0_b: 45
+            lat1_b: 50
             d_lat: 0.5
           regridder_kwargs:
             method: bilinear
@@ -204,7 +203,7 @@ biasadjust:
                 period: *ref_period
                 group: *group
                 jitter_under:
-                    thresh: 0.01 mm d-1
+                    thresh: "1.1574e-07 kg m^-2 s^-1" #0.01 mm d-1
                 xsdba_train_args:
                     kind: "*"
                     nquantiles: 50
@@ -316,32 +315,38 @@ clean_up:
             long_name: Minimal daily temperature
             cell_methods: "time: minimum within days"
 
-diagregion:   
-  Magtogoek:
-    name: Magtogoek
+diagregion:
+  IDM:
+    Name: Iles de la Madeleine
     method: bbox
-    lat_bnds:  [ 41.4, 49.4] 
-    lon_bnds: [ -92.2, -59.8 ]
-  Cree:
-    name: Cree
-    method: bbox
-    lat_bnds: [ 46.9, 53.8 ]
-    lon_bnds: [ -115, -97.1 ]
-  Ute:
-    name: Ute
-    method: bbox
-    lat_bnds:  [ 35.5, 43]
-    lon_bnds: [ -109.6, -95.5 ]
-  Tlicho:
-    name: Tlicho
-    method: bbox
-    lat_bnds:  [ 61.3, 66.75]
-    lon_bnds: [ -130, -103.8 ]
-  Atlas:
-    name: Atlas
-    method: bbox
-    lon_bnds: [-83 ,-55 ] 
-    lat_bnds: [42, 53]
+    lon_bnds: [ -62.5, -61 ]
+    lat_bnds: [ 46.9, 48 ]
+
+  #Magtogoek:
+  #  name: Magtogoek
+  #  method: bbox
+  #  lat_bnds:  [ 41.4, 49.4] 
+  #  lon_bnds: [ -92.2, -59.8 ]
+  #Cree:
+  #  name: Cree
+  #  method: bbox
+  #  lat_bnds: [ 46.9, 53.8 ]
+  #  lon_bnds: [ -115, -97.1 ]
+  #Ute:
+  #  name: Ute
+  #  method: bbox
+  #  lat_bnds:  [ 35.5, 43]
+  #  lon_bnds: [ -109.6, -95.5 ]
+  #Tlicho:
+  #  name: Tlicho
+  #  method: bbox
+  #  lat_bnds:  [ 61.3, 66.75]
+  #  lon_bnds: [ -130, -103.8 ]
+  #Atlas:
+  #  name: Atlas
+  #  method: bbox
+  #  lon_bnds: [-83 ,-55 ] 
+  #  lat_bnds: [42, 53]
 
 diagnostics:
   properties_and_measures:
@@ -355,7 +360,7 @@ diagnostics:
 
 health_checks:
   # for inputs
-  NAM:
+  IDM:
     start_date: &start
       "1951-01-01" 
     end_date: &end
@@ -382,15 +387,17 @@ health_checks:
     flags:
       tasmax:
         temperature_extremely_high:
-          thresh: '80 degC'
+          thresh: '61 degC'
+        tasmax_below_tasmin:
       tasmin:
         temperature_extremely_low:
-          thresh: '-95 degC'
+          thresh: '-80 degC'
       pr:
         negative_accumulation_values: 
         very_large_precipitation_events:
-          thresh: '1650 mm/d'
+          thresh: '400 mm/d'
       dtr:
+        negative_accumulation_values:
         temperature_extremely_low:
           thresh: '-5 K' # allow for up to -5 for issue with grid from GFDL
     return_flags: True
@@ -402,59 +409,10 @@ health_checks:
       - cfchecks
       - freq
       - missing
-  QC:
-    flags: 
-      tasmax:
-        temperature_extremely_high:
-          thresh: '65 degC'
-      tasmin:
-        temperature_extremely_low:
-          thresh: '-70 degC'
-      pr:
-        negative_accumulation_values:
-        very_large_precipitation_events:
-          thresh: '900 mm/d'
-      dtr:
-        temperature_extremely_low:
-          thresh: '-1 K' # allow small neg for known issue with grid from GFDL
-    return_flags: True
-    raise_on: *raise_on
-  # for final
-  finalNAM:
-    start_date: *start
-    end_date: *end
-    variables_and_units: *varunits
-    cfchecks: *cf
-    freq: *freq
-    missing: *missing
-    flags:
-      tasmax:
-        temperature_extremely_high:
-          thresh: '61 degC'
-        tasmax_below_tasmin:
-      tasmin:
-        temperature_extremely_low:
-          thresh: '-80 degC'
-      pr:
-        negative_accumulation_values:
-        very_large_precipitation_events:
-          thresh: '1650 mm/d'
-      dtr:
-        negative_accumulation_values:
-    return_flags: True
-    raise_on: *raise_on
-  finalQC:
-    flags: 
-      pr:
-        negative_accumulation_values:
-        very_large_precipitation_events:
-          thresh: '400 mm/d' 
-    return_flags: True
-    raise_on: *raise_on
 
-QC:
-  name: QC
-  method: shape
+#QC:
+#  name: QC
+#  method: shape
 
 
 io:

@@ -94,8 +94,9 @@ finaldir=Path(config['paths']['final'])
 
 rule all:
     input:
-        expand(finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
-        expand(finaldir/"checks/QC/{sim_id}+{ref}+{dom}+QC_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
+        #expand(finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
+        #expand(finaldir/"checks/QC/{sim_id}+{ref}+{dom}+QC_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
+        expand(finaldir/"checks/IDM/{sim_id}+{ref}+{dom}+IDM_checks.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
         expand(finaldir/"preswap/dtrpreswap_day_ESPO6_v20_{ref}+{sim_id}_{dom}.zarr.zip", sim_id=sim_ids, dom=domain, ref=reference),
         expand(finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",sim_id=sim_ids, dregion=diagregions, dom=domain, ref=reference)
 
@@ -105,9 +106,9 @@ rule makeref:
         ref_stack=finaldir/ "reference/{dom}_{ref}_stacked.zarr.zip",
     params:
         n_workers=6, 
-        mem="90GB",
-        time="00:45:00", 
-        cpus_per_task=4, 
+        mem="10GB",
+        time="00:15:00",
+        cpus_per_task=3, 
     script:
         "workflow/scripts/makeref.py"
 
@@ -119,8 +120,8 @@ rule refsubregion:
         default=finaldir/ "reference/split_regions/{dom}_{ref}_{subregion}_default.zarr.zip",
     params:
         n_workers=2,
-        mem="50GB",
-        cpus_per_task=4,
+        mem="10GB",
+        cpus_per_task=3,
         time="00:15:00",
     script: "workflow/scripts/ref-subregion.py"
 
@@ -130,9 +131,9 @@ rule extract:
         extract=temp(directory(tmpdir/"{pool}+{dom}+extracted.zarr"))
     params:
         n_workers=2,
-        mem="400GB",
-        cpus_per_task=10,
-        time="02:00:00",
+        mem="10GB",
+        cpus_per_task=3,
+        time="00:15:00",
     script:
         "workflow/scripts/extract.py"
 
@@ -145,9 +146,9 @@ rule regrid:
           temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+regridded.zarr"))
      params:
           n_workers=2,
-          cpus_per_task=6,
-          mem='500GB',
-          time="01:00:00",
+          cpus_per_task=3,
+          mem="10GB",
+          time="00:15:00",
      script:
           "workflow/scripts/regrid.py" 
 
@@ -159,9 +160,9 @@ rule rechunk:
           temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+regchunked.zarr"))
      params:
           n_workers=2,
-          cpus_per_task=10,
-          mem='500GB',
-          time="00:30:00",
+          cpus_per_task=3,
+          mem="10GB",
+          time="00:15:00",
      script:
           "workflow/scripts/rechunk.py"
 
@@ -174,9 +175,9 @@ rule train:
         temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+{var}+training.zarr"))
     params:
         n_workers=3,
-        mem='300GB',
-        cpus_per_task=12,
-        time="01:30:00",
+        mem="10GB",
+        cpus_per_task=3,
+        time="00:15:00",
     script:
         "workflow/scripts/train.py"
 
@@ -189,9 +190,9 @@ rule adjust:
         temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+{var}+adjusted.zarr"))
     params:
         n_workers=5,
-        cpus_per_task=15,
-        mem='300GB', 
-        time="00:30:00", 
+        cpus_per_task=3,
+        mem="10GB", 
+        time="00:15:00",
     script:
        "workflow/scripts/adjust.py"
 
@@ -233,9 +234,9 @@ rule swap:
         dtrpreswap = temp(directory(tmpdir/"preswap/{pool}+{dom}+{ref}+{subregion}+dtrpreswap.zarr")),
     params:
         n_workers=5,
-        cpus_per_task=15,
-        mem='300GB', 
-        time="00:10:00", 
+        cpus_per_task=3,
+        mem="10GB", 
+        time="00:15:00",
     script:
         "workflow/scripts/swap_temp.py"
 
@@ -249,9 +250,9 @@ rule rename_files: #to get to adjustedS like swap
         pr = temp(directory(tmpdir/"{pool}+{dom}+{ref}+{subregion}+pr+adjustedS.zarr")),
     params:
         n_workers=5,
-        cpus_per_task=15,
-        mem='300GB', 
-        time="00:05:00", 
+        cpus_per_task=3,
+        mem="10GB", 
+        time="00:15:00",
     shell:
         "mv {input.dtr} {output.dtr} && mv {input.pr} {output.pr}"
 
@@ -264,9 +265,9 @@ rule concat_clean:
         finaldir/"staging/{path}/{var}/{var}_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip", 
     params:
         path=lambda wildcards: final_path(wildcards.sim_id, wildcards.ref),
-        mem="60GB",
-        time="01:00:00", 
-        cpus_per_task=12,
+        mem="10GB",
+        time="00:15:00",
+        cpus_per_task=3,
     script:
         "workflow/scripts/concat_clean_up.py"
 
@@ -278,9 +279,9 @@ rule concat_clean_preswap:
     output: 
         finaldir/"preswap/dtrpreswap_day_ESPO6_v20_{ref}+{sim_id}_{dom}.zarr.zip", 
     params:
-        mem="60GB",
-        time="01:00:00", 
-        cpus_per_task=12,
+        mem="10GB",
+        time="00:15:00",
+        cpus_per_task=3,
     script:
         "workflow/scripts/concat_clean_up.py"
 
@@ -292,13 +293,13 @@ rule health_checks:
         tasmin=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/tasmin/tasmin_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
         dtr=lambda wildcards: finaldir/(f"staging/{final_path(wildcards.sim_id,wildcards.ref)}"+"/dtr/dtr_day_ESPO6_v20_{ref}+{sim_id}_{dom}_1951-2100.zarr.zip"),
     output:
-        NAM=finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip",
-        QC=finaldir/"checks/QC/{sim_id}+{ref}+{dom}+QC_checks.zarr.zip"
+        #NAM=finaldir/"checks/{dom}/{sim_id}+{ref}+{dom}_checks.zarr.zip",
+        IDM=finaldir/"checks/IDM/{sim_id}+{ref}+{dom}+IDM_checks.zarr.zip"
     params:
         n_workers=8,
-        mem='40GB',
-        cpus_per_task=40,
-        time="01:00:00",
+        mem="10GB",
+        cpus_per_task=3,
+        time="00:15:00",
     script:
         "workflow/scripts/health_check.py"
 
@@ -310,9 +311,9 @@ rule diag_ref:
         prop=finaldir/"diagnostics/{ref}/{dom}/{dregion}/ref-prop.zarr.zip"
     params:
         n_workers=6,
-        mem="90GB",
-        time="00:10:00", 
-        cpus_per_task=4,
+        mem="10GB",
+        time="00:15:00",
+        cpus_per_task=3,
     script:
         "workflow/scripts/diag_ref.py"
 
@@ -333,8 +334,9 @@ rule diag:
         imp=finaldir/"diagnostics/{ref}/{dom}/{dregion}/{sim_id}/{sim_id}_{dom}_{dregion}_imp.zarr.zip",
     params:
         n_workers=4, 
-        cpus_per_task=4,
-        mem="400GB", 
-        time="9:00:00", 
+        cpus_per_task=3,
+        mem="10GB", 
+        time="00:15:00",
     script:
         "workflow/scripts/diag.py"
+
