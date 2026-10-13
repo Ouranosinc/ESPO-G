@@ -76,9 +76,11 @@ extraction:
           processing_level: raw
           mip_era: CMIP6
           experiment: # run one exp at the time to avoid exploding scratch quota
-            - ssp245
+            #- ssp245
             - ssp370
-            - ssp585 
+            #- ssp585
+          source:
+            - BCC-CSM2-MR
       extract_dataset:
         periods : *sim_period
         xr_combine_kwargs:
@@ -317,7 +319,7 @@ clean_up:
 
 diagregion:
   IDM:
-    Name: Iles de la Madeleine
+    name: Iles de la Madeleine
     method: bbox
     lon_bnds: [ -62.5, -61 ]
     lat_bnds: [ 46.9, 48 ]

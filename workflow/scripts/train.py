@@ -36,14 +36,19 @@ if __name__ == '__main__':
 
     ds_ref = xr.open_zarr(input_ref, decode_timedelta=False)
     ds_ref = ds_ref.convert_calendar(refcal, align_on="year")
-
-    # training
-    ds_tr = xs.train(
-        dref=ds_ref,
-        dhist=ds_hist,
-        var=[var],
-        **config['biasadjust']['variables'][var]['training_args']
-    )
+    
+    if var == "pr":
+        context = "hydro"
+    else:
+        context = "none"
+    with xc.units.units.context(context):
+        # training
+        ds_tr = xs.train(
+            dref=ds_ref,
+            dhist=ds_hist,
+            var=[var],
+            **config['biasadjust']['variables'][var]['training_args']
+        )
 
     xs.save_to_zarr(
         ds_tr,
