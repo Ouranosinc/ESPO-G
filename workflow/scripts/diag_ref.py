@@ -22,6 +22,7 @@ if __name__ == "__main__":
 
     ds_ref = xr.open_zarr(input_ref, decode_timedelta=False)
     ds_ref = xs.spatial.subset(ds_ref, **config["diagregion"][dregion])
+    ds_ref['pr'].attrs['standard_name']= 'precipitation_flux'
 
     # diagnostics
     with xr.set_options(keep_attrs=True):  # to keep grid_mapping and bias_adj attrs
