@@ -76,11 +76,9 @@ extraction:
           processing_level: raw
           mip_era: CMIP6
           experiment: # run one exp at the time to avoid exploding scratch quota
-            #- ssp245
+            - ssp245
             - ssp370
-            #- ssp585
-          source:
-            - BCC-CSM2-MR
+            - ssp585
       extract_dataset:
         periods : *sim_period
         xr_combine_kwargs:
