@@ -32,17 +32,20 @@ if __name__ == "__main__":
 
     # get right sims from pool name
     poolsplit = pool.split("_")
+    if "other_search_criteria" not in args:
+        args["other_search_criteria"] = {}
+    
     if poolsplit[0] == "ScenarioMIP":  # GCM
-        args["other_search_criteria"] = {
+        args["other_search_criteria"].update({
             "source": poolsplit[1],
             "experiment": poolsplit[2],
-        }
+        })
     else:  # RCM
-        args["other_search_criteria"] = {
+        args["other_search_criteria"].update({
             "source": poolsplit[0],
             "experiment": poolsplit[2],
             "driving_model": poolsplit[1],
-        }
+        })
     # search cat
     cat_sim_id = xs.search_data_catalogs(
         **args,
@@ -73,34 +76,42 @@ if __name__ == "__main__":
             ds_sim.time != (ds_sim.time.sel(time="2014-12-31").values),
         )
     if "UKESM1-0-LL_ssp370" in pool:  # 1024mm on QC, replace with spatial neighbor mean
-        ilat = ds_sim["lat"].values.tolist().index(49.375)
-        ilon = ds_sim["lon"].values.tolist().index(285.9375)
-        mean_around = (
-            ds_sim.sel(
-                time="2100-08-11",
-                realization="CMIP6_ScenarioMIP_MOHC_UKESM1-0-LL_ssp370_r1i1p1f2_global",
-            )
-            .isel(
-                lat=slice(ilat - 1, ilat + 2),
-                lon=slice(ilon - 1, ilon + 2),
-            )
-            .squeeze()
-            .pr.values
-        )
-        mean_around[1, 1] = np.nan
-        fillval = np.nanmean(mean_around)
-        ds_sim["pr"] = ds_sim["pr"].where(
-            ~(
-                (ds_sim.lat == 49.375)
-                & (ds_sim.lon == 285.9375)
-                & (ds_sim.time == ds_sim.time.sel(time="2100-08-11").values)
-                & (
-                    ds_sim.realization
-                    == "CMIP6_ScenarioMIP_MOHC_UKESM1-0-LL_ssp370_r1i1p1f2_global"
+        latcorr = 49.375
+        loncorr = 285.9375
+        if (ds_sim['lat'].min() <= latcorr
+            and ds_sim['lat'].max() >= latcorr
+            and ds_sim['lon'].min() <= loncorr
+            and ds_sim['lon'].max() >= loncorr
+           ):
+                
+            ilat = ds_sim["lat"].values.tolist().index(latcorr)
+            ilon = ds_sim["lon"].values.tolist().index(loncorr)
+            mean_around = (
+                ds_sim.sel(
+                    time="2100-08-11",
+                    realization="CMIP6_ScenarioMIP_MOHC_UKESM1-0-LL_ssp370_r1i1p1f2_global",
                 )
-            ),
-            other=fillval,
-        )
+                .isel(
+                    lat=slice(ilat - 1, ilat + 2),
+                    lon=slice(ilon - 1, ilon + 2),
+                )
+                .squeeze()
+                .pr.values
+            )
+            mean_around[1, 1] = np.nan
+            fillval = np.nanmean(mean_around)
+            ds_sim["pr"] = ds_sim["pr"].where(
+                ~(
+                    (ds_sim.lat == latcorr)
+                    & (ds_sim.lon == loncorr)
+                    & (ds_sim.time == ds_sim.time.sel(time="2100-08-11").values)
+                    & (
+                        ds_sim.realization
+                        == "CMIP6_ScenarioMIP_MOHC_UKESM1-0-LL_ssp370_r1i1p1f2_global"
+                    )
+                ),
+                other=fillval,
+            )
 
     # https://errata.esgf.io/static/view.html?uid=76b3f818-d65f-c76b-bfd8-cae5bc27825c
     if "UKESM1-0-LL" in pool:

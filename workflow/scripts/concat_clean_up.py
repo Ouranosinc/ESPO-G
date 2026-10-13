@@ -66,10 +66,8 @@ if __name__ == "__main__":
 
     # coords lat, lon are not dask now, so will not be rechunked. need to do it by hand.
     if "rlat" in ds and "lat" in ds:
-        ds["lat"] = ds["lat"].chunk({"rlat": chunks["Y"], "rlon": chunks["X"]})
-        ds["lon"] = ds["lon"].chunk({"rlat": chunks["Y"], "rlon": chunks["X"]})
-        # next 2 lines were added after v2 was run
-        ds["mask"] = ds["mask"].chunk({"rlat": chunks["Y"], "rlon": chunks["X"]})
-        ds["orog"] = ds["orog"].chunk({"rlat": chunks["Y"], "rlon": chunks["X"]})
+        for v in ["lar","lon","mask","orog"]:
+            if v in ds.variables:
+                ds[v] = ds[v].chunk({"rlat": chunks["Y"], "rlon": chunks["X"]})
 
     xs.save_to_zarr(ds, output, **config["save_to_zarr"], rechunk=chunks)
