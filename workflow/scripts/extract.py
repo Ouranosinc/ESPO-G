@@ -43,6 +43,21 @@ if __name__ == "__main__":
             "experiment": poolsplit[2],
             "driving_model": poolsplit[1],
         }
+
+    # sarah's fix to only get raw data #FIXME: add in afuture version
+    # # get right sims from pool name
+    # poolsplit = pool.split("_")
+    # if poolsplit[0] == "ScenarioMIP":  # GCM
+    #     args["other_search_criteria"].update({
+    #         "source": poolsplit[1],
+    #         "experiment": poolsplit[2],
+    #     })
+    # else:  # RCM
+    #     args["other_search_criteria"].update({
+    #         "source": poolsplit[0],
+    #         "experiment": poolsplit[2],
+    #         "driving_model": poolsplit[1],
+    #     })
     # search cat
     cat_sim_id = xs.search_data_catalogs(
         **args,

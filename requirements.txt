@@ -34,7 +34,6 @@ connection_pool==0.0.3+computecanada
 cssselect2==0.9.0+computecanada
 dask==2026.3.0+computecanada
 dask_jobqueue==0.9.0+computecanada
-dask_labextension==7.0.0
 defusedxml==0.7.1+computecanada
 deprecated==1.3.1+computecanada
 distributed==2026.3.0+computecanada
@@ -86,7 +85,6 @@ jupyter_server_terminals==0.5.4+computecanada
 jupyterlab==4.5.2+computecanada
 jupyterlab_pygments==0.3.0+computecanada
 jupyterlab_server==2.28.0+computecanada
-jupyterlmod==5.3.0+computecanada
 lark==1.3.1+computecanada
 lazy_loader==0.5+computecanada
 llvmlite==0.47.0+computecanada
