@@ -5,7 +5,8 @@ from pathlib import Path
 import xarray as xr
 import xscen as xs
 from xscen import CONFIG
-
+import glob
+from dask.distributed import Client, LocalCluster
 
 xs.load_config(
     "../config/ARCHES/config_ARCHES.yml",
@@ -229,67 +230,67 @@ ids = [
 
 
 if __name__ == "__main__":
-    # if not Path(f"{CONFIG['arches']}/inversion").exists():
-    #     Path(f"{CONFIG['arches']}/inversion").mkdir(parents=True, exist_ok=True)
+    if not Path(f"{CONFIG['arches']}/inversion").exists():
+        Path(f"{CONFIG['arches']}/inversion").mkdir(parents=True, exist_ok=True)
 
-    # for sim_id in ids:
-    #     if "ssp370" in sim_id:
-    #         # original dtr to find mask of inversions.
-    #         dtrpreswap = xr.open_zarr(
-    #             f"{CONFIG['espo']}/preswap/dtrpreswap_day_ESPO6_v20_CaSR+{sim_id}_NAM.zarr.zip"
-    #         )
-    #         dtrpreswap = dtrpreswap.convert_calendar(
-    #             calendar="standard", use_cftime=False, align_on="year"
-    #         )
-    #         swap = (dtrpreswap < 0).resample(time="QS-DEC").sum()
-    #         swap = swap.sel(time=slice("1951-01", "2099-11"))
-    #         swap = xs.utils.unstack_dates(swap).expand_dims(realization=[sim_id])
-    #         total = dtrpreswap.resample(time="QS-DEC").count()
-    #         total = total.sel(time=slice("1951-01", "2099-11"))
-    #         total = xs.utils.unstack_dates(total).expand_dims(realization=[sim_id])
-    #         if not Path(
-    #             f"{CONFIG['arches']}/inversion/ds_total_{sim_id}.zarr.zip"
-    #         ).exists():
-    #             xs.save_to_zarr(
-    #                 swap,
-    #                 f"{CONFIG['arches']}/inversion/ds_swap_{sim_id}.zarr.zip",
-    #                 zip_zarrdir="${SLURM_TMPDIR}",
-    #             )
-    #             xs.save_to_zarr(
-    #                 total,
-    #                 f"{CONFIG['arches']}/inversion/ds_total_{sim_id}.zarr.zip",
-    #                 zip_zarrdir="${SLURM_TMPDIR}",
-    #             )
-    # swaps = []
-    # totals = []
-    # for sim_id in ids:
-    #     if "ssp370" in sim_id:
-    #         swap = xr.open_zarr(
-    #             f"{CONFIG['arches']}/inversion/ds_swap_{sim_id}.zarr.zip"
-    #         )
-    #         swaps.append(swap)
-    #         total = xr.open_zarr(
-    #             f"{CONFIG['arches']}/inversion/ds_total_{sim_id}.zarr.zip"
-    #         )
-    #         totals.append(total)
+    for sim_id in ids:
+        if "ssp370" in sim_id:
+            # original dtr to find mask of inversions.
+            dtrpreswap = xr.open_zarr(
+                f"{CONFIG['espo']}/preswap/dtrpreswap_day_ESPO6_v20_CaSR+{sim_id}_NAM.zarr.zip"
+            )
+            dtrpreswap = dtrpreswap.convert_calendar(
+                calendar="standard", use_cftime=False, align_on="year"
+            )
+            swap = (dtrpreswap < 0).resample(time="QS-DEC").sum()
+            swap = swap.sel(time=slice("1951-01", "2099-11"))
+            swap = xs.utils.unstack_dates(swap).expand_dims(realization=[sim_id])
+            total = dtrpreswap.resample(time="QS-DEC").count()
+            total = total.sel(time=slice("1951-01", "2099-11"))
+            total = xs.utils.unstack_dates(total).expand_dims(realization=[sim_id])
+            if not Path(
+                f"{CONFIG['arches']}/inversion/ds_total_{sim_id}.zarr.zip"
+            ).exists():
+                xs.save_to_zarr(
+                    swap,
+                    f"{CONFIG['arches']}/inversion/ds_swap_{sim_id}.zarr.zip",
+                    zip_zarrdir="${SLURM_TMPDIR}",
+                )
+                xs.save_to_zarr(
+                    total,
+                    f"{CONFIG['arches']}/inversion/ds_total_{sim_id}.zarr.zip",
+                    zip_zarrdir="${SLURM_TMPDIR}",
+                )
+    swaps = []
+    totals = []
+    for sim_id in ids:
+        if "ssp370" in sim_id:
+            swap = xr.open_zarr(
+                f"{CONFIG['arches']}/inversion/ds_swap_{sim_id}.zarr.zip"
+            )
+            swaps.append(swap)
+            total = xr.open_zarr(
+                f"{CONFIG['arches']}/inversion/ds_total_{sim_id}.zarr.zip"
+            )
+            totals.append(total)
 
-    # ds_swap = xr.concat(swaps, dim="realization")
-    # ds_total = xr.concat(totals, dim="realization")
+    ds_swap = xr.concat(swaps, dim="realization")
+    ds_total = xr.concat(totals, dim="realization")
 
-    # p = f"{CONFIG['arches']}/inversion/ds_swap.zarr.zip"
-    # if not Path(p).exists():
-    #     xs.save_to_zarr(
-    #         ds_swap,
-    #         p,
-    #         zip_zarrdir="${SLURM_TMPDIR}",
-    #     )
-    # p = f"{CONFIG['arches']}/inversion/ds_total.zarr.zip"
-    # if not Path(p).exists():
-    #     xs.save_to_zarr(
-    #         ds_total,
-    #         p,
-    #         zip_zarrdir="${SLURM_TMPDIR}",
-    #     )
+    p = f"{CONFIG['arches']}/inversion/ds_swap.zarr.zip"
+    if not Path(p).exists():
+        xs.save_to_zarr(
+            ds_swap,
+            p,
+            zip_zarrdir="${SLURM_TMPDIR}",
+        )
+    p = f"{CONFIG['arches']}/inversion/ds_total.zarr.zip"
+    if not Path(p).exists():
+        xs.save_to_zarr(
+            ds_total,
+            p,
+            zip_zarrdir="${SLURM_TMPDIR}",
+        )
 
     ds_swap = xr.open_zarr(f"{CONFIG['arches']}/inversion/ds_swap.zarr.zip")
     ds_total = xr.open_zarr(f"{CONFIG['arches']}/inversion/ds_total.zarr.zip")
@@ -311,3 +312,50 @@ if __name__ == "__main__":
                     p,
                     zip_zarrdir="${SLURM_TMPDIR}",
                 )
+
+    # combination for mean neg dtr figure
+
+    cluster = LocalCluster(
+        n_workers=4,
+        threads_per_worker=3,
+        memory_limit="100GB",
+        **CONFIG["dask"]["client"],
+    )
+    client = Client(cluster)
+
+    alldtrs = []
+    for f in glob.glob(
+        f"{CONFIG['espo']}/preswap/dtrpreswap_day_ESPO6_v20_CaSR+*ssp370*_NAM.zarr.zip"
+    ):
+        dtrpreswap = xr.open_zarr(f, decode_timedelta=False)
+        path = f"{CONFIG['espo']}/preswap/meannegdtr/meannegdtrdtrpreswap_day_{dtrpreswap.attrs['cat:id']}.zarr.zip"
+        if not Path(path).exists():
+            cur = (
+                dtrpreswap.where(dtrpreswap < 0)
+                .resample(time="QS-DEC")
+                .mean("time", skipna=True)
+            )
+            cur = xs.utils.unstack_dates(cur)
+            cur["time"] = cur.indexes["time"].to_datetimeindex()
+            cur = cur.drop_vars(["orog", "mask", "original_time"])
+            cur = cur.chunk({"time": -1, "season": 1, "rlat": 50, "rlon": 50})
+            xs.save_to_zarr(
+                cur,
+                path,
+                zip_zarrdir="${SLURM_TMPDIR}",
+            )
+    alldtrs = []
+    for f in glob.glob(
+        f"{CONFIG['espo']}/preswap/meannegdtr/meannegdtrdtrpreswap_day_*ssp370*_NAM.zarr.zip"
+    ):
+        cur = xr.open_zarr(f, decode_timedelta=False)
+        alldtrs.append(cur)
+    ens = xr.concat(alldtrs, dim="realization")
+    ens = ens.chunk(
+        {"time": -1, "season": 1, "rlat": 50, "rlon": 50, "realization": -1}
+    )
+    xs.save_to_zarr(
+        ens,
+        f"{CONFIG['espo']}/preswap/ens_dtrpreswap_day_ESPO6_v20_CaSR_NAM.zarr.zip",
+        zip_zarrdir="${SLURM_TMPDIR}",
+    )

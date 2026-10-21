@@ -61,7 +61,7 @@ The simulation included are: ![available model](notebooks/tree_of_inputs.png)
 | ACCESS-CM2     |r1i1p1f1| 2.1  | ✓ |
 | ACCESS-ESM1-5  |r1i1p1f1| 1.95 | ✓ |
 | BCC-CSM2-MR    |r1i1p1f1| 1.72 | ✓ |
-| CMCC-ESM2      |r1i1p1f1| 1.92*| ✓ |
+| CMCC-ESM2      |r1i1p1f1| 1.94 | ✓ |
 | CNRM-CM6-1     |r1i1p1f2| 2.14 | ✓ |
 | CNRM-ESM2-1    |r1i1p1f2| 1.86 | ✓ |
 | FGOALS-g3      |r1i1p1f1| 1.54 | ✓ |
@@ -87,7 +87,6 @@ The simulation included are: ![available model](notebooks/tree_of_inputs.png)
 Licences: All members have a CC BY 4.0 license. https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id_licenses.html
 
 TCR: Computed using ESMValTool (https://docs.esmvaltool.org/en/latest/recipes/recipe_tcr.html), as done in the IPCC AR6. A previous version of this table used Hausfather et al. 2022, Climate simulations: recognize the 'hot model' problem, comment in Nature: [DOI: 10.5281/zenodo.6476375](https://doi.org/10.5281/zenodo.6476375) and gave slightly different results.   See https://github.com/Ouranosinc/ESPO-G/issues/7 for discussion.
-*Note that the CMCC-ESM2 TCR is not available with the ESMValTool method. We show the one from Hausfather et al. (2022) instead.
 
 
 #### History:
