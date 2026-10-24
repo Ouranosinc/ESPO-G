@@ -1,0 +1,69 @@
+line-length = 150
+
+[format]
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+indent-style = "space"
+quote-style = "double"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[lint]
+extend-select = [
+  "D213", # multi-line-summary-second-line
+  "RUF022" # unsorted-dunder-all
+]
+ignore = [
+  "COM", # commas
+  "D205", # blank-line-after-summary
+  "D400", # ends-in-period
+  "D401", # non-imperative-mood
+  # The following is disabled due to a bug in ruff 0.15.4 (#23682)
+  "D420",
+  # The following are disabled because the codebase is not yet compliant.
+  "N801", # invalid-class-name
+  "N806", # non-lowercase-variable-in-function
+  "PERF203", # try-except-in-loop
+  "PERF401", # manual-list-comprehension
+  "S110" # try-except-pass
+]
+preview = true
+select = [
+  "B", # bugbear
+  "BLE", # blind-except
+  "C90", # mccabe-complexity
+  "D", # docstrings
+  "E", # pycodestyle errors
+  "F", # pyflakes
+  "FLY002", # static-join-to-fstring
+  "G", # logging-format
+  "I", # imports
+  "N", # naming conventions
+  "PERF", # iterator performance
+  "PTH", # pathlib
+  "RUF010", # explicit-f-string-type-conversion
+  "RUF013", # implicit-optional
+  "S", # bandit
+  "UP", # python version conventions
+  "W" # pycodestyle warnings
+]
+
+[lint.flake8-bandit]
+check-typed-exception = true
+
+[lint.isort]
+case-sensitive = true
+detect-same-package = false
+lines-after-imports = 2
+no-lines-before = ["future", "standard-library"]
+
+[lint.mccabe]
+max-complexity = 20
+
+
+[lint.pycodestyle]
+max-doc-length = 180
+
+[lint.pydocstyle]
+convention = "numpy"
+
